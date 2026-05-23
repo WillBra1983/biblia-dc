@@ -1,21 +1,20 @@
 # Checklist — Bíblia DC na App Store (iOS)
 
-Documento de referência para a **cópia do projeto** dedicada à Apple (ex.: `Salvation-iOS` ou `Salvation-apple`).  
-**Não altere a pasta `Salvation` de produção/Android** até a versão iOS estar estável.
+Documento de referência para publicação na **App Store (iOS)**.
 
 ---
 
-## Estratégia de trabalho (recomendado)
+## Projeto principal
 
-| Pasta | Uso |
+| Local | Uso |
 |-------|-----|
-| `Salvation` (original) | Android, web, Play Store — **fonte da verdade** |
-| `Salvation-iOS` (cópia) | Capacitor iOS, Xcode, TestFlight, App Store |
+| **`C:\salvation`** | Android + iOS + web — **fonte da verdade** |
+| GitHub | [github.com/WillBra1983/biblia-dc](https://github.com/WillBra1983/biblia-dc) |
 
-- Copie a pasta inteira (incluindo `.env` local, se existir).
-- Use **outro branch Git** ou repositório, se preferir (`git worktree` também serve).
-- Commits iOS só na cópia/branch iOS; faça **merge seletivo** de correções de app (JS/React) de volta ao Android quando fizer sentido.
-- **Nunca** substitua `android/` nem `google-services.json` do Android por arquivos iOS por engano.
+Um único repositório Capacitor: pastas `android/` e `ios/` no mesmo projeto; `src/` compartilhado.
+
+- **Não** substitua `android/` nem `google-services.json` por arquivos só iOS.
+- `GoogleService-Info.plist` fica em `ios/App/App/` (não commitar em repo público se usar `.gitignore`).
 
 ---
 

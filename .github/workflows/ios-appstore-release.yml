@@ -1,5 +1,5 @@
-# Só roda quando você configurar segredos (DEPOIS dos US$ 99 + certificados).
-# Não falha o repositório se os segredos não existirem.
+# Manual only — DEPOIS dos US$ 99 + certificados Apple nos Secrets do GitHub.
+# Não roda no push; só: Actions → iOS App Store (quando pago) → Run workflow.
 
 name: iOS App Store (quando pago)
 
@@ -8,10 +8,20 @@ on:
 
 jobs:
   release:
-    if: ${{ secrets.APPLE_CERTIFICATE_BASE64 != '' && secrets.APPLE_PROVISION_PROFILE_BASE64 != '' }}
     runs-on: macos-14
     timeout-minutes: 60
     steps:
+      - name: Verificar segredos Apple
+        run: |
+          if [ -z "$APPLE_CERTIFICATE_BASE64" ]; then
+            echo "::error::Configure em Settings → Secrets → Actions:"
+            echo "  APPLE_CERTIFICATE_BASE64, APPLE_CERTIFICATE_PASSWORD,"
+            echo "  APPLE_PROVISION_PROFILE_BASE64, KEYCHAIN_PASSWORD"
+            exit 1
+          fi
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -21,7 +31,7 @@ jobs:
       - run: npm run ios:sync
       - working-directory: ios/App
         run: pod install
-      - name: Instalar certificado (configure segredos no GitHub)
+      - name: Instalar certificado
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
           P12_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -40,11 +50,8 @@ jobs:
           security list-keychain -d user -s $KEYCHAIN_PATH
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
-      - name: Archive (requer conta paga configurada)
+      - name: Archive
         working-directory: ios/App
         run: |
           xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
             -archivePath $RUNNER_TEMP/App.xcarchive archive
-      - name: Próximo passo manual
-        run: |
-          echo "Archive gerado. Para TestFlight, exporte o IPA e use altool/notarytool ou Xcode Organizer."

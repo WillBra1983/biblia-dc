@@ -1,0 +1,4 @@
+Total IDs original: 8674
+Entradas com pelo menos um campo PT aproveitado: 7679
+Entradas sem campo PT aproveitado (ficaram no original EN): 995
+Arquivo gerado: c:\Salvation\src\data\Strong_site_fusion_ptbr.xml

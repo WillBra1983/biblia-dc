@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Tema normal do app -->
+    <style name="Theme.BibliaDC" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- suas customizações habituais -->
+    </style>
+
+    <!-- Tema de splash para Android 12+ -->
+    <style name="Theme.BibliaDC.Splash" parent="Theme.SplashScreen">
+        <!-- fundo preto puro -->
+        <item name="android:windowSplashScreenBackground">@color/black</item>
+        <!-- ícone animado (ou estático) da splash -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash</item>
+        <!-- sem animação extra -->
+        <item name="android:windowSplashScreenAnimationDuration">0</item>
+        <!-- após o splash, volta para o tema normal -->
+        <item name="postSplashScreenTheme">@style/Theme.BibliaDC</item>
+    </style>
+
+</resources>

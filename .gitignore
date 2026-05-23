@@ -1,0 +1,40 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Node / Vite
+node_modules/
+dist/
+.cache/
+
+# Python venv local
+.venv/
+
+# Logs / crash dumps
+debug.log
+*.log
+android/hs_err_pid*.log
+
+# Keystore (não commitar)
+*.keystore
+salvation.keystore
+
+# Segredos locais (Firebase, etc.)
+.env
+.env.local
+.env.*.local
+
+# Firebase iOS (baixado do console; não commitar em repo público)
+ios/App/App/GoogleService-Info.plist

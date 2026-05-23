@@ -1,0 +1,316 @@
+{
+  "rules": {
+    "chats": {
+      "$chatId": {
+        ".write": "auth != null && !newData.exists() && data.exists() && data.child('participants').child(auth.uid).exists() && data.child('createdByFirstMessage').exists() && data.child('createdByFirstMessage').val() === auth.uid",
+        "createdByFirstMessage": {
+          ".read": "auth != null && root.child('chats').child($chatId).child('participants').child(auth.uid).exists()",
+          ".write": "auth != null && root.child('chats').child($chatId).child('participants').child(auth.uid).exists() && ((!data.exists() && newData.val() === auth.uid) || (data.exists() && newData.val() === data.val()))",
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0)"
+        },
+        "participants": {
+          "$uid": {
+            ".read": "auth != null",
+            ".write": "auth != null && root.child('users').child(auth.uid).child('profile').child('handle').exists() && root.child('users').child(auth.uid).child('profile').child('handle').isString() && root.child('users').child(auth.uid).child('profile').child('handle').val().length >= 3 && (auth.uid === $uid || (newData.val() === true && auth.uid !== $uid && $chatId === (auth.uid < $uid ? auth.uid + '_' + $uid : $uid + '_' + auth.uid)))",
+            ".validate": "!newData.exists() || newData.isBoolean()"
+          }
+        },
+        "messages": {
+          ".read": "auth != null && root.child('chats').child($chatId).child('participants').child(auth.uid).exists()",
+          ".indexOn": ["ts"],
+          "$msgId": {
+            ".write": "auth != null && root.child('chats').child($chatId).child('participants').child(auth.uid).exists() && ((!data.exists() && newData.exists() && newData.child('senderUid').val() === auth.uid && root.child('users').child(auth.uid).child('profile').child('handle').exists() && root.child('users').child(auth.uid).child('profile').child('handle').isString() && root.child('users').child(auth.uid).child('profile').child('handle').val().length >= 3) || (!newData.exists() && data.exists() && data.child('senderUid').val() === auth.uid))",
+            ".validate": "!newData.exists() || (newData.child('text').exists() && newData.child('text').isString() && newData.child('text').val().length <= 4000 && newData.child('senderUid').exists() && newData.child('senderUid').val() === auth.uid && (!newData.child('senderDisplayName').exists() || (newData.child('senderDisplayName').isString() && newData.child('senderDisplayName').val().length <= 200)) && (!newData.child('senderEmail').exists() || (newData.child('senderEmail').isString() && newData.child('senderEmail').val().length <= 320)) && (!newData.child('exportKind').exists() || (newData.child('exportKind').isString() && newData.child('exportKind').val().length <= 32)) && (!newData.child('exportPayload').exists() || (newData.child('exportPayload').isString() && newData.child('exportPayload').val().length <= 12000)))"
+          }
+        },
+        "unread": {
+          "$targetUid": {
+            ".read": "auth != null && root.child('chats').child($chatId).child('participants').child(auth.uid).exists()",
+            ".write": "auth != null && root.child('chats').child($chatId).child('participants').child(auth.uid).exists() && (auth.uid === $targetUid || (auth.uid !== $targetUid && root.child('users').child(auth.uid).child('profile').child('handle').exists() && root.child('users').child(auth.uid).child('profile').child('handle').isString() && root.child('users').child(auth.uid).child('profile').child('handle').val().length >= 3 && ((!data.exists() && newData.val() === 1) || (data.exists() && newData.val() == data.val() + 1))))",
+            ".validate": "newData.val() != null && newData.val() >= 0 && newData.val() <= 999"
+          }
+        }
+      }
+    },
+    "users": {
+      "$uid": {
+        "chatList": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$cid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || (root.child('users').child(auth.uid).child('profile').child('handle').exists() && root.child('users').child(auth.uid).child('profile').child('handle').isString() && root.child('users').child(auth.uid).child('profile').child('handle').val().length >= 3 && ((auth.uid === $uid && newData.exists() && newData.hasChildren(['peerUid', 'lastTs', 'preview'])) || (newData.exists() && newData.hasChildren(['peerUid', 'lastTs', 'preview']) && newData.child('peerUid').val() === auth.uid && $cid === (auth.uid < $uid ? auth.uid + '_' + $uid : $uid + '_' + auth.uid)) || (!newData.exists() && auth.uid !== $uid && $cid === (auth.uid < $uid ? auth.uid + '_' + $uid : $uid + '_' + auth.uid) && !root.child('chats').child($cid).exists()))))",
+            ".validate": "!newData.exists() || (newData.hasChildren(['peerUid', 'lastTs', 'preview']) && newData.child('peerUid').isString() && newData.child('lastTs').isNumber() && newData.child('preview').isString() && (!newData.child('unreadCount').exists() || (newData.child('unreadCount').val() >= 0 && newData.child('unreadCount').val() <= 999)) && (!newData.child('peerName').exists() || (newData.child('peerName').isString() && newData.child('peerName').val().length <= 120)) && (!newData.child('peerEmail').exists() || (newData.child('peerEmail').isString() && newData.child('peerEmail').val().length <= 320)))"
+          }
+        },
+        "hiddenChats": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$hcid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && (auth.uid === $uid || (!newData.exists() && auth.uid !== $uid && $hcid === (auth.uid < $uid ? auth.uid + '_' + $uid : $uid + '_' + auth.uid)))",
+            ".validate": "!newData.exists() || newData.val() === true"
+          }
+        },
+        "hiddenChatMessages": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$cid": {
+            "$mid": {
+              ".write": "auth != null && auth.uid === $uid",
+              ".validate": "!newData.exists() || newData.val() === true"
+            }
+          }
+        },
+        "profile": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true"
+        },
+        "favorites": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$peerUid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && auth.uid === $uid && $peerUid !== auth.uid",
+            ".validate": "!newData.exists() || newData.hasChildren(['addedAt'])"
+          }
+        },
+        "recentPeople": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$peerUid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && auth.uid === $uid && $peerUid !== auth.uid",
+            ".validate": "!newData.exists() || (newData.child('addedAt').isNumber() && (!newData.child('handle').exists() || (newData.child('handle').isString() && newData.child('handle').val().length <= 80)) && (!newData.child('displayName').exists() || (newData.child('displayName').isString() && newData.child('displayName').val().length <= 200)) && (!newData.child('photoURL').exists() || (newData.child('photoURL').isString() && newData.child('photoURL').val().length <= 600)) && (!newData.child('email').exists() || (newData.child('email').isString() && newData.child('email').val().length <= 320)) && (!newData.child('city').exists() || (newData.child('city').isString() && newData.child('city').val().length <= 120)) && (!newData.child('professionOrStudy').exists() || (newData.child('professionOrStudy').isString() && newData.child('professionOrStudy').val().length <= 120)) && (!newData.child('church').exists() || (newData.child('church').isString() && newData.child('church').val().length <= 120)))"
+          }
+        },
+        "friendRequestsIn": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$fromUid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && ((auth.uid === $fromUid && (!data.exists() || !newData.exists())) || (auth.uid === $uid && !newData.exists()))",
+            ".validate": "!newData.exists() || (newData.hasChildren(['createdAt']) && auth.uid === $fromUid)"
+          }
+        },
+        "friendRequestsOut": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$toUid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && (auth.uid === $uid || (auth.uid === $toUid && !newData.exists() && root.child('users').child($toUid).child('friendRequestsIn').child($uid).exists()))",
+            ".validate": "!newData.exists() || newData.hasChildren(['createdAt'])"
+          }
+        },
+        "friends": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$peerUid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && (auth.uid === $uid || (auth.uid === $peerUid && root.child('users').child($peerUid).child('friendRequestsIn').child($uid).exists()))",
+            ".validate": "!newData.exists() || newData.hasChildren(['since'])"
+          }
+        },
+        "estudosBiblicosMeus": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$studyId": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && auth.uid === $uid && (!newData.exists() || root.child('bibliaEstudos').child($studyId).child('authorUid').val() === auth.uid)",
+            ".validate": "!newData.exists() || (newData.hasChildren(['tema', 'updatedAt']) && newData.child('tema').isString() && newData.child('tema').val().length <= 400 && newData.child('updatedAt').isNumber() && (!newData.child('referenciaCompacta').exists() || (newData.child('referenciaCompacta').isString() && newData.child('referenciaCompacta').val().length <= 120)) && (!newData.child('moduleId').exists() || (newData.child('moduleId').isString() && newData.child('moduleId').val().length <= 80)) && (!newData.child('publico').exists() || newData.child('publico').isBoolean()))"
+          }
+        },
+        "estudosBiblicosModulos": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$modId": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "!newData.exists() || (newData.hasChildren(['nome','updatedAt']) && newData.child('nome').isString() && newData.child('nome').val().length > 0 && newData.child('nome').val().length <= 200 && newData.child('updatedAt').isNumber())"
+          }
+        },
+        "estudosBiblicosSalvos": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$studyId": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "!newData.exists() || (newData.hasChildren(['tema', 'savedAt']) && newData.child('tema').isString() && newData.child('tema').val().length <= 400 && newData.child('savedAt').isNumber() && (!newData.child('referenciaCompacta').exists() || (newData.child('referenciaCompacta').isString() && newData.child('referenciaCompacta').val().length <= 120)) && (!newData.child('authorName').exists() || (newData.child('authorName').isString() && newData.child('authorName').val().length <= 120)))"
+          }
+        },
+        "appPrefs": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+          ".validate": "newData.hasChildren(['updatedAt']) && newData.child('updatedAt').isNumber() && (!newData.child('darkMode').exists() || newData.child('darkMode').isBoolean())"
+        },
+        "versiculosMarcados": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+          ".validate": "newData.child('updatedAt').isNumber() && (!newData.child('marcados').exists() || (!newData.child('marcados').isString() && !newData.child('marcados').isNumber() && !newData.child('marcados').isBoolean())) && (!newData.child('deletes').exists() || (!newData.child('deletes').isString() && !newData.child('deletes').isNumber() && !newData.child('deletes').isBoolean()))"
+        },
+        "planoLeitura": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['updatedAt', 'estado']) && newData.child('updatedAt').isNumber() && newData.child('estado').exists()"
+        },
+        "quizRetiro": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+          "progress": {
+            ".validate": "!newData.exists() || (newData.child('updatedAt').isNumber() && newData.child('fase').isNumber() && newData.child('fase').val() >= 1 && newData.child('fase').val() <= 3 && newData.child('atual').isNumber() && newData.child('atual').val() >= 0 && newData.child('totalPontos').isNumber() && newData.child('totalPontos').val() >= 0 && newData.child('sequencia').isNumber() && newData.child('sequencia').val() >= 0)"
+          },
+          "ultimaRodada": {
+            ".validate": "!newData.exists() || (newData.child('pontos').isNumber() && newData.child('pontos').val() >= 0 && newData.child('acertos').isNumber() && newData.child('acertos').val() >= 0 && newData.child('perguntasRespondidas').isNumber() && newData.child('perguntasRespondidas').val() >= 0 && newData.child('totalPerguntas').isNumber() && newData.child('totalPerguntas').val() >= 1 && newData.child('updatedAt').isNumber())"
+          },
+          "melhorRodada": {
+            ".validate": "!newData.exists() || (newData.child('pontos').isNumber() && newData.child('pontos').val() >= 0 && newData.child('acertos').isNumber() && newData.child('acertos').val() >= 0 && newData.child('perguntasRespondidas').isNumber() && newData.child('perguntasRespondidas').val() >= 0 && newData.child('totalPerguntas').isNumber() && newData.child('totalPerguntas').val() >= 1 && newData.child('updatedAt').isNumber())"
+          }
+        },
+        "fcmTokens": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$tokenKey": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "!newData.exists() || (newData.child('token').isString() && newData.child('token').val().length > 16 && newData.child('token').val().length <= 4096 && newData.child('plataforma').isString() && newData.child('plataforma').val().length <= 16 && (!newData.child('userAgent').exists() || (newData.child('userAgent').isString() && newData.child('userAgent').val().length <= 400)) && newData.child('criadoEm').exists())"
+          }
+        },
+        "notif": {
+          ".read": "auth != null && auth.uid === $uid",
+          "preferencias": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.hasChildren() && (!newData.child('chat').exists() || newData.child('chat').isBoolean()) && (!newData.child('novidades').exists() || newData.child('novidades').isBoolean()) && (!newData.child('lembreteDevocional').exists() || newData.child('lembreteDevocional').isBoolean()) && (!newData.child('lembretePlano').exists() || newData.child('lembretePlano').isBoolean()) && (!newData.child('horarioLembrete').exists() || (newData.child('horarioLembrete').isString() && newData.child('horarioLembrete').val().length <= 5))"
+          }
+        },
+        "admin": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": false
+        }
+      }
+    },
+    "publicHandles": {
+      ".read": "auth != null",
+      "$handle": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.token.email_verified == true && (!data.exists() || data.val() === auth.uid) && (!newData.exists() || newData.val() === auth.uid)"
+      }
+    },
+    "profileEmails": {
+      ".read": "auth != null",
+      ".indexOn": [".key"],
+      "$encodedEmail": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.token.email_verified == true && (!data.exists() || data.val() === auth.uid) && (!newData.exists() || newData.val() === auth.uid)"
+      }
+    },
+    "userSearch": {
+      ".read": "auth != null",
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+        ".validate": "!newData.exists() || ((!newData.child('email').exists() || (newData.child('email').isString() && newData.child('email').val().length <= 320)) && (!newData.child('displayName').exists() || (newData.child('displayName').isString() && newData.child('displayName').val().length <= 200)) && (!newData.child('handle').exists() || (newData.child('handle').isString() && newData.child('handle').val().length <= 30)))"
+      }
+    },
+    "planoLeituraRanking": {
+      ".read": "auth != null",
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+        ".validate": "!newData.exists() || (newData.child('displayName').isString() && newData.child('displayName').val().length <= 80 && newData.child('capitulosLidos').isNumber() && newData.child('capitulosLidos').val() >= 0 && newData.child('progressoPct').isNumber() && newData.child('updatedAt').isNumber() && newData.child('planoId').isString() && newData.child('planoId').val() === 'biblia' && (!newData.child('photoURL').exists() || (newData.child('photoURL').isString() && newData.child('photoURL').val().length <= 600)) && (!newData.child('handle').exists() || (newData.child('handle').isString() && newData.child('handle').val().length <= 30)))"
+      }
+    },
+    "pendingEmailSignups": {
+      ".read": false,
+      ".write": false
+    },
+    "quizBiblicoRanking": {
+      ".read": "auth != null",
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+        ".validate": "!newData.exists() || (newData.child('displayName').isString() && newData.child('displayName').val().length <= 80 && newData.child('pontos').isNumber() && newData.child('pontos').val() >= 0 && newData.child('acertos').isNumber() && newData.child('acertos').val() >= 0 && newData.child('totalPerguntas').isNumber() && newData.child('totalPerguntas').val() >= 1 && newData.child('updatedAt').isNumber() && (!newData.child('perguntasRespondidas').exists() || (newData.child('perguntasRespondidas').isNumber() && newData.child('perguntasRespondidas').val() >= 0)) && (!newData.child('photoURL').exists() || (newData.child('photoURL').isString() && newData.child('photoURL').val().length <= 600)) && (!newData.child('handle').exists() || (newData.child('handle').isString() && newData.child('handle').val().length <= 30)))"
+      }
+    },
+    "bibliaEstudos": {
+      ".read": "auth != null",
+      ".indexOn": ["publico"],
+      "$studyId": {
+        ".read": "auth != null",
+        ".write": "auth != null && ((!data.exists() && newData.hasChildren(['authorUid','tema','createdAt']) && newData.child('authorUid').val() === auth.uid && newData.child('tema').isString() && newData.child('tema').val().length <= 400 && newData.child('introducao').isString() && newData.child('introducao').val().length <= 12000 && (!newData.child('citacoes').exists() || (newData.child('citacoes').isString() && newData.child('citacoes').val().length <= 12000)) && newData.child('createdAt').isNumber() && (!newData.child('readsCount').exists() || (newData.child('readsCount').isNumber() && newData.child('readsCount').val() === 0)) && (!newData.child('savesCount').exists() || (newData.child('savesCount').isNumber() && newData.child('savesCount').val() === 0))) || (data.exists() && data.child('authorUid').val() === auth.uid && (!newData.exists() || newData.child('authorUid').val() === data.child('authorUid').val())) || (data.exists() && root.child('users').child(auth.uid).child('admin').val() === true && data.child('kind').val() === 'strongResumo' && newData.child('kind').val() === 'strongResumo' && newData.child('authorUid').val() === data.child('authorUid').val() && newData.child('resumo').isString() && newData.child('resumo').val().length <= 12000 && newData.child('introducao').isString() && newData.child('introducao').val().length <= 12000 && newData.child('updatedAt').isNumber()))",
+        "readers": {
+          "$readerUid": {
+            ".read": "auth != null",
+            ".write": "auth != null && auth.uid === $readerUid && !data.exists() && newData.isNumber()"
+          }
+        },
+        "savers": {
+          "$saverUid": {
+            ".read": "auth != null",
+            ".write": "auth != null && auth.uid === $saverUid && ((!data.exists() && newData.isNumber()) || (data.exists() && !newData.exists()))"
+          }
+        },
+        "readsCount": {
+          ".write": "auth != null && ((!data.exists() && newData.isNumber() && newData.val() === 0) || (data.exists() && newData.isNumber() && data.isNumber() && newData.val() === data.val() + 1))"
+        },
+        "savesCount": {
+          ".write": "auth != null && ((!data.exists() && newData.isNumber() && newData.val() === 0) || (data.exists() && newData.isNumber() && data.isNumber() && (newData.val() === data.val() + 1 || (newData.val() === data.val() - 1 && newData.val() >= 0))))"
+        }
+      }
+    },
+    "bibliaEstudosProvaSessoes": {
+      ".read": false,
+      ".write": false
+    },
+    "bibliaEstudosProvaEntregas": {
+      "$id": {
+        ".read": "auth != null && data.exists() && (data.child('professorUid').val() === auth.uid || data.child('alunoUid').val() === auth.uid)",
+        ".write": "auth != null && !data.exists() && newData.child('alunoUid').val() === auth.uid && newData.child('professorUid').isString() && newData.child('studyId').isString() && newData.child('tema').isString() && newData.hasChildren(['itens','createdAt','pontuacaoObtida','pontuacaoMax']) && newData.child('createdAt').isNumber() && newData.child('pontuacaoObtida').isNumber() && newData.child('pontuacaoMax').isNumber() && newData.child('resultUrl').isString()"
+      }
+    },
+    "estudosCurados": {
+      ".read": "auth != null",
+      "$passagemKey": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true && (!newData.exists() || newData.hasChildren(['texto','atualizadoEm','autorUid']))",
+        ".validate": "!newData.exists() || (newData.child('texto').isString() && newData.child('texto').val().length > 0 && newData.child('texto').val().length <= 32000 && newData.child('atualizadoEm').isNumber() && newData.child('autorUid').isString() && (!newData.child('pericopeKey').exists() || newData.child('pericopeKey').val() === null || newData.child('pericopeKey').isString()) && (!newData.child('referenciaCompacta').exists() || (newData.child('referenciaCompacta').isString() && newData.child('referenciaCompacta').val().length <= 120)) && (!newData.child('versao').exists() || newData.child('versao').isNumber()))"
+      }
+    },
+    "pericopesCuradas": {
+      ".read": "auth != null",
+      "$pericopeKey": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true && (!newData.exists() || newData.hasChildren(['texto','atualizadoEm','autorUid']))",
+        ".validate": "!newData.exists() || (newData.child('texto').isString() && newData.child('texto').val().length > 0 && newData.child('texto').val().length <= 32000 && newData.child('atualizadoEm').isNumber() && newData.child('autorUid').isString() && (!newData.child('titulo').exists() || (newData.child('titulo').isString() && newData.child('titulo').val().length <= 200)) && (!newData.child('referencia').exists() || (newData.child('referencia').isString() && newData.child('referencia').val().length <= 120)) && (!newData.child('versao').exists() || newData.child('versao').isNumber()))"
+      }
+    },
+    "estudosCandidatos": {
+      ".read": "auth != null",
+      "$passagemKey": {
+        ".read": "auth != null",
+        ".write": "auth != null && ((!data.exists() && newData.exists()) || (data.exists() && !newData.exists() && root.child('users').child(auth.uid).child('admin').val() === true) || (data.exists() && newData.exists() && root.child('users').child(auth.uid).child('admin').val() === true))",
+        ".validate": "!newData.exists() || (newData.child('texto').isString() && newData.child('texto').val().length > 0 && newData.child('texto').val().length <= 32000 && newData.child('atualizadoEm').isNumber() && newData.child('autorUid').isString() && newData.child('autorUid').val() === auth.uid && (!newData.child('pericopeKey').exists() || newData.child('pericopeKey').val() === null || newData.child('pericopeKey').isString()) && (!newData.child('referenciaCompacta').exists() || (newData.child('referenciaCompacta').isString() && newData.child('referenciaCompacta').val().length <= 120)))"
+      }
+    },
+    "pericopesCandidatas": {
+      ".read": "auth != null",
+      "$pericopeKey": {
+        ".read": "auth != null",
+        ".write": "auth != null && ((!data.exists() && newData.exists()) || (data.exists() && !newData.exists() && root.child('users').child(auth.uid).child('admin').val() === true) || (data.exists() && newData.exists() && root.child('users').child(auth.uid).child('admin').val() === true))",
+        ".validate": "!newData.exists() || (newData.child('texto').isString() && newData.child('texto').val().length > 0 && newData.child('texto').val().length <= 32000 && newData.child('atualizadoEm').isNumber() && newData.child('autorUid').isString() && newData.child('autorUid').val() === auth.uid && (!newData.child('titulo').exists() || (newData.child('titulo').isString() && newData.child('titulo').val().length <= 200)) && (!newData.child('referencia').exists() || (newData.child('referencia').isString() && newData.child('referencia').val().length <= 120)))"
+      }
+    },
+    "votosEstudos": {
+      "$estudoKey": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true && !newData.exists()",
+        "$uid": {
+          ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('admin').val() === true)",
+          ".write": "auth != null && (auth.uid === $uid || (root.child('users').child(auth.uid).child('admin').val() === true && !newData.exists()))",
+          ".validate": "!newData.exists() || (newData.child('voto').isString() && (newData.child('voto').val() === 'positivo' || newData.child('voto').val() === 'negativo') && newData.child('criadoEm').isNumber())"
+        }
+      }
+    },
+    "feedbackEstudos": {
+      "$estudoKey": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
+        "$uid": {
+          ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('admin').val() === true)",
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "!newData.exists() || (newData.child('criadoEm').isNumber() && (!newData.child('motivo').exists() || (newData.child('motivo').isString() && newData.child('motivo').val().length <= 400)))"
+        }
+      }
+    },
+    "adminMetrics": {
+      "sectionViews": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
+        ".write": false
+      }
+    }
+  }
+}

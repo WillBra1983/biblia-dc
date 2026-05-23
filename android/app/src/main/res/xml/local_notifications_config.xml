@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<local-notifications>
+    <channel id="devocional" name="Devocional Diário" description="Lembretes para devocional diário" importance="high" visibility="public" sound="default" vibration="true" />
+</local-notifications> 

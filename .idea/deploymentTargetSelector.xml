@@ -1,0 +1,10 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<project version="2">
+  <component name="deploymentTargetSelector">
+    <selectionStates>
+      <SelectionState runConfigName="app">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+    </selectionStates>
+  </component>
+</project>

@@ -1,0 +1,13 @@
+Arquivo fonte: C:\Salvation\public\bdb_content_text_translate.docx
+Linhas lidas: 11845
+Linhas com sufixo de status removido: 7261
+Marcadores de ingles (antes): 49
+Marcadores de ingles (depois): 49
+Arquivo limpo: C:\Salvation\src\data\bdb_content_text_ptbr_clean.txt
+
+Amostra (primeiras 5 linhas):
+1. א Āleph, primeira letra; no hebraico pós-B = numeral 1 (e assim na margem do MT impresso); אֿ = 1000; nenhuma evidência desse uso nos tempos do AT.
+2. אָב v. II. אבה.
+3. אבב (fresco, brilhante, As. abâbu Dlw, AGl.)
+4. [ אֵב ] n.[m.] frescor, verde fresco (Lag BN 207 inf. ibb; daí concr., cf. Ar. Árabe; acima do caule & mng. melhor que √ אנב (primavera) cf. As. inbu, fruta, Aram. אִנְבֵּהּ (qv) Dl HA 65, Pr 114) עֹדֶנּוּ בְאִבּוֹ enquanto estiver fresco (ou seja, אָחוּ, junco) Jb 8:12; concr., pl. brotos verdes בְּאִבֵּי הַנַּחַל Ct 6:11 (∥ הֲפָֽרְחָה הַגֶּפֶן הֵנֵצוּ הָרִמֹּנִֽים׃).
+5. אָבִיב nm Lv 2:14 col. (Lag BN 207 Inf.) espigas de cevada frescas e jovens Ex 9:31; indefinido. Lv 2:14 מִנְחַת בִּכּוּרִים לַיהוָה א׳ קָלוּי בָּאֵשׁ. חֹדֶשׁ הָֽאָבִֽיב mês de formação de espigas, ou de crescimento verde, Abib, mês de Êxodo e Páscoa, Êx 13:4 23:15 34:18, 18 (JE), Dt 16:1, 1 (1º mês = c. Abril = הָרִאשֹׁן, הַחֹדֶשׁ הָר׳ (qv) em P; v. Dt Êx 12:2; = pós-exílico נִיסָן qv)

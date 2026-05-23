@@ -1,0 +1,36 @@
+# Gera hinario_cifrado.db com mapeamento numero do hino -> pagina (inteiro) no PDF unificado.
+# O app (pdfService.js) usa pdf_page como NUMERO DA PAGINA no hinario-com-cifras.pdf, nao BLOB.
+
+import sqlite3
+from PyPDF2 import PdfReader
+
+db_name = "hinario_cifrado.db"
+pdf_path = "hinario-com-cifras.pdf"
+
+conn = sqlite3.connect(db_name)
+cursor = conn.cursor()
+
+cursor.execute("DROP TABLE IF EXISTS hinos_cifrados")
+cursor.execute("""
+CREATE TABLE hinos_cifrados (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    numero INTEGER NOT NULL,
+    titulo TEXT NOT NULL,
+    pdf_page INTEGER NOT NULL
+)
+""")
+
+reader = PdfReader(pdf_path)
+for i, _page in enumerate(reader.pages, start=1):
+    titulo = f"Hino {i}"
+    cursor.execute(
+        """
+        INSERT INTO hinos_cifrados (numero, titulo, pdf_page)
+        VALUES (?, ?, ?)
+        """,
+        (i, titulo, i),
+    )
+
+conn.commit()
+conn.close()
+print("OK:", len(reader.pages), "hinos; pdf_page = numero da pagina no PDF.")

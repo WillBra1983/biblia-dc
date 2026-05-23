@@ -1,0 +1,24 @@
+DB: C:\Salvation\public\stepbible_lexicon.sqlite
+Arquivos TXT lidos: 10
+ - C:\Salvation\public\Stepbible_lexicon_pt-1.txt
+ - C:\Salvation\public\Stepbible_lexicon_pt-2.txt
+ - C:\Salvation\public\Stepbible_lexicon_pt-3.txt
+ - C:\Salvation\public\Stepbible_lexicon_pt-4.txt
+ - C:\Salvation\public\Stepbible_lexicon_pt-5.txt
+ - C:\Salvation\public\Stepbible_lexicon_pt-6.txt
+ - C:\Salvation\public\Stepbible_lexicon_pt-7.txt
+ - C:\Salvation\public\Stepbible_lexicon_pt-8.txt
+ - C:\Salvation\public\Stepbible_lexicon_pt-9.txt
+ - C:\Salvation\public\Stepbible_lexicon_pt-10.txt
+Linhas PT lidas: 329196
+Entradas com definition_clean no banco: 25715
+Atualizadas em definition_clean_pt: 25715
+Sobras no TXT: 303481
+Entradas sem PT (se banco maior): 0
+
+Amostra (EN -> PT):
+1: 1) father of an individual 2) of God as father of his people 3) head or founder of a household, group, family, or clan 4 -> ﻿----------------------- Page 1-----------------------
+7: 1) to perish, vanish 1a) (P'al) shall perish 1b) (Aphel) destroy 1c) (Hophal) be destroyed -> 1)  pai  de  um  indivíduo  2)  de  Deus  como  pai  de  seu  povo  3)  chefe  ou  fundador  de  uma  casa,  grupo,  fam
+11: Abaddon, a place of destruction, destruction, ruin -> avô,  antepassados  -  de  pessoa  4b)  de  pessoas  5)  originador  ou  patrono  de  uma  classe,  profissão  ou  arte 
+15: entreat, longing, desire -> gerador  (fig.)  7)  de  benevolência  e  proteção  (fig.)  8)  termo  de  respeito  e  honra  9)  governante  ou  chefe
+19: slaughter, flesh, meat, slaughtered meat -> (ÿ  ÿÿ  pai  H0002)

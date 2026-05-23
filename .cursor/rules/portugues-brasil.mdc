@@ -1,0 +1,11 @@
+---
+description: 
+alwaysApply: true
+---
+
+# Português na conversa com o utilizador
+
+- Responde **sempre em português do Brasil (pt-BR)**.
+- **Não** uses português de Portugal: vocabulário, ortografia ou construções típicas de pt-PT (ex.: tratamento «tu», «telemóvel», «ordenador», «guardar» onde no Brasil se diria «celular», «computador», «salvar» conforme o contexto, etc.).
+- Preferir **acentuação e formas** usuais no Brasil (ex.: «você», «conexão», «aplicativo»).
+- Comentários em código e mensagens de UI para utilizadores finais: alinhar ao **pt-BR** do projeto, salvo quando o ficheiro já estiver noutra norma por decisão explícita.

@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.bibliadc.app",
+      "sha256_cert_fingerprints": [
+        "68:F0:29:33:F0:65:FD:DA:3C:E5:36:6B:62:A4:EE:F9:C4:C9:D4:5C:83:C1:A7:59:B6:E5:E1:C7:4E:1D:EC:E7",
+        "D7:8F:18:69:69:9B:D2:F7:71:0B:42:CB:32:E0:73:82:D0:4C:59:19:A5:51:76:68:0C:EF:65:13:5B:D5:97:6B"
+      ]
+    }
+  }
+]

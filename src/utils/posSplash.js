@@ -1,0 +1,130 @@
+/**
+ * Coordenação de tarefas pesadas que NÃO devem competir com a abertura do app.
+ *
+ * Fluxo:
+ *   - `SplashScreen` despacha `app-splash-fechado` após desaparecer de verdade.
+ *   - Subscrições do RTDB, prefetch de rotas e `getRedirectResult` esperam esse
+ *     evento (ou um fallback de tempo) — assim o primeiro paint do capítulo
+ *     bíblico não fica disputando CPU/rede com sincronizações de nuvem.
+ *
+ * Por que `setTimeout` apenas não basta:
+ *   - Em contas com muito conteúdo (chat com várias conversas, marcadores,
+ *     planos de leitura sincronizados), as subscrições RTDB disparam vários
+ *     callbacks `onValue` em sequência. Cada um faz `JSON.parse`/`setState` que
+ *     bloqueia ~50–150 ms. Se isso acontece durante a animação do splash, a
+ *     transição parece travada. Aguardar o splash realmente sumir resolve o
+ *     contention sem prejudicar a sincronização.
+ */
+
+let splashJaFechado = false
+/** UI do splash React já concluiu nesta sessão (evita repetir ao remontar AppShell). */
+let splashUiConcluido = false
+/** `biblia-pronta` já foi sinalizado (listener do splash pode montar depois). */
+let bibliaProntaDisparado = false
+
+function jaFechado() {
+  return splashJaFechado
+}
+
+export function splashUiJaConcluiu() {
+  return splashUiConcluido
+}
+
+export function marcarSplashUiConcluido() {
+  splashUiConcluido = true
+}
+
+export function bibliaJaEstaPronta() {
+  return bibliaProntaDisparado
+}
+
+/** Dispara `biblia-pronta` no máximo uma vez por sessão de abertura. */
+export function notificarBibliaPronta() {
+  if (typeof window === 'undefined') return
+  if (bibliaProntaDisparado) return
+  bibliaProntaDisparado = true
+  try {
+    window.dispatchEvent(new Event('biblia-pronta'))
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Remove splash estático do `index.html` (se ainda existir antes do React pintar). */
+export function removerSplashHtmlInicial() {
+  if (typeof document === 'undefined') return
+  try {
+    document.getElementById('splash-initial')?.remove()
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Marca o splash como fechado e dispara o evento global. Chamado pelo splash.
+ */
+export function marcarSplashFechado() {
+  if (splashJaFechado) return
+  splashJaFechado = true
+  marcarSplashUiConcluido()
+  removerSplashHtmlInicial()
+  if (typeof window !== 'undefined') {
+    try {
+      window.dispatchEvent(new Event('app-splash-fechado'))
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+/**
+ * Executa `cb` assim que o splash terminar de fechar. Se já fechou, executa
+ * em `queueMicrotask` para não rodar dentro do `useEffect` do chamador.
+ *
+ * Retorna função para cancelar (não dispara mais).
+ *
+ * Fallback de segurança: chama `cb` após `fallbackMs` (default 3500 ms) mesmo
+ * sem evento — protege contra erros que impedem o splash de fechar.
+ *
+ * @param {() => void} cb
+ * @param {{ fallbackMs?: number }} [opts]
+ */
+export function aguardarPosSplash(cb, opts = {}) {
+  if (typeof window === 'undefined') return () => {}
+  const fallbackMs = Number.isFinite(opts.fallbackMs) ? opts.fallbackMs : 3500
+  if (jaFechado()) {
+    let cancelled = false
+    queueMicrotask(() => {
+      if (!cancelled) cb()
+    })
+    return () => {
+      cancelled = true
+    }
+  }
+  let cancelled = false
+  let timeoutId = 0
+  const run = () => {
+    if (cancelled) return
+    cancelled = true
+    window.removeEventListener('app-splash-fechado', run)
+    window.clearTimeout(timeoutId)
+    try {
+      cb()
+    } catch (e) {
+      console.error('[posSplash] erro no callback:', e)
+    }
+  }
+  window.addEventListener('app-splash-fechado', run, { once: true })
+  timeoutId = window.setTimeout(run, fallbackMs)
+  return () => {
+    if (cancelled) return
+    cancelled = true
+    window.removeEventListener('app-splash-fechado', run)
+    window.clearTimeout(timeoutId)
+  }
+}
+
+/** Útil em testes / cenários onde o splash nunca abre (ex.: ambiente embutido). */
+export function jaPassouDoSplash() {
+  return splashJaFechado
+}

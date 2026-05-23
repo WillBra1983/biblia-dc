@@ -1,0 +1,11 @@
+Base antiga: lexicon_ptbr_docxmerge_1777375717.sqlite
+Base nova: lexicon_ptbr_docxmerge_1777376003.sqlite
+Rows StrongSQL: 14180
+Rows Translate: 14180
+Rows usadas no merge: 14180
+Codigos mapeados (Strong_Abas): 14180
+Regra aplicada: 1..999 = StrongSQL; 1000..fim = Translate
+Usou StrongSQL (linhas iniciais): 999
+Usou Translate (demais linhas): 13181
+Linhas sem alteracao vs base antiga: 11331
+Rows nao cobertas: 0 (merge por codigo)

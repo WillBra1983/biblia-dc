@@ -1,0 +1,14 @@
+DB: C:\Salvation\public\ot_strong.sqlite
+TXT: C:\Salvation\src\data\bdb_content_text_ptbr_clean.txt
+Linhas PT limpas: 11845
+Entradas BDB no banco: 11845
+Atualizadas: 11845
+Sobras no TXT: 0
+Entradas sem PT (se banco maior): 0
+
+Amostra:
+a.aa.aa: א Āleph, primeira letra; no hebraico pós-B = numeral 1 (e assim na margem do MT impresso); אֿ = 1000; nenhuma evidência desse uso nos tempos do AT.
+a.aa.ab: אָב v. II. אבה.
+a.ab.aa: אבב (fresco, brilhante, As. abâbu Dlw, AGl.)
+a.ab.ab: [ אֵב ] n.[m.] frescor, verde fresco (Lag BN 207 inf. ibb; daí concr., cf. Ar. Árabe; acima do caule & mng. melhor que √ אנב (primavera) cf. As. inbu, fruta, Ar
+a.ab.ac: אָבִיב nm Lv 2:14 col. (Lag BN 207 Inf.) espigas de cevada frescas e jovens Ex 9:31; indefinido. Lv 2:14 מִנְחַת בִּכּוּרִים לַיהוָה א׳ קָלוּי בָּאֵשׁ. חֹדֶשׁ ה

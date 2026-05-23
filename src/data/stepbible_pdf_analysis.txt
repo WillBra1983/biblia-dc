@@ -1,0 +1,106 @@
+=== Stepbible PDF analysis ===
+SQLite definition_clean nao vazio: 25715
+
+--- EN (Desktop): Stepbible_lexicon_pt.pdf ---
+Paginas: 2872
+  Pagina 1: chars=1806, linhas (apos strip Google)=46
+    | 1) father of an individual 2) of God as father of his people 3) head or founder of a household, group,
+    | family, or clan 4) ancestor 4a) grandfather, forefathers
+    | -
+    | of person 4b) of people 5) originator or
+    | patron of a class, profession, or art 6) of producer,
+    | generator (ﬁg.) 7) of benevolence and protection
+    | (ﬁg.) 8) term of respect and honour 9) ruler or chief (spec.) Also means: av (
+    | אַב
+    | father H0002)
+    | father Aramaic of av (
+    | אָב
+    | father H0001)
+    | freshness, fresh green, green shoots, or greenery Aramaic equivalent: ev (
+    | אֵב
+    | fruit H0004)
+  Pagina 2: chars=2807, linhas (apos strip Google)=47
+    | A woman living at the time of Divided Monarchy, ﬁrst mentioned at 2Ki.18.2; daughter of: Zechariah
+    | (H2148C); married to Ahaz (H0271); mother of: Hezekiah (H2396); also called Abijah at 2Ch.29.1;
+    | Also named: a.viy.yah (
+    | אֲבִיָּה
+    | Abijah H0029N) § Abi = my father mother of Hezekiah (cf H029)
+    | Abiel = El (God) is (my) father Saul's grandfather, a man of the tribe of Benjamin living at the time of
+    | United Monarchy, ﬁrst mentioned at 1Sa.9.1; son of: Zeror (H6872C); married to Maacah (H4601N);
+    | father of: Kish (H7027), Ner (H5369), Abdon (H5658J),
+    | Zur (H6698I), Baal (H1168B), Nadab
+    | (H5070J), Gedor (H1446I), Ahio (H0283I), Zecher (H2144) and Mikloth (H4732); also called Jeiel
+    | (Ketiv: Jeuel; KJV: Jehiel) at 1Ch.9.35; Ner at 1Ch.8.33; 9.39;
+    | A man of the tribe of Levi living at the time of Egypt and Wilderness, ﬁrst mentioned at Exo.6.24;
+    | son of: Korah (H7141I); brother of: Assir (H0617) and Elkanah (H0511); father of: Assir (H0617H)
+    | and Kore (H6981); also called Abiasaph at Exo.6.24; Asaph a
+    | t 1Ch.26.1; Another name of
+  Pagina 3: chars=3065, linhas (apos strip Google)=52
+    | Uzzi (H5813I), Uzziel (H5816I), Jerimoth (H3406), Iri (H5901), Addar (H0146H), Gera (H1617I),
+    | Abishua (H0050H) and Ahoah (H0265) § Abihud = my father is majesty son of Bela, a Benjamite
+    | A man living at the time of Egypt and Wilderness, only mentioned at Num.3.35; father of: Zuriel
+    | (H6700) § Abihail = my father is might 1) a Levite in Moses's time 2) a Gadite 3) father of Esther 4)
+    | wife of Abishur 5) wife of Rehoboam
+    | Someone descended from Abiezer, a man of the tribe of Manasseh living at the time of Egypt and
+    | Wilderness, ﬁrst mentioned at Num.26.30; son of: Gilead (H1568H); brother of: Helek (H2507),
+    | Asriel (H0844), Shechem (H7928), Shemida (H8061) and Hepher (H2660A
+    | ); also called Iezer (KJV:
+    | Jeezer) at Num.26.30; Group of a.vi.e.zer (
+    | אֲבִיﬠֶ֫זֶר
+    | Abiezer H0044I) § Abiezrite = my father is help one
+    | of the family of Abiezer, a descendant of Joseph's son, Manasseh
+    | 1) in want, needy, chieﬂy poor, needy person 2) subject to oppression and abuse 3) needing help,
+    | deliverance from trouble, especially as delivered by God 4) general reference to lowest class
+
+--- PT parte 1 (Downloads): Stepbible_lexicon_pt-1 (1).pdf ---
+Paginas: 290
+  Pagina 1: chars=2038, linhas (apos strip Google)=28
+    | fruta,  fresca,  jovem,  verdejante  Aramaico  de  ev  ( ÿ  ÿÿ  verdura  H0003)
+    | pai  Aramaico  de  av  (ÿ  ÿÿ  pai  H0001)
+    | destruição
+    | melancia,  fruta  egípcia
+    | 1)  perecer,  desaparecer  1a)  (P'al)  perecerá  1b)  (Aphel)  destruir  1c)  (Hophal)  ser  destruído
+    | destruição
+    | Abaddon,  um  lugar  de  destruição,  destruição,  ruína
+    | um  perecendo
+    | cana,  papiro
+    | Equivalente  aramaico:  a.vad  (ÿ  ÿÿÿÿ  destruir  H0007)
+    | Oh!,  Ai!,  (exclamação  de  dor  -  indica  desejo  ou  inquietação)
+    | frescor,  verde  fresco,  brotos  verdes  ou  vegetação.  Equivalente  em  aramaico:  ev  (ÿ  ÿÿ  fruta  H0004)
+    | 1)  pai  de  um  indivíduo  2)  de  Deus  como  pai  de  seu  povo  3)  chefe  ou  fundador  de  uma  casa,  grupo,  família  ou  clã  4)  ancestral  4a)
+    | avô,  antepassados  -  de  pessoa  4b)  de  pessoas  5)  originador  ou  patrono  de  uma  classe,  profissão  ou  arte  6)  de  produtor,
+    | gerador  (fig.)  7)  de  benevolência  e  proteção  (fig.)  8)  termo  de  respeito  e  honra  9)  governante  ou  chefe  (espec.)  Também  significa:  av
+  Pagina 2: chars=3425, linhas (apos strip Google)=27
+    | Um  homem  dos  midianitas  que  viveu  na  época  dos  patriarcas,  mencionado  pela  primeira  vez  em  Gênesis  25:4;  filho  de:  Midiã
+    | (H4080);  irmão  de:  Efa  (H5891),  Éfer  (H6081),  Enoque  (H2585I)  e  Eldaá  (H0420)  §  Abida  ou  Abidá  =  meu  pai  sabe,  quarto  filho  de
+    | Midiã  e  neto  de  Abraão  com  sua  esposa  Quetura  (após  a  morte  de  Sara)
+    | Mês  do  êxodo  e  da  Páscoa  (março  ou  abril).  Também  chamado  de:  ni.san  (ÿ  ÿÿÿÿÿ  Nisan  H5212).  Este  nome  significa  espigas
+    | de  cevada  frescas  e  jovens.
+    | Um  homem  da  tribo  de  Levi  que  viveu  na  época  do  Egito  e  do  Deserto,  mencionado  pela  primeira  vez  em  Êxodo  6:24;  filho  de:  Corá  (H7141I);  irmão  de:
+    | Assir  (H0617)  e  Elcana  (H0511);  pai  de:  Assir  (H0617H)  e  Coré  (H6981);  também  chamado  Abiasafe  em  Êxodo  6:24;  Asaf  em  1  Crônicas  26:1;  Outro
+    | nome  de  ev.ya.saph  ( ÿ  ÿÿ  ÿÿÿ  ÿÿÿÿ ,ÿ  ÿÿÿÿ  ÿÿ  ÿÿ  Ebiasafe  H0043)  §  Abiasafe  =  meu  pai  reuniu  o  filho  (descendente)  de  Corá
+    | Uma  mulher  que  viveu  na  época  da  Monarquia  Dividida,  mencionada  pela  primeira  vez  em  2  Reis  18:2;  filha  de:  Zacarias  (H2148C);
+    | casada  com  Acaz  (H0271);  mãe  de:  Ezequias  (H2396);  também  chamada  Abias  em  2  Crônicas  29:1;  também  chamada:  a.viy.yah
+    | (ÿÿÿÿ  ÿÿÿÿ  Abijah  H0029N)  §  Abi  =  meu  pai,  mãe  de  Ezequias  (cf.  H029)
+    | Abiel  =  El  (Deus)  é  o  avô  de  Saul,  um  homem  da  tribo  de  Benjamim  que  viveu  na  época  da  Monarquia  Unida,  mencionado  pela
+    | primeira  vez  em  1  Samuel  9:1;  filho  de:  Zeror  (H6872C);  casado  com  Maacá  (H4601N);  pai  de:  Quis  (H7027),  Ner  (H5369),  Abdom
+    | (H5658J),  Zur  (H6698I),  Baal  (H1168B),  Nadabe  (H5070J),  Gedor  (H1446I),  Aio  (H0283I),  Zequer  (H2144)  e  Miklote
+    | (H4732);  também  chamado  Jeiel  (Ketiv:  Jeuel;  KJV:  Jehiel)  em  1  Crônicas  9:35;  Ner  em  1  Crônicas  8:33;  9:39;
+  Pagina 3: chars=3660, linhas (apos strip Google)=30
+    | Homem  que  viveu  na  época  dos  Patriarcas,  mencionado  pela  primeira  vez  em  Gênesis  10.28;  filho  de:  Joktan  (H3355);  irmão
+    | de:  Almodad  (H0486),  Sheleph  (H8026),  Hazarmaveth  (H2700),  Jerah  (H3392),  Hadoram  (H1913A),  Uzal  (H0187),  Diklah
+    | (H1853),  Obal  (H5745),  Sheba  (H7614H),  Ophir  (H0211),  Havilah  (H2341I)  e  Jobabe  (H3103)  §  Abimael  =  meu  pai  é  El  (Deus)
+    | filho  de  Joctã,  descendente  de  Sem
+    | alcaparra-baga-de-estimular  o  desejo
+    | Um  homem  que  viveu  na  época  do  Egito  e  do  Deserto,  mencionado  apenas  em  Números  3:35;  pai  de:  Zuriel  (H6700)  §  Abiail
+    | =  meu  pai  é  poderoso  1)  um  levita  na  época  de  Moisés  2)  um  gadita  3)  pai  de  Ester  4)  esposa  de  Abisur  5)  esposa  de  Roboão
+    | Uzzi  (H5813I),  Uzziel  (H5816I),  Jerimote  (H3406),  Iri  (H5901),  Addar  (H0146H),  Gera  (H1617I),
+    | Abishua  (H0050H)  e  Ahoah  (H0265)  §  Abihud  =  meu  pai  é  majestade,  filho  de  Bela,  um  benjamita.
+    | 1)  Em  necessidade,  carente,  principalmente  pobre,  pessoa  necessitada;  2)  Sujeito  à  opressão  e  abuso;  3)  Que  precisa  de  ajuda,
+    | livramento  de  problemas,  especialmente  vindo  de  Deus;  4)  Referência  geral  à  classe  mais  baixa.
+    | Um  homem  da  tribo  de  Benjamim  que  viveu  na  época  da  Monarquia  Dividida,  mencionado  apenas  em  1Cr.8.11;  filho  de:  Saaraim
+    | (H7842)  e  Husim  (H2366A);  irmão  de:  Jobabe  (H3103J),  Zíbia  (H6644),  Mesa  (H4331),  Malcam  (H4445A),  Jeuz  (H3263),
+    | Saquias  (H7634),  Mirma  (H4821)  e  Elpaal  (H0508)  §  Abitub  =  meu  pai  é  bom(a)  filho  de  Saaraim,  um  benjamita
+    | Alguém  descendente  de  Abiezer,  um  homem  da  tribo  de  Manassés  que  viveu  na  época  do  Egito  e  do  Deserto,  mencionado  pela
+
+Nota: PyPDF extrai texto na ordem visual — tabelas podem vir quebradas em varias linhas. Para importacao 1-celula = 1 linha, use pdfplumber (tabelas) ou exporte CSV do PDF.

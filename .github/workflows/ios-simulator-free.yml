@@ -1,0 +1,66 @@
+# Build iOS no simulador — GRÁTIS via GitHub Actions (runner macOS).
+# Não precisa de conta Apple Developer (US$ 99). Valida que o projeto compila.
+# Instalar no iPhone / App Store exige assinatura paga depois.
+
+name: iOS simulador (grátis)
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'src/**'
+      - 'ios/**'
+      - 'capacitor.config.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/ios-simulator-free.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'ios/**'
+      - 'capacitor.config.json'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+concurrency:
+  group: ios-sim-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-simulator:
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Dependências npm
+        run: npm ci
+
+      - name: Build web + sync Capacitor iOS
+        run: npm run ios:sync
+
+      - name: CocoaPods
+        working-directory: ios/App
+        run: pod install
+
+      - name: Compilar para simulador (sem assinatura paga)
+        working-directory: ios/App
+        run: |
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build

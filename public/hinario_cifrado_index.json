@@ -1,0 +1,3 @@
+{
+  "_info": "Override opcional: chave = número do hino (string), valor = página no PDF (1-based). O app localiza cifras pelo título no texto do PDF; use isto só para exceções."
+}

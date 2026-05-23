@@ -1,0 +1,1 @@
+export { embaralharQuestoesDiscipulado } from './questoesAlternativas'

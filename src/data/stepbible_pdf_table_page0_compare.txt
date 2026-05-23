@@ -1,0 +1,44 @@
+=== SQLite (primeiras 3 entradas, inicio de definition_clean) ===
+id=1
+1) father of an individual 2) of God as father of his people 3) head or founder of a household, group, family, or clan 4) ancestor 4a) grandfather, forefathers - of person 4b) of people 5) originator or patron of a class, profession, or art 6) of producer, generator (fig.) 7) of benevolence and protection (fig.) 8) term of respect and honour 9) ruler or chief (spec.) Also means: av (אַב father H0002)
+
+id=2
+father Aramaic of av (אָב father H0001)
+
+id=3
+freshness, fresh green, green shoots, or greenery Aramaic equivalent: ev (אֵב fruit H0004)
+
+=== pdfplumber: EN Stepbible_lexicon_pt.pdf — pagina 1 ===
+tabelas na pagina: 1
+linhas na tabela: 28
+  linha_tab 1: 1) father of an individual 2) of God as father of his people 3) head or founder of a household, group,
+  linha_tab 2: family, or clan 4) ancestor 4a) grandfather, forefathers - of person 4b) of people 5) originator or
+  linha_tab 3: patron of a class, profession, or art 6) of producer, generator (fig.) 7) of benevolence and protection
+  linha_tab 4: (fig.) 8) term of respect and honour 9) ruler or chief (spec.) Also means: av (באַ father H0002)
+  linha_tab 5: father Aramaic of av (באָ father H0001)
+  linha_tab 6: freshness, fresh green, green shoots, or greenery Aramaic equivalent: ev (באֵ fruit H0004)
+  linha_tab 7: fruit, fresh, young, greening Aramaic of ev (ב אֵ greenery H0003)
+  linha_tab 8: A man living at the time of Exile and Return, only mentioned at Est.1.10 § Abagtha = God-given one
+  linha_tab 9: of the seven eunuchs in the Persian court of Ahasuerus
+  linha_tab 10: 1) perish, vanish, go astray, be destroyed 1a) (Qal) 1a1) perish, die, be exterminated 1a2) perish,
+  linha_tab 11: vanish (fig.) 1a3) be lost, strayed 1b) (Piel) 1b1) to destroy, kill, cause to perish, to give up (as lost),
+  linha_tab 12: exterminate 1b2) to blot out, do away with, cause to vanish, (fig.) 1b3) cause to stray, lose 1c)
+  linha_tab 13: (Hiphil) 1c1) to destroy, put to death 1c1a) of divine judgment 1c2) object name of kings (fig.)
+  linha_tab 14: Aramaic equivalent: a.vad (דבַ אֲ to destroy H0007)
+  linha_tab 15: 1) to perish, vanish 1a) (P'al) shall perish 1b) (Aphel) destroy 1c) (Hophal) be destroyed
+  linha_tab 16: destruction
+  linha_tab 17: a lost thing, something lost
+  linha_tab 18: a perishing
+  linha_tab 19: Abaddon, a place of destruction, destruction, ruin
+  linha_tab 20: destruction
+  linha_tab 21: destruction
+  linha_tab 22: 1) to be willing, consent 1a) (Qal) 1a1) to be willing 1a2) to consent, yield to, accept 1a3) to desire
+  linha_tab 23: entreat, longing, desire
+  linha_tab 24: reed, papyrus
+  linha_tab 25: Oh!, Woe!, (exclamation of pain - indicates desire or uneasiness)
+  linha_tab 26: crib, manger, feeding trough
+  linha_tab 27: slaughter, flesh, meat, slaughtered meat
+  linha_tab 28: watermelon, Egyptian fruit
+
+=== pdfplumber: PT Stepbible_lexicon_pt-1 (1).pdf — pagina 1 ===
+tabelas na pagina: 0

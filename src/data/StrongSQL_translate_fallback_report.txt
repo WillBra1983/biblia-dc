@@ -1,0 +1,3 @@
+DB ativa: lexicon_ptbr_docxmerge_1777372914.sqlite
+Rows avaliadas: 14180
+Rows atualizadas por fallback translate: 1373

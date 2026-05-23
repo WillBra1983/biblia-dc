@@ -1,0 +1,35 @@
+{
+  "appId": "com.bibliadc.app",
+  "appName": "Bíblia DC",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "https"
+  },
+  "android": {
+    "edgeToEdge": false
+  },
+  "ios": {
+    "contentInset": "automatic"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "launchShowDuration": 0,
+      "backgroundColor": "#004d40",
+      "androidSplashResourceName": "splash",
+      "showSpinner": false
+    },
+    "GoogleAuth": {
+      "scopes": ["profile", "email"],
+      "androidClientId": "419144943323-9uca774ij800th8nk7aof6ju84nlqfb8.apps.googleusercontent.com",
+      "iosClientId": "419144943323-0ik1cnsgjbkajq03kds8ojqkm6f1ocb5.apps.googleusercontent.com",
+      "serverClientId": "419144943323-9uca774ij800th8nk7aof6ju84nlqfb8.apps.googleusercontent.com"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_notify",
+      "iconColor": "#488AFF",
+      "sound": "default"
+    }
+  }
+}

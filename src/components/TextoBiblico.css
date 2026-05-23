@@ -1,0 +1,13 @@
+.texto-biblico {
+  line-height: 1.6;
+}
+
+.referencia-biblica {
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.referencia-biblica:hover {
+  color: #1d4ed8;
+} 

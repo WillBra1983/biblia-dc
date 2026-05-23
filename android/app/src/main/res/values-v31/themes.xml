@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+: splash como fundo inteiro, sem ícone central sobreposto -->
+    <style name="Theme.BibliaDC.Splash" parent="Theme.SplashScreen">
+        <item name="android:windowSplashScreenBackground">@drawable/splash</item>
+        <!-- Remove o ícone central padrão para evitar imagem grande + pequena sobreposta -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/transparent</item>
+        <item name="android:windowSplashScreenAnimationDuration">0</item>
+        <item name="postSplashScreenTheme">@style/Theme.BibliaDC</item>
+    </style>
+</resources> 

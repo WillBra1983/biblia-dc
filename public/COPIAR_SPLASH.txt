@@ -1,0 +1,10 @@
+Para a tela de abertura do site/PWA ficar igual à do APK (imagem em tela cheia):
+
+Copie a imagem de splash do Android para a pasta public do projeto web:
+
+  Origem:  android\app\src\main\res\drawable\splash.png
+  Destino: public\splash.png
+
+(Se existir drawable-xhdpi ou drawable-xxhdpi\splash.png, use a de maior resolução.)
+
+Sem esse arquivo, o site usa o fallback (ícone quadrado + "Carregando…").

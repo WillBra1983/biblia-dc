@@ -52,7 +52,7 @@ foreach ($n in $names) {
 [void]$sb.AppendLine('')
 [void]$sb.AppendLine('KEYCHAIN_PASSWORD = invente uma senha qualquer (ex: BibliaDC2026!)')
 [void]$sb.AppendLine('')
-[void]$sb.AppendLine('APPSTORE_ISSUER_ID = (App Store Connect → Utilizadores → Integrações → Chaves)')
+[void]$sb.AppendLine('APPSTORE_ISSUER_ID = (App Store Connect - Usuarios e acesso - Integracoes - Chaves)')
 [void]$sb.AppendLine('APPSTORE_API_KEY_ID = ')
 [void]$sb.AppendLine('APPSTORE_API_PRIVATE_KEY = (cole o arquivo .p8 inteiro)')
 [void]$sb.AppendLine('')

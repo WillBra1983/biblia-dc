@@ -11,9 +11,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>SEU_CLIENT_ID_IOS.apps.googleusercontent.com</string>
+	<string>419144943323-0ik1cnsgjbkajq03kds8ojqkm6f1ocb5.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.SEU_ID_INVERTIDO</string>
+	<string>com.googleusercontent.apps.419144943323-0ik1cnsgjbkajq03kds8ojqkm6f1ocb5</string>
 	<key>API_KEY</key>
 	<string>SUA_API_KEY</string>
 	<key>GCM_SENDER_ID</key>

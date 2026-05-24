@@ -1,5 +1,7 @@
 # Checklist — Bíblia DC na App Store (iOS)
 
+**Lista curta do que falta agora:** `docs/APPLE_PUBLICAR_AGORA.md` · diagnóstico: `npm run ios:appstore-status`
+
 Documento de referência para publicação na **App Store (iOS)**.
 
 ---

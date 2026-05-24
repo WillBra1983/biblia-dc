@@ -3,7 +3,7 @@
     "apps": [],
     "details": [
       {
-        "appID": "SUBSTITUA_TEAM_ID.com.bibliadc.app",
+        "appID": "BDAN6452VU.com.bibliadc.app",
         "paths": ["/biblia", "/biblia/*"]
       }
     ]

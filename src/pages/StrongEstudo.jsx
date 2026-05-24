@@ -301,7 +301,8 @@ function StrongEstudo() {
       setAiResumo({
         status: 'error',
         text: '',
-        error: 'Ainda não há resumo publicado para este verbete e a IA não está configurada (VITE_GEMINI_API_KEY).'
+        error:
+          'Ainda não há resumo publicado para este verbete e a IA não está configurada (chaves Gemini no .env).'
       })
       return
     }

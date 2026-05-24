@@ -279,7 +279,47 @@ export function FirebaseAuthProvider({ children }) {
   }, [])
 
   /**
-   * Troca de conta sem deslogar antes: se falhar ou cancelar, mantém a sessão atual.
+   * Sign in with Apple (Firebase OAuth). iOS nativo usa plugin; web usa popup.
+   * Ative o provedor Apple no Firebase Console e a capability no App ID.
+   */
+  const loginWithApple = useCallback(async () => {
+    setLastError(null)
+    await loadFirebaseModules()
+    const auth = getFirebaseAuth()
+    if (!auth) throw new Error('Firebase não configurado')
+    const { OAuthProvider, signInWithCredential, signInWithPopup } = await import('firebase/auth')
+    const provider = new OAuthProvider('apple.com')
+    provider.addScope('email')
+    provider.addScope('name')
+
+    try {
+      if (Capacitor.isNativePlatform?.() && Capacitor.getPlatform() === 'ios') {
+        const { criarNonceAppleSignIn } = await import('../utils/appleSignInNonce')
+        const { rawNonce, hashedNonce } = await criarNonceAppleSignIn()
+        const { SignInWithApple } = await import('@capacitor-community/apple-sign-in')
+        const result = await SignInWithApple.authorize({
+          clientId: 'com.bibliadc.app',
+          redirectURI: '',
+          scopes: 'email name',
+          nonce: hashedNonce
+        })
+        const idToken = result?.response?.identityToken
+        if (!idToken) {
+          throw new Error('A Apple não devolveu identityToken.')
+        }
+        const credential = provider.credential({ idToken, rawNonce })
+        await signInWithCredential(auth, credential)
+        return
+      }
+      await signInWithPopup(auth, provider)
+    } catch (e) {
+      if (isAuthCancelError(e)) return
+      setLastError(hintForFirebaseAuthError(e))
+      throw e
+    }
+  }, [])
+
+  /**
    * @returns {Promise<{ ok: boolean, trocou?: boolean, cancelado?: boolean, manteveConta?: boolean, mesmaConta?: boolean }>}
    */
   const tentarAcessarComOutraConta = useCallback(async ({ tipo = 'google', email, password } = {}) => {
@@ -360,6 +400,7 @@ export function FirebaseAuthProvider({ children }) {
       loginWithEmail,
       logout,
       loginWithGoogle,
+      loginWithApple,
       tentarAcessarComOutraConta,
       resendVerificationEmail,
       reloadAuthUser,
@@ -373,6 +414,7 @@ export function FirebaseAuthProvider({ children }) {
       loginWithEmail,
       logout,
       loginWithGoogle,
+      loginWithApple,
       tentarAcessarComOutraConta,
       resendVerificationEmail,
       reloadAuthUser,

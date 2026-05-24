@@ -89,6 +89,7 @@ function getPageTitleFromPathname(pathname) {
   if (path.startsWith('/hinario/apresentacao')) return 'Apresentação — Hinário'
   if (path.match(/^\/estudo-strong\/[^/]+\/resumo$/)) return 'Resumo lexical'
   if (path.startsWith('/estudo-strong')) return 'Dicionário Strong'
+  if (path.startsWith('/privacidade')) return 'Privacidade'
   if (path.startsWith('/sobre')) return 'Sobre'
   return 'Biblia DC'
 }
@@ -144,6 +145,7 @@ export default function Layout({ title, children }) {
     p.startsWith('/estudos-biblicos') ||
     p.startsWith('/estudo-strong') ||
     p.startsWith('/sobre') ||
+    p.startsWith('/privacidade') ||
     p.startsWith('/admin/'))
 
   /** `/discipulado/:temaId/:estudoId` — conteúdo de um subtema (esconde drawer global e hamburger). */

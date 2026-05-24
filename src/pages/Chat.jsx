@@ -43,6 +43,7 @@ import StarBorderIcon from '@mui/icons-material/StarBorder'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { hintForFirebaseAuthError } from '../utils/firebaseAuthErrors'
+import { mostrarLoginApple } from '../utils/mostrarLoginApple'
 import EmailVerificationGate from '../components/EmailVerificationGate'
 import { usuarioPrecisaVerificarEmail } from '../utils/emailVerificationAuth'
 import { gravatarPhotoUrl } from '../utils/gravatarUrl'
@@ -69,6 +70,7 @@ import {
   ensurePublicProfileHasEmail,
   ensurePublicProfileMirrorAuth,
   hideMessageForMe,
+  reportChatMessage,
   repairDmChatListIfMissing,
   resolvePeerToUid,
   sendChatMessage,
@@ -404,6 +406,7 @@ export default function Chat() {
     loginWithEmail,
     logout,
     loginWithGoogle,
+    loginWithApple,
     setLastError,
     lastError
   } = useFirebaseAuth()
@@ -1505,6 +1508,37 @@ export default function Chat() {
               <span>Continuar com Google</span>
             </Stack>
           </Button>
+          {mostrarLoginApple() ? (
+            <Button
+              fullWidth
+              variant="contained"
+              disableElevation
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true)
+                setLastError(null)
+                try {
+                  await loginWithApple()
+                } finally {
+                  setBusy(false)
+                }
+              }}
+              sx={{
+                py: 1.1,
+                textTransform: 'none',
+                fontWeight: 600,
+                bgcolor: '#000',
+                color: '#fff',
+                '&:hover': { bgcolor: '#222' },
+                '&.Mui-disabled': {
+                  bgcolor: 'rgba(0, 0, 0, 0.38)',
+                  color: 'rgba(255, 255, 255, 0.85)'
+                }
+              }}
+            >
+              Continuar com Apple
+            </Button>
+          ) : null}
         </Stack>
       </Paper>
     )
@@ -1519,6 +1553,7 @@ export default function Chat() {
     loginWithEmail,
     registerWithEmail,
     loginWithGoogle,
+    loginWithApple,
     setLastError
   ])
 
@@ -3089,6 +3124,34 @@ export default function Chat() {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
+        {msgMenu?.message && msgMenu.message.senderUid !== user?.uid ? (
+          <MenuItem
+            disabled={busy}
+            onClick={async () => {
+              const m = msgMenu?.message
+              setMsgMenu(null)
+              if (!user?.uid || !activeChatId || !m) return
+              setBusy(true)
+              setLastError(null)
+              try {
+                await reportChatMessage({
+                  reporterUid: user.uid,
+                  chatId: activeChatId,
+                  messageId: m.id,
+                  reportedUid: m.senderUid || '',
+                  textPreview: String(m.text || m.preview || '').slice(0, 200)
+                })
+                setAuthSuccess('Denúncia registrada. Obrigado — analisaremos em breve.')
+              } catch (e) {
+                setLastError(hintRtdbPermissionDenied(e) || e?.message || 'Não foi possível registrar a denúncia.')
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Denunciar mensagem
+          </MenuItem>
+        ) : null}
         <MenuItem
           disabled={busy}
           onClick={async () => {

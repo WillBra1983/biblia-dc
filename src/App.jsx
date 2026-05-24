@@ -56,6 +56,7 @@ const BibliotecaEstudos = lazy(() => import('./pages/BibliotecaEstudos'))
 const EstudoBiblicoVer = lazy(() => import('./pages/EstudoBiblicoVer'))
 const EstudosBiblicosGerir = lazy(() => import('./pages/EstudosBiblicosGerir'))
 const Sobre = lazy(() => import('./pages/Sobre'))
+const Privacidade = lazy(() => import('./pages/Privacidade'))
 const Chat = lazy(() => import('./pages/Chat'))
 const ConfiguracoesNotificacoes = lazy(() => import('./pages/ConfiguracoesNotificacoes'))
 const AdminNotificar = lazy(() => import('./pages/AdminNotificar'))
@@ -213,6 +214,7 @@ const appRouteTree = createRoutesFromElements(
     <Route path="admin/usuarios" element={<AdminUsuarios />} />
     <Route path="admin/notificar" element={<AdminNotificar />} />
     <Route path="sobre" element={<Sobre />} />
+    <Route path="privacidade" element={<Privacidade />} />
     </Route>
   </Route>
 )

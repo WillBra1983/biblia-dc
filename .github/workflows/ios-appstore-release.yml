@@ -1,57 +1,189 @@
-# Manual only — DEPOIS dos US$ 99 + certificados Apple nos Secrets do GitHub.
-# Não roda no push; só: Actions → iOS App Store (quando pago) → Run workflow.
+# Build assinado + IPA + upload TestFlight — sem Mac local.
+# Disparo manual: Actions → iOS App Store → Run workflow.
+#
+# Guia dos segredos (Windows): docs/GITHUB_IOS_APP_STORE.md
 
-name: iOS App Store (quando pago)
+name: iOS App Store
 
 on:
   workflow_dispatch:
+    inputs:
+      upload_testflight:
+        description: Enviar IPA ao TestFlight após o build
+        type: boolean
+        default: true
+
+concurrency:
+  group: ios-appstore-release
+  cancel-in-progress: false
 
 jobs:
   release:
     runs-on: macos-14
-    timeout-minutes: 60
+    timeout-minutes: 90
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
     steps:
-      - name: Verificar segredos Apple
-        run: |
-          if [ -z "$APPLE_CERTIFICATE_BASE64" ]; then
-            echo "::error::Configure em Settings → Secrets → Actions:"
-            echo "  APPLE_CERTIFICATE_BASE64, APPLE_CERTIFICATE_PASSWORD,"
-            echo "  APPLE_PROVISION_PROFILE_BASE64, KEYCHAIN_PASSWORD"
-            exit 1
-          fi
+      - name: Verificar segredos obrigatórios
         env:
           APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_PROVISION_PROFILE_BASE64: ${{ secrets.APPLE_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_DATABASE_URL: ${{ secrets.VITE_FIREBASE_DATABASE_URL }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          UPLOAD_TESTFLIGHT: ${{ inputs.upload_testflight }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for v in APPLE_CERTIFICATE_BASE64 APPLE_CERTIFICATE_PASSWORD APPLE_PROVISION_PROFILE_BASE64 \
+            KEYCHAIN_PASSWORD APPLE_TEAM_ID GOOGLE_SERVICE_INFO_PLIST_BASE64 VITE_FIREBASE_API_KEY \
+            VITE_FIREBASE_AUTH_DOMAIN VITE_FIREBASE_DATABASE_URL VITE_FIREBASE_PROJECT_ID \
+            VITE_FIREBASE_STORAGE_BUCKET VITE_FIREBASE_MESSAGING_SENDER_ID VITE_FIREBASE_APP_ID; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Secret ausente: $v"
+              missing=1
+            fi
+          done
+          if [ "$UPLOAD_TESTFLIGHT" = "true" ]; then
+            for v in APPSTORE_ISSUER_ID APPSTORE_API_KEY_ID APPSTORE_API_PRIVATE_KEY; do
+              if [ -z "${!v}" ]; then
+                echo "::error::Para TestFlight, configure também: $v"
+                missing=1
+              fi
+            done
+          fi
+          if [ "$missing" -ne 0 ]; then
+            echo "Veja docs/GITHUB_IOS_APP_STORE.md"
+            exit 1
+          fi
 
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: npm
-      - run: npm ci
-      - run: npm run ios:sync
-      - working-directory: ios/App
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: GoogleService-Info.plist (Firebase iOS)
+        env:
+          PLIST_B64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+        run: |
+          set -euo pipefail
+          echo -n "$PLIST_B64" | base64 --decode > ios/App/App/GoogleService-Info.plist
+          test -s ios/App/App/GoogleService-Info.plist
+
+      - name: Build web + sync Capacitor iOS
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_DATABASE_URL: ${{ secrets.VITE_FIREBASE_DATABASE_URL }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_VAPID_KEY: ${{ secrets.VITE_FIREBASE_VAPID_KEY }}
+          VITE_GEMINI_API_KEY_WEB: ${{ secrets.VITE_GEMINI_API_KEY_WEB }}
+          VITE_GEMINI_API_KEY_ANDROID: ${{ secrets.VITE_GEMINI_API_KEY_ANDROID }}
+          VITE_GEMINI_API_KEY_IOS: ${{ secrets.VITE_GEMINI_API_KEY_IOS }}
+        run: |
+          npm run build:ios
+          npx cap sync ios
+
+      - name: CocoaPods
+        working-directory: ios/App
         run: pod install
-      - name: Instalar certificado
+
+      - name: Instalar certificado e perfil de provisionamento
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
           P12_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.APPLE_PROVISION_PROFILE_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          CERT_PATH=$RUNNER_TEMP/build_certificate.p12
-          PP_PATH=$RUNNER_TEMP/profile.mobileprovision
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERT_PATH
-          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security import $CERT_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
-      - name: Archive
+          set -euo pipefail
+          CERT_PATH="$RUNNER_TEMP/build_certificate.p12"
+          PP_PATH="$RUNNER_TEMP/build_pp.mobileprovision"
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o "$CERT_PATH"
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o "$PP_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERT_PATH" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c 'Print UUID' /dev/stdin <<< "$(security cms -D -i "$PP_PATH")")
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/${PROFILE_UUID}.mobileprovision"
+          echo "PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
+          echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
+
+      - name: Archive (Release)
         working-directory: ios/App
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
-            -archivePath $RUNNER_TEMP/App.xcarchive archive
+          set -euo pipefail
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            archive \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE="$PROFILE_UUID"
+
+      - name: Export IPA (App Store)
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          EXPORT_PLIST="$RUNNER_TEMP/ExportOptions.plist"
+          sed "s/REPLACE_PROFILE_UUID/$PROFILE_UUID/g" ios/App/ExportOptions-appstore.plist > "$EXPORT_PLIST"
+          /usr/libexec/PlistBuddy -c "Add :teamID string $APPLE_TEAM_ID" "$EXPORT_PLIST" 2>/dev/null || \
+            /usr/libexec/PlistBuddy -c "Set :teamID $APPLE_TEAM_ID" "$EXPORT_PLIST"
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$EXPORT_PLIST" \
+            -exportPath "$RUNNER_TEMP/export"
+          ls -la "$RUNNER_TEMP/export"
+          IPA=$(find "$RUNNER_TEMP/export" -maxdepth 1 -name '*.ipa' | head -1)
+          if [ -z "$IPA" ]; then
+            echo "::error::Nenhum .ipa em $RUNNER_TEMP/export"
+            exit 1
+          fi
+          echo "IPA_PATH=$IPA" >> "$GITHUB_ENV"
+
+      - name: Guardar IPA como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: bibliadc-ios-ipa
+          path: ${{ env.IPA_PATH }}
+          retention-days: 14
+
+      - name: Upload TestFlight
+        if: inputs.upload_testflight == true
+        uses: apple-actions/upload-testflight-build@v3
+        with:
+          app-path: ${{ env.IPA_PATH }}
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}

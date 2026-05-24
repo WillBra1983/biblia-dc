@@ -1178,6 +1178,30 @@ export async function deleteMessageForEveryone(chatId, msgId) {
   await remove(ref(db, `chats/${chatId}/messages/${msgId}`))
 }
 
+/** Denúncia de mensagem (moderação / requisitos App Store). */
+export async function reportChatMessage({
+  reporterUid,
+  chatId,
+  messageId,
+  reportedUid,
+  textPreview
+}) {
+  const db = getFirebaseDatabase()
+  if (!db || !reporterUid || !chatId || !messageId) {
+    throw new Error('Dados insuficientes para denunciar.')
+  }
+  const { push } = await import('firebase/database')
+  const nodeRef = push(ref(db, 'chatReports'))
+  await set(nodeRef, {
+    reporterUid,
+    chatId,
+    messageId,
+    reportedUid: reportedUid || '',
+    textPreview: String(textPreview || '').slice(0, 400),
+    createdAt: Date.now()
+  })
+}
+
 export async function writeUserProfilePublic(uid, {
   displayName,
   email,

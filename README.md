@@ -17,8 +17,9 @@ Trabalhe sempre em **`C:\salvation`**.
 
 - Android: `GERAR_APK.md`
 - iOS / App Store: `GERAR_IOS.md`
-- iOS sem Mac (grátis): `docs/IOS_GRATIS.md`
-- GitHub Actions: `docs/GITHUB_IOS_CI.md`
+- iOS sem Mac → TestFlight: `docs/GITHUB_IOS_APP_STORE.md`
+- iOS sem Mac (build simulador): `docs/IOS_GRATIS.md`
+- GitHub Actions (CI): `docs/GITHUB_IOS_CI.md`
 
 ## Repositório
 

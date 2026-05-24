@@ -100,7 +100,7 @@ GitHub → **Actions** → **iOS simulador (grátis)** → **Run workflow**.
 - Push remoto (chave APNs exige conta paga)  
 - Instalar o `.ipa` no iPhone de forma “oficial”  
 
-Quando for publicar, use `GERAR_IOS.md` e o workflow opcional `ios-appstore-release.yml` (com segredos de certificado).
+Quando for publicar na App Store **sem Mac**, use **`docs/GITHUB_IOS_APP_STORE.md`** e o workflow **iOS App Store**. Com Mac local, veja `GERAR_IOS.md`.
 
 ---
 

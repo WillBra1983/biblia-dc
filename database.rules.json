@@ -311,6 +311,13 @@
         ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
         ".write": false
       }
+    },
+    "chatReports": {
+      "$reportId": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
+        ".write": "auth != null && !data.exists() && newData.child('reporterUid').val() === auth.uid",
+        ".validate": "newData.hasChildren(['reporterUid', 'chatId', 'messageId', 'createdAt']) && newData.child('reporterUid').isString() && newData.child('chatId').isString() && newData.child('messageId').isString() && newData.child('createdAt').isNumber() && (!newData.child('textPreview').exists() || (newData.child('textPreview').isString() && newData.child('textPreview').val().length <= 400)) && (!newData.child('reportedUid').exists() || newData.child('reportedUid').isString())"
+      }
     }
   }
 }

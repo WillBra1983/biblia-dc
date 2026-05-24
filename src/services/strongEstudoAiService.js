@@ -1,4 +1,9 @@
 import { limparResumoLexicalParaExibicao, limparTextoStepBible } from '../utils/strongEstudoHelpers'
+import {
+  iaGeminiChaveConfigurada,
+  mensagemErroChaveGeminiAusente,
+  obterChaveGeminiApi
+} from '../utils/geminiApiKey'
 
 /**
  * Resumo lexical via Google Gemini (mesmo ecossistema que o módulo Android de exemplo).
@@ -10,8 +15,7 @@ import { limparResumoLexicalParaExibicao, limparTextoStepBible } from '../utils/
  *   o modelo sintetiza em pt-BR com base em pesquisa ou em treino.
  */
 export function iaGeminiDisponivel() {
-  const k = import.meta.env.VITE_GEMINI_API_KEY
-  return typeof k === 'string' && k.trim().length >= 8
+  return iaGeminiChaveConfigurada()
 }
 
 function normalizarModelName(raw) {
@@ -196,7 +200,7 @@ export async function gerarResumoStrongGemini({ detalhe, traduzirStrongPtBr, tok
   if (!iaGeminiDisponivel()) {
     return {
       ok: false,
-      error: 'Defina VITE_GEMINI_API_KEY no arquivo .env e gere o build de novo.',
+      error: mensagemErroChaveGeminiAusente(),
       code: 'NO_KEY'
     }
   }
@@ -204,7 +208,7 @@ export async function gerarResumoStrongGemini({ detalhe, traduzirStrongPtBr, tok
   if (!String(contexto || '').trim()) {
     return { ok: false, error: 'Sem dados lexicais suficientes para montar o pedido.', code: 'EMPTY' }
   }
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY.trim()
+  const apiKey = obterChaveGeminiApi()
   const modelos = obterListaModelosTentativa()
   const webOn = lexicalWebEnrichmentAtivo()
 
@@ -329,12 +333,12 @@ export async function gerarConteudoGemini(body, options = {}) {
   if (!iaGeminiDisponivel()) {
     return {
       ok: false,
-      error: 'Defina VITE_GEMINI_API_KEY no arquivo .env e gere o build de novo.',
+      error: mensagemErroChaveGeminiAusente(),
       code: 'NO_KEY'
     }
   }
   const maxContinuacoes = Math.max(0, Math.min(3, Number(options.maxContinuacoes) || 0))
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY.trim()
+  const apiKey = obterChaveGeminiApi()
   const modelos = obterListaModelosTentativa()
   let lastError = ''
   for (const model of modelos) {

@@ -1,4 +1,5 @@
-import { Box, Container, Paper, Typography } from '@mui/material'
+import { Box, Container, Paper, Typography, Link as MuiLink } from '@mui/material'
+import { Link } from 'react-router-dom'
 import StrongLexiconAttributions from '../components/StrongLexiconAttributions'
 
 export default function Sobre() {
@@ -13,13 +14,18 @@ export default function Sobre() {
           discipulado, devocionais, hinário e mais conteúdos de apoio cristão.
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 0.75 }}>
-          Versão 0.0.1
+          Versão 1.5
         </Typography>
         <Typography variant="body2" sx={{ mb: 0.75 }}>
           Desenvolvido por Pastor Wilson Lucas Ferreira.
         </Typography>
         <Typography variant="body2" sx={{ mb: 1.25 }}>
           Alguns conteúdos foram gentilmente cedidos por outros pastores.
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 1.25 }}>
+          <MuiLink component={Link} to="/privacidade">
+            Política de privacidade
+          </MuiLink>
         </Typography>
         <Typography variant="body2">
           Contato:{' '}

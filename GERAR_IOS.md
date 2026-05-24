@@ -1,6 +1,10 @@
 # Bíblia DC — publicação na App Store (iOS)
 
-Este projeto usa **Capacitor 6** (mesmo código React do Android). O build iOS exige **Mac com Xcode** para instalar no iPhone e enviar à loja; no Windows você prepara tudo e pode validar a compilação **de graça** via GitHub Actions — veja **`docs/IOS_GRATIS.md`**.
+Este projeto usa **Capacitor 6** (mesmo código React do Android).
+
+- **Sem Mac:** publicação no TestFlight/App Store pelo GitHub — guia **`docs/GITHUB_IOS_APP_STORE.md`** (workflow **iOS App Store**).
+- **Só validar build:** **`docs/IOS_GRATIS.md`** (simulador, sem certificado).
+- **Com Mac:** Xcode local (abaixo).
 
 ## Pré-requisitos
 
@@ -81,11 +85,13 @@ Depois: Xcode → **Product → Archive** → **Distribute App** → App Store C
 - **App Privacy** (questionário de dados: e-mail, mensagens, Firebase).
 - Conta de suporte.
 
-## Sign in with Apple (revisão da Apple)
+Planeje: capability **Sign in with Apple** no App ID, provedor **Apple** no Firebase Authentication, botão no login (já no app).
 
-O app oferece **Continuar com Google** e e-mail. A diretriz **4.8** costuma exigir **Entrar com a Apple** quando há login social de terceiros. Sem isso, há risco de **reprovação** (não impede compilar).
+**Firebase Console:** Authentication → Sign-in method → **Apple** → Ativar.
 
-Planeje: capability no App ID, provedor Apple no Firebase, botão na tela de login.
+**Apple Developer:** Identifiers → `com.bibliadc.app` → Sign In with Apple (capability).
+
+**Xcode:** após `pod install`, capability Sign In with Apple no target (entitlements já incluem `com.apple.developer.applesignin`).
 
 ## Checklist completo
 

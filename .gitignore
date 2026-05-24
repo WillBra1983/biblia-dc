@@ -36,5 +36,6 @@ salvation.keystore
 .env.local
 .env.*.local
 
-# Firebase iOS (baixado do console; não commitar em repo público)
+# Firebase (baixados do console; não commitar em repo público)
+android/app/google-services.json
 ios/App/App/GoogleService-Info.plist

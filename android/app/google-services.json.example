@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "SEU_PROJECT_NUMBER",
+    "firebase_url": "https://SEU_PROJETO-default-rtdb.firebaseio.com",
+    "project_id": "SEU_PROJETO",
+    "storage_bucket": "SEU_PROJETO.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:SEU_PROJECT_NUMBER:android:XXXXXXXX",
+        "android_client_info": {
+          "package_name": "com.bibliadc.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "SUA_API_KEY_DO_FIREBASE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

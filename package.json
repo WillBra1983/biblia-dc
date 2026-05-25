@@ -94,7 +94,6 @@
     "cross-env": "^7.0.3",
     "firebase-tools": "^15.17.0",
     "pngjs": "^7.0.0",
-    "sharp": "^0.33.5",
     "typescript": "^5.8.2",
     "vite": "^6.2.0",
     "vite-plugin-pwa": "^1.2.0"

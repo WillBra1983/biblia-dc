@@ -108,35 +108,35 @@ jobs:
         working-directory: ios/App
         run: pod install
 
-      - name: Instalar certificado e perfil de provisionamento
+      - name: Importar certificado (.p12)
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          keychain: signing_temp
+          keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
+
+      - name: Instalar perfil App Store + keychain Xcode
         env:
-          BUILD_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
-          P12_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.APPLE_PROVISION_PROFILE_BASE64 }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           set -euo pipefail
-          CERT_PATH="$RUNNER_TEMP/build_certificate.p12"
           PP_PATH="$RUNNER_TEMP/build_pp.mobileprovision"
-          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
-          BUILD_CERTIFICATE_BASE64=$(printf '%s' "$BUILD_CERTIFICATE_BASE64" | tr -d '[:space:]')
-          BUILD_PROVISION_PROFILE_BASE64=$(printf '%s' "$BUILD_PROVISION_PROFILE_BASE64" | tr -d '[:space:]')
-          printf '%s' "$BUILD_CERTIFICATE_BASE64" | base64 -D > "$CERT_PATH"
-          printf '%s' "$BUILD_PROVISION_PROFILE_BASE64" | base64 -D > "$PP_PATH"
-          test -s "$CERT_PATH"
+          B64=$(printf '%s' "$BUILD_PROVISION_PROFILE_BASE64" | tr -d '[:space:]')
+          printf '%s' "$B64" | base64 -D > "$PP_PATH"
           test -s "$PP_PATH"
-          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security import "$CERT_PATH" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH" \
-            -T /usr/bin/codesign -T /usr/bin/security
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security list-keychain -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
           PP_XML="$RUNNER_TEMP/profile.plist"
           security cms -D -i "$PP_PATH" > "$PP_XML"
           PROFILE_UUID=$(/usr/libexec/PlistBuddy -c 'Print UUID' "$PP_XML")
+          echo "Perfil: $PROFILE_UUID"
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           cp "$PP_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/${PROFILE_UUID}.mobileprovision"
+          KEYCHAIN_PATH=$(security list-keychains -d user | grep signing_temp | head -1 | tr -d ' "')
+          if [ -z "$KEYCHAIN_PATH" ]; then
+            KEYCHAIN_PATH="$RUNNER_TEMP/signing_temp.keychain-db"
+          fi
+          security list-keychain -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
+          security find-identity -v -p codesigning || true
           echo "PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
           echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
 

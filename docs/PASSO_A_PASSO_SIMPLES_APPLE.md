@@ -52,7 +52,18 @@ Mais detalhes: `docs/FIREBASE_APPLE_SIGNIN.md`
 
 ---
 
-## Parte 4 — Gerar o app para iPhone (TestFlight)
+## Parte 4 — Criar o app na App Store Connect (uma vez, antes do 1º envio)
+
+1. Abra https://appstoreconnect.apple.com → **Apps** → **+** → **Novo app**
+2. iOS · nome **Bíblia DC** · idioma **Português (Brasil)**
+3. **ID do pacote:** `com.bibliadc.app` (deve aparecer na lista)
+4. **SKU:** `bibliadc-ios-2026` (ou outro nome único) → **Criar**
+
+Sem este passo, o GitHub compila o IPA mas o upload ao TestFlight falha.
+
+---
+
+## Parte 5 — Gerar o app para iPhone (TestFlight)
 
 1. https://github.com/WillBra1983/biblia-dc/actions
 2. Clique **iOS App Store** → **Run workflow** → marque TestFlight → **Run**
@@ -61,7 +72,7 @@ Mais detalhes: `docs/FIREBASE_APPLE_SIGNIN.md`
 
 ---
 
-## Parte 5 — Loja (textos e fotos)
+## Parte 6 — Loja (textos e fotos)
 
 Abra `docs/APP_STORE_CONNECT_TEXTO.md` — está tudo em português para **copiar e colar** na App Store Connect.
 

@@ -19,7 +19,8 @@ concurrency:
 
 jobs:
   release:
-    runs-on: macos-14
+    # App Store exige iOS 26 SDK (Xcode 26+); macos-14 traz Xcode 15 / iOS 17.5 SDK
+    runs-on: macos-26
     timeout-minutes: 90
     env:
       NODE_OPTIONS: --max-old-space-size=4096
@@ -69,6 +70,16 @@ jobs:
           fi
 
       - uses: actions/checkout@v4
+
+      - name: Xcode 26 (SDK iOS 26 — obrigatório para upload App Store)
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Confirmar versão do Xcode
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks | grep -E 'iphoneos|iphonesimulator' || true
 
       - uses: actions/setup-node@v4
         with:

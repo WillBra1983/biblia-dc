@@ -133,7 +133,24 @@ Plist em base64:
 
 ---
 
-## 7. Rodar o workflow
+## 7. App Store Connect — criar o app (obrigatório antes do 1º TestFlight)
+
+Se o upload falhar com *“No suitable application records were found”* / bundle `com.bibliadc.app`, o IPA está certo: falta **registrar o app na loja**.
+
+1. Abra [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → **Apps** → **+** → **Novo app**.
+2. **Plataformas:** iOS.
+3. **Nome:** Bíblia DC.
+4. **Idioma principal:** Português (Brasil).
+5. **ID do pacote (Bundle ID):** escolha **`com.bibliadc.app`** na lista (o mesmo do Apple Developer).
+6. **SKU:** ex. `bibliadc-ios-2026` (qualquer código único, só para a Apple).
+7. **Acesso:** conforme sua conta (geralmente Acesso total).
+8. Salve. Textos e screenshots podem vir depois; o registro do app basta para o TestFlight aceitar o IPA.
+
+Textos prontos: `docs/APP_STORE_CONNECT_TEXTO.md`.
+
+---
+
+## 8. Rodar o workflow
 
 1. Commit e push deste repositório (com pasta `.github/workflows/`).
 2. GitHub → repositório **biblia-dc** → **Actions** → **iOS App Store** → **Run workflow**.
@@ -143,11 +160,9 @@ Plist em base64:
 
 ---
 
-## 8. App Store Connect (primeira vez)
+## 9. Metadados da loja (depois do TestFlight)
 
-Antes do primeiro upload:
-
-1. **Apps** → **+** → nome **Bíblia DC**, bundle `com.bibliadc.app`.
+1. No app **Bíblia DC** em App Store Connect, preencha o que faltar.
 2. Preencha metadados, screenshots (iPhone 6,7", etc.).
 3. **Política de privacidade:** `https://foundcine.com/biblia/privacidade`
 4. **App Privacy** (questionário de dados).
@@ -156,7 +171,7 @@ Depois do TestFlight, instale no iPhone pelo app **TestFlight** e teste login, B
 
 ---
 
-## 9. Problemas comuns
+## 10. Problemas comuns
 
 | Erro | Solução |
 |------|---------|
@@ -164,11 +179,13 @@ Depois do TestFlight, instale no iPhone pelo app **TestFlight** e teste login, B
 | Signing / profile | Perfil App Store + cert Distribution + UUID |
 | `GoogleService-Info.plist` | Secret `GOOGLE_SERVICE_INFO_PLIST_BASE64` |
 | OOM no build Node | Workflow já usa `NODE_OPTIONS=4096` |
-| Upload TestFlight falha | Chave API com permissão de upload; Issuer ID correto |
+| *No suitable application records* / bundle `com.bibliadc.app` | Crie o app na etapa **7** (App Store Connect), depois rode o workflow de novo |
+| *SDK version issue* / iOS 17.5 SDK / exige iOS 26 SDK | Workflow usa `macos-26` + Xcode 26 (`latest-stable`); rode de novo após push |
+| Upload TestFlight (outros) | Chave API com permissão **App Manager** ou **Admin**; Issuer ID e Key ID corretos |
 
 ---
 
-## 10. Só compilar (sem TestFlight)
+## 11. Só compilar (sem TestFlight)
 
 Run workflow com **upload_testflight** desmarcado → baixa o IPA em **Artifacts**.
 

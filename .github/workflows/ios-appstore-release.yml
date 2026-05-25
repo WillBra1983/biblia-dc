@@ -90,6 +90,9 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
+      - name: Google Sign-In 7.1+ (manifestos de privacidade Apple)
+        run: npm run ios:patch-google-auth
+
       - name: GoogleService-Info.plist (Firebase iOS)
         env:
           PLIST_B64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}

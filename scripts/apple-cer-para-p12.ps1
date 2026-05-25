@@ -12,7 +12,10 @@ if (-not (Test-Path $cer)) { throw "Falta distribution.cer em $dir" }
 if (-not (Test-Path $key)) { throw "Falta apple_distribution.key em $dir" }
 
 & $openssl x509 -in $cer -inform DER -out $pem -outform PEM
-& $openssl pkcs12 -export -out $p12 -inkey $key -in $pem -passout "pass:$senha"
+# Algoritmos compatíveis com security import no macOS (GitHub Actions)
+& $openssl pkcs12 -export -out $p12 -inkey $key -in $pem `
+  -certpbe PBE-SHA1-3DES -keypbe PBE-SHA1-3DES -macalg sha1 `
+  -passout "pass:$senha"
 
 $b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($p12))
 $b64File = Join-Path $dir 'APPLE_CERTIFICATE_BASE64-cole-no-GitHub.txt'

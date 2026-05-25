@@ -114,12 +114,20 @@ jobs:
           P12_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
         run: |
           set -euo pipefail
+          P12_PASSWORD=$(printf '%s' "$P12_PASSWORD" | tr -d '\n\r')
           CERT_PATH="$RUNNER_TEMP/build_certificate.p12"
+          CERT_MAC="$RUNNER_TEMP/build_certificate_mac.p12"
           B64=$(printf '%s' "$BUILD_CERTIFICATE_BASE64" | tr -d '[:space:]')
           printf '%s' "$B64" | base64 -D > "$CERT_PATH"
           test -s "$CERT_PATH"
           openssl pkcs12 -in "$CERT_PATH" -noout -passin "pass:$P12_PASSWORD"
+          # .p12 criado no Windows/OpenSSL: reexportar formato que o security do macOS aceita
+          openssl pkcs12 -in "$CERT_PATH" -passin "pass:$P12_PASSWORD" -passout "pass:$P12_PASSWORD" \
+            -export -certpbe PBE-SHA1-3DES -keypbe PBE-SHA1-3DES -macalg sha1 -out "$CERT_MAC"
+          mv "$CERT_MAC" "$CERT_PATH"
+          openssl pkcs12 -in "$CERT_PATH" -noout -passin "pass:$P12_PASSWORD"
           echo "CERT_PATH=$CERT_PATH" >> "$GITHUB_ENV"
+          echo "P12_PASSWORD=$P12_PASSWORD" >> "$GITHUB_ENV"
 
       - name: Importar certificado (.p12)
         uses: apple-actions/import-codesign-certs@v3

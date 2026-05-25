@@ -30,7 +30,11 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="${appLinkHostWww}" android:pathPrefix="${appLinkPathPrefix}" />
+                <data
+                    android:scheme="https"
+                    android:host="${appLinkHostWww}"
+                    android:pathPrefix="${appLinkPathPrefix}"
+                />
             </intent-filter>
             <!-- Deep link nativo (mesmo packageId que o login Google nativo): abre o APK sem passar pelo browser. -->
             <intent-filter>
@@ -50,8 +54,14 @@
         </provider>
 
         <!-- Receiver para notificações locais -->
-        <receiver android:name="com.getcapacitor.plugin.LocalNotificationsPlugin$NotificationReceiver" android:exported="false" />
-        <receiver android:name="com.getcapacitor.plugin.LocalNotificationsPlugin$NotificationDismissReceiver" android:exported="false" />
+        <receiver
+            android:name="com.getcapacitor.plugin.LocalNotificationsPlugin$NotificationReceiver"
+            android:exported="false"
+        />
+        <receiver
+            android:name="com.getcapacitor.plugin.LocalNotificationsPlugin$NotificationDismissReceiver"
+            android:exported="false"
+        />
     </application>
 
     <!-- Permissions -->

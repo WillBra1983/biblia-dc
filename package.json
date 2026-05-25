@@ -6,6 +6,7 @@
   "scripts": {
     "icons:pwa": "node scripts/gen-pwa-icons.mjs",
     "icons:pwa:force": "node scripts/gen-pwa-icons.mjs --force",
+    "icons:native": "node scripts/sync-native-icons.mjs",
     "dev": "vite",
     "build": "vite build",
     "build:web": "cross-env VITE_BASE_URL=/biblia/ vite build",

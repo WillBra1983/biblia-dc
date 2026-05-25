@@ -1,6 +1,6 @@
 /**
  * Sincroniza o ícone da Bíblia (public/icons/icon.png) para iOS e Android.
- * Evita o ícone padrão do Capacitor no TestFlight/App Store.
+ * iOS App Store: PNG 1024×1024 **sem alpha** (obrigatório desde Xcode 15+).
  *
  * Uso: npm run icons:native
  */
@@ -18,13 +18,29 @@ if (!fs.existsSync(src)) {
   process.exit(1)
 }
 
+/** Fundo preto da capa — remove canal alpha exigido pela Apple */
+const IOS_BG = { r: 0, g: 0, b: 0 }
+
 const iosIcon = path.join(
   root,
   'ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png'
 )
 fs.mkdirSync(path.dirname(iosIcon), { recursive: true })
-fs.copyFileSync(src, iosIcon)
-console.log('[icons:native] iOS AppIcon:', path.relative(root, iosIcon))
+
+await sharp(src)
+  .resize(1024, 1024)
+  .flatten({ background: IOS_BG })
+  .png({ compressionLevel: 9, force: true })
+  .toFile(iosIcon)
+
+const meta = await sharp(iosIcon).metadata()
+console.log(
+  `[icons:native] iOS AppIcon: ${path.relative(root, iosIcon)} (${meta.width}×${meta.height}, channels=${meta.channels}, hasAlpha=${meta.hasAlpha})`
+)
+if (meta.hasAlpha) {
+  console.error('[icons:native] ERRO: ícone iOS ainda tem alpha')
+  process.exit(1)
+}
 
 const androidSizes = {
   mdpi: 48,
@@ -56,4 +72,4 @@ for (const [density, size] of Object.entries(androidSizes)) {
   console.log('[icons:native] Android', density, size)
 }
 
-console.log('[icons:native] Concluído. Faça novo build iOS (build number +1) para o TestFlight.')
+console.log('[icons:native] Concluído. Incremente CURRENT_PROJECT_VERSION no Xcode e rode o workflow iOS.')

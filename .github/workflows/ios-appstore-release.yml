@@ -74,7 +74,8 @@ jobs:
       - name: Xcode 26 (SDK iOS 26 — obrigatório para upload App Store)
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable
+          # 26.4.1 estável (evita 26.5 beta no runner); build #10 passou com esta linha
+          xcode-version: '26.4.1'
 
       - name: Confirmar versão do Xcode
         run: |
@@ -118,6 +119,9 @@ jobs:
       - name: CocoaPods
         working-directory: ios/App
         run: pod install
+
+      - name: Ícone iOS App Store (1024, sem canal alpha)
+        run: npm run icons:native
 
       - name: Decodificar certificado .p12
         env:

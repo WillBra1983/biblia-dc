@@ -109,11 +109,19 @@ No Xcode já está `ITSAppUsesNonExemptEncryption = false` no `Info.plist`.
 
 ## Screenshots
 
-Prepare no iPhone ou simulador (modo claro):
+Prepare no **iPhone** (TestFlight) ou simulador iOS (modo claro):
 
 1. Tela inicial / menu  
 2. Bíblia aberta em um capítulo  
 3. Discipulado ou devocional  
 4. Chat ou perfil (opcional)  
 
-Tamanhos: siga o que o App Store Connect pedir para **iPhone 6,7"** (obrigatório) e demais se quiser cobrir todos os dispositivos.
+Tamanhos: siga o que o App Store Connect pedir para **iPhone 6,5" / 6,7"** (obrigatório) — ex. **1284 × 2778** px (retrato).
+
+### Não tenho iPhone
+
+Guia completo: **`docs/SCREENSHOTS_SEM_IPHONE.md`**
+
+Resumo: no **Chrome** abra `https://foundcine.com/biblia/`, modo dispositivo **iPhone 14 Pro Max**, capture 3 telas (menu, Bíblia, discipulado) e envie no App Store Connect. Opcional: peça a alguém da igreja instalar pelo **TestFlight** e mandar as fotos.
+
+Prints só do Android podem servir se redimensionados (`npm run screenshots:resize`), mas o Chrome no PC costuma ser mais seguro para a revisão da Apple.

@@ -180,7 +180,8 @@ Depois do TestFlight, instale no iPhone pelo app **TestFlight** e teste login, B
 | `GoogleService-Info.plist` | Secret `GOOGLE_SERVICE_INFO_PLIST_BASE64` |
 | OOM no build Node | Workflow já usa `NODE_OPTIONS=4096` |
 | *No suitable application records* / bundle `com.bibliadc.app` | Crie o app na etapa **7** (App Store Connect), depois rode o workflow de novo |
-| *SDK version issue* / iOS 17.5 SDK / exige iOS 26 SDK | Workflow usa `macos-26` + Xcode 26 (`latest-stable`); rode de novo após push |
+| *SDK version issue* / iOS 17.5 SDK / exige iOS 26 SDK | Workflow usa `macos-26` + Xcode 26.4.1; rode de novo após push |
+| Archive falha após trocar ícone / *alpha* / AppIcon | Rode `npm run icons:native` (remove transparência do PNG 1024); workflow já executa este passo |
 | Upload TestFlight (outros) | Chave API com permissão **App Manager** ou **Admin**; Issuer ID e Key ID corretos |
 
 ---

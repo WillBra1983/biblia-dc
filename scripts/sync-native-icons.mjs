@@ -30,7 +30,7 @@ fs.mkdirSync(path.dirname(iosIcon), { recursive: true })
 await sharp(src)
   .resize(1024, 1024)
   .flatten({ background: IOS_BG })
-  .png({ compressionLevel: 9, force: true })
+  .png({ compressionLevel: 9, palette: true, quality: 90, force: true })
   .toFile(iosIcon)
 
 const meta = await sharp(iosIcon).metadata()
@@ -70,6 +70,15 @@ for (const [density, size] of Object.entries(androidSizes)) {
     .toBuffer()
   fs.writeFileSync(path.join(dir, 'ic_launcher_background.png'), bg)
   console.log('[icons:native] Android', density, size)
+}
+
+// Splash 1x vazio quebra o actool no archive
+const splashDir = path.join(root, 'ios/App/App/Assets.xcassets/Splash.imageset')
+const splash1x = path.join(splashDir, 'Default@1x~universal~anyany.png')
+const splash2x = path.join(splashDir, 'Default@2x~universal~anyany.png')
+if (fs.existsSync(splash1x) && fs.statSync(splash1x).size < 1024 && fs.existsSync(splash2x)) {
+  fs.copyFileSync(splash2x, splash1x)
+  console.log('[icons:native] Splash 1x reparado (estava vazio)')
 }
 
 console.log('[icons:native] Concluído. Incremente CURRENT_PROJECT_VERSION no Xcode e rode o workflow iOS.')

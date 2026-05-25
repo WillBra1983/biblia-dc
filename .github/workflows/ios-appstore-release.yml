@@ -123,6 +123,14 @@ jobs:
       - name: Ícone iOS App Store (1024, sem canal alpha)
         run: npm run icons:native
 
+      - name: Validar assets iOS (ícone + splash)
+        run: |
+          set -euo pipefail
+          ICON="ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png"
+          test -s "$ICON" || (echo "::error::AppIcon ausente" && exit 1)
+          SPLASH="ios/App/App/Assets.xcassets/Splash.imageset/Default@1x~universal~anyany.png"
+          test -s "$SPLASH" || (echo "::error::Splash 1x vazio — rode npm run icons:native" && exit 1)
+
       - name: Decodificar certificado .p12
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}

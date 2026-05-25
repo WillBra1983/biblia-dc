@@ -168,10 +168,9 @@ jobs:
 
       - name: Archive (Release)
         working-directory: ios/App
-        env:
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           set -euo pipefail
+          # Assinatura Manual só no target App (project.pbxproj + Podfile); não passar PROVISIONING_PROFILE aqui
           xcodebuild \
             -workspace App.xcworkspace \
             -scheme App \
@@ -179,10 +178,6 @@ jobs:
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
             archive \
-            CODE_SIGN_STYLE=Manual \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE="$PROFILE_UUID" \
             OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH"
 
       - name: Export IPA (App Store)

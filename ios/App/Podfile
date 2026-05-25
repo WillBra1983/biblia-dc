@@ -28,4 +28,13 @@ end
 
 post_install do |installer|
   assertDeploymentTarget(installer)
+  # Pods não usam perfil App Store — só o target App assina (evita erro no xcodebuild archive)
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+      config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'
+      config.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = ''
+      config.build_settings['PROVISIONING_PROFILE'] = ''
+    end
+  end
 end

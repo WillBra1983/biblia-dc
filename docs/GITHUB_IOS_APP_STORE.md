@@ -57,7 +57,9 @@ Defina uma **senha** (anote para o GitHub Secret `APPLE_CERTIFICATE_PASSWORD`).
 [Convert]::ToBase64String([IO.File]::ReadAllBytes("distribution.p12")) | Set-Clipboard
 ```
 
-Secret: **`APPLE_CERTIFICATE_BASE64`** = conteúdo colado (uma linha).
+Secret: **`APPLE_CERTIFICATE_BASE64`** = conteúdo colado (uma linha, **sem quebras** no meio).
+
+Se o workflow falhar em `security` / certificado: rode `npm run apple:cer-para-p12`, atualize o secret no GitHub com o novo `.txt` e confira `APPLE_CERTIFICATE_PASSWORD` = `BibliaDC2026!`.
 
 Ou rode: `powershell -File scripts/ios-prepare-github-secrets.ps1`
 

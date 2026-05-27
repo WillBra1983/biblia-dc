@@ -105,6 +105,17 @@ public class GoogleAuth: CAPPlugin {
     func signIn(_ call: CAPPluginCall) {
         signInCall = call
         DispatchQueue.main.async {
+            if self.googleSignInConfiguration == nil {
+                guard let clientId = self.getClientIdValue() else {
+                    self.signInCall?.reject(
+                        "Google Sign-In não configurado (clientId ausente). Reinstale o app ou contacte o suporte."
+                    )
+                    return
+                }
+                let scopes = (self.getConfigValue("scopes") as? [String]) ?? ["profile", "email", "openid"]
+                self.loadSignInClient(customClientId: clientId, customScopes: scopes)
+            }
+
             self.googleSignIn.configuration = self.googleSignInConfiguration
 
             if self.googleSignIn.hasPreviousSignIn() && !self.forceAuthCode {

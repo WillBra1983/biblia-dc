@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Capacitor } from '@capacitor/core'
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth'
+import { ensureNativeGoogleAuthInitialized } from '../utils/googleAuthNativeInit'
+import { estaSemRede } from '../utils/conteudoLocalOffline'
 import {
   getFirebaseAuth,
   getFirebaseFunctions,
@@ -29,14 +31,13 @@ const ERRO_EMAIL_NAO_VERIFICADO = 'salvation/email-not-verified'
 const isNativeApp = () =>
   typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() === true
 
-let nativeGoogleInitPromise = null
-
-async function ensureNativeGoogleAuthInitialized() {
-  if (!isNativeApp()) return
-  if (!nativeGoogleInitPromise) {
-    nativeGoogleInitPromise = GoogleAuth.initialize()
+function credencialGoogleFirebase(GoogleAuthProvider, googleUser) {
+  const idToken = googleUser?.authentication?.idToken
+  const accessToken = googleUser?.authentication?.accessToken
+  if (!idToken) {
+    throw new Error('O login Google nativo não devolveu idToken.')
   }
-  await nativeGoogleInitPromise
+  return GoogleAuthProvider.credential(idToken, accessToken || undefined)
 }
 
 const FirebaseAuthContext = createContext(null)
@@ -252,6 +253,12 @@ export function FirebaseAuthProvider({ children }) {
    */
   const loginWithGoogle = useCallback(async () => {
     setLastError(null)
+    if (estaSemRede()) {
+      const msg =
+        'Sem internet não é possível entrar com Google. Conecte o celular à rede e tente de novo.'
+      setLastError(msg)
+      throw new Error(msg)
+    }
     await loadFirebaseModules()
     const auth = getFirebaseAuth()
     if (!auth) throw new Error('Firebase não configurado')
@@ -263,11 +270,7 @@ export function FirebaseAuthProvider({ children }) {
       if (isNativeApp()) {
         await ensureNativeGoogleAuthInitialized()
         const googleUser = await GoogleAuth.signIn()
-        const idToken = googleUser?.authentication?.idToken
-        if (!idToken) {
-          throw new Error('O login Google nativo não devolveu idToken.')
-        }
-        const credential = GoogleAuthProvider.credential(idToken)
+        const credential = credencialGoogleFirebase(GoogleAuthProvider, googleUser)
         await signInWithCredential(auth, credential)
         return
       }
@@ -338,11 +341,7 @@ export function FirebaseAuthProvider({ children }) {
         if (isNativeApp()) {
           await ensureNativeGoogleAuthInitialized()
           const googleUser = await GoogleAuth.signIn()
-          const idToken = googleUser?.authentication?.idToken
-          if (!idToken) {
-            throw new Error('O login Google nativo não devolveu idToken.')
-          }
-          const credential = GoogleAuthProvider.credential(idToken)
+          const credential = credencialGoogleFirebase(GoogleAuthProvider, googleUser)
           await signInWithCredential(auth, credential)
         } else {
           await signInWithPopup(auth, provider)

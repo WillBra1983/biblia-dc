@@ -33,6 +33,43 @@ export function isAuthCancelError(error) {
 export function hintForFirebaseAuthError(error) {
   const code = String(error?.code ?? '')
   const msg = String(error?.message ?? '')
+  const msgLower = msg.toLowerCase()
+
+  if (
+    msgLower.includes('request action is invalid') ||
+    msgLower.includes('requested action is invalid') ||
+    code === 'auth/invalid-action-code'
+  ) {
+    const origin =
+      typeof window !== 'undefined' ? window.location.origin : ''
+    const lines = [
+      'O Google ou o Firebase recusou o login (ação inválida).',
+      '',
+      'Isso costuma acontecer em aparelhos que nunca entraram na conta, enquanto quem já entrou antes continua ok.',
+      ''
+    ]
+    if (isCapacitorNative()) {
+      lines.push(
+        'No app instalado (TestFlight/App Store):',
+        '1) Confirme internet ativa ao tocar em Continuar com Google.',
+        '2) Use a versão mais recente do app (build com Google Sign-In corrigido).',
+        '3) Se persistir: desinstale o app, reinstale e tente de novo.',
+        ''
+      )
+    } else {
+      lines.push(
+        'No navegador (site/PWA):',
+        `1) Firebase Console → Authentication → Settings → Authorized domains: inclua o domínio do site (ex.: foundcine.com).`,
+        `2) Origem atual: ${origin || '(desconhecida)'}.`,
+        '3) Google Cloud → cliente OAuth Web → Origens JavaScript autorizadas com esse domínio.',
+        ''
+      )
+    }
+    lines.push(
+      'Se o erro aparecer só sem Wi‑Fi/dados móveis: conecte à internet antes de entrar com Google.'
+    )
+    return lines.join('\n')
+  }
 
   if (msg === 'Something went wrong' && GOOGLE_SIGN_IN_STATUS_HINTS[code] && isCapacitorNative()) {
     return [

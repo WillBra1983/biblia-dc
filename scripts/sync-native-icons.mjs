@@ -93,4 +93,4 @@ if (fs.existsSync(splash1x) && fs.statSync(splash1x).size < 1024 && fs.existsSyn
   console.log('[icons:native] Splash 1x reparado (estava vazio)')
 }
 
-console.log('[icons:native] Concluído. Incremente CURRENT_PROJECT_VERSION no Xcode e rode o workflow iOS.')
+console.log('[icons:native] Concluído. No CI iOS o número de compilação é automático; rode o workflow iOS App Store.')

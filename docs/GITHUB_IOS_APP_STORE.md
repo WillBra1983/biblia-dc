@@ -158,6 +158,21 @@ Textos prontos: `docs/APP_STORE_CONNECT_TEXTO.md`.
 4. Aguarde ~20–40 min (primeira vez pode demorar).
 5. Em caso de sucesso: artefato **`bibliadc-ios-ipa`** para download; build no **TestFlight** em ~15–30 min.
 
+### Número de compilação (build) — automático no CI
+
+Você **não precisa** alterar `CURRENT_PROJECT_VERSION` no Xcode antes de cada **Run workflow**.
+
+O workflow calcula o **CFBundleVersion** assim:
+
+`run_number × 10 + run_attempt` (mínimo 11)
+
+- **run_number** — sobe cada vez que você clica em *Run workflow*.
+- **run_attempt** — sobe se você usar *Re-run jobs* na mesma execução (evita erro *bundle version already used* na Apple).
+
+Exemplos: 1ª execução → **11**; 2ª → **21**; re-run da 1ª → **12**.
+
+A **versão de marketing** (ex. **1.5** no App Store) continua em `MARKETING_VERSION` no `project.pbxproj` — só mude quando lançar **1.6**, **1.7**, etc.
+
 ---
 
 ## 9. Metadados da loja (depois do TestFlight)
@@ -183,6 +198,7 @@ Depois do TestFlight, instale no iPhone pelo app **TestFlight** e teste login, B
 | *SDK version issue* / iOS 17.5 SDK / exige iOS 26 SDK | Workflow usa `macos-26` + Xcode 26.4.1; rode de novo após push |
 | Archive falha após trocar ícone / *alpha* / AppIcon | Rode `npm run icons:native` (remove transparência do PNG 1024); workflow já executa este passo |
 | Upload TestFlight (outros) | Chave API com permissão **App Manager** ou **Admin**; Issuer ID e Key ID corretos |
+| *bundle version must be higher than previously uploaded* / compilação **10** já usada | O CI já incrementa sozinho; faça **push** do workflow atualizado e **Run workflow** de novo (não reutilize IPA antigo). Se falhar após upload OK, use *Re-run* (tentativa 2 gera build maior) |
 | **ITMS-91061** / *Binário inválido* / manifesto de privacidade (`GoogleSignIn`, `GTMAppAuth`, `GTMSessionFetcher`) | O projeto força **GoogleSignIn 7.1+** (`Podfile` + `npm run ios:patch-google-auth` após `npm ci`). Gere nova compilação (ex.: build **10**). Testadores externos só voltam quando a nova build estiver **Pronta para envio** no grupo certo |
 | Login Google: *The requested action is invalid* no `firebaseapp.com/__/auth/handler` | Veja **`docs/FIREBASE_GOOGLE_LOGIN.md`** — domínios autorizados (`foundcine.com`), OAuth Google ativo, URIs no Google Cloud, chave de API |
 

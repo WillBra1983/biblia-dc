@@ -134,6 +134,18 @@ jobs:
           SPLASH="ios/App/App/Assets.xcassets/Splash.imageset/Default@1x~universal~anyany.png"
           test -s "$SPLASH" || (echo "::error::Splash 1x vazio — rode npm run icons:native" && exit 1)
 
+      # CFBundleVersion: não editar project.pbxproj antes de cada Run workflow.
+      # run_number = contador deste workflow; run_attempt = 1,2,… em Re-run jobs (evita 409 na Apple).
+      - name: Número de build iOS (automático)
+        run: |
+          set -euo pipefail
+          BUILD_NUMBER=$(( GITHUB_RUN_NUMBER * 10 + GITHUB_RUN_ATTEMPT ))
+          if [ "$BUILD_NUMBER" -le 10 ]; then
+            BUILD_NUMBER=11
+          fi
+          echo "Compilação (CFBundleVersion): $BUILD_NUMBER — workflow run #${GITHUB_RUN_NUMBER}, tentativa ${GITHUB_RUN_ATTEMPT}"
+          echo "IOS_BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
+
       - name: Decodificar certificado .p12
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
@@ -194,6 +206,8 @@ jobs:
 
       - name: Archive (Release)
         working-directory: ios/App
+        env:
+          IOS_BUILD_NUMBER: ${{ env.IOS_BUILD_NUMBER }}
         run: |
           set -euo pipefail
           # Assinatura Manual só no target App (project.pbxproj + Podfile); não passar PROVISIONING_PROFILE aqui
@@ -203,6 +217,7 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            CURRENT_PROJECT_VERSION="$IOS_BUILD_NUMBER" \
             archive \
             OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH"
 

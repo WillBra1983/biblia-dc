@@ -184,6 +184,7 @@ Depois do TestFlight, instale no iPhone pelo app **TestFlight** e teste login, B
 | Archive falha após trocar ícone / *alpha* / AppIcon | Rode `npm run icons:native` (remove transparência do PNG 1024); workflow já executa este passo |
 | Upload TestFlight (outros) | Chave API com permissão **App Manager** ou **Admin**; Issuer ID e Key ID corretos |
 | **ITMS-91061** / *Binário inválido* / manifesto de privacidade (`GoogleSignIn`, `GTMAppAuth`, `GTMSessionFetcher`) | O projeto força **GoogleSignIn 7.1+** (`Podfile` + `npm run ios:patch-google-auth` após `npm ci`). Gere nova compilação (ex.: build **10**). Testadores externos só voltam quando a nova build estiver **Pronta para envio** no grupo certo |
+| Login Google: *The requested action is invalid* no `firebaseapp.com/__/auth/handler` | Veja **`docs/FIREBASE_GOOGLE_LOGIN.md`** — domínios autorizados (`foundcine.com`), OAuth Google ativo, URIs no Google Cloud, chave de API |
 
 ---
 

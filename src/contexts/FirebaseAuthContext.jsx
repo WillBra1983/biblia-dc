@@ -1,8 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Capacitor } from '@capacitor/core'
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth'
-import { ensureNativeGoogleAuthInitialized } from '../utils/googleAuthNativeInit'
-import { estaSemRede } from '../utils/conteudoLocalOffline'
 import {
   getFirebaseAuth,
   getFirebaseFunctions,
@@ -25,19 +23,21 @@ import {
   usuarioPrecisaVerificarEmail,
 } from '../utils/emailVerificationAuth'
 import { validarNomeExibicaoCadastro } from '../utils/emailCadastro'
+import { signInWithGoogleWeb } from '../utils/googleSignInWeb'
 
 const ERRO_EMAIL_NAO_VERIFICADO = 'salvation/email-not-verified'
 
 const isNativeApp = () =>
   typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() === true
 
-function credencialGoogleFirebase(GoogleAuthProvider, googleUser) {
-  const idToken = googleUser?.authentication?.idToken
-  const accessToken = googleUser?.authentication?.accessToken
-  if (!idToken) {
-    throw new Error('O login Google nativo não devolveu idToken.')
+let nativeGoogleInitPromise = null
+
+async function ensureNativeGoogleAuthInitialized() {
+  if (!isNativeApp()) return
+  if (!nativeGoogleInitPromise) {
+    nativeGoogleInitPromise = GoogleAuth.initialize()
   }
-  return GoogleAuthProvider.credential(idToken, accessToken || undefined)
+  await nativeGoogleInitPromise
 }
 
 const FirebaseAuthContext = createContext(null)
@@ -253,28 +253,24 @@ export function FirebaseAuthProvider({ children }) {
    */
   const loginWithGoogle = useCallback(async () => {
     setLastError(null)
-    if (estaSemRede()) {
-      const msg =
-        'Sem internet não é possível entrar com Google. Conecte o celular à rede e tente de novo.'
-      setLastError(msg)
-      throw new Error(msg)
-    }
     await loadFirebaseModules()
     const auth = getFirebaseAuth()
     if (!auth) throw new Error('Firebase não configurado')
-    const { GoogleAuthProvider, signInWithCredential, signInWithPopup } = await import(
-      'firebase/auth'
-    )
+    const { GoogleAuthProvider, signInWithCredential } = await import('firebase/auth')
     const provider = new GoogleAuthProvider()
     try {
       if (isNativeApp()) {
         await ensureNativeGoogleAuthInitialized()
         const googleUser = await GoogleAuth.signIn()
-        const credential = credencialGoogleFirebase(GoogleAuthProvider, googleUser)
+        const idToken = googleUser?.authentication?.idToken
+        if (!idToken) {
+          throw new Error('O login Google nativo não devolveu idToken.')
+        }
+        const credential = GoogleAuthProvider.credential(idToken)
         await signInWithCredential(auth, credential)
         return
       }
-      await signInWithPopup(auth, provider)
+      await signInWithGoogleWeb(auth, provider)
     } catch (e) {
       setLastError(hintForFirebaseAuthError(e))
       throw e
@@ -334,17 +330,19 @@ export function FirebaseAuthProvider({ children }) {
 
     try {
       if (tipo === 'google') {
-        const { GoogleAuthProvider, signInWithCredential, signInWithPopup } = await import(
-          'firebase/auth'
-        )
+        const { GoogleAuthProvider, signInWithCredential } = await import('firebase/auth')
         const provider = new GoogleAuthProvider()
         if (isNativeApp()) {
           await ensureNativeGoogleAuthInitialized()
           const googleUser = await GoogleAuth.signIn()
-          const credential = credencialGoogleFirebase(GoogleAuthProvider, googleUser)
+          const idToken = googleUser?.authentication?.idToken
+          if (!idToken) {
+            throw new Error('O login Google nativo não devolveu idToken.')
+          }
+          const credential = GoogleAuthProvider.credential(idToken)
           await signInWithCredential(auth, credential)
         } else {
-          await signInWithPopup(auth, provider)
+          await signInWithGoogleWeb(auth, provider)
         }
       } else {
         const { validarEmailParaCadastro } = await import('../utils/emailCadastro')

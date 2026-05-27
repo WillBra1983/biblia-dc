@@ -162,14 +162,16 @@ Textos prontos: `docs/APP_STORE_CONNECT_TEXTO.md`.
 
 Você **não precisa** alterar `CURRENT_PROJECT_VERSION` no Xcode antes de cada **Run workflow**.
 
-O workflow calcula o **CFBundleVersion** assim:
+O workflow define o **CFBundleVersion** assim:
 
-`run_number × 10 + run_attempt` (mínimo 11)
+`162 + run_number + run_attempt`
 
-- **run_number** — sobe cada vez que você clica em *Run workflow*.
-- **run_attempt** — sobe se você usar *Re-run jobs* na mesma execução (evita erro *bundle version already used* na Apple).
+- **run_number** — quantas vezes você já clicou em *Run workflow* neste pipeline (não é “quantas compilações na loja”).
+- **run_attempt** — tentativa da mesma execução (*Re-run jobs* soma +1).
 
-Exemplos: 1ª execução → **11**; 2ª → **21**; re-run da 1ª → **12**.
+Exemplos neste projeto: run **18** → compilação **181** (162+18+1); próximo run **19** → **182**; depois **183**, **184**…
+
+**Por que apareceu 181?** Não foram 181 envios — foi a **18ª execução** do workflow com uma fórmula antiga que multiplicava por 10. A compilação **181** no TestFlight é só um **rótulo interno** da Apple; a versão visível continua **1.5**.
 
 A **versão de marketing** (ex. **1.5** no App Store) continua em `MARKETING_VERSION` no `project.pbxproj` — só mude quando lançar **1.6**, **1.7**, etc.
 
@@ -198,7 +200,8 @@ Depois do TestFlight, instale no iPhone pelo app **TestFlight** e teste login, B
 | *SDK version issue* / iOS 17.5 SDK / exige iOS 26 SDK | Workflow usa `macos-26` + Xcode 26.4.1; rode de novo após push |
 | Archive falha após trocar ícone / *alpha* / AppIcon | Rode `npm run icons:native` (remove transparência do PNG 1024); workflow já executa este passo |
 | Upload TestFlight (outros) | Chave API com permissão **App Manager** ou **Admin**; Issuer ID e Key ID corretos |
-| *bundle version must be higher than previously uploaded* / compilação **10** já usada | O CI já incrementa sozinho; faça **push** do workflow atualizado e **Run workflow** de novo (não reutilize IPA antigo). Se falhar após upload OK, use *Re-run* (tentativa 2 gera build maior) |
+| *bundle version must be higher than previously uploaded* / compilação já usada | O CI incrementa sozinho; **Run workflow** de novo ou *Re-run* (tentativa 2 = número maior). Não reutilize IPA antigo |
+| Compilação **181** (ou número “estranho”) no TestFlight | Rótulo do CI (`162 + run_number`), não é quantidade de builds na loja; próximos serão **182**, **183**… após push do workflow corrigido |
 | **ITMS-91061** / *Binário inválido* / manifesto de privacidade (`GoogleSignIn`, `GTMAppAuth`, `GTMSessionFetcher`) | O projeto força **GoogleSignIn 7.1+** (`Podfile` + `npm run ios:patch-google-auth` após `npm ci`). Gere nova compilação (ex.: build **10**). Testadores externos só voltam quando a nova build estiver **Pronta para envio** no grupo certo |
 | Login Google: *The requested action is invalid* no `firebaseapp.com/__/auth/handler` | Veja **`docs/FIREBASE_GOOGLE_LOGIN.md`** — domínios autorizados (`foundcine.com`), OAuth Google ativo, URIs no Google Cloud, chave de API |
 

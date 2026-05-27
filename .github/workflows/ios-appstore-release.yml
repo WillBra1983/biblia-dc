@@ -24,6 +24,8 @@ jobs:
     timeout-minutes: 90
     env:
       NODE_OPTIONS: --max-old-space-size=4096
+      # Compilação = epoch + run_number + run_attempt (ex.: run 18 → 162+18+1 = 181)
+      IOS_BUILD_EPOCH: '162'
     steps:
       - name: Verificar segredos obrigatórios
         env:
@@ -134,15 +136,11 @@ jobs:
           SPLASH="ios/App/App/Assets.xcassets/Splash.imageset/Default@1x~universal~anyany.png"
           test -s "$SPLASH" || (echo "::error::Splash 1x vazio — rode npm run icons:native" && exit 1)
 
-      # CFBundleVersion: não editar project.pbxproj antes de cada Run workflow.
-      # run_number = contador deste workflow; run_attempt = 1,2,… em Re-run jobs (evita 409 na Apple).
+      # CFBundleVersion automático: epoch + run_number + run_attempt (+1 por Run workflow; +1 em Re-run).
       - name: Número de build iOS (automático)
         run: |
           set -euo pipefail
-          BUILD_NUMBER=$(( GITHUB_RUN_NUMBER * 10 + GITHUB_RUN_ATTEMPT ))
-          if [ "$BUILD_NUMBER" -le 10 ]; then
-            BUILD_NUMBER=11
-          fi
+          BUILD_NUMBER=$(( IOS_BUILD_EPOCH + GITHUB_RUN_NUMBER + GITHUB_RUN_ATTEMPT ))
           echo "Compilação (CFBundleVersion): $BUILD_NUMBER — workflow run #${GITHUB_RUN_NUMBER}, tentativa ${GITHUB_RUN_ATTEMPT}"
           echo "IOS_BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
 

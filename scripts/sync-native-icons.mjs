@@ -51,9 +51,21 @@ const androidSizes = {
 }
 const resBase = path.join(root, 'android/app/src/main/res')
 
+/** Evita mergeReleaseResources: Duplicate resources (png + webp do capacitor-assets antigo). */
+function removerLauncherPngLegado(dir) {
+  for (const name of ['ic_launcher.png', 'ic_launcher_round.png']) {
+    const p = path.join(dir, name)
+    if (fs.existsSync(p)) {
+      fs.unlinkSync(p)
+      console.log('[icons:native] Removido legado', path.relative(root, p))
+    }
+  }
+}
+
 for (const [density, size] of Object.entries(androidSizes)) {
   const dir = path.join(resBase, `mipmap-${density}`)
   fs.mkdirSync(dir, { recursive: true })
+  removerLauncherPngLegado(dir)
   const webp = await sharp(src).resize(size, size).webp({ quality: 90 }).toBuffer()
   fs.writeFileSync(path.join(dir, 'ic_launcher.webp'), webp)
   fs.writeFileSync(path.join(dir, 'ic_launcher_round.webp'), webp)

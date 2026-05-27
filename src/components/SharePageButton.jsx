@@ -40,23 +40,40 @@ export default function SharePageButton({ hidden = false }) {
   }
 
   useEffect(() => {
-    const handler = () => {
-      void abrirMenu(btnRef.current)
+    const handler = (e) => {
+      const anchor = e?.detail?.anchorEl ?? btnRef.current
+      void abrirMenu(anchor)
     }
     window.addEventListener('salvation-compartilhar-pagina', handler)
     return () => window.removeEventListener('salvation-compartilhar-pagina', handler)
   }, [location.pathname, location.search])
 
-  if (hidden) return null
-
   return (
     <>
-      <Tooltip title="Compartilhar">
+      <Tooltip title={hidden ? '' : 'Compartilhar'} disableHoverListener={hidden}>
         <IconButton
           ref={btnRef}
           color="inherit"
           onClick={(e) => void abrirMenu(e.currentTarget)}
           aria-label="compartilhar página"
+          tabIndex={hidden ? -1 : 0}
+          sx={
+            hidden
+              ? {
+                  position: 'fixed',
+                  top: 56,
+                  right: 16,
+                  width: 1,
+                  height: 1,
+                  minWidth: 0,
+                  p: 0,
+                  opacity: 0,
+                  overflow: 'hidden',
+                  pointerEvents: 'none',
+                  zIndex: -1,
+                }
+              : undefined
+          }
         >
           <ShareIcon />
         </IconButton>

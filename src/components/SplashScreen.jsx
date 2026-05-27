@@ -3,7 +3,10 @@ import { Box, Typography } from '@mui/material'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import {
   bibliaJaEstaPronta,
+  deveExibirSplashOverlay,
+  jaPassouDoSplash,
   marcarSplashFechado,
+  marcarSplashOverlayExibido,
   marcarSplashUiConcluido,
   removerSplashHtmlInicial,
   splashUiJaConcluiu,
@@ -16,7 +19,7 @@ import {
  * imediato, sem "tela preta" no meio do caminho.
  */
 export default function SplashScreen({ onComplete, minMs = 600, maxMs = 1800 }) {
-  const [visible, setVisible] = useState(() => !splashUiJaConcluiu())
+  const [visible, setVisible] = useState(() => deveExibirSplashOverlay())
 
   useEffect(() => {
     removerSplashHtmlInicial()
@@ -26,21 +29,29 @@ export default function SplashScreen({ onComplete, minMs = 600, maxMs = 1800 }) 
       return undefined
     }
 
-    let cancelled = false
+    if (deveExibirSplashOverlay()) {
+      marcarSplashOverlayExibido()
+    } else {
+      setVisible(false)
+    }
+
+    if (jaPassouDoSplash()) {
+      onComplete?.()
+      return undefined
+    }
+
+    let finalizado = false
     const startedAt = Date.now()
     let timeoutFinal = null
 
     const finalizar = () => {
-      if (cancelled || splashUiJaConcluiu()) return
-      cancelled = true
+      if (finalizado || splashUiJaConcluido()) return
+      finalizado = true
       marcarSplashUiConcluido()
       setVisible(false)
-      // Pequeno buffer (60 ms) para o navegador pintar o conteúdo da Bíblia
-      // antes de soltarmos as subscrições RTDB — evita um micro-jank no fim
-      // da animação do splash, mesmo em contas com muito conteúdo.
       window.setTimeout(() => {
         marcarSplashFechado()
-        if (onComplete) onComplete()
+        onComplete?.()
       }, 60)
     }
 
@@ -59,8 +70,6 @@ export default function SplashScreen({ onComplete, minMs = 600, maxMs = 1800 }) 
     }
 
     return () => {
-      cancelled = true
-      window.removeEventListener('biblia-pronta', onPronta)
       if (timeoutFinal) window.clearTimeout(timeoutFinal)
       window.clearTimeout(timeoutTeto)
     }

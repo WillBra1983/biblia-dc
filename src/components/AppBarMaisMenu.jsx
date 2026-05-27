@@ -94,8 +94,11 @@ export default function AppBarMaisMenu() {
   }
 
   const compartilharPagina = () => {
+    const anchor = anchorEl
     fechar()
-    window.dispatchEvent(new Event('salvation-compartilhar-pagina'))
+    window.dispatchEvent(
+      new CustomEvent('salvation-compartilhar-pagina', { detail: { anchorEl: anchor } })
+    )
   }
 
   const irVersiculosMarcados = () => {

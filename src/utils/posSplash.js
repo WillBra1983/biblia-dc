@@ -19,6 +19,8 @@
 let splashJaFechado = false
 /** UI do splash React já concluiu nesta sessão (evita repetir ao remontar AppShell). */
 let splashUiConcluido = false
+/** Overlay do splash já foi exibido (React 18 Strict Mode remonta sem repetir animação). */
+let splashOverlayJaExibido = false
 /** `biblia-pronta` já foi sinalizado (listener do splash pode montar depois). */
 let bibliaProntaDisparado = false
 
@@ -30,8 +32,18 @@ export function splashUiJaConcluiu() {
   return splashUiConcluido
 }
 
+/** Uma única animação de splash por sessão de abertura do app. */
+export function deveExibirSplashOverlay() {
+  return !splashUiConcluido && !splashOverlayJaExibido
+}
+
+export function marcarSplashOverlayExibido() {
+  splashOverlayJaExibido = true
+}
+
 export function marcarSplashUiConcluido() {
   splashUiConcluido = true
+  splashOverlayJaExibido = true
 }
 
 export function bibliaJaEstaPronta() {

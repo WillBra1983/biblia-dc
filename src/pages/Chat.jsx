@@ -593,7 +593,7 @@ export default function Chat() {
   // um recurso protegido (Strong, Plano de leitura, etc.), retomamos a
   // intenção original e o devolvemos para o destino correto.
   useEffect(() => {
-    if (!user?.uid) return
+    if (!user?.uid || usuarioPrecisaVerificarEmail(user)) return
     try {
       if (sessionStorage.getItem(PENDING_CHAT_EXPORT_KEY)) return
     } catch (_) {
@@ -602,7 +602,7 @@ export default function Chat() {
     const destino = consumePendingLoginRedirect()
     if (!destino) return
     navigate(destino, { replace: true })
-  }, [user?.uid, navigate])
+  }, [user?.uid, user?.emailVerified, navigate])
 
   useEffect(() => {
     if (!pendingExport) {

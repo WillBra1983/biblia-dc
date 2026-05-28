@@ -57,31 +57,38 @@ export function FirebaseAuthProvider({ children }) {
     let unsubAuth = () => {}
 
     void (async () => {
-      await loadFirebaseModules()
-      if (cancelled) return
-      const auth = getFirebaseAuth()
-      if (!auth) {
-        setUser(null)
-        return
-      }
-
-      const { onAuthStateChanged, getRedirectResult } = await import('firebase/auth')
-
-      cancelRedirectWait = aguardarPosSplash(() => {
-        try {
-          getRedirectResult(auth).catch(() => {})
-        } catch {
-          /* ignore */
-        }
-      })
-
-      unsubAuth = onAuthStateChanged(auth, (u) => {
+      try {
+        await loadFirebaseModules()
         if (cancelled) return
-        if (estaRegistroEmailSenhaEmCurso() && u && usuarioPrecisaVerificarEmail(u)) {
+        const auth = getFirebaseAuth()
+        if (!auth) {
+          setUser(null)
           return
         }
-        setUser(u ?? null)
-      })
+
+        const { onAuthStateChanged, getRedirectResult } = await import('firebase/auth')
+
+        cancelRedirectWait = aguardarPosSplash(() => {
+          try {
+            getRedirectResult(auth).catch(() => {})
+          } catch {
+            /* ignore */
+          }
+        })
+
+        unsubAuth = onAuthStateChanged(auth, (u) => {
+          if (cancelled) return
+          if (estaRegistroEmailSenhaEmCurso() && u && usuarioPrecisaVerificarEmail(u)) {
+            return
+          }
+          setUser(u ?? null)
+        })
+      } catch (e) {
+        if (cancelled) return
+        setLastError(hintForFirebaseAuthError(e))
+        // Evita loading infinito se o Firebase falhar ao inicializar no aparelho.
+        setUser(null)
+      }
     })()
 
     return () => {
@@ -193,9 +200,17 @@ export function FirebaseAuthProvider({ children }) {
     try {
       const cred = await signInWithEmailAndPassword(auth, val.email, password)
       if (usuarioPrecisaVerificarEmail(cred.user)) {
+        try {
+          const { sendEmailVerification } = await import('firebase/auth')
+          await sendEmailVerification(cred.user)
+        } catch {
+          /* rate limit / rede — usuário pode usar Reenviar */
+        }
         const err = new Error(MSG_EMAIL_NAO_VERIFICADO)
         err.code = ERRO_EMAIL_NAO_VERIFICADO
-        setLastError(MSG_EMAIL_NAO_VERIFICADO)
+        setLastError(
+          'Enviamos um e-mail de confirmação. Abra o link (verifique o spam) e toque em "Já confirmei".'
+        )
         throw err
       }
     } catch (e) {

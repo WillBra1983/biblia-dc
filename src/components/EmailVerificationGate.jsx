@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Alert, Box, Button, Paper, Stack, Typography } from '@mui/material'
 import MarkEmailReadOutlinedIcon from '@mui/icons-material/MarkEmailReadOutlined'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
@@ -7,11 +7,39 @@ import { MSG_VERIFICACAO_CONTA_LEGADA } from '../utils/emailVerificationAuth'
 /**
  * Bloqueia o app até o usuário confirmar o e-mail (contas e-mail/senha).
  */
+const AUTO_SEND_KEY = 'salvation-verification-auto-sent'
+
 export default function EmailVerificationGate({ email }) {
   const { resendVerificationEmail, reloadAuthUser, logout } = useFirebaseAuth()
   const [busy, setBusy] = useState(false)
   const [info, setInfo] = useState('')
   const [erro, setErro] = useState('')
+  const autoSendFeito = useRef(false)
+
+  // Primeira visita à tela: envia confirmação (antes só ao tocar em Reenviar).
+  useEffect(() => {
+    if (!email || autoSendFeito.current) return
+    const chave = `${AUTO_SEND_KEY}:${email.trim().toLowerCase()}`
+    try {
+      if (sessionStorage.getItem(chave)) return
+    } catch {
+      /* ignore */
+    }
+    autoSendFeito.current = true
+    void (async () => {
+      try {
+        await resendVerificationEmail()
+        try {
+          sessionStorage.setItem(chave, String(Date.now()))
+        } catch {
+          /* ignore */
+        }
+        setInfo('Enviamos o e-mail de confirmação. Verifique a caixa de entrada e o spam.')
+      } catch {
+        /* usuário pode tocar em Reenviar */
+      }
+    })()
+  }, [email, resendVerificationEmail])
 
   const reenviar = async () => {
     setBusy(true)

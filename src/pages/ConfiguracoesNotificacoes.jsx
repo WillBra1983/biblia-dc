@@ -48,6 +48,8 @@ import {
 } from '../services/notificacoesPushService'
 import { mostrarSnackbar } from '../utils/uiDialogs'
 import { ensureUserForFeature } from '../utils/chatExportSend'
+import EmailVerificationGate from '../components/EmailVerificationGate'
+import { usuarioPrecisaVerificarEmail } from '../utils/emailVerificationAuth'
 
 export default function ConfiguracoesNotificacoes() {
   const { user, tentarAcessarComOutraConta } = useFirebaseAuth()
@@ -224,7 +226,23 @@ export default function ConfiguracoesNotificacoes() {
     }
   }
 
-  if (!user?.uid || carregando) {
+  if (user === undefined || (user?.uid && carregando)) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 320 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  if (user && usuarioPrecisaVerificarEmail(user)) {
+    return (
+      <Container maxWidth="sm" sx={{ py: 2 }}>
+        <EmailVerificationGate email={user.email} />
+      </Container>
+    )
+  }
+
+  if (!user?.uid) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 320 }}>
         <CircularProgress />

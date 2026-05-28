@@ -204,6 +204,64 @@ Depois do TestFlight, instale no iPhone pelo app **TestFlight** e teste login, B
 | Compilação **181** (ou número “estranho”) no TestFlight | Rótulo do CI (`162 + run_number`), não é quantidade de builds na loja; próximos serão **182**, **183**… após push do workflow corrigido |
 | **ITMS-91061** / *Binário inválido* / manifesto de privacidade (`GoogleSignIn`, `GTMAppAuth`, `GTMSessionFetcher`) | O projeto força **GoogleSignIn 7.1+** (`Podfile` + `npm run ios:patch-google-auth` após `npm ci`). Gere nova compilação (ex.: build **10**). Testadores externos só voltam quando a nova build estiver **Pronta para envio** no grupo certo |
 | Login Google: *The requested action is invalid* no `firebaseapp.com/__/auth/handler` | Veja **`docs/FIREBASE_GOOGLE_LOGIN.md`** — domínios autorizados (`foundcine.com`), OAuth Google ativo, URIs no Google Cloud, chave de API |
+| Revisão beta **Rejeitado** — Guideline **2.1(a)** / *demo account* / build **1.5 (10)** | Veja seção **12** abaixo (conta demo no TestFlight + responder à Apple) |
+
+---
+
+## 12. Revisão beta rejeitada (2.1a — conta demo)
+
+A Apple testou a build **1.5 (10)** no **TestFlight externo** e não conseguiu entrar no app. Isso **não** reprova o app na loja; só bloqueia **testadores externos** e o **link público** até resolver.
+
+### Passo 1 — Criar conta só para a Apple (Firebase)
+
+**Use um e-mail real** (caixa de entrada que você abre). Exemplos:
+
+- `prwilsonlucas+bibliadc@gmail.com` (chega no seu Gmail normal)
+- ou um Gmail novo só para revisão
+
+**Não** use um endereço inventado (`bibliadc.review@gmail.com` sem criar a conta no Google) — o app exige confirmação de e-mail e a nuvem (chat, preferências) só funciona com `emailVerified`.
+
+1. [Firebase Console](https://console.firebase.google.com/) → projeto **biblia-dc** → **Authentication** → **Users**.
+2. Se já existir usuário de teste **não verificado**, apague e crie de novo.
+3. **Add user** (adicionar usuário manualmente) → e-mail real + senha forte.
+4. Usuários criados **só pelo Console** já vêm com e-mail **verificado** (sem link de confirmação).
+5. No app, use **Entrar** (não “Criar conta”) com **e-mail + senha** e confira: Bíblia, chat, menu.
+
+**Evite** “Criar conta” / “Enviar link de cadastro” no app — isso é outro fluxo e exige confirmação por e-mail.
+
+Se ainda aparecer “Confirme seu e-mail”: abra o link no Gmail `prwilsonlucas@gmail.com` (o `+bibliadc` chega na mesma caixa) → depois **Já confirmei — atualizar**. O app agora também envia o e-mail automaticamente na primeira vez.
+
+**Importante:** use **e-mail + senha** no TestFlight, não só Google/Apple. A revisão precisa de usuário e senha fixos.
+
+### Passo 2 — Informar no App Store Connect
+
+1. **Bíblia DC** → aba **TestFlight** (não “Distribuição”).
+2. Barra lateral → **Informações de teste** / **Test Information** (às vezes em **Geral** do TestFlight).
+3. Role até **Informações de revisão do app beta** / **Beta App Review Information**.
+4. Marque **Login necessário** / **Sign-in required**.
+5. Preencha **Nome de usuário** (e-mail) e **Senha**.
+6. Em **Notas**, em português ou inglês, por exemplo:  
+   `Use email and password on the login screen. Account has access to Bible, devotionals, chat, and settings.`
+7. **Salvar**.
+
+### Passo 3 — Responder à Apple
+
+1. **Distribuição** → **Revisão de apps** (ou a mensagem em **TestFlight** → build → mensagens).
+2. Abra a mensagem de hoje → **Responder à equipe de revisão de apps**.
+3. Texto sugerido (pode colar em inglês):
+
+   `We added demo credentials in TestFlight → Test Information → Beta App Review Information (Sign-in required). Username: [email]. Password: [password]. Please use email/password login on the first screen. Thank you.`
+
+### Passo 4 — Enviar build nova para revisão beta
+
+A build **10** já foi rejeitada. Use a **181** (ou a próxima do CI, ex. **182**):
+
+1. **TestFlight** → **Testes externos** → grupo **Teste Biblia** → aba **Compilações**.
+2. Adicione a compilação **181** (ou mais recente) e envie para **revisão beta** de novo.
+
+Aguarde status sair de **Rejeitado** / **Aguardando revisão** para **Pronta para testar** (horas a ~48 h). Só então o **Iago** e o **link público** funcionam.
+
+**Teste interno** (equipe) não depende dessa revisão beta — pode usar a build **181** no grupo interno enquanto isso.
 
 ---
 

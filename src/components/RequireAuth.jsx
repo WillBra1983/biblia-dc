@@ -68,6 +68,12 @@ export default function RequireAuth({ children }) {
     if (offline) return
     if (onChat) return
 
+    // Logado mas e-mail não confirmado: só o chat (sem guardar URL — evita loop com /chat).
+    if (user?.uid && usuarioPrecisaVerificarEmail(user)) {
+      navigate('/chat', { replace: true })
+      return
+    }
+
     try {
       const target = `${pathname}${location.search}${location.hash}`
       if (target && !target.startsWith('/chat')) {
@@ -80,7 +86,7 @@ export default function RequireAuth({ children }) {
       /* ignore */
     }
     navigate('/chat', { replace: true })
-  }, [sessaoOk, pathname, location.search, location.hash, navigate, offline, onChat])
+  }, [sessaoOk, user, pathname, location.search, location.hash, navigate, offline, onChat])
 
   useEffect(() => {
     if (splashDisparadoRef.current) return

@@ -83,6 +83,21 @@ function parseEstudoIdParam(raw) {
   return Number.isFinite(n) ? n : raw
 }
 
+function persistirUltimaLicao(temaId, estudoId = null) {
+  if (!temaId) return
+  try {
+    localStorage.setItem(
+      'discipulado_ultima_licao',
+      JSON.stringify({
+        temaId,
+        estudoId: estudoId ?? null,
+      })
+    )
+  } catch {
+    // ignore
+  }
+}
+
 export default function Discipulado() {
   const { 
     discipuladoTema: temaAtual,
@@ -121,6 +136,7 @@ export default function Discipulado() {
       if (temaNum != null) setTemaAtual(temaNum)
       const parsedEstudo = estudoId ? parseEstudoIdParam(estudoId) : null
       setEstudoSelecionado(parsedEstudo ?? null)
+      persistirUltimaLicao(temaNum, parsedEstudo ?? null)
     } else {
       setTemaSelecionado(null)
       setEstudoSelecionado(null)
@@ -211,6 +227,7 @@ export default function Discipulado() {
     setEstudoSelecionado(estudoId)
     setTemaAtual(temaId)
     setQuestaoAtual(1)
+    persistirUltimaLicao(temaId, estudoId)
     // Atualiza URL para permitir voltar com o botão do dispositivo
     if (estudoId) {
       navigate(`/discipulado/${temaId}/${estudoId}`, { replace: false })
@@ -671,7 +688,7 @@ export default function Discipulado() {
 
     return (
       <LayoutEstudo>
-        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 16px)', px: 2, bgcolor: '#004d40', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, fontFamily: ff }}>
+        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: 2, bgcolor: '#004d40', minHeight: '100%', overflowX: 'hidden', fontFamily: ff }}>
           {ultimaLicao && (
             <Card
               onClick={() => handleSelectTema(ultimaLicao.tema.id, ultimaLicao.estudo?.id ?? null)}
@@ -838,7 +855,7 @@ export default function Discipulado() {
     return (
       <LayoutEstudo>
         {discAppBarPortals}
-        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 16px)', px: 2, bgcolor: 'background.default', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, fontFamily: ff }}>
+        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: 2, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', fontFamily: ff }}>
           {/* Introdução do tema */}
           {tema.introducao && (
             <Box sx={{ mb: 3, color: 'text.primary', textAlign: textAlign || 'left' }}>
@@ -963,14 +980,13 @@ export default function Discipulado() {
   return (
     <LayoutEstudo onSelectTema={handleSelectTema}>
       {discAppBarPortals}
-      <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 16px)', px: 2, bgcolor: 'background.default', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, fontFamily: ff }}>
+      <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: 2, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', fontFamily: ff }}>
         {temaSelecionado && (
           <Paper 
             elevation={0} 
             sx={{ 
               p: 0,
-              minHeight: '100vh',
-              '@supports (min-height: 100dvh)': { minHeight: '100dvh' },
+              minHeight: '100%',
               width: '100%'
             }}
           >

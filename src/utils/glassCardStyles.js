@@ -82,27 +82,34 @@ export function getGlassCardStyles(gradient, options = {}) {
 
   // Efeito de hover com mais brilho e elevação
   if (hover) {
-    baseStyles['&:hover'] = {
-      transform: 'translateY(-4px) scale(1.02)',
-      boxShadow: `
-        0 16px 64px 0 rgba(0, 0, 0, 0.5),
-        inset 0 2px 0 rgba(255, 255, 255, 0.5),
-        inset 0 -2px 0 rgba(255, 255, 255, 0.2),
-        0 0 30px rgba(255, 255, 255, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.15) inset
-      `,
-      '&::after': {
-        opacity: 1,
-      },
-      ...(shimmer && {
-        '&::before': {
-          animation: 'shimmer 7s infinite',
+    // Em touch/mobile, `hover` pode "grudar" após o toque e causar overflow
+    // visual (faixa branca/largura extra). Aplicamos transformação só em
+    // ponteiro fino (mouse/trackpad) e desativamos transform em touch.
+    baseStyles['@media (hover: hover) and (pointer: fine)'] = {
+      '&:hover': {
+        transform: 'translateY(-4px) scale(1.02)',
+        boxShadow: `
+          0 16px 64px 0 rgba(0, 0, 0, 0.5),
+          inset 0 2px 0 rgba(255, 255, 255, 0.5),
+          inset 0 -2px 0 rgba(255, 255, 255, 0.2),
+          0 0 30px rgba(255, 255, 255, 0.3),
+          0 0 0 1px rgba(255, 255, 255, 0.15) inset
+        `,
+        '&::after': {
+          opacity: 1,
         },
-      }),
+        ...(shimmer && {
+          '&::before': {
+            animation: 'shimmer 7s infinite',
+          },
+        }),
+      },
     }
 
-    baseStyles['&:active'] = {
-      transform: 'translateY(-2px) scale(0.98)',
+    baseStyles['@media (hover: none), (pointer: coarse)'] = {
+      '&:hover, &:active': {
+        transform: 'none',
+      },
     }
   }
 

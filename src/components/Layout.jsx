@@ -31,7 +31,6 @@ import {
   registarVisualizacaoSecaoSeNecessario,
 } from '../utils/sectionViewKeys'
 import { setAppIconBadgeCount } from '../utils/appIconBadge'
-import { prefetchRotasComuns } from '../utils/routePrefetch'
 import { aguardarPosSplash } from '../utils/posSplash'
 import AvisoModoOffline from './AvisoModoOffline'
 
@@ -226,19 +225,8 @@ export default function Layout({ title, children }) {
     return () => window.removeEventListener('salvation-open-main-menu', onOpenMainMenu)
   }, [])
 
-  // Quando o menu abre, faz prefetch dos chunks das rotas mais usadas — assim a navegação fica instantânea.
-  useEffect(() => {
-    if (!drawerOpen) return
-    prefetchRotasComuns()
-  }, [drawerOpen])
-
-  // Depois do splash fechar, dispara prefetch em background (idle) das rotas mais comuns.
-  // (Antes era em `biblia-pronta`, mas isso ainda concorria com a animação do splash —
-  // os chunks competem por parse/compile e atrasam o primeiro paint do capítulo.)
-  useEffect(() => {
-    const cancelarEspera = aguardarPosSplash(() => prefetchRotasComuns())
-    return cancelarEspera
-  }, [])
+  // Prefetch automático de rotas removido: abrimos apenas o que o utilizador
+  // pedir no menu, reduzindo parse/compile de chunks na entrada da Bíblia.
 
   useEffect(() => {
     const isBiblia = location.pathname === '/' || location.pathname === '/biblia'

@@ -18,7 +18,7 @@ import {
  * (`window.dispatchEvent(new Event('biblia-pronta'))`) — assim o capítulo aparece
  * imediato, sem "tela preta" no meio do caminho.
  */
-export default function SplashScreen({ onComplete, minMs = 600, maxMs = 1800 }) {
+export default function SplashScreen({ onComplete, minMs = 450, maxMs = 1400 }) {
   const [visible, setVisible] = useState(() => deveExibirSplashOverlay())
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function SplashScreen({ onComplete, minMs = 600, maxMs = 1800 }) 
     let timeoutFinal = null
 
     const finalizar = () => {
-      if (finalizado || splashUiJaConcluido()) return
+      if (finalizado || splashUiJaConcluiu()) return
       finalizado = true
       marcarSplashUiConcluido()
       setVisible(false)

@@ -274,12 +274,12 @@ export default function LeituraConfigButton({ hidden = false }) {
                   whiteSpace: 'nowrap',
                 }}
               >
-                {(lineHeight ?? 160) / 100}
+                {(lineHeight ?? 150) / 100}
               </Typography>
             </Box>
             <Box sx={{ px: 0.5, mb: 2 }}>
               <Slider
-                value={lineHeight ?? 160}
+                value={lineHeight ?? 150}
                 min={120}
                 max={220}
                 step={5}

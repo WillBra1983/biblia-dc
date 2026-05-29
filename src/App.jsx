@@ -68,7 +68,24 @@ const UserCloudSync = lazy(() => import('./components/UserCloudSync'))
 
 function DeferredUserCloudSync() {
   const [show, setShow] = useState(false)
-  useEffect(() => aguardarPosSplash(() => setShow(true)), [])
+  useEffect(() => {
+    let timerId = 0
+    const cancel = aguardarPosSplash(() => {
+      const reveal = () => setShow(true)
+      // Sincronização em nuvem só depois da leitura inicial já visível.
+      timerId = window.setTimeout(() => {
+        if (typeof window.requestIdleCallback === 'function') {
+          window.requestIdleCallback(reveal, { timeout: 3000 })
+        } else {
+          reveal()
+        }
+      }, 2200)
+    })
+    return () => {
+      if (timerId) window.clearTimeout(timerId)
+      cancel()
+    }
+  }, [])
   if (!show) return null
   return (
     <Suspense fallback={null}>
@@ -78,8 +95,8 @@ function DeferredUserCloudSync() {
 }
 
 const routerFuture = {
-  v7_startTransition: true,
   v7_relativeSplatPath: true,
+  v7_startTransition: true,
 }
 
 /** Deve ficar abaixo de `RouterProvider` para `useLocation`/`useNavigate` em `AppProvider`. */
@@ -234,5 +251,5 @@ export function createAppRouter(basename, useHashRouter) {
 }
 
 export default function App({ router }) {
-  return <RouterProvider router={router} future={{ v7_startTransition: true }} />
+  return <RouterProvider router={router} />
 } 

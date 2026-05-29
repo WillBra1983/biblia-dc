@@ -23,11 +23,13 @@ let rankingIconPreloadOk = false
  */
 function injetarLinkPreloadRanking() {
   if (typeof document === 'undefined') return
-  const id = 'preload-plano-ranking-icon'
+  const id = 'prefetch-plano-ranking-icon'
   if (document.getElementById(id)) return
   const link = document.createElement('link')
   link.id = id
-  link.rel = 'preload'
+  // `prefetch` evita o warning de "preload não utilizado" quando a rota do
+  // plano ainda não foi aberta logo após o carregamento inicial.
+  link.rel = 'prefetch'
   link.as = 'image'
   link.href = SRC_PLANO_RANKING
   document.head.appendChild(link)

@@ -205,6 +205,7 @@ Depois do TestFlight, instale no iPhone pelo app **TestFlight** e teste login, B
 | **ITMS-91061** / *Binário inválido* / manifesto de privacidade (`GoogleSignIn`, `GTMAppAuth`, `GTMSessionFetcher`) | O projeto força **GoogleSignIn 7.1+** (`Podfile` + `npm run ios:patch-google-auth` após `npm ci`). Gere nova compilação (ex.: build **10**). Testadores externos só voltam quando a nova build estiver **Pronta para envio** no grupo certo |
 | Login Google: *The requested action is invalid* no `firebaseapp.com/__/auth/handler` | Veja **`docs/FIREBASE_GOOGLE_LOGIN.md`** — domínios autorizados (`foundcine.com`), OAuth Google ativo, URIs no Google Cloud, chave de API |
 | Revisão beta **Rejeitado** — Guideline **2.1(a)** / *demo account* / build **1.5 (10)** | Veja seção **12** abaixo (conta demo no TestFlight + responder à Apple) |
+| Login demo: `auth/requests-from-referer-capacitor://localhost-are-blocked` | Chave de API no Google Cloud: adicione `capacitor://localhost/*` e `https://localhost/*` nos referenciadores HTTP (seção **12.5**) |
 
 ---
 
@@ -262,6 +263,31 @@ A build **10** já foi rejeitada. Use a **181** (ou a próxima do CI, ex. **182*
 Aguarde status sair de **Rejeitado** / **Aguardando revisão** para **Pronta para testar** (horas a ~48 h). Só então o **Iago** e o **link público** funcionam.
 
 **Teste interno** (equipe) não depende dessa revisão beta — pode usar a build **181** no grupo interno enquanto isso.
+
+### 12.5 — Erro `capacitor://localhost` na revisão (login e-mail/senha)
+
+Se a Apple (ou você no TestFlight) vê:
+
+`Firebase: Error (auth/requests-from-referer-capacitor://localhost-are-blocked.)`
+
+**Causa:** a chave `VITE_FIREBASE_API_KEY` usada no build iOS tem **restrição de referenciador HTTP** que não inclui o esquema do app Capacitor. Não é senha errada — a requisição nem chega a validar a conta.
+
+**Correção (Google Cloud, ~5 min):**
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → projeto **biblia-dc** → **APIs e serviços** → **Credenciais**.
+2. Abra a chave de API cujo valor é o mesmo do secret GitHub `VITE_FIREBASE_API_KEY` (geralmente “Browser key (auto created by Firebase)”).
+3. **Restrições de aplicativo** → **Referenciadores HTTP** → adicione:
+   - `capacitor://localhost`
+   - `capacitor://localhost/*`
+   - `https://localhost/*`
+   - (mantenha também `https://foundcine.com/*` e `https://biblia-dc.firebaseapp.com/*`)
+4. **Salvar** → aguarde 2–5 minutos.
+5. No iPhone: desinstale o app TestFlight, reinstale, teste **Entrar** com a conta demo.
+6. Gere **nova build** no GitHub Actions e reenvie para revisão beta.
+
+**Responder à Apple (inglês):**
+
+`The login failure was caused by API key referrer restrictions blocking the native app origin (capacitor://localhost). We updated Google Cloud credentials to allow the Capacitor iOS app. Demo credentials in Test Information remain: [email] / [password]. Please retry email/password login on build [número]. Thank you.`
 
 ---
 

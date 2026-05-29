@@ -3,8 +3,8 @@ export const DEFAULT_LEITURA = {
   fontSize: 100,
   textAlign: 'left',
   fontFamily: 'system',
-  /** 120–220 (×0.01 = line-height CSS); padrão 1.6 */
-  lineHeight: 160,
+  /** 120–220 (×0.01 = line-height CSS); padrão 1.5 */
+  lineHeight: 150,
   /** Só efeito na leitura de versículos: remove margem extra entre versículos (Bíblia / plano na Bíblia). */
   semEspacoEntreVersiculos: false,
 }
@@ -15,10 +15,10 @@ export const DEFAULT_LEITURA = {
  * 100% para fluxos onde os textos já são naturalmente maiores (chat, hub).
  */
 const DEFAULT_LEITURA_POR_PAGINA = {
-  biblia: { fontSize: 120 },
-  'plano-leitura-biblia': { fontSize: 120 },
+  biblia: { lineHeight: 150, semEspacoEntreVersiculos: true },
+  'plano-leitura-biblia': { lineHeight: 150, semEspacoEntreVersiculos: true },
   'estudo-strong-resumo': { textAlign: 'justify' },
-  'biblia-apresentacao': { fontSize: 120, textAlign: 'justify' },
+  'biblia-apresentacao': { textAlign: 'justify' },
 }
 
 /**
@@ -60,8 +60,7 @@ export function getLeituraPaginaKey(pathname) {
  *
  * Quando o usuário muda algo no slider de configuração, isso vira gravado e
  * passa a ter prioridade — o override por seção só serve como "ponto de
- * partida" no primeiro uso (ex.: Bíblia começa em 120%, mas se o usuário
- * baixar para 100% via slider, fica gravado em 100% para a próxima abertura).
+ * partida" no primeiro uso (ex.: Bíblia começa em 100% e entrelinhas 1,50).
  */
 export function mergeLeituraPagina(pageSlice, pageKey = null) {
   const overrides = (pageKey && DEFAULT_LEITURA_POR_PAGINA[pageKey]) || {}

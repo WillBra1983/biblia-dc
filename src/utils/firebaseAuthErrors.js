@@ -113,6 +113,31 @@ export function hintForFirebaseAuthError(error) {
   }
 
   if (
+    code.includes('requests-from-referer') ||
+    msg.toLowerCase().includes('requests-from-referer') ||
+    msg.includes('capacitor://localhost')
+  ) {
+    return [
+      'O Firebase bloqueou o login porque a chave de API (VITE_FIREBASE_API_KEY) não autoriza o app instalado no iPhone/Android.',
+      '',
+      'No app nativo (Capacitor), o "referer" costuma ser capacitor://localhost — não é o mesmo que foundcine.com.',
+      '',
+      '1) Google Cloud Console → APIs e serviços → Credenciais.',
+      '2) Abra a chave cujo valor é o VITE_FIREBASE_API_KEY do build iOS.',
+      '3) Em Restrições de aplicativo → Referenciadores HTTP, adicione:',
+      '   - capacitor://localhost',
+      '   - capacitor://localhost/*',
+      '   - https://localhost/*',
+      '   - https://foundcine.com/*',
+      '   - https://biblia-dc.firebaseapp.com/*',
+      '4) Salve, aguarde 2–5 minutos, gere nova build no TestFlight e teste de novo.',
+      '',
+      'Para revisão da Apple: use e-mail + senha (conta demo no Firebase Console).',
+      'Guia: docs/GITHUB_IOS_APP_STORE.md (seção 12) e docs/FIREBASE_GOOGLE_LOGIN.md'
+    ].join('\n')
+  }
+
+  if (
     msg.toLowerCase().includes('requested action is invalid') ||
     msg.toLowerCase().includes('the requested action is invalid')
   ) {

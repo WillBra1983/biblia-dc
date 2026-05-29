@@ -84,26 +84,28 @@ const VersiculoMarcavel = React.forwardRef(function VersiculoMarcavel(
       sx={{
         mb: compacto ? 0 : 1.5,
         lineHeight: lh,
-        fontSize: `${fontSize * 1.2}%`,
+        fontSize: `${fontSize}%`,
         fontFamily: resolvedFontFamily,
         color: corApresentacao || 'text.primary',
         '& + &': { mt: compacto ? 0 : 1 },
         textAlign: textAlign || 'left',
         fontWeight: corApresentacao ? (negritoApresentacao ? 700 : 600) : '600',
-        transition: 'all 0.3s ease',
+        transition: 'background-color 0.2s ease, border-color 0.2s ease',
         cursor: clicavel ? 'pointer' : 'default',
         bgcolor: bgColor,
         borderLeft,
         pl: marcado ? 1.5 : 0.5,
         borderRadius: marcado ? '4px' : 0,
-        '&:hover': clicavel
+        WebkitFontSmoothing: 'antialiased',
+        '@media (hover: hover)': clicavel
           ? {
-              bgcolor: estaSelecionado
-                ? 'rgba(25, 118, 210, 0.3)'
-                : modoInterlinearEscolha
-                  ? 'rgba(255, 183, 77, 0.12)'
-                  : 'rgba(0, 0, 0, 0.05)',
-              transform: 'translateX(4px)'
+              '&:hover': {
+                bgcolor: estaSelecionado
+                  ? 'rgba(25, 118, 210, 0.3)'
+                  : modoInterlinearEscolha
+                    ? 'rgba(255, 183, 77, 0.12)'
+                    : 'rgba(0, 0, 0, 0.05)',
+              },
             }
           : {},
         position: 'relative',

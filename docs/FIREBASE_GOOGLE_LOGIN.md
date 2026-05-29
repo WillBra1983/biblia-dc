@@ -76,6 +76,8 @@ https://biblia-dc.firebaseapp.com/__/auth/handler
    - `https://www.foundcine.com/*`
    - `https://biblia-dc.firebaseapp.com/*`
    - `http://localhost:5173/*` (dev)
+   - `capacitor://localhost` e `capacitor://localhost/*` (**obrigatório no app iOS/Android Capacitor** — sem isso, login e-mail/senha falha com `auth/requests-from-referer-capacitor://localhost-are-blocked`)
+   - `https://localhost/*` (WebView com `iosScheme`/`androidScheme` https)
 3. Para **testar** só: temporariamente **Nenhuma** restrição → se funcionar, o problema era a chave.
 
 ### 5. Tela de consentimento OAuth

@@ -23,7 +23,7 @@ function dispararBibliaProntaSeguro() {
 }
 
 /**
- * - **Com internet:** login obrigatório (exceto tela `/chat`).
+ * - **Com internet:** conteúdo local abre sem login; rotas de conta/nuvem pedem login.
  * - **Sem internet e sem login:** só conteúdo local, com aviso de acesso limitado.
  * - **Sem internet no `/chat`:** vai ao conteúdo local (não dá para autenticar).
  * - **Logado:** permanece na sessão; sem opção de deslogar na UI.
@@ -61,12 +61,13 @@ export default function RequireAuth({ children }) {
     navigate('/', { replace: true })
   }, [sessaoOk, offline, onChat, navigate])
 
-  /** Com internet, sem sessão → login (não há uso “convidado” online). */
+  /** Com internet, sem sessão → só rotas de conta/nuvem vão para login. */
   useEffect(() => {
     if (!isFirebaseConfigured()) return
     if (sessaoOk) return
     if (offline) return
     if (onChat) return
+    if (local) return
 
     // Logado mas e-mail não confirmado: só o chat (sem guardar URL — evita loop com /chat).
     if (user?.uid && usuarioPrecisaVerificarEmail(user)) {
@@ -86,15 +87,16 @@ export default function RequireAuth({ children }) {
       /* ignore */
     }
     navigate('/chat', { replace: true })
-  }, [sessaoOk, user, pathname, location.search, location.hash, navigate, offline, onChat])
+  }, [sessaoOk, user, pathname, location.search, location.hash, navigate, offline, onChat, local])
 
   useEffect(() => {
     if (splashDisparadoRef.current) return
-    if (user === undefined && !limitado && !authEspera) return
+    // Em rotas locais (ex.: Bíblia), não esperar auth para sinalizar "pronto".
+    if (user === undefined && !local && !limitado && !authEspera) return
     if (user && pathname === '/') return
     splashDisparadoRef.current = true
     dispararBibliaProntaSeguro()
-  }, [user, pathname, limitado, authEspera])
+  }, [user, pathname, local, limitado, authEspera])
 
   if (!isFirebaseConfigured()) {
     return conteudo
@@ -104,7 +106,9 @@ export default function RequireAuth({ children }) {
     return <RotaRequerRedeConta>{conteudo}</RotaRequerRedeConta>
   }
 
-  if (user === undefined && !limitado && !authEspera) {
+  // Rotas locais (ex.: Bíblia) devem montar imediatamente para carregar
+  // durante o splash; esperar auth aqui torna a abertura perceptivelmente lenta.
+  if (user === undefined && !local && !limitado && !authEspera) {
     return (
       <Box
         sx={{

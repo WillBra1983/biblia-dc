@@ -50,18 +50,17 @@ function normalizeLeituraPorPaginaRaw(raw) {
  * `localStorage` e nunca volta a executar nesse mesmo storage.
  *
  * Migrações disponíveis:
- * - `biblia-zoom-default-120-v1`: zera o `fontSize` salvo para `biblia` e
- *   `plano-leitura-biblia` para que essas seções caiam no novo default 120%
- *   (definido em `DEFAULT_LEITURA_POR_PAGINA`). Depois disso, qualquer ajuste
- *   manual no slider passa a valer normalmente e fica gravado.
+ * - `biblia-zoom-default-120-v1`: remove `fontSize` 120 legado (antigo padrão).
+ * - `biblia-leitura-defaults-v2`: remove `fontSize` 120 e `lineHeight` 160 legados
+ *   para Bíblia/plano adotarem 100% e entrelinhas 1,50.
  */
 function aplicarMigracoesLeituraPorPagina(map) {
   if (!map || typeof map !== 'object') return map
   let resultado = map
   try {
-    const FLAG = 'leituraPorPagina_migracao_biblia_zoom_default_v1'
-    const jaAplicada = loadFromStorage(FLAG) === true || loadFromStorage(FLAG) === 'true'
-    if (!jaAplicada) {
+    const FLAG_V1 = 'leituraPorPagina_migracao_biblia_zoom_default_v1'
+    const jaV1 = loadFromStorage(FLAG_V1) === true || loadFromStorage(FLAG_V1) === 'true'
+    if (!jaV1) {
       const novo = { ...resultado }
       for (const chave of ['biblia', 'plano-leitura-biblia']) {
         if (novo[chave] && Object.prototype.hasOwnProperty.call(novo[chave], 'fontSize')) {
@@ -77,10 +76,41 @@ function aplicarMigracoesLeituraPorPagina(map) {
         }
       }
       resultado = novo
-      saveToStorage(FLAG, true)
+      saveToStorage(FLAG_V1, true)
     }
   } catch (_) {
     /* Em caso de erro de storage, mantemos o map original. */
+  }
+  try {
+    const FLAG_V2 = 'leituraPorPagina_migracao_biblia_leitura_defaults_v2'
+    const jaV2 = loadFromStorage(FLAG_V2) === true || loadFromStorage(FLAG_V2) === 'true'
+    if (!jaV2) {
+      const novo = { ...resultado }
+      for (const chave of ['biblia', 'plano-leitura-biblia']) {
+        const slice = novo[chave]
+        if (!slice || typeof slice !== 'object') continue
+        const next = { ...slice }
+        let mudou = false
+        if (next.fontSize === 120) {
+          delete next.fontSize
+          mudou = true
+        }
+        if (next.lineHeight === 160) {
+          delete next.lineHeight
+          mudou = true
+        }
+        if (!mudou) continue
+        if (Object.keys(next).length === 0) {
+          delete novo[chave]
+        } else {
+          novo[chave] = next
+        }
+      }
+      resultado = novo
+      saveToStorage(FLAG_V2, true)
+    }
+  } catch (_) {
+    /* ignore */
   }
   return resultado
 }

@@ -31,6 +31,7 @@ import { ensureUserForFeature } from '../utils/chatExportSend'
 import AdminSectionViewCounts from './AdminSectionViewCounts'
 import PeopleIcon from '@mui/icons-material/People'
 import { chavesMetricaParaPathMenu, registarVisualizacaoSecaoSeNecessario } from '../utils/sectionViewKeys'
+import { prefetchRota } from '../utils/routePrefetch'
 
 const ICON_BOX = 44
 const ICON_SIZE = 26
@@ -243,6 +244,32 @@ function nomeContaCurto(user) {
   return `Conta (${user.uid?.slice(0, 8) ?? '…'}…)`
 }
 
+function nomePrefetchPorPath(path) {
+  if (!path) return null
+  if (path === '/chat') return 'chat'
+  if (path.startsWith('/discipulado')) return 'discipulado'
+  if (path.startsWith('/hinario/editor') || path.startsWith('/hinario-editor')) return 'hinarioEditor'
+  if (path.startsWith('/hinario')) return 'hinario'
+  if (path.startsWith('/confissao')) return 'confissao'
+  if (path.startsWith('/catecismo-maior')) return 'catecismoMaior'
+  if (path.startsWith('/catecismo-breve')) return 'catecismoBreve'
+  if (path.startsWith('/devocional')) return 'devocional'
+  if (path.startsWith('/plano-leitura-biblia')) return 'planoLeituraBiblia'
+  if (path.startsWith('/plano')) return 'planoLeitura'
+  if (path.startsWith('/mais-de-deus')) return 'maisDeDeus'
+  if (path.startsWith('/youtube')) return 'youtube'
+  if (path.startsWith('/versiculos-marcados')) return 'versiculosMarcados'
+  if (path.startsWith('/quiz-retiro')) return 'quizRetiro'
+  if (path.startsWith('/estudos-biblicos/gerir')) return 'estudosBiblicosGerir'
+  if (path.startsWith('/estudos-biblicos/novo')) return 'estudoBiblicoEditor'
+  if (path.startsWith('/estudos-biblicos/abrir')) return 'estudoBiblicoVer'
+  if (path.startsWith('/estudos-biblicos')) return 'estudosBiblicosHub'
+  if (path.startsWith('/estudo-strong/') && path.endsWith('/resumo')) return 'strongEstudoResumo'
+  if (path.startsWith('/estudo-strong')) return 'strongEstudo'
+  if (path.startsWith('/sobre')) return 'sobre'
+  return null
+}
+
 function conectarResumoConta(user) {
   if (user === undefined) return 'A preparar…'
   if (!user) return 'Entre na conta para mensagens e notificações'
@@ -361,7 +388,10 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
       fecharMenuPai()
       return
     }
-    navigate(item.path)
+    const nomePrefetch = nomePrefetchPorPath(item.path)
+    if (nomePrefetch) prefetchRota(nomePrefetch)
+    // Dá um micro-respiro para o import() iniciar antes da troca de rota.
+    window.setTimeout(() => navigate(item.path), 0)
     fecharMenuPai()
   }
 

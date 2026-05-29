@@ -37,7 +37,6 @@ import PapelAmareloOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import {
   buscarCapitulo,
-  carregarTodosLivros,
   buscarTexto,
   buscarPericopes,
   contarVersiculosPorLivro
@@ -75,16 +74,10 @@ import {
   instanciaAtivaId,
   obterTemplate,
 } from '../utils/planoLeituraUsuario'
-import {
-  verificarBancoNtProva,
-  buscarTokensNtCapitulo,
-  buscarStrongGregoPorLemma
-} from '../services/ntStrongProvaService'
-import {
-  verificarBancoOtStrong,
-  buscarTokensOtCapitulo
-} from '../services/otStrongService'
 import { usePinchNumeric } from '../hooks/usePinchNumeric'
+
+const loadNtStrongProvaService = () => import('../services/ntStrongProvaService')
+const loadOtStrongService = () => import('../services/otStrongService')
 function parseVersiculosQuery(raw) {
   return String(raw || '')
     .split(/[;,]/)
@@ -118,12 +111,15 @@ function eventoEscadaParaProps(e) {
   return { variante: 'bronze', mensagem: String(e.mensagem || '') }
 }
 
-/** Multiplicadores em % de `fontSizeLeitura` (texto base do versículo ≈ ×1,2). */
+/** Multiplicadores em % de `fontSizeLeitura` (texto base do versículo). */
 const BIBLIA_ESCALA_TITULO_PERICOPE = 1.55
 /** Nome do livro no cabeçalho: deve ficar claramente acima do título da perícope. */
 const BIBLIA_ESCALA_NOME_LIVRO_CABECALHO = 2.42
 /** Número do capítulo no cabeçalho: um pouco maior que o nome do livro. */
 const BIBLIA_ESCALA_CAPITULO_CABECALHO = 2.78
+const BIBLIA_RENDER_INICIAL = 40
+const BIBLIA_RENDER_POR_LOTE = 30
+const BIBLIA_PREFETCH_SCROLL_PX = 480
 
 function Biblia({ ultimaLeitura: leituraInicial }) {
   const toRgba = (hex, alpha) => {
@@ -141,6 +137,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   }
 
   const [resultados, setResultados] = useState([])
+  const [versiculosRenderizados, setVersiculosRenderizados] = useState(BIBLIA_RENDER_INICIAL)
   const [pericopesCapitulo, setPericopesCapitulo] = useState([])
   const [opcoesLivros, setOpcoesLivros] = useState([])
   const [loading, setLoading] = useState(false)
@@ -260,6 +257,13 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     setPlanoLeitura
   } = useApp()
   const fontSizeLeitura = Math.round((Number(fontSize) || 100) * (zoomLeitura / 100))
+  const resultadosVisiveis = useMemo(
+    () => resultados.slice(0, versiculosRenderizados),
+    [resultados, versiculosRenderizados]
+  )
+  const carregarMaisVersiculos = useCallback(() => {
+    setVersiculosRenderizados((prev) => Math.min(prev + BIBLIA_RENDER_POR_LOTE, resultados.length))
+  }, [resultados.length])
   const onPinchLeitura = React.useCallback((v) => setZoomLeitura(v), [])
   usePinchNumeric(pinchLeituraRef, {
     enabled: true,
@@ -484,13 +488,15 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
 
   useEffect(() => {
     let active = true
-    verificarBancoNtProva()
-      .then((ok) => {
+    void (async () => {
+      try {
+        const { verificarBancoNtProva } = await loadNtStrongProvaService()
+        const ok = await verificarBancoNtProva()
         if (active) setNtProvaDisponivel(ok)
-      })
-      .catch(() => {
+      } catch {
         if (active) setNtProvaDisponivel(false)
-      })
+      }
+    })()
     return () => {
       active = false
     }
@@ -498,13 +504,15 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
 
   useEffect(() => {
     let active = true
-    verificarBancoOtStrong()
-      .then((ok) => {
+    void (async () => {
+      try {
+        const { verificarBancoOtStrong } = await loadOtStrongService()
+        const ok = await verificarBancoOtStrong()
         if (active) setOtStrongDisponivel(ok)
-      })
-      .catch(() => {
+      } catch {
         if (active) setOtStrongDisponivel(false)
-      })
+      }
+    })()
     return () => {
       active = false
     }
@@ -516,13 +524,15 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
       return
     }
     let active = true
-    buscarTokensNtCapitulo(ntBookNumProva, capitulo)
-      .then((byVerse) => {
+    void (async () => {
+      try {
+        const { buscarTokensNtCapitulo } = await loadNtStrongProvaService()
+        const byVerse = await buscarTokensNtCapitulo(ntBookNumProva, capitulo)
         if (active) setTokensNtCapitulo(byVerse || {})
-      })
-      .catch(() => {
+      } catch {
         if (active) setTokensNtCapitulo({})
-      })
+      }
+    })()
     return () => {
       active = false
     }
@@ -534,13 +544,15 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
       return
     }
     let active = true
-    buscarTokensOtCapitulo(livroAtual.id, capitulo)
-      .then((byVerse) => {
+    void (async () => {
+      try {
+        const { buscarTokensOtCapitulo } = await loadOtStrongService()
+        const byVerse = await buscarTokensOtCapitulo(livroAtual.id, capitulo)
         if (active) setTokensOtCapitulo(byVerse || {})
-      })
-      .catch(() => {
+      } catch {
         if (active) setTokensOtCapitulo({})
-      })
+      }
+    })()
     return () => {
       active = false
     }
@@ -558,6 +570,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     setStrongMatchDialog({ open: true, matches: [], token, loading: true, empty: false })
     try {
       const lemmaBase = token.lemma || token.normalized_word || token.word || token.text || ''
+      const { buscarStrongGregoPorLemma } = await loadNtStrongProvaService()
       const matches = await buscarStrongGregoPorLemma(lemmaBase, 20)
       if (matches.length === 1 && matches[0]?.strong) {
         navigate(`/estudo-strong/${encodeURIComponent(matches[0].strong)}`, { state: { token } })
@@ -1098,9 +1111,8 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   useEffect(() => {
     const init = async () => {
       try {
-        // Otimização: começa a buscar capítulo provável EM PARALELO com `carregarTodosLivros`,
-        // adivinhando a partir da última leitura salva. Quando os livros chegarem,
-        // a UI valida; se não bater, o capítulo é trocado.
+        // Abre por ponto de entrada: carrega só o capítulo provável da leitura atual
+        // (sem varrer lista do SQLite na inicialização).
         let palpiteLivroId = null
         let palpiteCapitulo = null
         try {
@@ -1120,7 +1132,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           ? buscarCapitulo(palpiteLivroId, palpiteCapitulo).catch(() => null)
           : Promise.resolve(null)
 
-        const livros = await carregarTodosLivros()
+        const livros = livrosData
         if (!livros?.length) {
           setErro('Erro ao carregar livros')
           return
@@ -1290,12 +1302,12 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         elementoDestacadoRef.current = null
       }
       
-      const [versiculos, pericopes] = await Promise.all([
-        buscarCapitulo(livroId, cap),
-        buscarPericopes(livroId, cap)
-      ])
+      // Prioriza texto do capítulo no primeiro paint; perícopes podem chegar em seguida.
+      const versiculos = await buscarCapitulo(livroId, cap)
       setResultados(versiculos)
-      setPericopesCapitulo(pericopes || [])
+      buscarPericopes(livroId, cap)
+        .then((pericopes) => setPericopesCapitulo(pericopes || []))
+        .catch(() => {})
       
       // Salvar última leitura apenas se não for skipSave (evita salvamentos desnecessários)
       if (!skipSave) {
@@ -1437,6 +1449,20 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         }
     }
   }, [versiculoParaScroll, resultados, loading, livroAtual?.id, capitulo])
+
+  // Renderização progressiva: ao trocar capítulo, mostra primeiro o trecho
+  // inicial e completa aos poucos conforme o utilizador desce.
+  useEffect(() => {
+    setVersiculosRenderizados(Math.min(BIBLIA_RENDER_INICIAL, resultados.length))
+  }, [resultados.length, livroAtual?.id, capitulo])
+
+  // Se vier link para um versículo específico, garante que ele esteja no DOM.
+  useEffect(() => {
+    if (!versiculoParaScroll?.versiculoNum) return
+    setVersiculosRenderizados((prev) =>
+      Math.min(Math.max(prev, Number(versiculoParaScroll.versiculoNum) + 8), resultados.length)
+    )
+  }, [versiculoParaScroll?.versiculoNum, resultados.length])
 
   // Ao trocar de capítulo pelas setas, iniciar no topo da página
   useEffect(() => {
@@ -1598,7 +1624,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           overflow: 'hidden',
           position: 'relative'
         }}>
-          {!modoImersivo && bibliaToolbarLeftSlot && createPortal(
+          {!modoImersivo && bibliaToolbarLeftSlot ? createPortal(
           <Box sx={{
             display: 'flex',
             alignItems: 'center',
@@ -1853,7 +1879,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             </Box>
           </Box>,
           bibliaToolbarLeftSlot
-          )}
+          ) : null}
           {/* Removida a faixa explicativa "Escolha o(s) versículo(s)..." — a
               barra de ações (BibliaSelecaoActionBar), em overlay no centro da
               tela, já comunica o estado e oferece as ações. */}
@@ -1903,7 +1929,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           // até atingirem o limiar; uma mudança de direção zera o acumulado
           // do sentido oposto. Isso garante reação tanto a rolagem rápida
           // quanto a rolagem lenta (cada "click" do scroll soma alguns px).
-          const limiteMudanca = 18
+          const limiteMudanca = 36
           let acumDown = scrollAcumDownRef.current
           let acumUp = scrollAcumUpRef.current
 
@@ -1932,12 +1958,19 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           scrollUltimoYRef.current = atual
           scrollAcumDownRef.current = acumDown
           scrollAcumUpRef.current = acumUp
+
+          const restante = target.scrollHeight - (target.scrollTop + target.clientHeight)
+          if (restante < BIBLIA_PREFETCH_SCROLL_PX && versiculosRenderizados < resultados.length) {
+            carregarMaisVersiculos()
+          }
         }}
         sx={{ 
         flex: 1, 
-        overflow: 'auto', 
+        overflow: 'auto',
+        overflowAnchor: 'none',
         position: 'relative',
         bgcolor: 'background.default',
+        WebkitOverflowScrolling: 'touch',
         // Texto até ao canto (sem padding lateral); justificado cola na borda direita — afasta ≥1 pt
         px: 0,
         ...(textAlign === 'justify' ? { pr: '5pt' } : {}),
@@ -2018,7 +2051,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 </Typography>
               </Box>
             )}
-            {resultados.map((verso, index) => {
+            {resultadosVisiveis.map((verso, index) => {
               const numeroVersiculo = verso.numero || index + 1;
               const keyAtual = `${livroAtual?.id}-${capitulo}-${numeroVersiculo}`;
               const pericopesVerso = pericopesPorVersiculo[numeroVersiculo]

@@ -390,8 +390,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
     }
     const nomePrefetch = nomePrefetchPorPath(item.path)
     if (nomePrefetch) prefetchRota(nomePrefetch)
-    // Dá um micro-respiro para o import() iniciar antes da troca de rota.
-    window.setTimeout(() => navigate(item.path), 0)
+    navigate(item.path)
     fecharMenuPai()
   }
 

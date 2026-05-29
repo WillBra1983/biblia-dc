@@ -96,7 +96,6 @@ function DeferredUserCloudSync() {
 
 const routerFuture = {
   v7_relativeSplatPath: true,
-  v7_startTransition: true,
 }
 
 /** Deve ficar abaixo de `RouterProvider` para `useLocation`/`useNavigate` em `AppProvider`. */

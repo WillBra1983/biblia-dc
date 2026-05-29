@@ -1132,7 +1132,16 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           ? buscarCapitulo(palpiteLivroId, palpiteCapitulo).catch(() => null)
           : Promise.resolve(null)
 
-        const livros = livrosData
+        // Os dados estáticos (`biblia.js`) expõem o número de capítulos como
+        // `capitulos`, mas a UI (CapitulosCards, setas de navegação, etc.) usa
+        // `maxCapitulos` — campo que só vinha da listagem via SQLite. Sem
+        // normalizar, `livro.maxCapitulos` fica undefined e a grade de
+        // capítulos abre vazia. Derivamos `maxCapitulos` a partir de
+        // `capitulos`, mantendo a abertura rápida sem tocar no SQLite.
+        const livros = livrosData.map((l) => ({
+          ...l,
+          maxCapitulos: l.maxCapitulos ?? l.capitulos,
+        }))
         if (!livros?.length) {
           setErro('Erro ao carregar livros')
           return

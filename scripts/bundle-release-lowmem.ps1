@@ -5,6 +5,9 @@
 param([switch]$SyncWeb)
 
 $ErrorActionPreference = "Stop"
+# PowerShell 7.3+ trata stderr de comando nativo como erro quando ErrorActionPreference=Stop.
+# O JVM imprime "Picked up JAVA_TOOL_OPTIONS..." em stderr (não é erro) e isso abortava o script.
+$PSNativeCommandUseErrorActionPreference = $false
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location $root
 
@@ -16,12 +19,14 @@ if ($SyncWeb) {
   if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
+# Memória do build via GRADLE_OPTS (vale para --no-daemon). NÃO usar JAVA_TOOL_OPTIONS:
+# ele faz a JVM imprimir "Picked up ..." em stderr, poluindo a saída e abortando o script.
 $env:GRADLE_OPTS = "-Xmx1024m -XX:MaxMetaspaceSize=384m -XX:+UseSerialGC -Dfile.encoding=UTF-8"
-$env:JAVA_TOOL_OPTIONS = "-Xmx1024m -XX:MaxMetaspaceSize=384m"
+Remove-Item Env:\JAVA_TOOL_OPTIONS -ErrorAction SilentlyContinue
 
 Set-Location android
 Write-Host ">> Parando daemons Gradle antigos..."
-.\gradlew.bat --stop 2>$null
+.\gradlew.bat --stop | Out-Host
 
 Write-Host ">> bundleRelease (sem daemon, 1 worker)..."
 .\gradlew.bat bundleRelease --no-daemon --max-workers=1

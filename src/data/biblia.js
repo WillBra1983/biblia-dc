@@ -304,7 +304,7 @@ export const livros = [
   },
   {
     id: 44,
-    nome: 'Atos',
+    nome: 'Atos dos Apóstolos',
     abreviacao: 'At',
     testamento: 'NT',
     capitulos: 28

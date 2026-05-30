@@ -36,8 +36,8 @@ export const EXPORT_KIND_LABELS = {
   devocional: 'Devocional',
   mais_de_deus: 'Mais de Deus',
   quiz: 'Quiz bíblico',
-  estudo_biblico: 'Estudo bíblico',
-  prova_biblica: 'Avaliação (estudo bíblico)'
+  estudo_biblico: 'Estudo compartilhado',
+  prova_biblica: 'Avaliação (estudo compartilhado)'
 }
 
 function baseBody(kind, extra = {}) {
@@ -247,7 +247,7 @@ export function buildEstudoBiblicoChatExport({ studyId, tema, authorName, refere
   })
   const serialized = JSON.stringify(body)
   const refTxt = body.referenciaCompacta ? ` · ${body.referenciaCompacta}` : ''
-  const previewText = `[Estudo bíblico] ${body.tema || 'Estudo'}${refTxt}`
+  const previewText = `[Estudo compartilhado] ${body.tema || 'Estudo'}${refTxt}`
   return { serialized, previewText, body }
 }
 
@@ -659,7 +659,7 @@ export async function summarizeExportForDialog(parsed) {
     const sub = [por, ref].filter(Boolean).join(' · ')
     return {
       kind: k,
-      titulo: d?.tema || 'Estudo bíblico',
+      titulo: d?.tema || 'Estudo compartilhado',
       subtitulo: sub || 'O destinatário pode abrir a leitura completa no app.'
     }
   }

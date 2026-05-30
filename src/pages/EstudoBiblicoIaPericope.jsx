@@ -479,8 +479,8 @@ export default function EstudoBiblicoIaPericope() {
 
   const compartilharNativo = useCallback(async () => {
     const titulo = referencia
-      ? `Estudo bíblico — ${referencia}${tituloPericope ? ` (${tituloPericope})` : ''}`
-      : 'Estudo bíblico'
+      ? `Estudo compartilhado — ${referencia}${tituloPericope ? ` (${tituloPericope})` : ''}`
+      : 'Estudo compartilhado'
     const txt = `${titulo}\n\n${textoGerado}`
     try {
       const opened = await openNativeShareSheet({ title: titulo, text: txt })

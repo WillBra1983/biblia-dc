@@ -36,11 +36,12 @@ import {
   obterProgressoInstancia,
   calcularPrevisaoInicial,
   MAX_PLANOS_ATIVOS,
+  MAX_DIAS_PLANO,
   obterMetricasResumo,
 } from '../utils/planoLeituraUsuario'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { sincronizarPlanoLeituraAposAlteracaoDestrutiva } from '../services/planoLeituraCloudSync'
-import { adicionarDiasIso, diaCivilAmericaSaoPaulo } from '../utils/fusoHorarioBrasil'
+import { adicionarDiasIso, diaCivilAmericaSaoPaulo, diferencaDiasIso } from '../utils/fusoHorarioBrasil'
 
 export default function PlanoLeitura() {
   const { planoLeitura, setPlanoLeitura, isDarkMode } = useApp()
@@ -107,18 +108,18 @@ export default function PlanoLeitura() {
     () => obterTemplate(dialogNovo.templateId),
     [dialogNovo.templateId]
   )
-  const prazoFixoPorModelo = Boolean(templateSelecionadoNovo?.diasTotais)
+
+  const dataFimMaxima = useMemo(
+    () => adicionarDiasIso(dialogNovo.dataInicio || diaCivilAmericaSaoPaulo(), MAX_DIAS_PLANO - 1),
+    [dialogNovo.dataInicio]
+  )
 
   const confirmarNovoPlano = () => {
     if (!previa?.valido) return
-    const t = obterTemplate(dialogNovo.templateId)
-    const dataFimFinal = t
-      ? adicionarDiasIso(dialogNovo.dataInicio, Math.max(0, Number(t.diasTotais || 1) - 1))
-      : dialogNovo.dataFim
     const r = criarInstancia({
       templateId: dialogNovo.templateId,
       dataInicio: dialogNovo.dataInicio,
-      dataFim: dataFimFinal,
+      dataFim: dialogNovo.dataFim,
     })
     if (!r.ok) return
     const inst = r.instancia
@@ -320,7 +321,7 @@ export default function PlanoLeitura() {
         </Box>
 
         <Typography variant="body2" sx={{ mb: 2, color: 'rgba(255,255,255,0.85)' }}>
-          Um plano ativo · prazo fixo pelo período
+          Um plano ativo · prazo personalizável (até 1 ano)
         </Typography>
 
         <Grid container spacing={2} sx={{ minWidth: 0, width: '100%' }}>
@@ -366,11 +367,9 @@ export default function PlanoLeitura() {
                 const t = obterTemplate(id)
                 const inicio = dialogNovo.dataInicio
                 const fim =
-                  t && t.diasTotais >= 365
-                    ? adicionarDiasIso(inicio, 364)
-                    : t
-                      ? adicionarDiasIso(inicio, Math.max(0, t.diasTotais - 1))
-                      : ''
+                  t && t.diasTotais
+                    ? adicionarDiasIso(inicio, Math.max(0, Number(t.diasTotais) - 1))
+                    : adicionarDiasIso(inicio, 364)
                 setDialogNovo((d) => ({ ...d, templateId: id, dataFim: fim }))
               }}
               SelectProps={{ native: true }}
@@ -390,22 +389,35 @@ export default function PlanoLeitura() {
             onChange={(e) => {
               const inicio = e.target.value
               const t = obterTemplate(dialogNovo.templateId)
-              const fim =
-                t && t.diasTotais >= 365
-                  ? adicionarDiasIso(inicio, 364)
-                  : t
-                    ? adicionarDiasIso(inicio, Math.max(0, t.diasTotais - 1))
-                    : dialogNovo.dataFim
-              setDialogNovo((d) => ({ ...d, dataInicio: inicio, dataFim: fim }))
+              const fimSugerido =
+                t && t.diasTotais
+                  ? adicionarDiasIso(inicio, Math.max(0, Number(t.diasTotais) - 1))
+                  : adicionarDiasIso(inicio, 364)
+              const fimMax = adicionarDiasIso(inicio, MAX_DIAS_PLANO - 1)
+              setDialogNovo((d) => {
+                let fim = d.dataFim
+                if (!fim || diferencaDiasIso(inicio, fim) < 0 || diferencaDiasIso(fim, fimMax) < 0) {
+                  fim = fimSugerido
+                }
+                return { ...d, dataInicio: inicio, dataFim: fim }
+              })
             }}
             InputLabelProps={{ shrink: true }}
           />
           <TextField
-            label={prazoFixoPorModelo ? 'Término (fixo pelo modelo)' : 'Término (máx. 1 ano a partir do início)'}
+            label="Término (até 1 ano a partir do início)"
             type="date"
             value={dialogNovo.dataFim}
             onChange={(e) => setDialogNovo((d) => ({ ...d, dataFim: e.target.value }))}
-            disabled={prazoFixoPorModelo}
+            helperText={
+              templateSelecionadoNovo?.diasTotais
+                ? `Sugestão do modelo: ${templateSelecionadoNovo.diasTotais} dias — você pode encurtar o prazo.`
+                : 'Escolha a data final do plano.'
+            }
+            inputProps={{
+              min: dialogNovo.dataInicio,
+              max: dataFimMaxima,
+            }}
             InputLabelProps={{ shrink: true }}
           />
           {previa && previa.valido && (

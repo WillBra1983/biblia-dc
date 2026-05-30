@@ -145,6 +145,24 @@ export async function buscarOcorrenciasStrongGrego(strongCode, limit = 20) {
   return out
 }
 
+export async function contarOcorrenciasStrongGrego(strongCode) {
+  const normalized = String(strongCode || '').trim().toUpperCase().replace(/^G?(\d+)$/, 'G$1')
+  if (!/^G\d+$/.test(normalized)) return 0
+  const dbi = await initNtProvaDB()
+  const stmt = dbi.prepare(
+    `
+      SELECT COUNT(DISTINCT t.book_num || ':' || t.chapter || ':' || t.verse) AS total
+      FROM nt_tokens t
+      JOIN strong_greek_lemma_index i ON i.lemma_norm = t.lemma_norm
+      WHERE i.strong = ?
+    `
+  )
+  stmt.bind([normalized])
+  const row = stmt.step() ? stmt.getAsObject() : null
+  stmt.free()
+  return Number(row?.total || 0)
+}
+
 export async function buscarStrongGrego(strongCode) {
   const normalized = String(strongCode || '')
     .trim()

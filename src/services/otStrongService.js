@@ -189,6 +189,23 @@ export async function buscarOcorrenciasStrongHebraico(strongCode, limit = 20) {
   return out
 }
 
+export async function contarOcorrenciasStrongHebraico(strongCode) {
+  const normalized = String(strongCode || '').trim().toUpperCase().replace(/^H?(\d+)$/, 'H$1')
+  if (!/^H\d+$/.test(normalized)) return 0
+  const dbi = await initOtStrongDB()
+  const stmt = dbi.prepare(
+    `
+      SELECT COUNT(DISTINCT book_id || ':' || chapter || ':' || verse) AS total
+      FROM ot_tokens
+      WHERE strong_code = ?
+    `
+  )
+  stmt.bind([normalized])
+  const row = stmt.step() ? stmt.getAsObject() : null
+  stmt.free()
+  return Number(row?.total || 0)
+}
+
 export async function buscarStrongHebraico(strongCode) {
   const normalized = String(strongCode || '').trim().toUpperCase().replace(/^H?(\d+)$/, 'H$1')
   if (!/^H\d+$/.test(normalized)) return null

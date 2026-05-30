@@ -669,7 +669,7 @@ export default function EstudoBiblicoEditor() {
         </IconButton>
       )}
       <Typography variant="h6" gutterBottom>
-        {isEdit ? 'Editar estudo bíblico' : 'Novo estudo bíblico'}
+        {isEdit ? 'Editar estudo compartilhado' : 'Novo estudo compartilhado'}
       </Typography>
 
       {err && (

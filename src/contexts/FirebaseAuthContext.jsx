@@ -30,6 +30,13 @@ const ERRO_EMAIL_NAO_VERIFICADO = 'salvation/email-not-verified'
 const isNativeApp = () =>
   typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() === true
 
+async function aguardarAuthPronto(auth) {
+  if (!auth) return
+  if (typeof auth.authStateReady === 'function') {
+    await auth.authStateReady()
+  }
+}
+
 let nativeGoogleInitPromise = null
 
 async function ensureNativeGoogleAuthInitialized() {
@@ -123,21 +130,23 @@ export function FirebaseAuthProvider({ children }) {
     const auth = getFirebaseAuth()
     const fns = getFirebaseFunctions()
     if (!auth || !fns) throw new Error('Firebase não configurado')
+    await aguardarAuthPronto(auth)
     const { httpsCallable } = await import('firebase/functions')
     const { sendSignInLinkToEmail } = await import('firebase/auth')
     marcarRegistroEmailSenhaEmCurso(true)
     try {
       const emailTrim = val.email
+      const actionCodeSettings = {
+        url: buildCadastroEmailLinkContinueUrl(),
+        handleCodeInApp: true,
+      }
       const iniciar = httpsCallable(fns, 'iniciarCadastroEmailSenha')
       const res = await iniciar({
         email: emailTrim,
         password,
         displayName: valNome.nome,
       })
-      await sendSignInLinkToEmail(auth, emailTrim, {
-        url: buildCadastroEmailLinkContinueUrl(),
-        handleCodeInApp: true,
-      })
+      await sendSignInLinkToEmail(auth, emailTrim, actionCodeSettings)
       guardarEmailParaCadastroLink(emailTrim)
       const message =
         res?.data?.message || MSG_CADASTRO_LINK_ENVIADO
@@ -200,11 +209,13 @@ export function FirebaseAuthProvider({ children }) {
     try {
       const cred = await signInWithEmailAndPassword(auth, val.email, password)
       if (usuarioPrecisaVerificarEmail(cred.user)) {
+        await aguardarAuthPronto(auth)
         try {
           const { sendEmailVerification } = await import('firebase/auth')
-          await sendEmailVerification(cred.user)
-        } catch {
-          /* rate limit / rede — usuário pode usar Reenviar */
+          const alvo = auth.currentUser || cred.user
+          if (alvo) await sendEmailVerification(alvo)
+        } catch (e) {
+          console.warn('[auth] Falha ao enviar verificação no login:', e?.message || e)
         }
         const err = new Error(MSG_EMAIL_NAO_VERIFICADO)
         err.code = ERRO_EMAIL_NAO_VERIFICADO
@@ -225,8 +236,10 @@ export function FirebaseAuthProvider({ children }) {
     setLastError(null)
     await loadFirebaseModules()
     const auth = getFirebaseAuth()
-    if (!auth?.currentUser) {
-      throw new Error('Entre com e-mail e senha para reenviar a confirmação.')
+    if (!auth) throw new Error('Firebase não configurado')
+    await aguardarAuthPronto(auth)
+    if (!auth.currentUser) {
+      throw new Error('Aguarde um instante e tente de novo, ou entre com e-mail e senha.')
     }
     const { sendEmailVerification } = await import('firebase/auth')
     await sendEmailVerification(auth.currentUser)

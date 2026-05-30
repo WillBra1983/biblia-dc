@@ -1227,6 +1227,7 @@ export default function Chat() {
         professionOrStudy: profileProfession.trim(),
         church: profileChurch.trim()
       })
+      setMyProfile((prev) => ({ ...prev, handle: h }))
       setProfileHandleInput(`@${h}`)
       setProfileDialogOpen(false)
     } catch (e) {
@@ -1360,7 +1361,7 @@ export default function Chat() {
       devocional: 'A lista de devocionais lidos será mesclada com a sua. Continuar?',
       mais_de_deus: 'A lista de subtemas lidos será mesclada com a sua. Continuar?',
       quiz: 'Serão mesclados apenas pontos (Fase 1) e desbloqueios de fases no seu dispositivo. Continuar?',
-      estudo_biblico: 'Abrir a leitura deste estudo bíblico no aplicativo? (É preciso estar online.)',
+      estudo_biblico: 'Abrir a leitura deste estudo compartilhado no aplicativo? (É preciso estar online.)',
       prova_biblica: 'Abrir a página de resultado desta avaliação (somente leitura)?'
     }
     return confirmarAsync({
@@ -1723,10 +1724,10 @@ export default function Chat() {
               setActiveChatId(null)
               setActivePeerUid(null)
             } else {
-              navigate(-1)
+              handleLeaveChat()
             }
           }}
-          aria-label={activeChatId ? 'Fechar conversa' : 'Voltar'}
+          aria-label={activeChatId ? 'Fechar conversa' : 'Voltar para a Bíblia'}
           sx={{
             color: !activeChatId ? 'common.white' : undefined,
             flexShrink: 0
@@ -1740,14 +1741,10 @@ export default function Chat() {
               <Stack
                 direction="row"
                 alignItems="center"
-                flexWrap="wrap"
                 spacing={0.5}
-                useFlexGap
                 sx={{
-                  justifyContent: 'flex-start',
-                  columnGap: 0.75,
-                  rowGap: 0.35,
                   minWidth: 0,
+                  width: '100%',
                   color: 'common.white'
                 }}
               >
@@ -1756,7 +1753,7 @@ export default function Chat() {
                   variant="caption"
                   fontWeight={700}
                   noWrap
-                  sx={{ maxWidth: '100%', color: 'inherit' }}
+                  sx={{ flexShrink: 0, maxWidth: '45%', color: 'inherit' }}
                   title={myProfile.handle ? `@${myProfile.handle}` : undefined}
                 >
                   {myProfile.handle ? `@${myProfile.handle}` : '—'}
@@ -1768,40 +1765,16 @@ export default function Chat() {
                   component="span"
                   variant="caption"
                   noWrap
-                  sx={{ maxWidth: { xs: '42vw', sm: 280 }, minWidth: 0, color: 'rgba(255,255,255,0.92)' }}
+                  sx={{ flex: 1, minWidth: 0, color: 'rgba(255,255,255,0.92)' }}
                   title={user.email || undefined}
                 >
                   {user.email || '—'}
                 </Typography>
-                <Typography component="span" variant="caption" sx={{ color: 'rgba(255,255,255,0.55)', flexShrink: 0 }}>
-                  |
-                </Typography>
-                <Button
-                  size="small"
-                  variant="text"
-                  onClick={handleLeaveChat}
-                  sx={{
-                    minWidth: 'auto',
-                    px: 0.5,
-                    flexShrink: 0,
-                    color: 'common.white',
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' }
-                  }}
-                >
-                  Bíblia
-                </Button>
               </Stack>
             </Box>
           </>
         ) : (
-          <>
-            <Box sx={{ flex: 1 }} />
-            <Button size="small" onClick={handleLeaveChat}>
-              Bíblia
-            </Button>
-          </>
+          <Box sx={{ flex: 1 }} />
         )}
       </Stack>
 

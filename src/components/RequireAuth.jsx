@@ -91,9 +91,13 @@ export default function RequireAuth({ children }) {
 
   useEffect(() => {
     if (splashDisparadoRef.current) return
-    // Em rotas locais (ex.: Bíblia), não esperar auth para sinalizar "pronto".
+    // Na Bíblia (`/` e `/biblia`), quem sinaliza "pronto" é a própria página,
+    // após o capítulo realmente pintar. Sinalizar aqui fecharia o splash antes
+    // do conteúdo aparecer (a demora ficava perceptível).
+    const isBibliaRoute = pathname === '/' || pathname === '/biblia'
+    if (isBibliaRoute) return
+    // Em rotas locais (ex.: conteúdo offline), não esperar auth para sinalizar.
     if (user === undefined && !local && !limitado && !authEspera) return
-    if (user && pathname === '/') return
     splashDisparadoRef.current = true
     dispararBibliaProntaSeguro()
   }, [user, pathname, local, limitado, authEspera])

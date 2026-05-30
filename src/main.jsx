@@ -7,10 +7,7 @@ import './index.css'
 import { initDB as preaquecerBibliaDB } from './services/bibliaService'
 import { executarAppVersionGuard } from './utils/appVersionGuard'
 import { instalarRecuperacaoChunkPerdido } from './utils/chunkLoadRecovery'
-import { removerSplashHtmlInicial } from './utils/posSplash'
-
 instalarRecuperacaoChunkPerdido()
-removerSplashHtmlInicial()
 
 // Guard de versão do bundle: se o último build for diferente do que estava
 // guardado no `localStorage`, limpa caches do Service Worker e força reload

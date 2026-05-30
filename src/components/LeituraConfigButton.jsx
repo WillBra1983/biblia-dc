@@ -89,7 +89,7 @@ const LEITURA_SECCAO_LABEL = {
   'versiculos-marcados': 'Versículos marcados',
   'quiz-retiro': 'Quiz bíblico',
   chat: 'Mensagens',
-  'estudos-biblicos': 'Estudos bíblicos',
+  'estudos-biblicos': 'Estudos Compartilhados',
   outros: 'Outras páginas',
 }
 

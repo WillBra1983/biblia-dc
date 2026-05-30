@@ -32,7 +32,7 @@ import { mostrarSnackbar, confirmarAsync } from '../utils/uiDialogs'
 
 const ROTAS_SUGERIDAS = [
   { label: 'Devocional', value: '/devocional' },
-  { label: 'Estudos bíblicos', value: '/estudos-biblicos' },
+  { label: 'Estudos Compartilhados', value: '/estudos-biblicos' },
   { label: 'Plano de leitura', value: '/plano' },
   { label: 'Mais de Deus', value: '/mais-de-deus' },
   { label: 'Bíblia (início)', value: '/' }

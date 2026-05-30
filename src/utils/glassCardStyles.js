@@ -18,6 +18,8 @@ export function getGlassCardStyles(gradient, options = {}) {
     borderRadius = 2,
     cursor = 'pointer',
     shimmerDelay = null, // Delay aleatório para o brilho (em segundos)
+    /** Sem `backdrop-filter` — paint mais rápido (ex.: drawer do menu). */
+    performance = false,
   } = options
 
   // Gera delay aleatório se não fornecido (entre 0 e 7 segundos)
@@ -31,8 +33,12 @@ export function getGlassCardStyles(gradient, options = {}) {
     cursor: cursor,
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
     background: gradient,
-    backdropFilter: 'blur(20px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+    ...(performance
+      ? {}
+      : {
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        }),
     borderRadius: borderRadius,
     // Sombras múltiplas para efeito de vidro e profundidade
     boxShadow: `

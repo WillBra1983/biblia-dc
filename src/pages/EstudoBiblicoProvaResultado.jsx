@@ -102,7 +102,7 @@ export default function EstudoBiblicoProvaResultado() {
         Resultado da avaliação (somente leitura)
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-        {row.tema || 'Estudo bíblico'}
+        {row.tema || 'Estudo compartilhado'}
       </Typography>
       <Paper variant="outlined" sx={{ p: 2, mb: 2, bgcolor: 'action.hover' }}>
         <Typography variant="body2">

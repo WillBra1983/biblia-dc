@@ -513,7 +513,7 @@ export default function EstudoBiblicoIaPassagem() {
   }, [textoGerado])
 
   const abrirNoEditor = useCallback(() => {
-    const temaIa = referencia ? `Estudo — ${referencia}` : 'Estudo bíblico'
+    const temaIa = referencia ? `Estudo — ${referencia}` : 'Estudo compartilhado'
     navigate(queryEditor, {
       state: {
         textoIaGerado: textoGerado,
@@ -525,9 +525,9 @@ export default function EstudoBiblicoIaPassagem() {
 
   const compartilharNativo = useCallback(async () => {
     const textoComCabecalho = referencia
-      ? `Estudo bíblico — ${referencia}\n\n${textoGerado}`
+      ? `Estudo compartilhado — ${referencia}\n\n${textoGerado}`
       : textoGerado
-    const titulo = referencia ? `Estudo bíblico — ${referencia}` : 'Estudo bíblico'
+    const titulo = referencia ? `Estudo compartilhado — ${referencia}` : 'Estudo compartilhado'
     try {
       const opened = await openNativeShareSheet({ title: titulo, text: textoComCabecalho })
       if (opened) return
@@ -838,7 +838,7 @@ export default function EstudoBiblicoIaPassagem() {
             sx={{ minWidth: 0, columnGap: 0.75, rowGap: 0.25 }}
           >
             <Typography variant="subtitle1" fontWeight={700} sx={{ flexShrink: 0 }}>
-              Estudo bíblico
+              Estudo por passagem
             </Typography>
             {paramsValidos && referenciaExibicao ? (
               <Typography

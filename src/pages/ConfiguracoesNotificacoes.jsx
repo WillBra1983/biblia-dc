@@ -482,7 +482,7 @@ export default function ConfiguracoesNotificacoes() {
         />
         <LinhaSwitch
           titulo="Novidades e estudos"
-          descricao="Anúncios quando há novo devocional, estudo bíblico ou plano de leitura."
+          descricao="Anúncios quando há novo devocional, estudo compartilhado ou plano de leitura."
           ligado={prefs.novidades}
           aoMudar={(v) => atualizar({ novidades: v })}
         />

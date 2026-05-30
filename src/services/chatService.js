@@ -567,9 +567,7 @@ export function subscribeUserProfile(uid, callback) {
   if (!db || !uid) return () => {}
   const r = ref(db, `users/${uid}/profile`)
   onValue(r, (snap) => {
-    const v = snap.val() || {}
-    if (v && snapshotEhEcoDoMesmoCliente(v.clientId)) return
-    callback(v)
+    callback(snap.val() || {})
   })
   return () => off(r)
 }

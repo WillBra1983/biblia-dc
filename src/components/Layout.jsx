@@ -1,7 +1,6 @@
 import { 
   Box,
   Badge,
-  Drawer,
   IconButton,
   AppBar,
   Toolbar,
@@ -78,8 +77,8 @@ function getPageTitleFromPathname(pathname) {
   if (path.startsWith('/biblioteca-estudos')) return 'Biblioteca de estudos'
   if (path === '/estudos-biblicos/gerir') return 'Gerenciar estudos'
   /** Mesmo título do hub de estudos — o detalhe da passagem/perícope fica no cabeçalho da página. */
-  if (/^\/estudos-biblicos\/ia-(passagem|pericope)/.test(path)) return 'Estudos bíblicos'
-  if (path.startsWith('/estudos-biblicos')) return 'Estudos bíblicos'
+  if (/^\/estudos-biblicos\/ia-(passagem|pericope)/.test(path)) return 'Estudos Compartilhados'
+  if (path.startsWith('/estudos-biblicos')) return 'Estudos Compartilhados'
   if (path.startsWith('/chat')) return 'Mensagens'
   if (path.startsWith('/admin/usuarios')) return 'Utilizadores'
   if (path.startsWith('/admin/notificar')) return 'Enviar aviso'
@@ -117,9 +116,34 @@ export default function Layout({ title, children }) {
 
   const resolvedToolbarTitle = title || getPageTitleFromPathname(location.pathname)
 
-  const handleDrawerToggle = () => {
-    setDrawerOpen(!drawerOpen)
+  const fecharSelecaoVersiculosBiblia = () => {
+    window.dispatchEvent(new Event('salvation-biblia-fechar-selecao-versiculos'))
   }
+
+  const handleDrawerToggle = () => {
+    setDrawerOpen((open) => {
+      if (!open) fecharSelecaoVersiculosBiblia()
+      return !open
+    })
+  }
+
+  useEffect(() => {
+    if (!drawerOpen) return undefined
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setDrawerOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [drawerOpen])
+
+  useEffect(() => {
+    if (!drawerOpen) return undefined
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prevOverflow
+    }
+  }, [drawerOpen])
 
   /** Conteúdo do `main` começa por baixo do AppBar fixo (evita títulos escondidos). */
   const p = location.pathname
@@ -219,6 +243,7 @@ export default function Layout({ title, children }) {
 
   useEffect(() => {
     const onOpenMainMenu = () => {
+      fecharSelecaoVersiculosBiblia()
       setDrawerOpen(true)
     }
     window.addEventListener('salvation-open-main-menu', onOpenMainMenu)
@@ -246,13 +271,13 @@ export default function Layout({ title, children }) {
     document.title = isHome ? 'Bíblia DC' : `${section} · Bíblia DC`
   }, [location.pathname, title])
 
-  const drawer = (
-    <Box sx={{ width: '100%', bgcolor: 'background.paper', height: '100%', overflow: 'auto' }}>
-      <MenuCards
-        unreadChatCount={chatUnreadCount}
-        onItemClick={() => setDrawerOpen(false)}
-      />
-    </Box>
+  const drawerWidth = { xs: '100%', sm: 400, md: 420 }
+
+  const menuPrincipal = (
+    <MenuCards
+      unreadChatCount={chatUnreadCount}
+      onItemClick={() => setDrawerOpen(false)}
+    />
   )
 
   return (
@@ -426,8 +451,6 @@ export default function Layout({ title, children }) {
                 pr: { xs: 0.75, sm: 1 },
               }}
             >
-              <LeituraConfigButton />
-              <SharePageButton />
               <Box
                 id="chat-appbar-actions"
                 sx={{
@@ -504,26 +527,53 @@ export default function Layout({ title, children }) {
       </AppBar>
 
       {!isSubtemaDiscipulado && (
-      <Drawer
-        variant="temporary"
-        anchor="left"
-        open={drawerOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true
-        }}
-        sx={{
-          '& .MuiDrawer-paper': { 
-            boxSizing: 'border-box',
-            width: { xs: '100%', sm: 400, md: 420 },
-            bgcolor: 'background.paper',
-            borderRight: '1px solid',
-            borderColor: 'divider',
-          },
-        }}
-      >
-        {drawer}
-      </Drawer>
+        <>
+          <Box
+            aria-hidden={!drawerOpen}
+            onClick={handleDrawerToggle}
+            sx={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 1199,
+              bgcolor: 'rgba(0, 0, 0, 0.5)',
+              opacity: drawerOpen ? 1 : 0,
+              pointerEvents: drawerOpen ? 'auto' : 'none',
+              transition: 'opacity 0.2s ease',
+            }}
+          />
+          {/*
+            Painel sempre montado e pré-pintado fora da tela (`translateX(-100%)`).
+            O Drawer temporário do MUI escondia o conteúdo com `visibility: hidden`,
+            o que forçava repintura pesada na abertura — o usuário via só o fundo
+            verde antes dos cards do menu aparecerem.
+          */}
+          <Box
+            component="nav"
+            aria-label="Menu principal"
+            aria-hidden={!drawerOpen}
+            sx={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              height: '100%',
+              width: drawerWidth,
+              maxWidth: '100vw',
+              zIndex: 1200,
+              overflow: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              bgcolor: '#004d40',
+              boxShadow: drawerOpen ? 8 : 0,
+              transform: drawerOpen ? 'translate3d(0, 0, 0)' : 'translate3d(-100%, 0, 0)',
+              transition: 'transform 0.22s cubic-bezier(0.4, 0, 0.2, 1)',
+              pointerEvents: drawerOpen ? 'auto' : 'none',
+              willChange: 'transform',
+              pt: 'env(safe-area-inset-top, 0px)',
+              pb: 'env(safe-area-inset-bottom, 0px)',
+            }}
+          >
+            {menuPrincipal}
+          </Box>
+        </>
       )}
 
       <Box

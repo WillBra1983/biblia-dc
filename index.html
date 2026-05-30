@@ -2,31 +2,15 @@
 <html lang="pt-BR" data-critters-container>
   <head>
     <meta charset="UTF-8" />
-    <!-- Caminho relativo: com base /biblia/ o absoluto /icons/ quebra no deploy (vai para a raiz do domínio). -->
     <link rel="icon" type="image/png" href="./icons/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <!-- Cor da barra de status do navegador/PWA. Por padrão, novos usuários
-         abrem o app no tema claro (ver `AppContext`); então a cor padrão é
-         clara (`#f5f5f5` = background do light theme). A segunda meta cobre
-         quem tem `prefers-color-scheme: dark` no sistema, evitando flash
-         preto antes do React montar o tema certo. -->
     <meta name="theme-color" content="#f5f5f5" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#121216" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f5f5f5" />
     <meta name="description" content="Bíblia DC — Bíblia, Discipulado, Hinário, Plano de Leitura, Léxico e Recursos para Estudo Bíblico Reformado, incluindo IA, etc." />
-    <!-- Canonical para SEO no foundcine.com/biblia/ (ignorado no build Android) -->
     <link rel="canonical" href="https://foundcine.com/biblia/" />
-    <!-- Preconnect economiza ~100-300 ms ao abrir o socket TLS pro CDN de fontes
-         antes do CSS começar a baixar. `crossorigin` no segundo é obrigatório:
-         `fonts.gstatic.com` serve os WOFF2 com CORS. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- CSS de Google Fonts em modo non-blocking: o navegador faz preload em
-         paralelo ao parsing do HTML e troca o rel='preload' por 'stylesheet'
-         no `onload`. Combinado com `display=swap`, o texto aparece imediatamente
-         em system-ui e troca pra Source Serif/Sans quando a fonte chega — sem
-         FOIT (flash of invisible text) nem render-blocking. `<noscript>` cobre
-         o caso raro de JS desligado. -->
     <link
       rel="preload"
       as="style"
@@ -37,21 +21,21 @@
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Source+Sans+3:wght@400;500;600;700&display=swap">
     </noscript>
     <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-    <!-- iOS/macOS-style PWA hints: deixam a app rodar em standalone (sem barra
-         do Safari) e adotam o verde do tema como cor da status bar. -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <!-- manifest injetado pelo vite-plugin-pwa com base correta -->
     <title>Bíblia DC</title>
+    <link rel="preload" as="image" href="./splash-b.webp" type="image/webp">
   </head>
-  <body style="margin:0;background:#004d40;">
-    <!-- Sem splash duplicado no HTML: o React (`SplashScreen`) é a única tela de abertura
-         após o bundle carregar. Fundo verde evita flash branco enquanto o JS baixa. -->
+  <body style="margin:0;background:#ffffff;">
+    <div id="splash-initial" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#ffffff;">
+      <picture>
+        <source srcset="./splash-b.webp" type="image/webp">
+        <img src="./splash-b.png" alt="" width="540" height="960" decoding="async" fetchpriority="high" style="width:min(92vw,540px);height:auto;max-height:92vh;object-fit:contain;">
+      </picture>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <footer style="margin: 0; padding: 0; min-height: 0; height: auto;">
-        <!-- Conteúdo do rodapé aqui -->
-    </footer>
+    <footer style="margin: 0; padding: 0; min-height: 0; height: auto;"></footer>
   </body>
 </html>

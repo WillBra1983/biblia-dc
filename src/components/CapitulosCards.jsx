@@ -1,8 +1,8 @@
 import { Box, Card, CardContent, Typography, Grid, Dialog, AppBar, Toolbar, IconButton } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { obterCorLivro } from '../utils/coresBiblia'
-import { useEffect } from 'react'
-import { contarVersiculosPorLivro } from '../services/bibliaService'
+import { useEffect, useState } from 'react'
+import { contarVersiculosPorLivro, obterVersiculosPorLivroSync } from '../services/bibliaService'
 
 export default function CapitulosCards({ 
   livro, 
@@ -14,7 +14,6 @@ export default function CapitulosCards({
 }) {
   const handleSelect = (cap) => {
     onSelectCapitulo(cap)
-    onClose()
   }
 
   const handleBack = () => {
@@ -27,9 +26,20 @@ export default function CapitulosCards({
 
   // Pré-carrega a contagem de versículos de cada capítulo do livro escolhido —
   // assim, ao abrir `VersiculosCards`, a grade renderiza instantaneamente.
+  const [versiculosPorCap, setVersiculosPorCap] = useState(() =>
+    livro?.id ? obterVersiculosPorLivroSync(livro.id) : null
+  )
+
   useEffect(() => {
     if (!open || !livro?.id) return
-    contarVersiculosPorLivro(livro.id).catch(() => {})
+    const sync = obterVersiculosPorLivroSync(livro.id)
+    if (sync) {
+      setVersiculosPorCap(sync)
+      return
+    }
+    contarVersiculosPorLivro(livro.id)
+      .then((map) => setVersiculosPorCap(map))
+      .catch(() => {})
   }, [open, livro?.id])
 
   // Suporte ao botão de voltar do navegador/celular
@@ -131,9 +141,11 @@ export default function CapitulosCards({
                     sx={{
                       p: 0,
                       display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
                       height: '100%',
+                      gap: 0.15,
                       '&:last-child': { paddingBottom: 0 },
                     }}
                   >
@@ -143,6 +155,14 @@ export default function CapitulosCards({
                     >
                       {cap}
                     </Typography>
+                    {versiculosPorCap?.[cap] ? (
+                      <Typography
+                        variant="caption"
+                        sx={{ fontSize: '0.52rem', lineHeight: 1, opacity: 0.88 }}
+                      >
+                        {versiculosPorCap[cap]} v.
+                      </Typography>
+                    ) : null}
                   </CardContent>
                 </Card>
               </Grid>

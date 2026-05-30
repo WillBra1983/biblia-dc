@@ -52,7 +52,6 @@ export default function VersiculosCards({
 
   const handleSelect = (versiculo) => {
     onSelectVersiculo(versiculo)
-    onClose()
   }
 
   // Suporte ao botão de voltar do navegador/celular

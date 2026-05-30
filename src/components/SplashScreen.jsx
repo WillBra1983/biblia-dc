@@ -1,81 +1,143 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Box, Typography } from '@mui/material'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import {
   bibliaJaEstaPronta,
-  deveExibirSplashOverlay,
-  jaPassouDoSplash,
   marcarSplashFechado,
-  marcarSplashOverlayExibido,
   marcarSplashUiConcluido,
   removerSplashHtmlInicial,
   splashUiJaConcluiu,
 } from '../utils/posSplash'
 
+const SPLASH_IMAGEM_WEBP = `${import.meta.env.BASE_URL}splash-b.webp`.replace(/\/{2,}/g, '/')
+const SPLASH_IMAGEM_PNG = `${import.meta.env.BASE_URL}splash-b.png`.replace(/\/{2,}/g, '/')
+
 /**
- * Splash com duração mínima curta (`minMs`) e teto máximo (`maxMs`).
- * Fecha quando `bibliaPronta = true` for despachado em `window`
- * (`window.dispatchEvent(new Event('biblia-pronta'))`) — assim o capítulo aparece
- * imediato, sem "tela preta" no meio do caminho.
+ * Splash em duas fases:
+ *   1. Imagem da Bíblia (continua o splash HTML instantâneo do `index.html`)
+ *   2. Tela verde com branding
+ *
+ * Só fecha quando `biblia-pronta` for despachado — após o capítulo pintar de
+ * verdade — com duração mínima curta na fase verde. `maxMs` é apenas fallback
+ * de segurança se a Bíblia nunca sinalizar.
  */
-export default function SplashScreen({ onComplete, minMs = 450, maxMs = 1400 }) {
-  const [visible, setVisible] = useState(() => deveExibirSplashOverlay())
+export default function SplashScreen({
+  onComplete,
+  imageMinMs = 650,
+  minMs = 750,
+  maxMs = 12000,
+}) {
+  const [visible, setVisible] = useState(() => !splashUiJaConcluiu())
+  const [fase, setFase] = useState('imagem')
+  const verdeIniciouEmRef = useRef(null)
+  const bibliaProntaRef = useRef(bibliaJaEstaPronta())
+  const timeoutFinalRef = useRef(null)
 
   useEffect(() => {
-    removerSplashHtmlInicial()
-
     if (splashUiJaConcluiu()) {
-      if (onComplete) onComplete()
-      return undefined
-    }
-
-    if (deveExibirSplashOverlay()) {
-      marcarSplashOverlayExibido()
-    } else {
-      setVisible(false)
-    }
-
-    if (jaPassouDoSplash()) {
       onComplete?.()
       return undefined
     }
 
-    let finalizado = false
-    const startedAt = Date.now()
-    let timeoutFinal = null
+    let cancelled = false
 
     const finalizar = () => {
-      if (finalizado || splashUiJaConcluiu()) return
-      finalizado = true
+      if (cancelled || splashUiJaConcluiu()) return
+      cancelled = true
+      removerSplashHtmlInicial()
       marcarSplashUiConcluido()
       setVisible(false)
       window.setTimeout(() => {
         marcarSplashFechado()
         onComplete?.()
-      }, 60)
+      }, 80)
+    }
+
+    const agendarFechamentoPosPronta = () => {
+      if (cancelled || verdeIniciouEmRef.current == null) return
+      const elapsed = Date.now() - verdeIniciouEmRef.current
+      const restante = Math.max(0, minMs - elapsed)
+      if (timeoutFinalRef.current) window.clearTimeout(timeoutFinalRef.current)
+      timeoutFinalRef.current = window.setTimeout(finalizar, restante)
     }
 
     const onPronta = () => {
-      const elapsed = Date.now() - startedAt
-      const restante = Math.max(0, minMs - elapsed)
-      if (timeoutFinal) window.clearTimeout(timeoutFinal)
-      timeoutFinal = window.setTimeout(finalizar, restante)
+      bibliaProntaRef.current = true
+      if (verdeIniciouEmRef.current != null) {
+        agendarFechamentoPosPronta()
+      }
     }
 
-    window.addEventListener('biblia-pronta', onPronta, { once: true })
+    window.addEventListener('biblia-pronta', onPronta)
+
+    const timeoutImagem = window.setTimeout(() => {
+      if (cancelled) return
+      verdeIniciouEmRef.current = Date.now()
+      setFase('verde')
+      removerSplashHtmlInicial()
+      if (bibliaProntaRef.current) {
+        agendarFechamentoPosPronta()
+      }
+    }, imageMinMs)
+
     const timeoutTeto = window.setTimeout(finalizar, maxMs)
 
     if (bibliaJaEstaPronta()) {
-      onPronta()
+      bibliaProntaRef.current = true
     }
 
     return () => {
-      if (timeoutFinal) window.clearTimeout(timeoutFinal)
+      cancelled = true
+      window.removeEventListener('biblia-pronta', onPronta)
+      if (timeoutFinalRef.current) window.clearTimeout(timeoutFinalRef.current)
+      window.clearTimeout(timeoutImagem)
       window.clearTimeout(timeoutTeto)
     }
-  }, [onComplete, minMs, maxMs])
+  }, [onComplete, imageMinMs, minMs, maxMs])
 
   if (!visible) return null
+
+  if (fase === 'imagem') {
+    return (
+      <Box
+        sx={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: '#ffffff',
+          pointerEvents: 'auto',
+        }}
+      >
+        <picture
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            height: '100%',
+            margin: 0,
+          }}
+        >
+          <source srcSet={SPLASH_IMAGEM_WEBP} type="image/webp" />
+          <img
+            src={SPLASH_IMAGEM_PNG}
+            alt=""
+            decoding="async"
+            fetchPriority="high"
+            style={{
+              width: 'min(92vw, 540px)',
+              height: 'auto',
+              maxHeight: '92vh',
+              objectFit: 'contain',
+            }}
+          />
+        </picture>
+      </Box>
+    )
+  }
 
   return (
     <Box
@@ -133,10 +195,6 @@ export default function SplashScreen({ onComplete, minMs = 450, maxMs = 1400 }) 
           >
             <MenuBookIcon sx={{ fontSize: 60, color: 'white' }} />
           </Box>
-          {/* Tipografia alinhada ao tema: serifa elegante no título (Source
-              Serif 4) e Source Sans no subtítulo. Stack robusta de fallback
-              cobre o caso de a Google Font ainda não ter carregado quando o
-              splash aparece (`font-display: swap` evita texto invisível). */}
           <Typography
             variant="h3"
             sx={{
@@ -205,4 +263,3 @@ export default function SplashScreen({ onComplete, minMs = 450, maxMs = 1400 }) 
     </Box>
   )
 }
-

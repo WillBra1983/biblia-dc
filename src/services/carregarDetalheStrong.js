@@ -23,7 +23,7 @@ export async function carregarDetalheStrong(code, options = {}) {
     const [lex, lexicalRows, sbRows, ptLex] = await Promise.all([
       buscarStrongHebraico(c),
       buscarLexicalIndexHebraico(c),
-      stepBibleDisponivel ? buscarStepBiblePorStrong(c, 8) : Promise.resolve([]),
+      stepBibleDisponivel ? buscarStepBiblePorStrong(c, 14) : Promise.resolve([]),
       lexiconPtBrDisponivel ? buscarLexiconPtBr(c) : Promise.resolve(null)
     ])
     if (lex) {
@@ -62,7 +62,7 @@ export async function carregarDetalheStrong(code, options = {}) {
   } else {
     const [grego, sbRows, ptLex] = await Promise.all([
       buscarStrongGrego(c),
-      stepBibleDisponivel ? buscarStepBiblePorStrong(c, 8) : Promise.resolve([]),
+      stepBibleDisponivel ? buscarStepBiblePorStrong(c, 14) : Promise.resolve([]),
       lexiconPtBrDisponivel ? buscarLexiconPtBr(c) : Promise.resolve(null)
     ])
     if (grego) {

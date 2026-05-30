@@ -156,17 +156,12 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   })
   const [versiculoParaScroll, setVersiculoParaScroll] = useState(null)
 
-  // Suporte ao botão voltar do celular no dialog de busca
+  // Histórico: busca aberta → texto do resultado → voltar reabre a busca.
   useEffect(() => {
     if (!dialogoBuscaAberto) return
     if (!window.history.state?.dialogType || window.history.state.dialogType !== 'biblia-busca') {
       window.history.pushState({ dialogType: 'biblia-busca' }, '')
     }
-    const handlePopState = () => {
-      if (dialogoBuscaAberto) setDialogoBuscaAberto(false)
-    }
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
   }, [dialogoBuscaAberto])
   const [versiculosSelecionados, setVersiculosSelecionados] = useState([])
   const [dialogoMarcarAberto, setDialogoMarcarAberto] = useState(false)
@@ -177,8 +172,12 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const versiculoRefs = React.useRef({})
   const elementoDestacadoRef = React.useRef(null)
   const scrollToTopOnChapterChangeRef = React.useRef(false)
+  const bibliaProntaNotificadaRef = React.useRef(false)
   /** Evita que URL→estado puxe Gênesis enquanto a URL ainda não refletiu um salto vindo da busca/UI. */
   const navegacaoInternaRef = React.useRef(false)
+  /** Livro/capítulo antes de abrir livros → capítulos → versículos (restaurado se cancelar). */
+  const navegacaoBackupRef = React.useRef(null)
+  const [aguardandoVoltarBusca, setAguardandoVoltarBusca] = useState(false)
   // (splash interno removido)
   const [livrosDialogOpen, setLivrosDialogOpen] = useState(false)
   const [capitulosDialogOpen, setCapitulosDialogOpen] = useState(false)
@@ -187,22 +186,18 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const [versiculosVemDeCapitulos, setVersiculosVemDeCapitulos] = useState(false)
   const [marcadorMenuAnchor, setMarcadorMenuAnchor] = useState(null)
   const [compartilharVersiculosAnchor, setCompartilharVersiculosAnchor] = useState(null)
-  const [bibliaAppBarActionsSlot, setBibliaAppBarActionsSlot] = useState(null)
   const [bibliaToolbarLeftSlot, setBibliaToolbarLeftSlot] = useState(null)
   const location = useLocation()
   const navigate = useNavigate()
-  // Portal para ações no AppBar da Bíblia (evita ficar preso no toolbar interno)
   useLayoutEffect(() => {
     let raf = null
     let tries = 0
     const max = 18
     const resolve = () => {
-      const elAcoes = document.getElementById('biblia-appbar-actions')
-      setBibliaAppBarActionsSlot(elAcoes || null)
       const elToolbarLeft = document.getElementById('biblia-appbar-toolbar-left')
       setBibliaToolbarLeftSlot(elToolbarLeft || null)
       tries += 1
-      if ((!elAcoes || !elToolbarLeft) && tries < max) raf = requestAnimationFrame(resolve)
+      if (!elToolbarLeft && tries < max) raf = requestAnimationFrame(resolve)
     }
     resolve()
     return () => {
@@ -254,6 +249,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     lineHeight,
     semEspacoEntreVersiculos,
     setBackButtonHandler,
+    planoLeitura,
     setPlanoLeitura
   } = useApp()
   const fontSizeLeitura = Math.round((Number(fontSize) || 100) * (zoomLeitura / 100))
@@ -486,6 +482,32 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     navigate(`${location.pathname}${next ? `?${next}` : ''}`)
   }, [location.pathname, location.search, navigate])
 
+  const voltarAoPlanoLeitura = React.useCallback(() => {
+    const idPlano = planoIdOrigem || planoLeitura?.instanciaAtivaId
+    if (idPlano) {
+      navigate(`/plano-leitura-biblia?id=${encodeURIComponent(idPlano)}`)
+      return
+    }
+    voltarParaBibliaPadrao()
+  }, [planoIdOrigem, planoLeitura?.instanciaAtivaId, navigate, voltarParaBibliaPadrao])
+
+  const sxBotaoPlanoBarra = React.useMemo(
+    () => ({
+      minWidth: 'auto',
+      textTransform: 'none',
+      fontWeight: 700,
+      px: { xs: 0.55, sm: 0.85 },
+      py: 0.2,
+      fontSize: { xs: '0.72rem', sm: '0.82rem' },
+      lineHeight: 1.1,
+      borderColor: 'rgba(255,255,255,0.38)',
+      color: 'grey.100',
+      flexShrink: 0,
+      '&:hover': { borderColor: 'rgba(255,255,255,0.75)', bgcolor: 'rgba(255,255,255,0.08)' },
+    }),
+    []
+  )
+
   useEffect(() => {
     let active = true
     void (async () => {
@@ -661,6 +683,17 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   useEffect(() => {
     const onPopState = () => {
       navegacaoInternaRef.current = false
+      const tipo = window.history.state?.dialogType
+      if (tipo === 'biblia-busca') {
+        setDialogoBuscaAberto(true)
+        setAguardandoVoltarBusca(false)
+      } else if (tipo === 'biblia-pos-busca') {
+        setDialogoBuscaAberto(false)
+        setAguardandoVoltarBusca(true)
+      } else {
+        setDialogoBuscaAberto(false)
+        setAguardandoVoltarBusca(false)
+      }
     }
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
@@ -873,6 +906,21 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     }
   }, [versiculosSelecionados.length, modoSelecao])
 
+  const limparSelecaoVersiculos = useCallback(() => {
+    setVersiculosSelecionados([])
+    setModoSelecao(false)
+    setModoCompartilharVersiculos(false)
+    setMarcadorMenuAnchor(null)
+    setCompartilharVersiculosAnchor(null)
+    setDialogoMarcarAberto(false)
+  }, [])
+
+  useEffect(() => {
+    const onFecharSelecao = () => limparSelecaoVersiculos()
+    window.addEventListener('salvation-biblia-fechar-selecao-versiculos', onFecharSelecao)
+    return () => window.removeEventListener('salvation-biblia-fechar-selecao-versiculos', onFecharSelecao)
+  }, [limparSelecaoVersiculos])
+
   const linkCompartilharVersiculos = useMemo(() => {
     if (!livroAtual || !versiculosSelecionadosOrdenados.length) return ''
     return buildAppShareLink(
@@ -951,49 +999,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     })
   }, [linkCompartilharVersiculos])
 
-  // O botão "Plano" foi movido para o menu lateral (hambúrguer), conforme
-  // pedido do usuário. O "+" foi movido para a faixa de controles
-  // (`biblia-appbar-toolbar-left`), ao lado do botão Strong. Por isso o slot
-  // direito do AppBar (`biblia-appbar-actions`) fica vazio nesta rota e o
-  // portal `appBarBibliaAcoes` permanece `null`.
-  //
-  // Caso o usuário tenha entrado no contexto de "plano" (ex.: deep-link
-  // `?plano=...`), mostramos um botão "Voltar para Bíblia" no slot para que
-  // ele consiga sair do plano sem ter de abrir o hambúrguer.
-  const appBarBibliaAcoes = useMemo(() => {
-    if (!bibliaAppBarActionsSlot) return null
-    if (!veioDoPlanoContexto) return null
-
-    return createPortal(
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={voltarParaBibliaPadrao}
-          startIcon={<AutoStoriesIcon sx={{ fontSize: '1.05rem' }} />}
-          sx={{
-            minWidth: 'auto',
-            textTransform: 'none',
-            fontWeight: 700,
-            px: { xs: 0.7, sm: 0.9 },
-            py: 0.2,
-            fontSize: { xs: '0.78rem', sm: '0.85rem' },
-            lineHeight: 1.1,
-            borderColor: 'rgba(255,255,255,0.38)',
-            color: 'inherit',
-            '&:hover': { borderColor: 'rgba(255,255,255,0.75)', bgcolor: 'rgba(255,255,255,0.08)' },
-          }}
-        >
-          Voltar
-        </Button>
-      </Box>,
-      bibliaAppBarActionsSlot
-    )
-  }, [
-    bibliaAppBarActionsSlot,
-    veioDoPlanoContexto,
-    voltarParaBibliaPadrao,
-  ])
+  // Plano: Concluir / Voltar ao plano / "+" ficam no fim da faixa Livro|Cap|🔍 (ml: auto).
 
   async function handleEnviarVersiculosSelecionadosChat() {
     setMarcadorMenuAnchor(null)
@@ -1056,40 +1062,6 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     const abreviacao = livroMeta?.abreviacao || livroAtual?.abreviacao || String(livroAtual?.nome || '').slice(0, 2)
     return `${abreviacao} ${capitulo}:${blocos.join(';')}`
   }, [modoCompartilharVersiculos, livroAtual, capitulo, versiculosSelecionados])
-
-  // Botão voltar do celular: ao escolher livro/capítulo/versículo, fecha o diálogo em vez de pedir para sair
-  useEffect(() => {
-    if (!setBackButtonHandler) return
-    if (
-      versiculosDialogOpen ||
-      capitulosDialogOpen ||
-      livrosDialogOpen ||
-      dialogoBuscaAberto ||
-      dialogoMarcarAberto
-    ) {
-      setBackButtonHandler(() => {
-        if (versiculosDialogOpen) setVersiculosDialogOpen(false)
-        else if (capitulosDialogOpen) setCapitulosDialogOpen(false)
-        else if (livrosDialogOpen) setLivrosDialogOpen(false)
-        else if (dialogoBuscaAberto) setDialogoBuscaAberto(false)
-        else if (dialogoMarcarAberto) {
-          setDialogoMarcarAberto(false)
-          setVersiculosSelecionados([])
-          setModoSelecao(false)
-        }
-      })
-    } else {
-      setBackButtonHandler(null)
-    }
-    return () => setBackButtonHandler?.(null)
-  }, [
-    versiculosDialogOpen,
-    capitulosDialogOpen,
-    livrosDialogOpen,
-    dialogoBuscaAberto,
-    dialogoMarcarAberto,
-    setBackButtonHandler
-  ])
 
   // Splash interno removido — splash global do AppShell é suficiente.
 
@@ -1287,15 +1259,36 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         setErro('Erro ao carregar a Biblia DC')
       } finally {
         setCarregandoInicial(false)
+      }
+    }
+    init()
+  }, [leituraInicial])
+
+  /** Só sinaliza `biblia-pronta` após o capítulo estar no DOM e pintado (2× rAF). */
+  useLayoutEffect(() => {
+    if (carregandoInicial || bibliaProntaNotificadaRef.current) return
+    const prontoParaPaint = Boolean(erro) || resultados.length > 0
+    if (!prontoParaPaint) return
+
+    let raf1 = 0
+    let raf2 = 0
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        if (bibliaProntaNotificadaRef.current) return
+        bibliaProntaNotificadaRef.current = true
         try {
           notificarBibliaPronta()
         } catch {
           /* ignore */
         }
-      }
+      })
+    })
+
+    return () => {
+      cancelAnimationFrame(raf1)
+      cancelAnimationFrame(raf2)
     }
-    init()
-  }, [leituraInicial])
+  }, [carregandoInicial, resultados.length, erro])
 
   // Removido: o salvamento já é feito em carregarCapitulo para evitar duplicação
 
@@ -1339,6 +1332,125 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
       setLoading(false)
     }
   }, [])
+
+  const salvarSnapshotNavegacao = useCallback(() => {
+    if (navegacaoBackupRef.current != null || !livroAtual?.id) return
+    navegacaoBackupRef.current = { livroId: livroAtual.id, capitulo }
+  }, [livroAtual, capitulo])
+
+  const confirmarNavegacao = useCallback(() => {
+    navegacaoBackupRef.current = null
+  }, [])
+
+  const restaurarNavegacaoSeCancelada = useCallback(async () => {
+    const backup = navegacaoBackupRef.current
+    if (!backup) return
+    navegacaoBackupRef.current = null
+
+    const livro = opcoesLivros.find((l) => l.id === backup.livroId)
+    if (!livro) return
+
+    if (
+      livroAtual?.id === backup.livroId &&
+      capitulo === backup.capitulo &&
+      resultados.length > 0
+    ) {
+      return
+    }
+
+    setLivroAtual(livro)
+    setCapitulo(backup.capitulo)
+    setDeepLinkVerse(null)
+    setVersiculosDestaqueLink([])
+    localStorage.setItem(
+      'ultimaLeitura',
+      JSON.stringify({ livroId: backup.livroId, capitulo: backup.capitulo })
+    )
+    window.dispatchEvent(new Event('localStorageChange'))
+    await carregarCapitulo(backup.livroId, backup.capitulo)
+  }, [livroAtual, capitulo, resultados.length, opcoesLivros, carregarCapitulo])
+
+  const encerrarFluxoNavegacao = useCallback(
+    (proximo = {}) => {
+      const livros = proximo.livros ?? false
+      const capitulos = proximo.capitulos ?? false
+      const versiculos = proximo.versiculos ?? false
+      setLivrosDialogOpen(livros)
+      setCapitulosDialogOpen(capitulos)
+      setVersiculosDialogOpen(versiculos)
+      if (proximo.capitulosVemDeLivros !== undefined) {
+        setCapitulosVemDeLivros(proximo.capitulosVemDeLivros)
+      }
+      if (proximo.versiculosVemDeCapitulos !== undefined) {
+        setVersiculosVemDeCapitulos(proximo.versiculosVemDeCapitulos)
+      }
+      if (!livros && !capitulos && !versiculos) {
+        setCapitulosVemDeLivros(false)
+        setVersiculosVemDeCapitulos(false)
+        void restaurarNavegacaoSeCancelada()
+      }
+    },
+    [restaurarNavegacaoSeCancelada]
+  )
+
+  // Botão voltar do celular: diálogos da Bíblia; senão, retorno ao plano quando aplicável.
+  useEffect(() => {
+    if (!setBackButtonHandler) return
+    if (
+      versiculosDialogOpen ||
+      capitulosDialogOpen ||
+      livrosDialogOpen ||
+      dialogoBuscaAberto ||
+      dialogoMarcarAberto
+    ) {
+      setBackButtonHandler(() => {
+        if (versiculosDialogOpen) {
+          if (versiculosVemDeCapitulos) {
+            setVersiculosDialogOpen(false)
+            setCapitulosDialogOpen(true)
+            setVersiculosVemDeCapitulos(false)
+          } else {
+            encerrarFluxoNavegacao()
+          }
+        } else if (capitulosDialogOpen) {
+          if (capitulosVemDeLivros) {
+            setCapitulosDialogOpen(false)
+            setLivrosDialogOpen(true)
+            setCapitulosVemDeLivros(false)
+          } else {
+            encerrarFluxoNavegacao()
+          }
+        } else if (livrosDialogOpen) {
+          encerrarFluxoNavegacao()
+        } else if (dialogoBuscaAberto) setDialogoBuscaAberto(false)
+        else if (dialogoMarcarAberto) {
+          setDialogoMarcarAberto(false)
+          setVersiculosSelecionados([])
+          setModoSelecao(false)
+        }
+      })
+    } else if (veioDoPlanoContexto) {
+      setBackButtonHandler(() => voltarAoPlanoLeitura())
+    } else if (aguardandoVoltarBusca) {
+      setBackButtonHandler(() => window.history.back())
+    } else {
+      setBackButtonHandler(null)
+    }
+    return () => setBackButtonHandler?.(null)
+  }, [
+    versiculosDialogOpen,
+    capitulosDialogOpen,
+    livrosDialogOpen,
+    dialogoBuscaAberto,
+    dialogoMarcarAberto,
+    veioDoPlanoContexto,
+    voltarAoPlanoLeitura,
+    setBackButtonHandler,
+    encerrarFluxoNavegacao,
+    capitulosVemDeLivros,
+    versiculosVemDeCapitulos,
+    aguardandoVoltarBusca,
+  ])
 
   // Bíblia principal: sem incentivos na UI ao carregar capítulo (registo interno mantido).
   useEffect(() => {
@@ -1394,7 +1506,8 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     }
   }
 
-  const irParaVersiculo = async (livroId, cap, versiculoNum = null) => {
+  const irParaVersiculo = async (livroId, cap, versiculoNum = null, opcoes = {}) => {
+    const { daBusca = false } = opcoes
     const livro = opcoesLivros.find(l => l.id === livroId)
     if (livro) {
       setLivroAtual(livro)
@@ -1409,6 +1522,10 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
       // Aguarda o capítulo carregar antes de fechar o diálogo
       try {
         await carregarCapitulo(livroId, cap)
+        if (daBusca) {
+          window.history.pushState({ dialogType: 'biblia-pos-busca' }, '')
+          setAguardandoVoltarBusca(true)
+        }
         // Fecha o diálogo para mostrar o texto após carregar
         setDialogoBuscaAberto(false)
       } catch (error) {
@@ -1546,6 +1663,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const textosBiblicosBusca = resultadosBusca.filter(r => r.texto);
 
   const handleSelectLivro = React.useCallback((livro) => {
+    contarVersiculosPorLivro(livro.id).catch(() => {})
     // Só atualizar se for um livro diferente
     if (livroAtual?.id !== livro.id) {
       setLivroAtual(livro)
@@ -1609,6 +1727,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     if (livroAtual) {
       // Carrega o capítulo e depois faz scroll para o versículo
       await carregarCapitulo(livroAtual.id, capitulo)
+      confirmarNavegacao()
       // Salva o versículo para fazer scroll depois que carregar
       setDeepLinkVerse(versiculo)
       setVersiculoParaScroll({ livroId: livroAtual.id, cap: capitulo, versiculoNum: versiculo })
@@ -1619,7 +1738,6 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
 
   return (
     <>
-      {appBarBibliaAcoes}
       {/* Removido splash duplicado - o splash global já é suficiente */}
         <Box sx={{ 
           display: 'flex', 
@@ -1640,6 +1758,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             flexWrap: 'nowrap',
             gap: { xs: 0.4, sm: 0.6 },
             flex: '1 1 auto',
+            width: '100%',
             minWidth: 0,
             overflowX: 'auto',
             overflowY: 'hidden',
@@ -1651,6 +1770,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             <Button
               variant="outlined"
               onClick={() => {
+                salvarSnapshotNavegacao()
                 // Pré-carrega contagem de versículos do livro atual para que
                 // o seletor de versículos abra instantaneamente quando o
                 // usuário avançar (livro → capítulo → versículo).
@@ -1703,8 +1823,12 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
               <Button
                 variant="outlined"
                 onClick={() => {
+                  salvarSnapshotNavegacao()
                   // Marca que o diálogo de capítulos NÃO veio do diálogo de livros
                   setCapitulosVemDeLivros(false)
+                  if (livroAtual?.id) {
+                    contarVersiculosPorLivro(livroAtual.id).catch(() => {})
+                  }
                   setCapitulosDialogOpen(true)
                 }}
                 sx={{
@@ -1755,9 +1879,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 <SearchIcon />
               </IconButton>
             </Tooltip>
-            {/* O botão "Plano" vive no canto direito do AppBar superior
-                (`appBarBibliaAcoes`); aqui ficamos só com Livro, Cap, Pesquisa,
-                Strong e o "+" (no fim desta faixa). */}
+            {/* Livro, Cap, Pesquisa (+ Strong fora do plano). Plano: Concluir · Voltar · + no canto. */}
             {!veioDoPlanoContexto && ntProvaDisponivel && ehNovoTestamento && (
               <Button
                 variant={modoStrongProva ? 'contained' : 'outlined'}
@@ -1880,12 +2002,31 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 Strong
               </Button>
             )}
-            {/* "+" no fim da faixa de controles, ao lado de Strong: agrupa
-                "Editar fonte", "Compartilhar página" e "Versículos
-                marcados". O Plano fica no AppBar superior. */}
-            <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', color: 'grey.100', flexShrink: 0 }}>
-              <AppBarMaisMenu />
-            </Box>
+            {veioDoPlanoContexto ? (
+              <Box
+                sx={{
+                  ml: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.25,
+                  flexShrink: 0,
+                  pl: 0.5,
+                  color: 'grey.100',
+                }}
+              >
+                <Button variant="outlined" size="small" onClick={voltarParaBibliaPadrao} sx={sxBotaoPlanoBarra}>
+                  Concluir
+                </Button>
+                <Button variant="outlined" size="small" onClick={voltarAoPlanoLeitura} sx={sxBotaoPlanoBarra}>
+                  Voltar ao plano
+                </Button>
+                <AppBarMaisMenu />
+              </Box>
+            ) : (
+              <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', color: 'grey.100', flexShrink: 0 }}>
+                <AppBarMaisMenu />
+              </Box>
+            )}
           </Box>,
           bibliaToolbarLeftSlot
           ) : null}
@@ -1916,7 +2057,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                   </Button>
                 }
               >
-                Foi aberto um link de estudo bíblico. Pode abrir o conteúdo completo (é necessário iniciar sessão).
+                Foi aberto um link de estudo compartilhado. Pode abrir o conteúdo completo (é necessário iniciar sessão).
               </Alert>
             </Box>
           )}
@@ -2322,7 +2463,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           )}
           {modoSelecao && versiculosSelecionados.length > 0 && (
             <MenuItem onClick={handleEstudoIaPassagem} disabled={!livroAtual}>
-              Preparar estudo bíblico…
+              Preparar estudo compartilhado…
             </MenuItem>
           )}
           {modoSelecao && versiculosSelecionados.length > 0 && pericopeDoVersiculoSelecionado && (
@@ -2448,7 +2589,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           )}
           {modoSelecao && versiculosSelecionados.length > 0 && (
             <MenuItem onClick={handleEstudoIaPassagem} disabled={!livroAtual}>
-              Preparar estudo bíblico…
+              Preparar estudo compartilhado…
             </MenuItem>
           )}
           {modoSelecao && versiculosSelecionados.length > 0 && pericopeDoVersiculoSelecionado && (
@@ -2629,7 +2770,8 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                               irParaVersiculo(
                                 resultado.livroId, 
                                 resultado.capitulo, 
-                                numeroVersiculo
+                                numeroVersiculo,
+                                { daBusca: true }
                               )
                             }}
                           >
@@ -2663,7 +2805,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         livroAtual={livroAtual}
         onSelectLivro={handleSelectLivro}
         open={livrosDialogOpen}
-        onClose={() => setLivrosDialogOpen(false)}
+        onClose={() => encerrarFluxoNavegacao()}
       />
 
       <CapitulosCards
@@ -2671,10 +2813,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         capituloAtual={capitulo}
         onSelectCapitulo={handleSelectCapitulo}
         open={capitulosDialogOpen}
-        onClose={() => {
-          setCapitulosDialogOpen(false)
-          setCapitulosVemDeLivros(false)
-        }}
+        onClose={() => encerrarFluxoNavegacao()}
         onBack={() => {
           setCapitulosDialogOpen(false)
           // Só volta para livros se veio de lá
@@ -2691,10 +2830,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         versiculoAtual={null}
         onSelectVersiculo={handleSelectVersiculo}
         open={versiculosDialogOpen}
-        onClose={() => {
-          setVersiculosDialogOpen(false)
-          setVersiculosVemDeCapitulos(false)
-        }}
+        onClose={() => encerrarFluxoNavegacao()}
         onBack={() => {
           setVersiculosDialogOpen(false)
           // Volta para capítulos se veio de lá
@@ -2729,11 +2865,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         shareText={payloadCompartilharVersiculos.text}
         shareUrl={payloadCompartilharVersiculos.url}
         shareDisabled={!livroAtual || !versiculosSelecionados.length}
-        onLimparSelecao={() => {
-          setVersiculosSelecionados([])
-          setModoSelecao(false)
-          setModoCompartilharVersiculos(false)
-        }}
+        onLimparSelecao={limparSelecaoVersiculos}
       />
       <Dialog open={dialogoCompartilharAberto} onClose={() => setDialogoCompartilharAberto(false)}>
         <DialogTitle>Selecione versículos para compartilhar</DialogTitle>

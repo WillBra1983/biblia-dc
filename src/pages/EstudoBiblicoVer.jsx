@@ -288,7 +288,7 @@ export default function EstudoBiblicoVer() {
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 1, mb: 1 }}>
         <Typography variant="h6" sx={{ flex: '1 1 auto' }}>
-          {study.tema || 'Estudo bíblico'}
+          {study.tema || 'Estudo compartilhado'}
         </Typography>
         {isAuthor && (
           <Button
@@ -328,7 +328,7 @@ export default function EstudoBiblicoVer() {
         <Chip size="small" label={`Salvos: ${study.savesCount ?? 0}`} variant="outlined" />
         <CompartilharMenu
           linkUrl={linkCompartilharEstudo}
-          linkTitle={study.tema || 'Estudo bíblico'}
+          linkTitle={study.tema || 'Estudo compartilhado'}
           linkText={`Acesse este estudo: ${linkCompartilharEstudo}`}
           onEnviarChat={handleEnviarEstudoPeloChat}
           chatLabel="Enviar pelo chat interno"

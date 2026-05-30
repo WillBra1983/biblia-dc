@@ -7,6 +7,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   IconButton,
   Paper,
@@ -19,8 +20,9 @@ import {
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import Edit from '@mui/icons-material/Edit'
 import Save from '@mui/icons-material/Save'
-import ThumbDown from '@mui/icons-material/ThumbDown'
-import ThumbUp from '@mui/icons-material/ThumbUp'
+import ThumbDownAltOutlined from '@mui/icons-material/ThumbDownAltOutlined'
+import ThumbUpAltOutlined from '@mui/icons-material/ThumbUpAltOutlined'
+import HowToReg from '@mui/icons-material/HowToReg'
 import { useApp } from '../contexts/AppContext'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { resolveFontFamily } from '../utils/fontFamily'
@@ -80,8 +82,10 @@ export default function StrongEstudoResumo() {
   const [avaliacaoErro, setAvaliacaoErro] = useState('')
   const [loginDialogAberto, setLoginDialogAberto] = useState(false)
   const [loginDialogBusy, setLoginDialogBusy] = useState(false)
+  const [dialogSaidaAberto, setDialogSaidaAberto] = useState(false)
   /** Após "Confirmar" sem sessão: ao receber `user`, publica o mesmo `textoLocal` automaticamente. */
   const salvarPendenteAposLoginRef = useRef(false)
+  const tentativaSaidaRef = useRef(null)
 
   const precisaFluxoAvaliacao = useMemo(() => {
     try {
@@ -187,7 +191,26 @@ export default function StrongEstudoResumo() {
     [remoteResumo?.resumo, textoSessao]
   )
 
-  const mostraAvaliacao = precisaFluxoAvaliacao && !votoConcluido && !remoteResumo
+  /**
+   * Resumo recém-gerado ainda sem avaliação: bloqueia voltar/compartilhar até o voto
+   * (mesmo padrão do estudo bíblico por passagem).
+   */
+  const exigeAvaliacao = useMemo(
+    () => precisaFluxoAvaliacao && !votoConcluido && !remoteResumo && Boolean(texto),
+    [precisaFluxoAvaliacao, votoConcluido, remoteResumo, texto]
+  )
+
+  const acaoComAvaliacaoPrevia = useCallback(
+    (callback) => {
+      if (!exigeAvaliacao) {
+        callback()
+        return
+      }
+      tentativaSaidaRef.current = callback
+      setDialogSaidaAberto(true)
+    },
+    [exigeAvaliacao]
+  )
 
   const linhas = useMemo(() => {
     const raw = String(texto || '')
@@ -198,12 +221,16 @@ export default function StrongEstudoResumo() {
     return raw.split('\n').map((l) => l.trim()).filter(Boolean)
   }, [texto])
 
-  const voltarAoVerbete = () => {
+  const voltarAoVerbeteDirect = useCallback(() => {
     navigate(`/estudo-strong/${encodeURIComponent(code)}`, {
       replace: true,
-      state: { token: null, fromResumo: true },
+      state: { token: null, fromResumo: true }
     })
-  }
+  }, [navigate, code])
+
+  const voltarAoVerbete = useCallback(() => {
+    acaoComAvaliacaoPrevia(voltarAoVerbeteDirect)
+  }, [acaoComAvaliacaoPrevia, voltarAoVerbeteDirect])
 
   const persistirResumoNaSessao = useCallback(
     (conteudo = texto) => {
@@ -258,67 +285,107 @@ export default function StrongEstudoResumo() {
     }
   }, [rascunhoAdmin, sharedId, remoteResumo?.id, persistirResumoNaSessao])
 
-  const confirmarAvaliacao = useCallback(async () => {
-    setAvaliacaoErro('')
-    if (!voto) return
-    if (voto === 'down') {
+  const finalizarAvaliacaoNegativa = useCallback(
+    (posAcao) => {
       try {
         sessionStorage.removeItem(strongEvalPendingKey(code))
         sessionStorage.removeItem(strongResumoIaStorageKey(code))
       } catch {
         /* ignore */
       }
+      setVoto('down')
       setVotoConcluido(true)
-      navigate(`/estudo-strong/${encodeURIComponent(code)}`, { replace: true, state: { token: null } })
-      return
-    }
-    if (!user?.uid) {
-      persistirResumoNaSessao()
-      salvarPendenteAposLoginRef.current = true
-      setLoginDialogAberto(true)
-      return
-    }
-    setConfirmBusy(true)
-    try {
-      const rid = await criarResumoStrongCompartilhavel({
-        code,
-        resumo: texto,
-        authorUid: user.uid,
-        authorName: user.displayName || user.email || 'Usuário'
-      })
-      try {
-        sessionStorage.removeItem(strongEvalPendingKey(code))
-      } catch {
-        /* ignore */
+      tentativaSaidaRef.current = null
+      setDialogSaidaAberto(false)
+      if (typeof posAcao === 'function') posAcao()
+      else voltarAoVerbeteDirect()
+    },
+    [code, voltarAoVerbeteDirect]
+  )
+
+  const finalizarAvaliacaoPositiva = useCallback(
+    async (posAcao) => {
+      setAvaliacaoErro('')
+      if (!user?.uid) {
+        setVoto('up')
+        persistirResumoNaSessao()
+        salvarPendenteAposLoginRef.current = true
+        tentativaSaidaRef.current = posAcao || tentativaSaidaRef.current
+        setLoginDialogAberto(true)
+        return
       }
-      setVotoConcluido(true)
-      setSharedId(rid)
-      setRemoteResumo({
-        id: rid,
-        resumo: texto
-      })
-      const q = new URLSearchParams(location.search || '')
-      q.set('rid', rid)
-      navigate(`/estudo-strong/${encodeURIComponent(code)}/resumo?${q.toString()}`, {
-        replace: true,
-        state: { resumoIa: texto }
-      })
-    } catch (e) {
-      setAvaliacaoErro(e?.message || 'Não foi possível confirmar.')
-    } finally {
-      setConfirmBusy(false)
+      setConfirmBusy(true)
+      try {
+        const rid = await criarResumoStrongCompartilhavel({
+          code,
+          resumo: texto,
+          authorUid: user.uid,
+          authorName: user.displayName || user.email || 'Usuário'
+        })
+        try {
+          sessionStorage.removeItem(strongEvalPendingKey(code))
+        } catch {
+          /* ignore */
+        }
+        setVoto('up')
+        setVotoConcluido(true)
+        setSharedId(rid)
+        setRemoteResumo({
+          id: rid,
+          resumo: texto
+        })
+        const acaoPendente = typeof posAcao === 'function' ? posAcao : tentativaSaidaRef.current
+        tentativaSaidaRef.current = null
+        setDialogSaidaAberto(false)
+        if (typeof acaoPendente === 'function') {
+          acaoPendente()
+        } else {
+          const q = new URLSearchParams(location.search || '')
+          q.set('rid', rid)
+          navigate(`/estudo-strong/${encodeURIComponent(code)}/resumo?${q.toString()}`, {
+            replace: true,
+            state: { resumoIa: texto }
+          })
+        }
+        mostrarSnackbar({
+          mensagem: 'Obrigado! Resumo publicado para a comunidade.',
+          severidade: 'success'
+        })
+      } catch (e) {
+        setAvaliacaoErro(e?.message || 'Não foi possível confirmar.')
+      } finally {
+        setConfirmBusy(false)
+      }
+    },
+    [
+      user?.uid,
+      user?.displayName,
+      user?.email,
+      texto,
+      code,
+      navigate,
+      location.search,
+      persistirResumoNaSessao
+    ]
+  )
+
+  const confirmarAvaliacao = useCallback(async () => {
+    setAvaliacaoErro('')
+    if (!voto) return
+    if (voto === 'down') {
+      finalizarAvaliacaoNegativa()
+      return
     }
-  }, [
-    user?.uid,
-    user?.displayName,
-    user?.email,
-    voto,
-    texto,
-    code,
-    navigate,
-    location.search,
-    persistirResumoNaSessao
-  ])
+    await finalizarAvaliacaoPositiva()
+  }, [voto, finalizarAvaliacaoNegativa, finalizarAvaliacaoPositiva])
+
+  const votarUtil = useCallback(async () => {
+    await finalizarAvaliacaoPositiva(tentativaSaidaRef.current)
+  }, [finalizarAvaliacaoPositiva])
+
+  const votarNaoUtil = useCallback(() => {
+    finalizarAvaliacaoNegativa(tentativaSaidaRef.current)
+  }, [finalizarAvaliacaoNegativa])
 
   useEffect(() => {
     if (!user?.uid || !salvarPendenteAposLoginRef.current) return
@@ -374,8 +441,8 @@ export default function StrongEstudoResumo() {
     setShareError('')
     setShareBusy(true)
     try {
-      if (mostraAvaliacao) {
-        setShareError('Confirme sua avaliação antes de compartilhar.')
+      if (exigeAvaliacao) {
+        setShareError('Avalie o resumo antes de compartilhar.')
         return
       }
       if (!sharedId && votoConcluido && voto === 'down') {
@@ -426,15 +493,17 @@ export default function StrongEstudoResumo() {
     } finally {
       setShareBusy(false)
     }
-  }, [mostraAvaliacao, sharedId, votoConcluido, voto, garantirResumoPublicado, code])
+  }, [exigeAvaliacao, sharedId, votoConcluido, voto, garantirResumoPublicado, code])
 
   useEffect(() => {
     const onReq = () => {
-      void compartilharResumo()
+      acaoComAvaliacaoPrevia(() => {
+        void compartilharResumo()
+      })
     }
     window.addEventListener('strong-resumo-share-request', onReq)
     return () => window.removeEventListener('strong-resumo-share-request', onReq)
-  }, [compartilharResumo])
+  }, [acaoComAvaliacaoPrevia, compartilharResumo])
 
   return (
     <Box sx={{ bgcolor: 'background.default', pb: 6, minHeight: '100%', touchAction: 'pan-y' }}>
@@ -495,10 +564,34 @@ export default function StrongEstudoResumo() {
                 </Button>
               </Box>
             )}
-            {mostraAvaliacao && (
-              <Paper variant="outlined" sx={{ p: 2, mb: 2, borderRadius: 1.5 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-                  Este texto acabou de ser gerado. O que você acha?
+            {exigeAvaliacao && (
+              <Alert severity="info" icon={<HowToReg />} sx={{ mb: 2, alignItems: 'center' }}>
+                <Typography variant="body2" fontWeight={600}>
+                  Sua avaliação é importante.
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Antes de voltar ou compartilhar, indique se este resumo foi útil. Sua resposta ajuda a manter o que é
+                  bom e descartar o que precisa de revisão.
+                </Typography>
+              </Alert>
+            )}
+            {exigeAvaliacao && (
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  mb: 2,
+                  borderRadius: 1.5,
+                  borderColor: 'primary.main',
+                  bgcolor: 'primary.50',
+                  borderWidth: 2
+                }}
+              >
+                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 0.5 }}>
+                  Este resumo foi útil para você?
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
+                  Sua resposta ajuda a destacar resumos bons e revisar os que precisam de melhoria.
                   {ehAdmin && !adminCarregando ? (
                     <>
                       {' '}
@@ -507,22 +600,26 @@ export default function StrongEstudoResumo() {
                   ) : null}
                 </Typography>
                 <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
-                  <IconButton
-                    color={voto === 'up' ? 'primary' : 'default'}
+                  <Button
+                    variant={voto === 'up' ? 'contained' : 'outlined'}
+                    color="primary"
+                    size="medium"
+                    startIcon={<ThumbUpAltOutlined />}
                     onClick={() => setVoto('up')}
-                    aria-label="útil"
                     disabled={confirmBusy}
                   >
-                    <ThumbUp />
-                  </IconButton>
-                  <IconButton
-                    color={voto === 'down' ? 'error' : 'default'}
+                    Foi útil
+                  </Button>
+                  <Button
+                    variant={voto === 'down' ? 'contained' : 'outlined'}
+                    color="warning"
+                    size="medium"
+                    startIcon={<ThumbDownAltOutlined />}
                     onClick={() => setVoto('down')}
-                    aria-label="não útil"
                     disabled={confirmBusy}
                   >
-                    <ThumbDown />
-                  </IconButton>
+                    Pode melhorar
+                  </Button>
                   <Button
                     variant="contained"
                     size="small"
@@ -608,8 +705,10 @@ export default function StrongEstudoResumo() {
                 })}
               </Box>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
-                Resumo gerado por IA. Para estudo avançado, aprofunde-se em fontes acadêmicas e análises exegéticas
-                confiáveis.
+                Este é um resumo gerado por IA, levando em conta os léxicos e materiais próprios, bem como materiais
+                disponibilizados digitalmente. Embora seja um bom suporte para estudos, não temos a pretensão de substituir
+                um estudo exegético minucioso. Para estudo avançado, aprofunde-se em fontes acadêmicas e análises
+                exegéticas confiáveis.
               </Typography>
                 </>
               )}
@@ -617,6 +716,52 @@ export default function StrongEstudoResumo() {
           </>
         )}
       </Container>
+
+      <Dialog
+        open={dialogSaidaAberto}
+        onClose={() => {
+          tentativaSaidaRef.current = null
+          setDialogSaidaAberto(false)
+        }}
+        aria-labelledby="dialog-avaliacao-resumo-strong"
+      >
+        <DialogTitle id="dialog-avaliacao-resumo-strong">Antes de prosseguir, avalie</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Este resumo ainda não recebeu sua avaliação. Sua resposta nos ajuda a destacar os bons e revisar os que
+            precisam de melhoria.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ flexWrap: 'wrap', gap: 0.5, p: 2 }}>
+          <Button
+            onClick={() => {
+              tentativaSaidaRef.current = null
+              setDialogSaidaAberto(false)
+            }}
+            color="inherit"
+          >
+            Voltar à leitura
+          </Button>
+          <Button
+            onClick={votarNaoUtil}
+            color="warning"
+            variant="outlined"
+            startIcon={<ThumbDownAltOutlined />}
+            disabled={confirmBusy}
+          >
+            Pode melhorar
+          </Button>
+          <Button
+            onClick={() => void votarUtil()}
+            color="primary"
+            variant="contained"
+            startIcon={<ThumbUpAltOutlined />}
+            disabled={confirmBusy}
+          >
+            Foi útil
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={loginDialogAberto} onClose={fecharLoginDialog} maxWidth="xs" fullWidth>
         <DialogTitle>Salvar este resumo</DialogTitle>

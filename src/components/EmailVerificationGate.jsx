@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { Alert, Box, Button, Paper, Stack, Typography } from '@mui/material'
+import { useEffect, useState } from 'react'
+import { Alert, Button, Paper, Stack, Typography } from '@mui/material'
 import MarkEmailReadOutlinedIcon from '@mui/icons-material/MarkEmailReadOutlined'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { MSG_VERIFICACAO_CONTA_LEGADA } from '../utils/emailVerificationAuth'
@@ -8,38 +8,53 @@ import { MSG_VERIFICACAO_CONTA_LEGADA } from '../utils/emailVerificationAuth'
  * Bloqueia o app até o usuário confirmar o e-mail (contas e-mail/senha).
  */
 const AUTO_SEND_KEY = 'salvation-verification-auto-sent'
+const INFO_ENVIADO =
+  'Enviamos o e-mail de confirmação. Verifique a caixa de entrada e o spam.'
 
 export default function EmailVerificationGate({ email }) {
-  const { resendVerificationEmail, reloadAuthUser, logout } = useFirebaseAuth()
+  const { user, resendVerificationEmail, reloadAuthUser, logout } = useFirebaseAuth()
   const [busy, setBusy] = useState(false)
   const [info, setInfo] = useState('')
   const [erro, setErro] = useState('')
-  const autoSendFeito = useRef(false)
 
-  // Primeira visita à tela: envia confirmação (antes só ao tocar em Reenviar).
+  // Envia na primeira visita assim que a sessão Auth estiver pronta (não só ao Reenviar).
   useEffect(() => {
-    if (!email || autoSendFeito.current) return
+    if (!email?.trim() || !user?.uid) return
+
     const chave = `${AUTO_SEND_KEY}:${email.trim().toLowerCase()}`
     try {
-      if (sessionStorage.getItem(chave)) return
+      if (sessionStorage.getItem(chave)) {
+        setInfo(INFO_ENVIADO)
+        return
+      }
     } catch {
       /* ignore */
     }
-    autoSendFeito.current = true
+
+    let cancelled = false
     void (async () => {
       try {
         await resendVerificationEmail()
+        if (cancelled) return
         try {
           sessionStorage.setItem(chave, String(Date.now()))
         } catch {
           /* ignore */
         }
-        setInfo('Enviamos o e-mail de confirmação. Verifique a caixa de entrada e o spam.')
-      } catch {
-        /* usuário pode tocar em Reenviar */
+        setInfo(INFO_ENVIADO)
+      } catch (e) {
+        if (cancelled) return
+        setErro(
+          e?.message ||
+            'Não foi possível enviar o e-mail agora. Toque em "Reenviar e-mail de confirmação".'
+        )
       }
     })()
-  }, [email, resendVerificationEmail])
+
+    return () => {
+      cancelled = true
+    }
+  }, [email, user?.uid, resendVerificationEmail])
 
   const reenviar = async () => {
     setBusy(true)
@@ -47,6 +62,12 @@ export default function EmailVerificationGate({ email }) {
     setInfo('')
     try {
       await resendVerificationEmail()
+      const chave = `${AUTO_SEND_KEY}:${email.trim().toLowerCase()}`
+      try {
+        sessionStorage.setItem(chave, String(Date.now()))
+      } catch {
+        /* ignore */
+      }
       setInfo('Novo e-mail de confirmação enviado. Verifique a caixa de entrada e o spam.')
     } catch (e) {
       setErro(e?.message || 'Não foi possível reenviar. Tente de novo em alguns minutos.')

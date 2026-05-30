@@ -10,7 +10,7 @@ import WestminsterIcon from '@mui/icons-material/AccountBalance'
 import ConfissaoIcon from '@mui/icons-material/Article'
 import CatecismoMaiorIcon from '@mui/icons-material/LibraryBooks'
 import CatecismoBreveIcon from '@mui/icons-material/Quiz'
-import DevocionalIcon from '@mui/icons-material/SelfImprovement'
+import DevocionalIcon from './icons/DevocionalKneelingIcon'
 import MaisDeDeusIcon from '@mui/icons-material/VolunteerActivism'
 import YouTubeIcon from '@mui/icons-material/YouTube'
 import HinarioLetraIcon from '@mui/icons-material/Lyrics'
@@ -36,6 +36,11 @@ import { prefetchRota } from '../utils/routePrefetch'
 const ICON_BOX = 44
 const ICON_SIZE = 26
 
+/** Cards do menu lateral: sem blur de vidro para abrir instantaneamente. */
+function estilosCartaoMenu(gradient, options = {}) {
+  return getGlassCardStyles(gradient, { performance: true, ...options })
+}
+
 // Itens do menu principal — note: o gradiente per-item foi removido porque
 // nunca era usado (o `Card` sempre recebia `menuCardGradient`, branco no light
 // e preto no dark). Manter campos mortos só polui a manutenção.
@@ -60,7 +65,7 @@ const menuItems = [
     description: 'Material de estudo e formação'
   },
   {
-    text: 'Estudos bíblicos',
+    text: 'Estudos Compartilhados',
     icon: <EstudosBiblicosIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/estudos-biblicos',
     description: 'Crie e compartilhe estudos (acesso por link ou salvos)',
@@ -70,7 +75,7 @@ const menuItems = [
     text: 'Bíblia de estudos',
     icon: <LibraryBooksIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/biblioteca-estudos',
-    description: 'Material já preparado para leitura — perícopes e versículos comentados',
+    description: 'Material do Estudo Bíblico — Perícopes e Versículos comentados',
     requerLogin: true,
     accentRing: 'rgba(255, 255, 255, 0.45)'
   },
@@ -111,9 +116,9 @@ const menuItems = [
   },
 ]
 
-const menuAntesHinario = menuItems.slice(0, 3)
+const menuAntesHinario = menuItems.slice(0, 4)
 // Itens depois de Westminster e antes do "Sobre" (menuFinal).
-const menuDepoisWestminster = menuItems.slice(3, -1)
+const menuDepoisWestminster = menuItems.slice(4, -1)
 const menuFinal = menuItems.slice(-1)
 
 /**
@@ -383,8 +388,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
         return
       }
     }
-    if (item.path === '/biblia') {
-      navigate('/biblia')
+    if (rotaCorrespondeItemMenu(item.path, location.pathname)) {
       fecharMenuPai()
       return
     }
@@ -427,7 +431,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
         <Grid item xs={12}>
           <Card
             sx={{
-              ...getGlassCardStyles(
+              ...estilosCartaoMenu(
                 conectarGrupoAtivo ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                 {
                   hover: false,
@@ -568,7 +572,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
                       fecharMenuPai()
                     }}
                     sx={{
-                      ...getGlassCardStyles(
+                      ...estilosCartaoMenu(
                         chatMenuActive ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                         {
                           hover: true,
@@ -682,7 +686,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
                         key={sub.path}
                         onClick={() => handleClick(sub)}
                         sx={{
-                          ...getGlassCardStyles(
+                          ...estilosCartaoMenu(
                             subActive ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                             {
                               hover: true,
@@ -760,7 +764,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
               <Card
                 onClick={() => handleClick(item)}
                 sx={{
-                  ...getGlassCardStyles(
+                  ...estilosCartaoMenu(
                     isActive ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                     {
                       hover: true,
@@ -858,7 +862,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
         <Grid item xs={12}>
           <Card
             sx={{
-              ...getGlassCardStyles(
+              ...estilosCartaoMenu(
                 hinarioAtivo ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                 {
                   hover: false,
@@ -965,7 +969,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
                         key={sub.path}
                         onClick={() => handleClick(sub)}
                         sx={{
-                          ...getGlassCardStyles(
+                          ...estilosCartaoMenu(
                             subActive ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                             {
                               hover: true,
@@ -1039,7 +1043,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
         <Grid item xs={12}>
           <Card
             sx={{
-              ...getGlassCardStyles(
+              ...estilosCartaoMenu(
                 westminsterAtivo ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                 {
                   hover: false,
@@ -1152,7 +1156,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
                         key={sub.path}
                         onClick={() => handleClick(sub)}
                         sx={{
-                          ...getGlassCardStyles(
+                          ...estilosCartaoMenu(
                             subActive ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                             {
                               hover: true,
@@ -1230,7 +1234,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
               <Card
                 onClick={() => handleClick(item)}
                 sx={{
-                  ...getGlassCardStyles(
+                  ...estilosCartaoMenu(
                     isActive ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                     {
                       hover: true,
@@ -1332,7 +1336,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
               <Card
                 onClick={() => handleClick(item)}
                 sx={{
-                  ...getGlassCardStyles(
+                  ...estilosCartaoMenu(
                     isActive ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                     {
                       hover: true,

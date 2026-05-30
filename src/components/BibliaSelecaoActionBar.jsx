@@ -183,10 +183,10 @@ export default function BibliaSelecaoActionBar({
           </span>
         </Tooltip>
 
-        <Tooltip title="Estudo bíblico">
+        <Tooltip title="Estudo compartilhado">
           <span style={sxWrapIcone}>
             <IconButton
-              aria-label="Preparar estudo bíblico"
+              aria-label="Preparar estudo compartilhado"
               onClick={onAbrirEstudo}
               size="small"
               sx={(theme) => ({

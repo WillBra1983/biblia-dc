@@ -6,15 +6,11 @@
         <!-- suas customizações habituais -->
     </style>
 
-    <!-- Tema de splash para Android 12+ -->
+    <!-- Splash nativo: fundo inteiro (igual API 31+ e ao splash-b do site) -->
     <style name="Theme.BibliaDC.Splash" parent="Theme.SplashScreen">
-        <!-- fundo preto puro -->
-        <item name="android:windowSplashScreenBackground">@color/black</item>
-        <!-- ícone animado (ou estático) da splash -->
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash</item>
-        <!-- sem animação extra -->
+        <item name="android:windowSplashScreenBackground">@drawable/splash</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/transparent</item>
         <item name="android:windowSplashScreenAnimationDuration">0</item>
-        <!-- após o splash, volta para o tema normal -->
         <item name="postSplashScreenTheme">@style/Theme.BibliaDC</item>
     </style>
 

@@ -118,15 +118,12 @@ jobs:
           VITE_GEMINI_API_KEY_ANDROID: ${{ secrets.VITE_GEMINI_API_KEY_ANDROID }}
           VITE_GEMINI_API_KEY_IOS: ${{ secrets.VITE_GEMINI_API_KEY_IOS }}
         run: |
-          npm run build:ios
+          npm run native:prepare
           npx cap sync ios
 
       - name: CocoaPods
         working-directory: ios/App
         run: pod install
-
-      - name: Ícone iOS App Store (1024, sem canal alpha)
-        run: npm run icons:native
 
       - name: Validar assets iOS (ícone + splash)
         run: |

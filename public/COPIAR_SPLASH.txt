@@ -1,10 +1,10 @@
-Para a tela de abertura do site/PWA ficar igual à do APK (imagem em tela cheia):
+Splash nativo (Android/iOS) = mesma arte do site (public/splash-b.png).
 
-Copie a imagem de splash do Android para a pasta public do projeto web:
+  npm run splash:native
 
-  Origem:  android\app\src\main\res\drawable\splash.png
-  Destino: public\splash.png
+Isso regera android/app/src/main/res/drawable-port-*/splash.png (e iOS, se existir).
+O android:sync já roda splash:native automaticamente.
 
-(Se existir drawable-xhdpi ou drawable-xxhdpi\splash.png, use a de maior resolução.)
-
-Sem esse arquivo, o site usa o fallback (ícone quadrado + "Carregando…").
+No site/PWA, o splash vem só do index.html + SplashScreen.jsx (splash-b).
+No app Android há também o splash NATIVO (antes do WebView carregar) — por isso
+as PNG em res/ precisam estar atualizadas.

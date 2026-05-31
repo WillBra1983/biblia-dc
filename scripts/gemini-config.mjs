@@ -49,7 +49,10 @@ if (legado.length >= 8) {
 }
 
 if (explicitas === 3) {
-  console.log('\nPronto: web, Android e iOS usam chaves restritas no Google Cloud.\n')
+  console.log('\nPronto: web, Android e iOS usam chaves restritas no Google Cloud.')
+  console.log(
+    'Android (Capacitor): cadastre SHA-1 da Play App Signing + upload/debug na chave _ANDROID.\n'
+  )
   process.exit(0)
 }
 if (explicitas >= 1 || legado.length >= 8) {

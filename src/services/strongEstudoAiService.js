@@ -4,6 +4,7 @@ import {
   mensagemErroChaveGeminiAusente,
   obterChaveGeminiApi
 } from '../utils/geminiApiKey'
+import { obterCabecalhosGeminiApi } from '../utils/geminiFetchHeaders'
 import { buscarBdbHebraico, buscarOcorrenciasStrongHebraico, contarOcorrenciasStrongHebraico } from './otStrongService'
 import { buscarLexiconPtBr } from './lexiconPtBrService'
 import { buscarOcorrenciasStrongGrego, contarOcorrenciasStrongGrego } from './ntStrongProvaService'
@@ -435,12 +436,14 @@ export async function gerarResumoStrongGemini({ detalhe, traduzirStrongPtBr, tok
           }
         ]
 
+    const cabecalhosGemini = await obterCabecalhosGeminiApi()
+
     for (const { body, label } of tentativas) {
       let res
       try {
         res = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: cabecalhosGemini,
           body: JSON.stringify(body)
         })
       } catch (e) {
@@ -513,9 +516,10 @@ const PROMPT_CONTINUACAO_ESTUDO =
   'Continue o texto exatamente de onde parou. Não repita parágrafos já escritos. Complete seções e itens que ficaram incompletos (incluindo perguntas para reflexão em grupo, se faltarem).'
 
 async function chamarGeminiGenerateContent(url, body) {
+  const headers = await obterCabecalhosGeminiApi()
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(body)
   })
   const data = await res.json().catch(() => ({}))

@@ -28,10 +28,29 @@
     <link rel="preload" as="image" href="./splash-b.webp" type="image/webp">
   </head>
   <body style="margin:0;background:#ffffff;">
+    <script>
+      (function () {
+        function removerSplashWebSeNativo() {
+          try {
+            if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+              document.getElementById('splash-initial')?.remove()
+              return true
+            }
+          } catch (_) { /* ignore */ }
+          return false
+        }
+        if (!removerSplashWebSeNativo()) {
+          var tentativas = 0
+          var timer = setInterval(function () {
+            if (removerSplashWebSeNativo() || ++tentativas > 48) clearInterval(timer)
+          }, 25)
+        }
+      })()
+    </script>
     <div id="splash-initial" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#ffffff;">
       <picture>
         <source srcset="./splash-b.webp" type="image/webp">
-        <img src="./splash-b.png" alt="" width="540" height="960" decoding="async" fetchpriority="high" style="width:min(92vw,540px);height:auto;max-height:92vh;object-fit:contain;">
+        <img src="./splash-b.png" alt="" width="1080" height="1080" decoding="async" fetchpriority="high" style="width:min(92vw,1080px);height:auto;max-height:92vh;object-fit:contain;">
       </picture>
     </div>
     <div id="root"></div>

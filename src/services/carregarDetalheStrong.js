@@ -31,6 +31,7 @@ export async function carregarDetalheStrong(code, options = {}) {
         strong: lex.strong_code,
         greek_unicode: lex.headword || '',
         greek_translit: lex.xlit || '',
+        pronunciation: lex.pron || '',
         definition: lex.meaning || lex.usage || '',
         definition_original: lex.meaning || lex.usage || '',
         derivation: lex.source || '',

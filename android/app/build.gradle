@@ -7,8 +7,8 @@ android {
         applicationId "com.bibliadc.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 9
-        versionName "1.0.9"
+        versionCode 10
+        versionName "1.0.0"
         // Android App Links: mesmo host do VITE_PUBLIC_APP_URL / site (sem https://). Ajuste se o domínio mudar.
         manifestPlaceholders = [
             appLinkHost: "foundcine.com",

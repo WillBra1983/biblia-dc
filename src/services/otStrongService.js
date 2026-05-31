@@ -154,9 +154,11 @@ export async function buscarTokensOt(bookId, chapter, verse) {
   return out
 }
 
-export async function buscarOcorrenciasStrongHebraico(strongCode, limit = 20) {
+export async function buscarOcorrenciasStrongHebraico(strongCode, limit = 20, offset = 0) {
   const normalized = String(strongCode || '').trim().toUpperCase().replace(/^H?(\d+)$/, 'H$1')
   if (!/^H\d+$/.test(normalized)) return []
+  const lim = Math.max(1, Number(limit) || 20)
+  const off = Math.max(0, Number(offset) || 0)
   const dbi = await initOtStrongDB()
   const stmt = dbi.prepare(
     `
@@ -167,14 +169,19 @@ export async function buscarOcorrenciasStrongHebraico(strongCode, limit = 20) {
       LIMIT ?
     `
   )
-  stmt.bind([normalized, Math.max(30, Number(limit) * 8)])
+  stmt.bind([normalized, Math.max(50, (off + lim) * 10)])
   const out = []
   const seen = new Set()
+  let pulados = 0
   while (stmt.step()) {
     const row = stmt.getAsObject()
     const key = `${row.book_id}:${row.chapter}:${row.verse}`
     if (seen.has(key)) continue
     seen.add(key)
+    if (pulados < off) {
+      pulados++
+      continue
+    }
     out.push({
       livroId: Number(row.book_id),
       capitulo: Number(row.chapter),
@@ -183,7 +190,7 @@ export async function buscarOcorrenciasStrongHebraico(strongCode, limit = 20) {
       lemmaRaw: row.lemma_raw || '',
       strongCode: row.strong_code || normalized
     })
-    if (out.length >= Number(limit)) break
+    if (out.length >= lim) break
   }
   stmt.free()
   return out

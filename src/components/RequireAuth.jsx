@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
+import { Capacitor } from '@capacitor/core'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { isFirebaseConfigured } from '../config/firebase'
 import { notificarBibliaPronta } from '../utils/posSplash'
@@ -12,18 +13,24 @@ import {
   rotaConteudoLocalOffline,
   modoAcessoLimitadoOffline,
   marcarModoLimitadoOffline,
+  MSG_SEM_INTERNET_RECURSO,
 } from '../utils/conteudoLocalOffline'
-import RotaRequerRedeConta from './RotaRequerRedeConta'
+import { mostrarSnackbar } from '../utils/uiDialogs'
+import LoginConectarOverlay from './LoginConectarOverlay'
 
 const PENDING_LOGIN_REDIRECT_KEY = 'salvation-pending-login-redirect'
 const AUTH_WAIT_MS = 2800
+
+const isNativeApp =
+  typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() === true
 
 function dispararBibliaProntaSeguro() {
   notificarBibliaPronta()
 }
 
 /**
- * - **Com internet:** conteúdo local abre sem login; rotas de conta/nuvem pedem login.
+ * - **Com internet (web):** conteúdo local abre sem login; rotas de conta/nuvem pedem login.
+ * - **Com internet (app nativo):** login em overlay sobre a tela (ex.: Bíblia), sem ir ao Chat.
  * - **Sem internet e sem login:** só conteúdo local, com aviso de acesso limitado.
  * - **Sem internet no `/chat`:** vai ao conteúdo local (não dá para autenticar).
  * - **Logado:** permanece na sessão; sem opção de deslogar na UI.
@@ -33,6 +40,7 @@ export default function RequireAuth({ children }) {
   const navigate = useNavigate()
   const location = useLocation()
   const splashDisparadoRef = useRef(false)
+  const offlineNuvemAvisoRef = useRef(false)
   const [authEspera, setAuthEspera] = useState(false)
   const conteudo = children ?? <Outlet />
 
@@ -42,7 +50,15 @@ export default function RequireAuth({ children }) {
   const onChat = pathname === '/chat' || pathname.startsWith('/chat/')
   const sessaoOk = Boolean(user?.uid && !usuarioPrecisaVerificarEmail(user))
   const limitado = modoAcessoLimitadoOffline(sessaoOk) && local
+  const liberaConteudoLocal = local
   const podeVer = sessaoOk || limitado
+  const mostrarLoginOverlay =
+    isNativeApp &&
+    isFirebaseConfigured() &&
+    !offline &&
+    local &&
+    user !== undefined &&
+    !sessaoOk
 
   useEffect(() => {
     if (user !== undefined) {
@@ -54,23 +70,37 @@ export default function RequireAuth({ children }) {
     return () => window.clearTimeout(t)
   }, [user, offline, local])
 
-  /** Offline no login → conteúdo local com aviso (não fica preso no chat). */
+  /** Offline numa rota da nuvem sem login → volta ao conteúdo local (snackbar breve). */
+  useEffect(() => {
+    if (!isFirebaseConfigured() || sessaoOk) {
+      offlineNuvemAvisoRef.current = false
+      return
+    }
+    if (!bloqueioOfflineSemConta(pathname)) return
+    if (offlineNuvemAvisoRef.current) return
+    offlineNuvemAvisoRef.current = true
+    mostrarSnackbar({ mensagem: MSG_SEM_INTERNET_RECURSO, severidade: 'info' })
+    navigate('/', { replace: true })
+  }, [sessaoOk, pathname, navigate])
+
+  /** Offline no login → conteúdo local (não fica preso no chat). */
   useEffect(() => {
     if (!isFirebaseConfigured() || sessaoOk || !offline || !onChat) return
     marcarModoLimitadoOffline()
     navigate('/', { replace: true })
   }, [sessaoOk, offline, onChat, navigate])
 
-  /** Com internet, sem sessão → só rotas de conta/nuvem vão para login. */
+  /** Com internet, sem sessão → só rotas de conta/nuvem vão para login (Chat). */
   useEffect(() => {
     if (!isFirebaseConfigured()) return
+    if (user === undefined) return
     if (sessaoOk) return
     if (offline) return
     if (onChat) return
     if (local) return
 
-    // Logado mas e-mail não confirmado: só o chat (sem guardar URL — evita loop com /chat).
     if (user?.uid && usuarioPrecisaVerificarEmail(user)) {
+      if (isNativeApp) return
       navigate('/chat', { replace: true })
       return
     }
@@ -91,28 +121,58 @@ export default function RequireAuth({ children }) {
 
   useEffect(() => {
     if (splashDisparadoRef.current) return
-    // Na Bíblia (`/` e `/biblia`), quem sinaliza "pronto" é a própria página,
-    // após o capítulo realmente pintar. Sinalizar aqui fecharia o splash antes
-    // do conteúdo aparecer (a demora ficava perceptível).
     const isBibliaRoute = pathname === '/' || pathname === '/biblia'
-    if (isBibliaRoute) return
-    // Em rotas locais (ex.: conteúdo offline), não esperar auth para sinalizar.
+    if (isBibliaRoute && liberaConteudoLocal) return
     if (user === undefined && !local && !limitado && !authEspera) return
     splashDisparadoRef.current = true
     dispararBibliaProntaSeguro()
-  }, [user, pathname, local, limitado, authEspera])
+  }, [user, pathname, local, limitado, authEspera, liberaConteudoLocal])
 
-  if (!isFirebaseConfigured()) {
-    return conteudo
-  }
+  const renderConteudo = () => {
+    if (!isFirebaseConfigured()) {
+      return conteudo
+    }
 
-  if (bloqueioOfflineSemConta(pathname) && !sessaoOk) {
-    return <RotaRequerRedeConta>{conteudo}</RotaRequerRedeConta>
-  }
+    if (bloqueioOfflineSemConta(pathname) && !sessaoOk) {
+      return (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: 'min(40dvh, 240px)',
+            py: 4,
+          }}
+        >
+          <CircularProgress size={28} />
+        </Box>
+      )
+    }
 
-  // Rotas locais (ex.: Bíblia) devem montar imediatamente para carregar
-  // durante o splash; esperar auth aqui torna a abertura perceptivelmente lenta.
-  if (user === undefined && !local && !limitado && !authEspera) {
+    if (user === undefined && !local && !limitado && !authEspera) {
+      return (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: 'min(70dvh, 480px)',
+            py: 6,
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )
+    }
+
+    if (liberaConteudoLocal || podeVer || onChat) {
+      return conteudo
+    }
+
+    if (usuarioPrecisaVerificarEmail(user) && onChat) {
+      return conteudo
+    }
+
     return (
       <Box
         sx={{
@@ -128,29 +188,10 @@ export default function RequireAuth({ children }) {
     )
   }
 
-  if (podeVer) {
-    return conteudo
-  }
-
-  if (onChat) {
-    return conteudo
-  }
-
-  if (usuarioPrecisaVerificarEmail(user) && onChat) {
-    return conteudo
-  }
-
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: 'min(70dvh, 480px)',
-        py: 6,
-      }}
-    >
-      <CircularProgress />
-    </Box>
+    <>
+      {renderConteudo()}
+      {mostrarLoginOverlay ? <LoginConectarOverlay open /> : null}
+    </>
   )
 }

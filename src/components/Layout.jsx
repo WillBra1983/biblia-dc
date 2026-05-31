@@ -31,7 +31,6 @@ import {
 } from '../utils/sectionViewKeys'
 import { setAppIconBadgeCount } from '../utils/appIconBadge'
 import { aguardarPosSplash } from '../utils/posSplash'
-import AvisoModoOffline from './AvisoModoOffline'
 
 /**
  * Título da tela na AppBar e na aba do navegador.
@@ -85,6 +84,7 @@ function getPageTitleFromPathname(pathname) {
   if (path.startsWith('/versiculos-marcados')) return 'Versículos marcados'
   if (path.startsWith('/biblia/apresentacao')) return 'Apresentação — Bíblia'
   if (path.startsWith('/hinario/apresentacao')) return 'Apresentação — Hinário'
+  if (path.match(/^\/estudo-strong\/[^/]+\/ocorrencias$/)) return 'Ocorrências Strong'
   if (path.match(/^\/estudo-strong\/[^/]+\/resumo$/)) return 'Resumo lexical'
   if (path.startsWith('/estudo-strong')) return 'Dicionário Strong'
   if (path.startsWith('/privacidade')) return 'Privacidade'
@@ -628,7 +628,6 @@ export default function Layout({ title, children }) {
             location.pathname.startsWith('/estudo-strong')
           }
         >
-          <AvisoModoOffline />
           {children}
         </GlobalPinchZoom>
       </Box>

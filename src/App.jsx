@@ -33,6 +33,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 // para abrir imediatamente após o splash; as outras carregam só quando o usuário navega).
 const StrongEstudo = lazy(() => import('./pages/StrongEstudo'))
 const StrongEstudoResumo = lazy(() => import('./pages/StrongEstudoResumo'))
+const StrongEstudoOcorrencias = lazy(() => import('./pages/StrongEstudoOcorrencias'))
 const Discipulado = lazy(() => import('./pages/Discipulado'))
 const Hinario = lazy(() => import('./pages/Hinario'))
 const HinarioApresentacao = lazy(() => import('./pages/HinarioApresentacao'))
@@ -174,6 +175,7 @@ const appRouteTree = createRoutesFromElements(
   <Route element={<AppProvidersShell />} errorElement={<RecoverFromDeployError />}>
     <Route path="/" element={<AppShell />}>
       <Route index element={<Biblia />} />
+    <Route path="estudo-strong/:code/ocorrencias" element={<StrongEstudoOcorrencias />} />
     <Route path="estudo-strong/:code/resumo" element={<StrongEstudoResumo />} />
     <Route path="estudo-strong/:code" element={<StrongEstudo />} />
     <Route

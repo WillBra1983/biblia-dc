@@ -2,11 +2,10 @@ import { PENDING_CHAT_EXPORT_KEY } from '../constants/chatExportPending'
 import { mostrarSnackbar } from './uiDialogs'
 import {
   estaSemRede,
-  marcarModoLimitadoOffline,
+  MSG_SEM_INTERNET_RECURSO,
+  rotaConteudoLocalOffline,
   rotaExigeContaOuNuvem,
 } from './conteudoLocalOffline'
-
-const MSG_SEM_REDE = 'Sem acesso. Você está sem acesso à internet.'
 
 /**
  * Chave de sessionStorage que guarda a URL para onde o usuário deve voltar
@@ -23,12 +22,7 @@ export function ensureUserForChatExport(user, navigate) {
   if (user === undefined) return false
   if (!user?.uid) {
     if (estaSemRede()) {
-      marcarModoLimitadoOffline()
-      mostrarSnackbar({
-        mensagem:
-          'Sem conexão. Acesso limitado ao conteúdo no aparelho. Entre na conta quando houver internet.',
-        severidade: 'warning',
-      })
+      mostrarSnackbar({ mensagem: MSG_SEM_INTERNET_RECURSO, severidade: 'info' })
       navigate('/')
       return false
     }
@@ -40,15 +34,15 @@ export function ensureUserForChatExport(user, navigate) {
     return false
   }
   if (estaSemRede()) {
-    mostrarSnackbar({ mensagem: MSG_SEM_REDE, severidade: 'warning' })
+    mostrarSnackbar({ mensagem: MSG_SEM_INTERNET_RECURSO, severidade: 'info' })
     return false
   }
   return true
 }
 
 /**
- * Exige usuário autenticado para abrir uma funcionalidade que depende de
- * conta (ex.: Strong, Plano de leitura). Mostra um snackbar amigável,
+ * Exige usuário autenticado para rotas da nuvem (chat, estudos compartilhados…).
+ * Rotas locais (ex.: plano de leitura offline) seguem mesmo sem conta.
  * **guarda a URL de destino** para retomar depois do login e redireciona
  * para a tela de login (`/chat`).
  *
@@ -72,20 +66,20 @@ export function ensureUserForFeature(user, navigate, { mensagem, redirectTo } = 
       ? `${window.location.pathname}${window.location.search}${window.location.hash}`
       : '/')
 
-  if (user?.uid && estaSemRede() && rotaExigeContaOuNuvem(destino)) {
-    mostrarSnackbar({ mensagem: MSG_SEM_REDE, severidade: 'warning' })
+  const destinoPath =
+    typeof destino === 'string' ? destino.split('?')[0].split('#')[0] : '/'
+
+  if (user?.uid && estaSemRede() && rotaExigeContaOuNuvem(destinoPath)) {
+    mostrarSnackbar({ mensagem: MSG_SEM_INTERNET_RECURSO, severidade: 'info' })
     return false
   }
 
   if (!user?.uid) {
     if (estaSemRede()) {
-      marcarModoLimitadoOffline()
-      mostrarSnackbar({
-        mensagem:
-          'Sem conexão. Acesso limitado ao conteúdo no aparelho. Entre na conta quando houver internet.',
-        severidade: 'warning',
-      })
-      navigate('/')
+      if (rotaConteudoLocalOffline(destinoPath)) {
+        return true
+      }
+      mostrarSnackbar({ mensagem: MSG_SEM_INTERNET_RECURSO, severidade: 'info' })
       return false
     }
     try {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Cor de fundo -->
-    <item android:drawable="@android:color/black"/>
+    <!-- Fundo branco + arte centralizada (fallback legado; tema usa @drawable/splash) -->
+    <item android:drawable="@android:color/white"/>
     <!-- Imagem centralizada -->
     <item>
         <bitmap

@@ -1,10 +1,10 @@
-Splash nativo (Android/iOS) = mesma arte do site (public/splash-b.png).
+Splash único — fonte: assets/SplashB.png (preferida) ou public/splash-b.png
 
   npm run splash:native
 
-Isso regera android/app/src/main/res/drawable-port-*/splash.png (e iOS, se existir).
-O android:sync já roda splash:native automaticamente.
+Regenera public/splash-b.png + .webp, Android drawable-*/splash.png e iOS.
 
-No site/PWA, o splash vem só do index.html + SplashScreen.jsx (splash-b).
-No app Android há também o splash NATIVO (antes do WebView carregar) — por isso
-as PNG em res/ precisam estar atualizadas.
+Web/PWA: index.html + SplashScreen (imagem → verde).
+App nativo: só splash do Android/iOS (mesma arte); sem repetir imagem no WebView.
+
+Após trocar assets/SplashB.png, rode splash:native e rebuild do AAB.

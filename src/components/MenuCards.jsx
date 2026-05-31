@@ -56,7 +56,6 @@ const menuItems = [
     icon: <EventNoteIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/plano-leitura-biblia',
     description: 'Sua agenda diária de leitura bíblica',
-    requerLogin: true
   },
   {
     text: 'Discipulado',

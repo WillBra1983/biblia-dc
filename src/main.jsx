@@ -1,13 +1,18 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { Capacitor } from '@capacitor/core'
 import App, { createAppRouter } from './App'
 import { ZoomResetProvider } from './contexts/ZoomResetContext'
 import './index.css'
 import { initDB as preaquecerBibliaDB } from './services/bibliaService'
 import { executarAppVersionGuard } from './utils/appVersionGuard'
 import { instalarRecuperacaoChunkPerdido } from './utils/chunkLoadRecovery'
+import { isNativeApp } from './utils/isNativeApp'
+import { removerSplashHtmlInicial } from './utils/posSplash'
 instalarRecuperacaoChunkPerdido()
+
+if (isNativeApp()) {
+  removerSplashHtmlInicial()
+}
 
 // Guard de versão do bundle: se o último build for diferente do que estava
 // guardado no `localStorage`, limpa caches do Service Worker e força reload
@@ -74,8 +79,7 @@ const basename = (import.meta.env.BASE_URL && import.meta.env.BASE_URL !== '/')
   ? import.meta.env.BASE_URL.replace(/\/$/, '')
   : ''
 
-const isNativeApp = typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() === true
-const router = createAppRouter(basename, isNativeApp)
+const router = createAppRouter(basename, isNativeApp())
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

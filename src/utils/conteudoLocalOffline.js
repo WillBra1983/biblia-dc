@@ -30,6 +30,9 @@ const PREFIXOS_CONTEUDO_LOCAL = [
   '/youtube',
 ]
 
+/** Mensagem curta ao tentar recurso que precisa de rede (snackbar, não banner). */
+export const MSG_SEM_INTERNET_RECURSO = 'Sem internet para este recurso agora.'
+
 export function estaSemRede() {
   if (typeof navigator === 'undefined') return false
   return navigator.onLine === false

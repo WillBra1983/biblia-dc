@@ -6,40 +6,39 @@ import {
   CircularProgress,
   Button,
   Container,
-  useTheme,
   Tooltip,
   Alert,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  useMediaQuery
 } from '@mui/material'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import AutoAwesome from '@mui/icons-material/AutoAwesome'
 import NavigateBefore from '@mui/icons-material/NavigateBefore'
 import NavigateNext from '@mui/icons-material/NavigateNext'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import { buscarBdbHebraico, buscarOcorrenciasStrongHebraico, buscarTokensOt } from '../services/otStrongService'
-import { buscarOcorrenciasStrongGrego, buscarTokensNt } from '../services/ntStrongProvaService'
-import { buscarIntervaloVersiculos } from '../services/bibliaService'
+import { buscarBdbHebraico } from '../services/otStrongService'
 import { verificarBancoStepBible } from '../services/stepBibleLexiconService'
 import { verificarBancoLexiconPtBr } from '../services/lexiconPtBrService'
 import { carregarDetalheStrong } from '../services/carregarDetalheStrong'
-import { limparTextoStepBible, montarDefinicaoExibicao, montarTwotPesquisaUrl } from '../utils/strongEstudoHelpers'
-import { iaGeminiDisponivel, gerarResumoStrongGemini } from '../services/strongEstudoAiService'
 import { limparResumoLexicalParaExibicao } from '../utils/strongEstudoHelpers'
+import { iaGeminiDisponivel, gerarResumoStrongGemini } from '../services/strongEstudoAiService'
 import { useApp } from '../contexts/AppContext'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { saveStrongNote, subscribeStrongNote } from '../services/strongNotesCloudService'
-import { livros as livrosData } from '../data/biblia'
 import StrongLexiconAttributions from '../components/StrongLexiconAttributions'
+import StrongVerbeteApresentacao from '../components/StrongVerbeteApresentacao'
+import StrongOcorrenciaDialog from '../components/StrongOcorrenciaDialog'
+import { useStrongOcorrenciaDialog } from '../hooks/useStrongOcorrenciaDialog'
+import {
+  buscarOcorrenciasStrong,
+  contarOcorrenciasStrong,
+  STRONG_OCORRENCIAS_PREVIEW,
+} from '../services/strongOcorrenciasService'
 import { strongResumoIaStorageKey } from '../utils/strongResumoIaStorage'
 import { strongEvalPendingKey } from '../utils/strongResumoEvaluacao'
 import { obterResumoStrongPublicadoPorCodigo } from '../services/strongResumoShareService'
+import { mostrarSnackbar } from '../utils/uiDialogs'
+import { estaSemRede, MSG_SEM_INTERNET_RECURSO } from '../utils/conteudoLocalOffline'
 
 let stepBibleDisponivelCachePromise = null
 let lexiconPtBrDisponivelCachePromise = null
@@ -59,8 +58,6 @@ function obterLexiconPtBrDisponivel() {
 }
 
 function StrongEstudo() {
-  const theme = useTheme()
-  const fullScreenDialog = useMediaQuery(theme.breakpoints.down('sm'))
   const navigate = useNavigate()
   const location = useLocation()
   const params = useParams()
@@ -78,19 +75,13 @@ function StrongEstudo() {
   const [notaTexto, setNotaTexto] = useState('')
   const [notaStatus, setNotaStatus] = useState('')
   const [ocorrencias, setOcorrencias] = useState([])
+  const [ocorrenciasTotal, setOcorrenciasTotal] = useState(null)
   const [ocorrenciasLoading, setOcorrenciasLoading] = useState(false)
-  const [ocorrenciasLimite, setOcorrenciasLimite] = useState(5)
-  const [ocorrenciaDialog, setOcorrenciaDialog] = useState({
-    open: false,
-    loading: false,
-    idx: -1,
-    item: null,
-    original: '',
-    traducao: ''
-  })
 
   const { fontSize, fontFamily, textAlign, lineHeight } = useApp()
   const { user } = useFirebaseAuth()
+  const { dialog: ocorrenciaDialog, abrir: abrirOcorrencia, fechar: fecharOcorrencia, navegar: navegarOcorrencia } =
+    useStrongOcorrenciaDialog(code)
   const ehGrego = code.startsWith('G')
   const sxTextoLeitura = useMemo(
     () => ({
@@ -162,10 +153,10 @@ function StrongEstudo() {
 
   useEffect(() => {
     setOcorrencias([])
+    setOcorrenciasTotal(null)
     setOcorrenciasLoading(false)
-    setOcorrenciasLimite(5)
-    setOcorrenciaDialog({ open: false, loading: false, idx: -1, item: null, original: '', traducao: '' })
-  }, [code])
+    fecharOcorrencia()
+  }, [code, fecharOcorrencia])
 
   useEffect(() => {
     if (!code) return
@@ -297,6 +288,11 @@ function StrongEstudo() {
       })
       return
     }
+    if (estaSemRede()) {
+      setAiResumo({ status: 'idle', text: '', error: '' })
+      mostrarSnackbar({ mensagem: MSG_SEM_INTERNET_RECURSO, severidade: 'info' })
+      return
+    }
     if (!iaGeminiDisponivel()) {
       setAiResumo({
         status: 'error',
@@ -348,16 +344,18 @@ function StrongEstudo() {
     if (!code) return
     let active = true
     setOcorrenciasLoading(true)
-    const req = code.startsWith('H')
-      ? buscarOcorrenciasStrongHebraico(code, 20)
-      : buscarOcorrenciasStrongGrego(code, 20)
-    req
-      .then((rows) => {
+    Promise.all([
+      contarOcorrenciasStrong(code),
+      buscarOcorrenciasStrong(code, STRONG_OCORRENCIAS_PREVIEW, 0),
+    ])
+      .then(([total, rows]) => {
         if (!active) return
+        setOcorrenciasTotal(total)
         setOcorrencias(rows || [])
       })
       .catch(() => {
         if (!active) return
+        setOcorrenciasTotal(0)
         setOcorrencias([])
       })
       .finally(() => {
@@ -368,59 +366,25 @@ function StrongEstudo() {
     }
   }, [code])
 
-  const escaparRegExp = (s) => String(s || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-
-  const marcarTexto = (texto, termo) => {
-    const raw = String(texto || '')
-    const t = String(termo || '').trim()
-    if (!raw || !t) return raw
-    const regex = new RegExp(`(${escaparRegExp(t)})`, 'gi')
-    const parts = raw.split(regex)
-    return parts.map((p, idx) =>
-      p.toLowerCase() === t.toLowerCase() ? (
-        <Box key={`hl-${idx}`} component="mark" sx={{ bgcolor: '#f7d84b', color: '#111', px: 0.1 }}>
-          {p}
-        </Box>
-      ) : (
-        <React.Fragment key={`tx-${idx}`}>{p}</React.Fragment>
-      )
-    )
-  }
-
-  const abrirOcorrencia = async (item, idx = -1) => {
-    if (!item) return
-    setOcorrenciaDialog({ open: true, loading: true, idx, item, original: '', traducao: '' })
-    try {
-      const [versosPt, tokensOrig] = await Promise.all([
-        buscarIntervaloVersiculos(item.livroId, item.capitulo, item.versiculo, item.versiculo),
-        code.startsWith('H')
-          ? buscarTokensOt(item.livroId, item.capitulo, item.versiculo)
-          : buscarTokensNt(item.bookNum, item.capitulo, item.versiculo)
-      ])
-      const traducao = String(versosPt?.versiculos?.[0]?.texto || versosPt?.[0]?.texto || '')
-      const original = (tokensOrig || []).map((t) => String(t.text || '').trim()).filter(Boolean).join(' ')
-      setOcorrenciaDialog({ open: true, loading: false, idx, item, original, traducao })
-    } catch {
-      setOcorrenciaDialog((prev) => ({ ...prev, loading: false }))
-    }
-  }
-
-  const navegarOcorrencia = (delta) => {
-    const nextIdx = Number(ocorrenciaDialog.idx) + Number(delta)
-    if (nextIdx < 0 || nextIdx >= ocorrencias.length) return
-    void abrirOcorrencia(ocorrencias[nextIdx], nextIdx)
+  const irOcorrenciasCompletas = () => {
+    navigate(`/estudo-strong/${encodeURIComponent(code)}/ocorrencias`)
   }
 
   return (
-    <Box sx={{ bgcolor: 'background.default', pb: 8, touchAction: 'pan-y' }}>
-      <Container maxWidth="sm" sx={{ pt: 2, pb: 10 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: 0.5, mb: 1, rowGap: 1 }}>
+    <Box sx={{ bgcolor: 'background.default', pb: 8, touchAction: 'pan-y', minHeight: '100%' }}>
+      <Container maxWidth="sm" sx={{ pt: 1.5, pb: 10 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: 0.5, mb: 1.25, rowGap: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
             <IconButton
               onClick={voltar}
               aria-label="voltar"
               size="small"
-              sx={{ color: 'primary.main', border: '1px solid', borderColor: 'divider', bgcolor: 'action.hover' }}
+              sx={{
+                color: 'text.primary',
+                border: '1px solid',
+                borderColor: 'divider',
+                bgcolor: 'background.paper',
+              }}
             >
               <ArrowBack />
             </IconButton>
@@ -431,7 +395,7 @@ function StrongEstudo() {
                   onClick={() => navegarHistoricoStrong(-1)}
                   disabled={historicoStrongIdx <= 0}
                   aria-label="referência anterior"
-                  sx={{ color: 'primary.main', border: '1px solid', borderColor: 'divider', bgcolor: 'action.hover' }}
+                  sx={{ color: 'text.primary', border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}
                 >
                   <NavigateBefore fontSize="medium" />
                 </IconButton>
@@ -444,7 +408,7 @@ function StrongEstudo() {
                   onClick={() => navegarHistoricoStrong(1)}
                   disabled={historicoStrongIdx < 0 || historicoStrongIdx >= historicoStrong.length - 1}
                   aria-label="próxima referência"
-                  sx={{ color: 'primary.main', border: '1px solid', borderColor: 'divider', bgcolor: 'action.hover' }}
+                  sx={{ color: 'text.primary', border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}
                 >
                   <NavigateNext fontSize="medium" />
                 </IconButton>
@@ -499,6 +463,10 @@ function StrongEstudo() {
           </Box>
         </Box>
 
+        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5, mb: 2 }}>
+          Significado original das palavras.
+        </Typography>
+
         {aiResumo.status === 'error' && !!aiResumo.error && (
           <Alert
             severity="warning"
@@ -509,298 +477,62 @@ function StrongEstudo() {
           </Alert>
         )}
 
-        {token && (
-          <Typography variant="body2" sx={{ mb: 1.25, ...sxTextoLeitura }}>
-            Token: <strong>{token.text || '-'}</strong>{' '}
-            {token.lemma ? `| Lemma: ${token.lemma}` : token.lemma_raw ? `| Lemma: ${token.lemma_raw}` : ''}
-          </Typography>
-        )}
 
         {loading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
             <CircularProgress size={28} />
           </Box>
         )}
 
         {!loading && !detalhe && (
-          <Typography color="text.secondary">Verbete não encontrado para {code}.</Typography>
+          <Typography color="text.secondary" sx={{ py: 2 }}>
+            Verbete não encontrado para {code}.
+          </Typography>
         )}
 
         {!loading && detalhe && (
-          <Box sx={{ mt: 1, p: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-            <Typography variant="subtitle1" sx={{ mb: 0.8, fontWeight: 700 }}>
-              {detalhe.strong} — {detalhe.greek_unicode || '-'}
-            </Typography>
-            {detalhe.greek_translit && (
-              <Typography variant="body2" sx={{ mb: 0.5, ...sxTextoLeitura }}>
-                Transliteração: {detalhe.greek_translit}
-              </Typography>
-            )}
-            {montarDefinicaoExibicao(detalhe) && (
-              <Typography variant="body2" sx={{ mb: 0.5, ...sxTextoLeitura }}>
-                Definição:{' '}
-                {traduzirStrongPtBr
-                  ? detalhe.definition_pt || detalhe.definition || montarDefinicaoExibicao(detalhe)
-                  : detalhe.definition_original || montarDefinicaoExibicao(detalhe)}
-              </Typography>
-            )}
-            {String(detalhe?.derivation_pt || detalhe?.derivation_original || detalhe?.derivation || '').trim() && (
-              <>
-                {(() => {
-                  const notasRefs = traduzirStrongPtBr
-                    ? String(detalhe.derivation_pt || detalhe.derivation || detalhe.derivation_original || '').trim()
-                    : String(detalhe.derivation_original || detalhe.derivation || '').trim()
-                  const codigos = renderSomenteCodigosDerivacao(notasRefs)
-                  if (!codigos) return null
-                  return (
-                    <Typography variant="body2" color="text.secondary" sx={{ display: 'block', mt: 0.25, ...sxTextoLeitura }}>
-                      Referências: {codigos}
-                    </Typography>
-                  )
-                })()}
-              </>
-            )}
-
-            {!!detalhe.lexicalIndex?.length && (
-              <Box sx={{ mt: 1, pt: 0.75, borderTop: '1px dashed', borderColor: 'divider' }}>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.4 }}>
-                  Índice Lexical (acadêmico)
-                </Typography>
-                {detalhe.lexicalIndex.map((li) => (
-                  <Typography key={`${li.entry_id}-${li.bdb || ''}-${li.twot || ''}`} variant="body2" color="text.secondary" sx={{ mb: 0.25, ...sxTextoLeitura }}>
-                    {li.entry_id ? `${li.entry_id}` : '—'}
-                    {li.pos ? ` · ${li.pos}` : ''}
-                    {li.bdb ? ` · ${li.bdb}` : ''}
-                    {li.twot && (
-                      <>
-                        {' · '}
-                        <Box
-                          component="a"
-                          href={montarTwotPesquisaUrl(li.twot)}
-                          target="_blank"
-                          rel="noreferrer"
-                          sx={{ color: 'primary.main', textDecoration: 'underline', textUnderlineOffset: '2px', fontWeight: 600 }}
-                        >
-                          {`TWOT ${li.twot}`}
-                        </Box>
-                      </>
-                    )}
-                    {(traduzirStrongPtBr ? li.short_def_pt || li.short_def : li.short_def_original || li.short_def)
-                      ? ` · ${traduzirStrongPtBr ? li.short_def_pt || li.short_def : li.short_def_original || li.short_def}`
-                      : ''}
-                  </Typography>
-                ))}
-              </Box>
-            )}
-
-            {(bdbDetalhe.loading || bdbDetalhe.entry) && (
-              <Box sx={{ mt: 1, p: 0.8, border: '1px solid', borderColor: 'divider', borderRadius: 1, bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : undefined }}>
-                <Typography variant="subtitle2" sx={{ mb: 0.45 }}>
-                  BDB {bdbDetalhe.code ? `(${bdbDetalhe.code})` : ''}
-                </Typography>
-                {bdbDetalhe.loading && (
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, ...sxTextoLeitura }}>
-                    Carregando verbete BDB...
-                  </Typography>
-                )}
-                {!bdbDetalhe.loading && !!bdbDetalhe.entry && (
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, ...sxTextoLeitura }}>
-                    {String(
-                      (traduzirStrongPtBr
-                        ? bdbDetalhe.entry.content_text_pt || bdbDetalhe.entry.content_text || bdbDetalhe.entry.content_text_original
-                        : bdbDetalhe.entry.content_text_original || bdbDetalhe.entry.content_text_pt || bdbDetalhe.entry.content_text) || ''
-                    )}
-                  </Typography>
-                )}
-              </Box>
-            )}
-
-            <Box sx={{ mt: 1, p: 0.8, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-              <Typography variant="subtitle2" sx={{ mb: 0.45 }}>
-                STEPBible
-              </Typography>
-              {!!detalhe.stepBibleEntries?.length ? (
-                detalhe.stepBibleEntries.map((e, idx) => (
-                  <Typography key={`${e.source}-${e.strongs_extended}-${idx}`} variant="body2" color="text.secondary" sx={{ mb: 0.45, ...sxTextoLeitura }}>
-                    <Box component="span" sx={{ fontWeight: 700, color: 'text.primary' }}>
-                      {`${String(e.source || '').replace('stepbible-', '').toUpperCase()}: `}
-                    </Box>
-                    {(() => {
-                      const glossEn = limparTextoStepBible(e.gloss_original || e.gloss || '')
-                      const glossPt = limparTextoStepBible(e.gloss_pt || '')
-                      const glossLinha = traduzirStrongPtBr ? glossPt || glossEn : glossEn
-                      return glossLinha ? `${glossLinha} · ` : ''
-                    })()}
-                    {(() => {
-                      const definicaoPt = limparTextoStepBible(e.definition_pt || e.definition_original || '')
-                      const definicaoEn = limparTextoStepBible(e.definition_clean || e.definition || '')
-                      return traduzirStrongPtBr ? definicaoPt || definicaoEn : definicaoEn
-                    })()}
-                  </Typography>
-                ))
-              ) : (
-                <Typography variant="body2" color="text.secondary" sx={sxTextoLeitura}>
-                  Nenhum conteúdo STEPBible disponível para este verbete.
-                </Typography>
-              )}
-            </Box>
-
-            <Box sx={{ mt: 1.2, p: 0.8, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-              <Typography variant="subtitle2" sx={{ mb: 0.6 }}>
-                Anotação deste verbete ({code})
-              </Typography>
-              {!user?.uid ? (
-                <Alert
-                  severity="info"
-                  action={
-                    <Button size="small" variant="outlined" onClick={() => navigate('/chat')}>
-                      Entrar
-                    </Button>
-                  }
-                >
-                  Faça login para criar e sincronizar anotações deste dicionário entre seus dispositivos.
-                </Alert>
-              ) : (
-                <>
-                  <TextField
-                    fullWidth
-                    multiline
-                    minRows={3}
-                    value={notaTexto}
-                    onChange={(e) => setNotaTexto(e.target.value)}
-                    placeholder="Escreva observações sobre esta palavra (contexto, aplicações, dúvidas, etc.)"
-                  />
-                  <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center' }}>
-                    <Button size="small" variant="contained" onClick={salvarNota}>
-                      Salvar anotação
-                    </Button>
-                    {!!notaStatus && (
-                      <Typography variant="caption" color="text.secondary">
-                        {notaStatus}
-                      </Typography>
-                    )}
-                  </Box>
-                </>
-              )}
-            </Box>
-
-            <Box sx={{ mt: 1.2, p: 1.2, border: '1px solid', borderColor: 'divider', borderRadius: 1.5 }}>
-              <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                Ocorrências em outros textos
-              </Typography>
-              {ocorrenciasLoading && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <CircularProgress size={18} />
-                  <Typography variant="body2" color="text.secondary">Buscando ocorrências...</Typography>
-                </Box>
-              )}
-              {!ocorrenciasLoading && ocorrencias.slice(0, ocorrenciasLimite).map((r, idx) => (
-                <Box key={`occ-${idx}`} sx={{ mb: 0.65 }}>
-                  <Button
-                    size="small"
-                    variant="text"
-                    onClick={() => void abrirOcorrencia(r, idx)}
-                    sx={{ px: 0, textTransform: 'none', ...sxTextoLeitura }}
-                  >
-                    {`${livrosData.find((l) => Number(l.id) === Number(r.livroId))?.nome || 'Livro'} ${r.capitulo}:${r.versiculo}`}
-                  </Button>
-                </Box>
-              ))}
-              {!ocorrenciasLoading && ocorrencias.length > ocorrenciasLimite && (
-                <Button size="small" variant="outlined" onClick={() => setOcorrenciasLimite((n) => n + 5)}>
-                  Ver mais
-                </Button>
-              )}
-              {!ocorrenciasLoading && !ocorrencias.length && (
-                <Typography variant="body2" color="text.secondary">
-                  Não encontramos ocorrências para este código no texto original.
-                </Typography>
-              )}
-            </Box>
-          </Box>
+          <StrongVerbeteApresentacao
+            detalhe={detalhe}
+            code={code}
+            ehGrego={ehGrego}
+            traduzirStrongPtBr={traduzirStrongPtBr}
+            sxTextoLeitura={sxTextoLeitura}
+            token={token}
+            bdbDetalhe={bdbDetalhe}
+            notaTexto={notaTexto}
+            setNotaTexto={setNotaTexto}
+            salvarNota={salvarNota}
+            notaStatus={notaStatus}
+            user={user}
+            onIrLogin={() => navigate('/chat')}
+            ocorrencias={ocorrencias}
+            ocorrenciasLoading={ocorrenciasLoading}
+            ocorrenciasTotal={ocorrenciasTotal}
+            onVerTodasOcorrencias={irOcorrenciasCompletas}
+            onAbrirOcorrencia={(r, idx) => void abrirOcorrencia(r, idx)}
+            renderSomenteCodigosDerivacao={renderSomenteCodigosDerivacao}
+          />
         )}
 
         <StrongLexiconAttributions />
       </Container>
-      <Dialog
+      <StrongOcorrenciaDialog
         open={ocorrenciaDialog.open}
-        onClose={() => setOcorrenciaDialog({ open: false, loading: false, idx: -1, item: null, original: '', traducao: '' })}
-        fullWidth
-        maxWidth="md"
-        fullScreen={fullScreenDialog}
-      >
-        <DialogTitle>
-          {(() => {
-            const it = ocorrenciaDialog.item
-            if (!it) return 'Ocorrência detalhada'
-            const livro = livrosData.find((l) => Number(l.id) === Number(it.livroId))?.nome || 'Livro'
-            const pos = ocorrenciaDialog.idx >= 0 ? ocorrenciaDialog.idx + 1 : 0
-            const total = ocorrencias.length
-            return `${livro} ${it.capitulo}:${it.versiculo} ${pos > 0 && total > 0 ? `· ${pos}/${total}` : ''}`
-          })()}
-          {!!significadoPtAlvo && (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ display: 'block', mt: 0.4, fontSize: '1rem' }}
-            >
-              "{significadoPtAlvo}"
-            </Typography>
-          )}
-        </DialogTitle>
-        <DialogContent dividers sx={{ minHeight: { xs: '42vh', sm: '52vh' } }}>
-          {ocorrenciaDialog.loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 1.5 }}>
-              <CircularProgress size={22} />
-            </Box>
-          ) : (
-            <>
-              <Typography variant="subtitle2" sx={{ mb: 0.6 }}>
-                Original
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 1.1, ...sxTextoLeitura }}>
-                {marcarTexto(ocorrenciaDialog.original, String(ocorrenciaDialog.item?.tokenOriginal || '').trim())}
-              </Typography>
-              <Typography variant="subtitle2" sx={{ mb: 0.6 }}>
-                Tradução
-              </Typography>
-              <Typography variant="body2" sx={{ ...sxTextoLeitura }}>
-                {marcarTexto(
-                  ocorrenciaDialog.traducao,
-                  String(
-                    detalhe?.lexicalIndex?.find((li) => li?.short_def_pt || li?.short_def)?.short_def_pt ||
-                    detalhe?.lexicalIndex?.find((li) => li?.short_def_pt || li?.short_def)?.short_def ||
-                    ''
-                  ).split(/[;,/]/)[0].trim().split(/\s+/)[0]
-                )}
-              </Typography>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <IconButton
-            onClick={() => navegarOcorrencia(-1)}
-            disabled={ocorrenciaDialog.loading || ocorrenciaDialog.idx <= 0}
-            aria-label="ocorrência anterior"
-          >
-            <NavigateBefore />
-          </IconButton>
-          <IconButton
-            onClick={() => navegarOcorrencia(1)}
-            disabled={
-              ocorrenciaDialog.loading ||
-              ocorrenciaDialog.idx < 0 ||
-              ocorrenciaDialog.idx >= ocorrencias.length - 1
-            }
-            aria-label="próxima ocorrência"
-          >
-            <NavigateNext />
-          </IconButton>
-          <Button onClick={() => setOcorrenciaDialog({ open: false, loading: false, idx: -1, item: null, original: '', traducao: '' })}>
-            Fechar
-          </Button>
-        </DialogActions>
-      </Dialog>
+        loading={ocorrenciaDialog.loading}
+        item={ocorrenciaDialog.item}
+        idx={ocorrenciaDialog.idx}
+        total={ocorrenciasTotal ?? ocorrencias.length}
+        original={ocorrenciaDialog.original}
+        traducao={ocorrenciaDialog.traducao}
+        significadoPtAlvo={significadoPtAlvo}
+        termoDestaque={String(ocorrenciaDialog.item?.tokenOriginal || '').trim()}
+        sxTextoLeitura={sxTextoLeitura}
+        onClose={fecharOcorrencia}
+        onPrev={() => navegarOcorrencia(ocorrencias, -1)}
+        onNext={() => navegarOcorrencia(ocorrencias, 1)}
+        prevDisabled={ocorrenciaDialog.idx <= 0}
+        nextDisabled={ocorrenciaDialog.idx < 0 || ocorrenciaDialog.idx >= ocorrencias.length - 1}
+      />
     </Box>
   )
 }

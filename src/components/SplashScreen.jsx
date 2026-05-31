@@ -8,18 +8,78 @@ import {
   removerSplashHtmlInicial,
   splashUiJaConcluiu,
 } from '../utils/posSplash'
+import { isNativeApp } from '../utils/isNativeApp'
 
 const SPLASH_IMAGEM_WEBP = `${import.meta.env.BASE_URL}splash-b.webp`.replace(/\/{2,}/g, '/')
 const SPLASH_IMAGEM_PNG = `${import.meta.env.BASE_URL}splash-b.png`.replace(/\/{2,}/g, '/')
 
+const fontSans = '"Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+
+/** Textos que ficavam na tela verde — no nativo aparecem abaixo da imagem. */
+function SplashRodapeNativo() {
+  return (
+    <Box sx={{ textAlign: 'center', px: 2, pt: 1, pb: 'max(16px, env(safe-area-inset-bottom))' }}>
+      <Typography
+        variant="h6"
+        sx={{
+          color: '#00695c',
+          fontWeight: 300,
+          fontStyle: 'italic',
+          letterSpacing: 0.5,
+          fontSize: { xs: '1rem', sm: '1.15rem' },
+          fontFamily: fontSans,
+          mb: 1,
+        }}
+      >
+        Ide e fazei discípulos...
+      </Typography>
+      <Typography
+        variant="caption"
+        sx={{
+          display: 'block',
+          color: 'rgba(0, 77, 64, 0.65)',
+          fontSize: 14,
+          letterSpacing: 0.3,
+          fontFamily: fontSans,
+        }}
+      >
+        • Powered by Pastor Wilson Lucas
+      </Typography>
+    </Box>
+  )
+}
+
+function SplashImagem({ maxHeight = '92vh' }) {
+  return (
+    <picture
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        margin: 0,
+      }}
+    >
+      <source srcSet={SPLASH_IMAGEM_WEBP} type="image/webp" />
+      <img
+        src={SPLASH_IMAGEM_PNG}
+        alt=""
+        decoding="async"
+        fetchPriority="high"
+        style={{
+          width: 'min(92vw, 1080px)',
+          height: 'auto',
+          maxHeight,
+          objectFit: 'contain',
+        }}
+      />
+    </picture>
+  )
+}
+
 /**
- * Splash em duas fases:
- *   1. Imagem da Bíblia (continua o splash HTML instantâneo do `index.html`)
- *   2. Tela verde com branding
- *
- * Só fecha quando `biblia-pronta` for despachado — após o capítulo pintar de
- * verdade — com duração mínima curta na fase verde. `maxMs` é apenas fallback
- * de segurança se a Bíblia nunca sinalizar.
+ * Web/PWA: imagem da Bíblia → tela verde → fecha ao `biblia-pronta`.
+ * App nativo: imagem + rodapé (sem tela verde); fecha ao `biblia-pronta`.
  */
 export default function SplashScreen({
   onComplete,
@@ -27,8 +87,10 @@ export default function SplashScreen({
   minMs = 750,
   maxMs = 12000,
 }) {
+  const nativo = isNativeApp()
+  const minPosPronta = nativo ? 0 : minMs
   const [visible, setVisible] = useState(() => !splashUiJaConcluiu())
-  const [fase, setFase] = useState('imagem')
+  const [fase, setFase] = useState(() => (nativo ? 'nativo' : 'imagem'))
   const verdeIniciouEmRef = useRef(null)
   const bibliaProntaRef = useRef(bibliaJaEstaPronta())
   const timeoutFinalRef = useRef(null)
@@ -56,7 +118,7 @@ export default function SplashScreen({
     const agendarFechamentoPosPronta = () => {
       if (cancelled || verdeIniciouEmRef.current == null) return
       const elapsed = Date.now() - verdeIniciouEmRef.current
-      const restante = Math.max(0, minMs - elapsed)
+      const restante = Math.max(0, minPosPronta - elapsed)
       if (timeoutFinalRef.current) window.clearTimeout(timeoutFinalRef.current)
       timeoutFinalRef.current = window.setTimeout(finalizar, restante)
     }
@@ -70,15 +132,25 @@ export default function SplashScreen({
 
     window.addEventListener('biblia-pronta', onPronta)
 
-    const timeoutImagem = window.setTimeout(() => {
-      if (cancelled) return
-      verdeIniciouEmRef.current = Date.now()
-      setFase('verde')
+    if (nativo) {
       removerSplashHtmlInicial()
+      verdeIniciouEmRef.current = Date.now()
       if (bibliaProntaRef.current) {
         agendarFechamentoPosPronta()
       }
-    }, imageMinMs)
+    }
+
+    const timeoutImagem = nativo
+      ? null
+      : window.setTimeout(() => {
+          if (cancelled) return
+          verdeIniciouEmRef.current = Date.now()
+          setFase('verde')
+          removerSplashHtmlInicial()
+          if (bibliaProntaRef.current) {
+            agendarFechamentoPosPronta()
+          }
+        }, imageMinMs)
 
     const timeoutTeto = window.setTimeout(finalizar, maxMs)
 
@@ -90,12 +162,42 @@ export default function SplashScreen({
       cancelled = true
       window.removeEventListener('biblia-pronta', onPronta)
       if (timeoutFinalRef.current) window.clearTimeout(timeoutFinalRef.current)
-      window.clearTimeout(timeoutImagem)
+      if (timeoutImagem) window.clearTimeout(timeoutImagem)
       window.clearTimeout(timeoutTeto)
     }
-  }, [onComplete, imageMinMs, minMs, maxMs])
+  }, [onComplete, imageMinMs, minPosPronta, maxMs, nativo])
 
   if (!visible) return null
+
+  if (fase === 'nativo') {
+    return (
+      <Box
+        sx={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 99999,
+          display: 'flex',
+          flexDirection: 'column',
+          bgcolor: '#ffffff',
+          pointerEvents: 'auto',
+        }}
+      >
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 0,
+            px: 1,
+          }}
+        >
+          <SplashImagem maxHeight="calc(100vh - 120px - env(safe-area-inset-bottom))" />
+        </Box>
+        <SplashRodapeNativo />
+      </Box>
+    )
+  }
 
   if (fase === 'imagem') {
     return (
@@ -111,30 +213,7 @@ export default function SplashScreen({
           pointerEvents: 'auto',
         }}
       >
-        <picture
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            height: '100%',
-            margin: 0,
-          }}
-        >
-          <source srcSet={SPLASH_IMAGEM_WEBP} type="image/webp" />
-          <img
-            src={SPLASH_IMAGEM_PNG}
-            alt=""
-            decoding="async"
-            fetchPriority="high"
-            style={{
-              width: 'min(92vw, 540px)',
-              height: 'auto',
-              maxHeight: '92vh',
-              objectFit: 'contain',
-            }}
-          />
-        </picture>
+        <SplashImagem />
       </Box>
     )
   }

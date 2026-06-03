@@ -18,6 +18,17 @@ body {
   background-color: #18181b;
 }
 
+/* Hebraico vocalizado: evita bold sintético que oculta niqqud no Windows/Chrome */
+.hebrew-vocalizado {
+  font-family: 'Noto Serif Hebrew', 'David Libre', 'Ezra SIL', serif;
+  font-weight: 400;
+  font-synthesis: none;
+  font-feature-settings: 'mark' 1, 'mkmk' 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.45;
+}
+
 .app {
   min-height: 100vh;
   display: flex;

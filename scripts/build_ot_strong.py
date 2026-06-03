@@ -9,7 +9,6 @@ Saida:
 
 from __future__ import annotations
 
-import json
 import re
 import sqlite3
 import sys
@@ -18,7 +17,7 @@ from pathlib import Path
 
 import requests
 
-MORPHHB_INDEX_URL = "https://raw.githubusercontent.com/openscriptures/morphhb/master/index.js"
+WLC_BASE_URL = "https://raw.githubusercontent.com/openscriptures/morphhb/master/wlc"
 HEBREW_STRONG_XML_URL = "https://raw.githubusercontent.com/openscriptures/HebrewLexicon/master/HebrewStrong.xml"
 LEXICAL_INDEX_XML_URL = "https://raw.githubusercontent.com/openscriptures/HebrewLexicon/master/LexicalIndex.xml"
 BDB_XML_URL = "https://raw.githubusercontent.com/openscriptures/HebrewLexicon/master/BrownDriverBriggs.xml"
@@ -65,14 +64,110 @@ BOOK_NAME_TO_ID = {
     "Malachi": 39,
 }
 
+BOOK_NAME_TO_WLC = {
+    "Genesis": "Gen.xml",
+    "Exodus": "Exod.xml",
+    "Leviticus": "Lev.xml",
+    "Numbers": "Num.xml",
+    "Deuteronomy": "Deut.xml",
+    "Joshua": "Josh.xml",
+    "Judges": "Judg.xml",
+    "Ruth": "Ruth.xml",
+    "I Samuel": "1Sam.xml",
+    "II Samuel": "2Sam.xml",
+    "I Kings": "1Kgs.xml",
+    "II Kings": "2Kgs.xml",
+    "I Chronicles": "1Chr.xml",
+    "II Chronicles": "2Chr.xml",
+    "Ezra": "Ezra.xml",
+    "Nehemiah": "Neh.xml",
+    "Esther": "Esth.xml",
+    "Job": "Job.xml",
+    "Psalms": "Ps.xml",
+    "Proverbs": "Prov.xml",
+    "Ecclesiastes": "Eccl.xml",
+    "Song of Solomon": "Song.xml",
+    "Isaiah": "Isa.xml",
+    "Jeremiah": "Jer.xml",
+    "Lamentations": "Lam.xml",
+    "Ezekiel": "Ezek.xml",
+    "Daniel": "Dan.xml",
+    "Hosea": "Hos.xml",
+    "Joel": "Joel.xml",
+    "Amos": "Amos.xml",
+    "Obadiah": "Obad.xml",
+    "Jonah": "Jonah.xml",
+    "Micah": "Mic.xml",
+    "Nahum": "Nah.xml",
+    "Habakkuk": "Hab.xml",
+    "Zephaniah": "Zeph.xml",
+    "Haggai": "Hag.xml",
+    "Zechariah": "Zech.xml",
+    "Malachi": "Mal.xml",
+}
+
 
 def first_hebrew_strong(lemma_raw: str) -> str:
     if not lemma_raw:
         return ""
-    m = re.search(r"H(\d+)", lemma_raw)
-    if not m:
-        return ""
-    return f"H{int(m.group(1))}"
+    m = re.search(r"H(\d+)", str(lemma_raw), re.I)
+    if m:
+        return f"H{int(m.group(1))}"
+    m = re.search(r"(?:^|[/\s])(\d+)", str(lemma_raw))
+    if m:
+        return f"H{int(m.group(1))}"
+    return ""
+
+
+def strip_xml_ns(root: ET.Element) -> None:
+    for el in root.iter():
+        if "}" in el.tag:
+            el.tag = el.tag.split("}", 1)[1]
+
+
+def parse_osis_ref(osis_id: str) -> tuple[int, int] | None:
+    parts = str(osis_id or "").strip().split(".")
+    if len(parts) < 3:
+        return None
+    try:
+        return int(parts[1]), int(parts[2])
+    except ValueError:
+        return None
+
+
+def baixar_wlc(nome_arquivo: str, cache_dir: Path) -> str:
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    dest = cache_dir / nome_arquivo
+    if dest.exists() and dest.stat().st_size > 1000:
+        return dest.read_text(encoding="utf-8")
+    url = f"{WLC_BASE_URL}/{nome_arquivo}"
+    r = requests.get(url, timeout=180, headers={"User-Agent": "Mozilla/5.0"})
+    r.raise_for_status()
+    dest.write_text(r.text, encoding="utf-8")
+    return r.text
+
+
+def importar_tokens_wlc(book_id: int, xml_text: str) -> list[tuple]:
+    root = ET.fromstring(xml_text)
+    strip_xml_ns(root)
+    rows: list[tuple] = []
+    for verse_el in root.iter("verse"):
+        osis = verse_el.attrib.get("osisID") or ""
+        ref = parse_osis_ref(osis)
+        if not ref:
+            continue
+        chapter, verse = ref
+        token_idx = 0
+        for w_el in verse_el.findall("w"):
+            token_idx += 1
+            text = "".join(w_el.itertext()).strip()
+            if not text:
+                continue
+            lemma = (w_el.attrib.get("lemma") or "").strip()
+            morph = (w_el.attrib.get("morph") or "").strip()
+            strong = first_hebrew_strong(lemma)
+            rows.append((book_id, chapter, verse, token_idx, text, lemma, morph, strong))
+    return rows
 
 
 def init_schema(conn: sqlite3.Connection) -> None:
@@ -274,15 +369,7 @@ def main() -> int:
         out_db.unlink()
 
     print(f"Gerando: {out_db}")
-    js = requests.get(MORPHHB_INDEX_URL, timeout=120)
-    js.raise_for_status()
-    text = js.text
-    prefix = "var morphhb="
-    suffix = ";module.exports=morphhb;"
-    if not (text.startswith(prefix) and text.endswith(suffix)):
-        raise RuntimeError("Formato inesperado em morphhb/index.js")
-    payload = text[len(prefix) : -len(suffix)]
-    data = json.loads(payload)
+    cache_wlc = root / "scripts" / ".cache" / "morphhb-wlc"
 
     conn = sqlite3.connect(out_db)
     try:
@@ -296,33 +383,18 @@ def main() -> int:
 
         total = 0
         strong_count = {}
-        for book_name, chapters in data.items():
-            book_id = BOOK_NAME_TO_ID.get(book_name)
-            if not book_id:
-                print(f"[WARN] Livro nao mapeado: {book_name}")
+        for book_name, book_id in sorted(BOOK_NAME_TO_ID.items(), key=lambda x: x[1]):
+            wlc_file = BOOK_NAME_TO_WLC.get(book_name)
+            if not wlc_file:
+                print(f"[WARN] WLC ausente para: {book_name}")
                 continue
-            rows = []
-            for ch_idx, verses in enumerate(chapters, start=1):
-                for v_idx, words in enumerate(verses, start=1):
-                    for token_idx, triple in enumerate(words, start=1):
-                        if not isinstance(triple, list) or len(triple) < 3:
-                            continue
-                        word, lemma_raw, morph = triple[0], triple[1], triple[2]
-                        strong = first_hebrew_strong(str(lemma_raw))
-                        if strong:
-                            strong_count[strong] = strong_count.get(strong, 0) + 1
-                        rows.append(
-                            (
-                                book_id,
-                                ch_idx,
-                                v_idx,
-                                token_idx,
-                                str(word),
-                                str(lemma_raw),
-                                str(morph),
-                                strong,
-                            )
-                        )
+            print(f"WLC {wlc_file} …")
+            xml_text = baixar_wlc(wlc_file, cache_wlc)
+            rows = importar_tokens_wlc(book_id, xml_text)
+            for row in rows:
+                strong = row[7]
+                if strong:
+                    strong_count[strong] = strong_count.get(strong, 0) + 1
             cur.executemany(
                 """
                 INSERT INTO ot_tokens (
@@ -333,7 +405,7 @@ def main() -> int:
             )
             conn.commit()
             total += len(rows)
-            print(f"{book_id:02d} {book_name}: {len(rows)} tokens")
+            print(f"{book_id:02d} {book_name}: {len(rows)} tokens (WLC vocalizado)")
 
         cur.executemany(
             "INSERT INTO strong_hebrew_index (strong_code, occurrences) VALUES (?, ?)",

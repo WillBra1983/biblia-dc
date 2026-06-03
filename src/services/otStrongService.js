@@ -231,6 +231,37 @@ export async function buscarStrongHebraico(strongCode) {
   return row
 }
 
+/** Mapa { H123: { xlit, pron, headword } } para vários códigos Strong hebraicos. */
+export async function buscarStrongHebrewMap(strongCodes) {
+  const codes = [...new Set(
+    (strongCodes || [])
+      .map((c) => String(c || '').trim().toUpperCase().replace(/^H?(\d+)$/, 'H$1'))
+      .filter((c) => /^H\d+$/.test(c))
+  )]
+  if (!codes.length) return {}
+  const dbi = await initOtStrongDB()
+  const placeholders = codes.map(() => '?').join(', ')
+  const stmt = dbi.prepare(
+    `
+      SELECT strong_code, headword, xlit, pron
+      FROM strong_hebrew
+      WHERE strong_code IN (${placeholders})
+    `
+  )
+  stmt.bind(codes)
+  const out = {}
+  while (stmt.step()) {
+    const row = stmt.getAsObject()
+    out[String(row.strong_code || '').trim()] = {
+      headword: row.headword || '',
+      xlit: String(row.xlit || '').trim(),
+      pron: String(row.pron || '').trim(),
+    }
+  }
+  stmt.free()
+  return out
+}
+
 export async function buscarLexicalIndexHebraico(strongCode) {
   const normalized = String(strongCode || '').trim().toUpperCase().replace(/^H?(\d+)$/, 'H$1')
   if (!/^H\d+$/.test(normalized)) return []

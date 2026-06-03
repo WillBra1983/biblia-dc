@@ -4,7 +4,7 @@ Splash único — fonte: assets/SplashB.png (preferida) ou public/splash-b.png
 
 Regenera public/splash-b.png + .webp, Android drawable-*/splash.png e iOS.
 
-Web/PWA: index.html + SplashScreen (imagem → verde).
-App nativo: só splash do Android/iOS (mesma arte); sem repetir imagem no WebView.
+Entrada (web + nativo): só a imagem da Bíblia em fundo branco até biblia-pronta.
+React não repete a arte — apenas fade-out.
 
 Após trocar assets/SplashB.png, rode splash:native e rebuild do AAB.

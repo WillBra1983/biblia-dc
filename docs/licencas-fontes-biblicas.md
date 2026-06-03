@@ -13,6 +13,8 @@ Este documento define criterio de aprovacao de fontes biblicas e lexicais para u
 | Bloco | Fonte candidata | Licenca/estado | Status | Acao recomendada |
 |---|---|---|---|---|
 | AT texto + tokens | `openscriptures/morphhb` | CC BY 4.0 (atribuicao obrigatoria) | Aprovado | Integrar com creditos e atribuicao no app |
+| AT texto (referencia UXLC) | [tanach.us](https://tanach.us/License.html) | Texto biblico hebraico sem restricao (citacao apreciada) | Aprovado | Opcional; app usa MorphHB vocalizado (WLC) |
+| Fonte UI hebraico | Google Fonts Noto Serif Hebrew | SIL OFL | Aprovado | Carregada em index.html para niqqud/ta'amim |
 | AT lexico HebrewLexicon (Strong + LexicalIndex + BDB XML do repositorio) | `openscriptures/HebrewLexicon` | CC BY 4.0 (conforme pagina do projeto) | Aprovado | Pode embutir no app proprietario com atribuicao obrigatoria |
 | AT lexico Strong | Base nao-GPL com licenca explicita | Variavel | Revisar | Aprovar somente com licenca permissiva/PD |
 | NT texto grego (TR) | Edicao especifica de Textus Receptus | Depende da edicao | Revisar | Validar arquivo/edicao e termos de redistribuicao |

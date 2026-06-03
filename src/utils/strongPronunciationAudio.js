@@ -1,10 +1,13 @@
 /**
  * Reproduz pronúncia do verbete Strong.
  *
- * 1) MP3 local em public/sounds/strong-pron/{H|G}####.mp3 (quando existir).
- * 2) TTS com voz he-IL / el-GR lendo o texto original.
- * 3) Fallback (PC Windows sem voz hebraica): guia fonética em en-US.
+ * 1) MP3 local (grego monotônico / guia fonética — ver generate_strong_pron_mp3.py).
+ * 2) TTS com texto preparado (nunca polítono letra a letra).
  */
+
+import { isNativeApp } from './isNativeApp'
+import { biblicalAudioEnabled } from '../config/biblicalAudio'
+import { prepararFalaLemmaStrong, prepararFalaTokenPassagem } from './strongPronunciationSpeak'
 
 let audioAtual = null
 
@@ -17,6 +20,11 @@ function cancelarAudioAnterior() {
     }
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel()
+    }
+    if (isNativeApp()) {
+      void import('@capacitor-community/text-to-speech')
+        .then(({ TextToSpeech }) => TextToSpeech.stop())
+        .catch(() => {})
     }
   } catch {
     /* ignore */
@@ -70,6 +78,21 @@ function urlMp3Local(strongCode) {
   return `${base}sounds/strong-pron/${code}.mp3`.replace(/\/{2,}/g, '/')
 }
 
+async function mp3Disponivel(url) {
+  try {
+    const r = await fetch(url, { method: 'HEAD', cache: 'force-cache' })
+    if (r.ok) return true
+  } catch {
+    /* ignore */
+  }
+  try {
+    const r = await fetch(url, { method: 'GET', headers: { Range: 'bytes=0-3' } })
+    return r.ok || r.status === 206
+  } catch {
+    return false
+  }
+}
+
 function reproduzirMp3(url) {
   return new Promise((resolve, reject) => {
     const audio = new Audio()
@@ -90,7 +113,7 @@ function reproduzirMp3(url) {
     audio.addEventListener('ended', onOk)
     audio.addEventListener('error', onErr)
     audio.src = url
-    const timer = window.setTimeout(() => finish(false), 4000)
+    const timer = window.setTimeout(() => finish(false), 8000)
     audio.play().catch(onErr)
   })
 }
@@ -137,7 +160,7 @@ function falarComVoz(texto, { voz, lang, rate = 0.88 }) {
     const timer = window.setTimeout(() => {
       if (ouviu || synth.speaking) finish(true)
       else finish(false, new Error('tts-timeout'))
-    }, 10000)
+    }, 12000)
 
     synth.speak(utter)
     window.setTimeout(() => {
@@ -150,52 +173,92 @@ function falarComVoz(texto, { voz, lang, rate = 0.88 }) {
   })
 }
 
-async function reproduzirTts({ unicode, translit, pronuncia, ehGrego }) {
+async function falarTtsNativo(texto, lang, rate = 0.82) {
+  const { TextToSpeech } = await import('@capacitor-community/text-to-speech')
+  await TextToSpeech.stop()
+  const raw = String(texto || '').trim()
+  if (!raw) throw new Error('tts-native-empty')
+  await TextToSpeech.speak({
+    text: raw,
+    lang: lang || 'en-US',
+    rate,
+    pitch: 1,
+    volume: 1,
+  })
+  return 'tts-native'
+}
+
+async function reproduzirTtsNativo({ unicode, translit, pronuncia, ehGrego }) {
+  const { texto, lang } = prepararFalaLemmaStrong({ pronuncia, translit, unicode, ehGrego })
+  const rate = lang.startsWith('en') ? 0.78 : 0.86
+  return falarTtsNativo(texto, lang, rate)
+}
+
+async function reproduzirTtsWeb({ unicode, translit, pronuncia, ehGrego }) {
   if (typeof window === 'undefined' || !window.speechSynthesis) {
     throw new Error('tts-unsupported')
   }
 
   await aguardarVozes()
-  // Chrome carrega vozes de forma preguiçosa — segunda leitura ajuda no desktop.
-  await aguardarVozes(300)
+  await aguardarVozes(400)
 
-  const prefixo = ehGrego ? 'el' : 'he'
-  const vozNativa = escolherVozIdioma(prefixo)
-  const unicodeTxt = String(unicode || '').trim()
-  const guiaFonetica = String(pronuncia || translit || '').trim()
+  const { texto, lang } = prepararFalaLemmaStrong({ pronuncia, translit, unicode, ehGrego })
+  const prefixo = lang.startsWith('pt') ? 'pt' : lang.startsWith('el') ? 'el' : 'en'
+  const voz = escolherVozIdioma(prefixo) || escolherVozIdioma('pt') || escolherVozIdioma('en')
 
-  if (vozNativa && unicodeTxt) {
-    try {
-      return await falarComVoz(unicodeTxt, {
-        voz: vozNativa,
-        lang: ehGrego ? 'el-GR' : 'he-IL',
-      })
-    } catch {
-      /* tenta fallback */
-    }
+  return falarComVoz(texto, {
+    voz,
+    lang: voz?.lang || lang,
+    rate: lang.startsWith('en') ? 0.78 : 0.86,
+  })
+}
+
+
+async function reproduzirTtsNativoFormaExata({ unicode, translit, pronuncia, ehGrego }) {
+  const { texto, lang } = prepararFalaTokenPassagem({ unicode, translit, pronuncia, ehGrego })
+  const rate = lang.startsWith('en') ? 0.78 : 0.86
+  return falarTtsNativo(texto, lang, rate)
+}
+
+async function reproduzirTtsWebFormaExata({ unicode, translit, pronuncia, ehGrego }) {
+  if (typeof window === 'undefined' || !window.speechSynthesis) {
+    throw new Error('tts-unsupported')
   }
 
-  if (guiaFonetica) {
-    const vozEn = escolherVozIdioma('en') || escolherVozIdioma('pt')
-    return falarComVoz(guiaFonetica, {
-      voz: vozEn,
-      lang: vozEn?.lang || 'en-US',
-      rate: 0.82,
-    })
-  }
+  await aguardarVozes()
+  await aguardarVozes(400)
 
-  if (unicodeTxt) {
-    return falarComVoz(unicodeTxt, {
-      voz: vozNativa,
-      lang: ehGrego ? 'el-GR' : 'he-IL',
-    })
-  }
+  const { texto, lang } = prepararFalaTokenPassagem({ unicode, translit, pronuncia, ehGrego })
+  const prefixo = lang.startsWith('pt') ? 'pt' : lang.startsWith('el') ? 'el' : 'en'
+  const voz = escolherVozIdioma(prefixo) || escolherVozIdioma('pt') || escolherVozIdioma('en')
 
-  throw new Error('tts-empty')
+  return falarComVoz(texto, {
+    voz,
+    lang: voz?.lang || lang,
+    rate: lang.startsWith('en') ? 0.78 : 0.86,
+  })
 }
 
 /**
- * @returns {Promise<'mp3'|'tts'>}
+ * Pronúncia da forma exata do token na passagem (nunca MP3/guia do lema Strong).
+ * @returns {Promise<'tts'|'tts-native'>}
+ */
+export async function reproduzirPronunciaFormaToken({ unicode, translit, pronuncia, ehGrego }) {
+  cancelarAudioAnterior()
+
+  if (isNativeApp()) {
+    try {
+      return await reproduzirTtsNativoFormaExata({ unicode, translit, pronuncia, ehGrego })
+    } catch {
+      /* tenta Web TTS */
+    }
+  }
+
+  return reproduzirTtsWebFormaExata({ unicode, translit, pronuncia, ehGrego })
+}
+
+/**
+ * @returns {Promise<'mp3'|'tts'|'tts-native'>}
  */
 export async function reproduzirPronunciaStrong({
   strongCode,
@@ -206,16 +269,26 @@ export async function reproduzirPronunciaStrong({
 }) {
   cancelarAudioAnterior()
 
-  const mp3Url = urlMp3Local(strongCode)
-  if (mp3Url) {
-    try {
-      return await reproduzirMp3(mp3Url)
-    } catch {
-      /* tenta TTS */
+  if (biblicalAudioEnabled) {
+    const mp3Url = urlMp3Local(strongCode)
+    if (mp3Url && (await mp3Disponivel(mp3Url))) {
+      try {
+        return await reproduzirMp3(mp3Url)
+      } catch {
+        /* tenta TTS */
+      }
     }
   }
 
-  return reproduzirTts({ unicode, translit, pronuncia, ehGrego })
+  if (isNativeApp()) {
+    try {
+      return await reproduzirTtsNativo({ unicode, translit, pronuncia, ehGrego })
+    } catch {
+      /* tenta Web TTS no WebView */
+    }
+  }
+
+  return reproduzirTtsWeb({ unicode, translit, pronuncia, ehGrego })
 }
 
 export function pararPronunciaStrong() {
@@ -225,12 +298,13 @@ export function pararPronunciaStrong() {
 export function pronunciaDisponivel() {
   return (
     typeof window !== 'undefined' &&
-    (!!window.speechSynthesis || typeof Audio !== 'undefined')
+    (!!window.speechSynthesis || typeof Audio !== 'undefined' || isNativeApp())
   )
 }
 
 /** Indica se há voz he-IL/el-GR instalada (útil para tooltip). */
 export function temVozOriginalInstalada(ehGrego) {
+  if (isNativeApp()) return true
   if (typeof window === 'undefined' || !window.speechSynthesis) return false
   return !!escolherVozIdioma(ehGrego ? 'el' : 'he')
 }

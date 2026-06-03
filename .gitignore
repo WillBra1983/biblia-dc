@@ -21,10 +21,18 @@ dist/
 
 # Python venv local
 .venv/
+.venv-aeneas/
+.venv-wsl/
+scripts/__pycache__/
+scripts/_audio_tmp/
+scripts/_aeneas_src/
 
 # Logs / crash dumps
 debug.log
 *.log
+
+# MP3 Strong gerados em lote (~400 MB) — ver public/sounds/strong-pron/README.md
+public/sounds/strong-pron/*.mp3
 android/hs_err_pid*.log
 
 # Keystore (não commitar)

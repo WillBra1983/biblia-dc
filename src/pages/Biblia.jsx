@@ -75,6 +75,9 @@ import {
   obterTemplate,
 } from '../utils/planoLeituraUsuario'
 import { usePinchNumeric } from '../hooks/usePinchNumeric'
+import { salvarTokenPassagem } from '../utils/strongTokenContext'
+import { formatarTextoMorphHb } from '../utils/strongTokenHelpers'
+import { sxHebrewVocalizado } from '../utils/hebrewDisplay'
 
 const loadNtStrongProvaService = () => import('../services/ntStrongProvaService')
 const loadOtStrongService = () => import('../services/otStrongService')
@@ -580,32 +583,41 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     }
   }, [otStrongDisponivel, modoStrongProva, ehNovoTestamento, livroAtual?.id, capitulo])
 
-  const abrirStrongPorToken = async (token) => {
+  const abrirStrongPorToken = async (token, meta = {}) => {
     if (!token) return
+    const tokenComRef = {
+      ...token,
+      livroId: meta.livroId ?? token.livroId ?? livroAtual?.id,
+      capitulo: meta.capitulo ?? token.capitulo ?? capitulo,
+      versiculo: meta.versiculo ?? token.versiculo ?? token.verse,
+    }
     if (!ehNovoTestamento) {
       const strongCode = String(token.strong_code || '').trim().toUpperCase()
       if (strongCode) {
-        navigate(`/estudo-strong/${encodeURIComponent(strongCode)}`, { state: { token } })
+        salvarTokenPassagem(strongCode, tokenComRef)
+        navigate(`/estudo-strong/${encodeURIComponent(strongCode)}`, { state: { token: tokenComRef } })
       }
       return
     }
-    setStrongMatchDialog({ open: true, matches: [], token, loading: true, empty: false })
     try {
       const lemmaBase = token.lemma || token.normalized_word || token.word || token.text || ''
       const { buscarStrongGregoPorLemma } = await loadNtStrongProvaService()
       const matches = await buscarStrongGregoPorLemma(lemmaBase, 20)
       if (matches.length === 1 && matches[0]?.strong) {
-        navigate(`/estudo-strong/${encodeURIComponent(matches[0].strong)}`, { state: { token } })
-        setStrongMatchDialog({ open: false, matches: [], token: null, loading: false, empty: false })
+        const strongCode = matches[0].strong
+        salvarTokenPassagem(strongCode, tokenComRef)
+        navigate(`/estudo-strong/${encodeURIComponent(strongCode)}`, { state: { token: tokenComRef } })
         return
       }
-      if (matches.length > 1) {
-        setStrongMatchDialog({ open: true, matches, token, loading: false, empty: false })
-        return
-      }
-      setStrongMatchDialog({ open: true, matches: [], token, loading: false, empty: true })
+      setStrongMatchDialog({
+        open: true,
+        matches: matches.length > 1 ? matches : [],
+        token: tokenComRef,
+        loading: false,
+        empty: matches.length === 0,
+      })
     } catch {
-      setStrongMatchDialog({ open: true, matches: [], token, loading: false, empty: true })
+      setStrongMatchDialog({ open: true, matches: [], token: tokenComRef, loading: false, empty: true })
     }
   }
 
@@ -2300,7 +2312,13 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                       {tokensNtCapitulo[Number(numeroVersiculo)].map((tk) => (
                         <Box
                           key={`${keyAtual}-tk-${tk.token_idx}`}
-                          onClick={() => abrirStrongPorToken(tk)}
+                          onClick={() =>
+                            abrirStrongPorToken(tk, {
+                              livroId: livroAtual?.id,
+                              capitulo,
+                              versiculo: Number(numeroVersiculo),
+                            })
+                          }
                           role="button"
                           tabIndex={0}
                           sx={{
@@ -2339,22 +2357,30 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                         px: 0.3,
                         display: 'flex',
                         flexWrap: 'wrap',
-                        gap: 0.5
+                        gap: 0.5,
+                        direction: 'rtl',
+                        justifyContent: 'flex-start',
                       }}
                     >
                       {tokensOtCapitulo[Number(numeroVersiculo)].map((tk) => (
                         <Box
                           key={`${keyAtual}-ot-${tk.token_idx}`}
-                          onClick={() => abrirStrongPorToken(tk)}
+                          onClick={() =>
+                            abrirStrongPorToken(tk, {
+                              livroId: livroAtual?.id,
+                              capitulo,
+                              versiculo: Number(numeroVersiculo),
+                            })
+                          }
                           role="button"
                           tabIndex={0}
                           sx={{
-                            px: 0.55,
-                            py: 0.2,
-                            borderRadius: 0.8,
+                            px: 0.7,
+                            py: 0.35,
+                            borderRadius: 1.25,
                             border: '1px solid',
-                            borderColor: 'divider',
-                            bgcolor: 'background.paper',
+                            borderColor: 'rgba(0,0,0,0.10)',
+                            bgcolor: 'rgba(255,255,255,0.85)',
                             cursor: 'pointer',
                             userSelect: 'none',
                             '&:hover': {
@@ -2364,13 +2390,14 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                           }}
                         >
                           <Typography
+                            className="hebrew-vocalizado"
                             sx={{
-                              fontSize: `${Math.round((fontSizeLeitura || 100) * 0.95)}%`,
-                              fontFamily: resolveFontFamily(fontFamily),
-                              lineHeight: 1.15
+                              ...sxHebrewVocalizado,
+                              fontSize: `${Math.round((fontSizeLeitura || 100) * 1.05)}%`,
+                              lineHeight: 1.2,
                             }}
                           >
-                            {tk.text}
+                            {formatarTextoMorphHb(String(tk.text || ''))}
                           </Typography>
                         </Box>
                       ))}
@@ -2934,6 +2961,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                   <ListItemButton
                     key={`${m.strong}-${m.lemma_raw || ''}`}
                     onClick={() => {
+                      salvarTokenPassagem(m.strong, strongMatchDialog.token)
                       navigate(`/estudo-strong/${encodeURIComponent(m.strong)}`, {
                         state: { token: strongMatchDialog.token }
                       })

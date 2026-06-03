@@ -3,12 +3,12 @@
 
     <!-- Tema normal do app -->
     <style name="Theme.BibliaDC" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- suas customizações habituais -->
+        <item name="android:windowBackground">@android:color/white</item>
     </style>
 
-    <!-- Splash nativo: fundo inteiro (igual API 31+ e ao splash-b do site) -->
+    <!-- Splash nativo: fundo branco + arte centralizada (mesma proporção do WebView). -->
     <style name="Theme.BibliaDC.Splash" parent="Theme.SplashScreen">
-        <item name="android:windowSplashScreenBackground">@drawable/splash</item>
+        <item name="android:windowSplashScreenBackground">@drawable/launch_background</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/transparent</item>
         <item name="android:windowSplashScreenAnimationDuration">0</item>
         <item name="postSplashScreenTheme">@style/Theme.BibliaDC</item>

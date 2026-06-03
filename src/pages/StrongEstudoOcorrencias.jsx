@@ -18,6 +18,7 @@ import StrongOcorrenciaDialog from '../components/StrongOcorrenciaDialog'
 import { useStrongOcorrenciaDialog } from '../hooks/useStrongOcorrenciaDialog'
 import { carregarDetalheStrong } from '../services/carregarDetalheStrong'
 import { verificarBancoLexiconPtBr } from '../services/lexiconPtBrService'
+import { fontFamilyStrongPassagem, sxHebrewVocalizado } from '../utils/hebrewDisplay'
 import {
   buscarOcorrenciasStrong,
   contarOcorrenciasStrong,
@@ -60,6 +61,8 @@ export default function StrongEstudoOcorrencias() {
   const params = useParams()
   const theme = useTheme()
   const code = decodeURIComponent(String(params.code || '')).trim().toUpperCase()
+  const ehGrego = code.startsWith('G')
+  const fontLexico = fontFamilyStrongPassagem(ehGrego)
 
   const [detalhe, setDetalhe] = useState(null)
   const [total, setTotal] = useState(null)
@@ -202,12 +205,13 @@ export default function StrongEstudoOcorrencias() {
             {!!detalhe.greek_unicode && (
               <Typography
                 component="p"
+                className={ehGrego ? undefined : 'hebrew-vocalizado'}
                 sx={{
-                  fontWeight: 800,
-                  fontSize: { xs: '2.35rem', sm: '2.75rem' },
+                  ...(ehGrego
+                    ? { fontFamily: fontLexico, fontWeight: 800, fontSize: { xs: '2.35rem', sm: '2.75rem' } }
+                    : { ...sxHebrewVocalizado, fontSize: { xs: '2.35rem', sm: '2.75rem' } }),
                   lineHeight: 1.15,
                   color: theme.palette.mode === 'dark' ? '#fff' : '#111',
-                  fontFamily: '"Source Serif 4", "Noto Serif Hebrew", "Times New Roman", serif',
                   wordBreak: 'break-word',
                   m: 0,
                   mb: detalhe.greek_translit ? 1 : 0,

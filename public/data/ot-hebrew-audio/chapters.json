@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "audio_lang": 44,
+  "chapters": {
+    "1:1": {
+      "book_id": 1,
+      "chapter": 1,
+      "url": "https://www.wordproaudio.net/bibles/app/audio/44/1/1.mp3",
+      "duration_sec": 364.268,
+      "verse_count": 31,
+      "method": "aeneas",
+      "intro_before_verse1_sec": 0.0,
+      "verses_matched_whisper": 31,
+      "updated_at": "2026-06-03T02:29:17Z"
+    },
+    "1:2": {
+      "book_id": 1,
+      "chapter": 2,
+      "url": "https://www.wordproaudio.net/bibles/app/audio/44/1/2.mp3",
+      "duration_sec": 265.551,
+      "verse_count": 25,
+      "method": "whisper_v2_fuzzy",
+      "whisper_model": "base",
+      "intro_before_verse1_sec": null,
+      "verses_matched_whisper": 18,
+      "updated_at": "2026-06-02T22:39:11Z"
+    },
+    "1:3": {
+      "book_id": 1,
+      "chapter": 3,
+      "url": "https://www.wordproaudio.net/bibles/app/audio/44/1/3.mp3",
+      "duration_sec": 290.315,
+      "verse_count": 24,
+      "method": "whisper_v2_fuzzy",
+      "whisper_model": "base",
+      "intro_before_verse1_sec": null,
+      "verses_matched_whisper": 2,
+      "updated_at": "2026-06-02T22:50:05Z"
+    },
+    "1:4": {
+      "book_id": 1,
+      "chapter": 4,
+      "url": "https://www.wordproaudio.net/bibles/app/audio/44/1/4.mp3",
+      "duration_sec": 265.055,
+      "verse_count": 26,
+      "method": "whisper_v2_fuzzy",
+      "whisper_model": "base",
+      "intro_before_verse1_sec": null,
+      "verses_matched_whisper": 2,
+      "updated_at": "2026-06-02T22:49:16Z"
+    }
+  },
+  "source": "wordproaudio.net / wordproject.org (hebrew OT)"
+}

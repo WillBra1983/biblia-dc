@@ -1,0 +1,9 @@
+<verse osisID="Gen.1.1">
+          <w lemma="b/7225" n="1.0" morph="HR/Ncfsa" id="01xeN">בְּ/רֵאשִׁ֖ית</w>
+          <w lemma="1254 a" morph="HVqp3ms" id="01Nvk">בָּרָ֣א</w>
+          <w lemma="430" n="1" morph="HNcmpa" id="01TyA">אֱלֹהִ֑ים</w>
+          <w lemma="853" morph="HTo" id="01vuQ">אֵ֥ת</w>
+          <w lemma="d/8064" n="0.0" morph="HTd/Ncmpa" id="01TSc">הַ/שָּׁמַ֖יִם</w>
+          <w lemma="c/853" morph="HC/To" id="01k5P">וְ/אֵ֥ת</w>
+          <w lemma="d/776" n="0" morph="HTd/Ncbsa" id="01nPh">הָ/אָֽרֶץ</w><seg type="x-sof-pasuq">׃</seg>
+        </verse>

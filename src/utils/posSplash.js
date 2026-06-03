@@ -62,11 +62,28 @@ export function notificarBibliaPronta() {
   }
 }
 
-/** Remove splash estático do `index.html` (se ainda existir antes do React pintar). */
-export function removerSplashHtmlInicial() {
+/** Remove splash estático do `index.html`. */
+export function removerSplashHtmlInicial(opts = {}) {
   if (typeof document === 'undefined') return
+  const fade = opts.fade === true
   try {
-    document.getElementById('splash-initial')?.remove()
+    const el = document.getElementById('splash-initial')
+    if (!el) return
+    if (!fade || el.dataset.splashFading === '1') {
+      el.remove()
+      return
+    }
+    el.dataset.splashFading = '1'
+    el.style.transition = 'opacity 0.22s ease'
+    el.style.opacity = '0'
+    el.style.pointerEvents = 'none'
+    window.setTimeout(() => {
+      try {
+        el.remove()
+      } catch {
+        /* ignore */
+      }
+    }, 240)
   } catch {
     /* ignore */
   }
@@ -75,17 +92,30 @@ export function removerSplashHtmlInicial() {
 /**
  * Marca o splash como fechado e dispara o evento global. Chamado pelo splash.
  */
-export function marcarSplashFechado() {
+export function marcarSplashFechado(opts = {}) {
   if (splashJaFechado) return
   splashJaFechado = true
   marcarSplashUiConcluido()
-  removerSplashHtmlInicial()
-  if (typeof window !== 'undefined') {
-    try {
-      window.dispatchEvent(new Event('app-splash-fechado'))
-    } catch {
-      /* ignore */
+
+  const fade = opts.fade === true
+  const el = typeof document !== 'undefined' ? document.getElementById('splash-initial') : null
+
+  const dispatch = () => {
+    if (typeof window !== 'undefined') {
+      try {
+        window.dispatchEvent(new Event('app-splash-fechado'))
+      } catch {
+        /* ignore */
+      }
     }
+  }
+
+  if (fade && el && el.dataset.splashFading !== '1') {
+    removerSplashHtmlInicial({ fade: true })
+    window.setTimeout(dispatch, 250)
+  } else {
+    removerSplashHtmlInicial()
+    dispatch()
   }
 }
 

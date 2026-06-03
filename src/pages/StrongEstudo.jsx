@@ -26,7 +26,7 @@ import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { saveStrongNote, subscribeStrongNote } from '../services/strongNotesCloudService'
 import StrongLexiconAttributions from '../components/StrongLexiconAttributions'
-import StrongVerbeteApresentacao from '../components/StrongVerbeteApresentacao'
+import StrongVerbeteApresentacao, { BarraTokenPassagem } from '../components/StrongVerbeteApresentacao'
 import StrongOcorrenciaDialog from '../components/StrongOcorrenciaDialog'
 import { useStrongOcorrenciaDialog } from '../hooks/useStrongOcorrenciaDialog'
 import {
@@ -39,6 +39,13 @@ import { strongEvalPendingKey } from '../utils/strongResumoEvaluacao'
 import { obterResumoStrongPublicadoPorCodigo } from '../services/strongResumoShareService'
 import { mostrarSnackbar } from '../utils/uiDialogs'
 import { estaSemRede, MSG_SEM_INTERNET_RECURSO } from '../utils/conteudoLocalOffline'
+import {
+  carregarTokenPassagem,
+  limparTokenPassagem,
+  limparTextoTokenPassagem,
+  salvarTokenPassagem,
+} from '../utils/strongTokenContext'
+import { deveExibirBarraToken } from '../utils/strongTokenHelpers'
 
 let stepBibleDisponivelCachePromise = null
 let lexiconPtBrDisponivelCachePromise = null
@@ -63,7 +70,8 @@ function StrongEstudo() {
   const params = useParams()
   const rawCode = params.code || ''
   const code = decodeURIComponent(String(rawCode || '')).trim().toUpperCase()
-  const token = location.state?.token || null
+  const tokenFromState = location.state?.token || null
+  const token = tokenFromState || carregarTokenPassagem(code) || null
 
   const [detalhe, setDetalhe] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -92,6 +100,12 @@ function StrongEstudo() {
     }),
     [fontSize, fontFamily, textAlign, lineHeight]
   )
+
+  useEffect(() => {
+    if (tokenFromState && code) {
+      salvarTokenPassagem(code, tokenFromState)
+    }
+  }, [tokenFromState, code])
 
   useEffect(() => {
     let active = true
@@ -219,6 +233,7 @@ function StrongEstudo() {
     (nextCode) => {
       const c = String(nextCode || '').trim().toUpperCase()
       if (!c) return
+      limparTokenPassagem()
       navigate(`/estudo-strong/${encodeURIComponent(c)}`, { state: { token: null } })
     },
     [navigate]
@@ -268,6 +283,7 @@ function StrongEstudo() {
     const targetCode = historicoStrong[targetIdx]
     if (!targetCode) return
     setHistoricoStrongIdx(targetIdx)
+    limparTokenPassagem()
     navigate(`/estudo-strong/${encodeURIComponent(targetCode)}`, { state: { token: null } })
   }
 
@@ -429,7 +445,7 @@ function StrongEstudo() {
               variant="outlined"
               size="small"
               color="primary"
-              aria-label="Resumo lexical"
+              aria-label="Resumo do token"
               startIcon={
                 aiResumo.status === 'loading' ? (
                   <CircularProgress size={16} color="inherit" />
@@ -448,24 +464,19 @@ function StrongEstudo() {
                 fontSize: { xs: '0.7rem', sm: '0.8125rem' }
               }}
             >
-              {aiResumo.status === 'loading' ? 'Abrindo…' : 'Resumo'}
-            </Button>
-          </Box>
-          <Box sx={{ flexShrink: 0 }}>
-            <Button
-              size="small"
-              variant={traduzirStrongPtBr ? 'outlined' : 'contained'}
-              onClick={() => setTraduzirStrongPtBr((v) => !v)}
-              sx={{ minWidth: 42, px: 1.1, textTransform: 'lowercase', fontWeight: 700 }}
-            >
-              en
+              {aiResumo.status === 'loading' ? 'Abrindo…' : 'Resumo do Token'}
             </Button>
           </Box>
         </Box>
 
-        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5, mb: 2 }}>
-          Significado original das palavras.
-        </Typography>
+        {deveExibirBarraToken(token) && (
+          <BarraTokenPassagem
+            tokenTexto={limparTextoTokenPassagem(token?.text || token?.word || '')}
+            ehGrego={ehGrego}
+            detalhe={detalhe}
+            tokenRef={token}
+          />
+        )}
 
         {aiResumo.status === 'error' && !!aiResumo.error && (
           <Alert

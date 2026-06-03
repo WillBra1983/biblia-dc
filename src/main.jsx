@@ -3,16 +3,12 @@ import ReactDOM from 'react-dom/client'
 import App, { createAppRouter } from './App'
 import { ZoomResetProvider } from './contexts/ZoomResetContext'
 import './index.css'
+import '@fontsource/noto-serif-hebrew/400.css'
 import { initDB as preaquecerBibliaDB } from './services/bibliaService'
 import { executarAppVersionGuard } from './utils/appVersionGuard'
 import { instalarRecuperacaoChunkPerdido } from './utils/chunkLoadRecovery'
 import { isNativeApp } from './utils/isNativeApp'
-import { removerSplashHtmlInicial } from './utils/posSplash'
 instalarRecuperacaoChunkPerdido()
-
-if (isNativeApp()) {
-  removerSplashHtmlInicial()
-}
 
 // Guard de versão do bundle: se o último build for diferente do que estava
 // guardado no `localStorage`, limpa caches do Service Worker e força reload

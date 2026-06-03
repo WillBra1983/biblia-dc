@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-06-01T23:36:31Z",
+  "mode": "transliteracao_acentuada_pt_br",
+  "voices": {
+    "grego_translit": "pt-BR-FranciscaNeural",
+    "phonetic_en": "en-US-AndrewNeural",
+    "grego_mono": "el-GR-NestorasNeural"
+  },
+  "total_entries": 10,
+  "skipped_existing": 0,
+  "generated_ok": 10,
+  "failed": 0,
+  "errors": []
+}

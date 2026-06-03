@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-06-01T04:15:58",
+  "voice": "en-US-JennyNeural",
+  "rate": "-10%",
+  "out_dir": "C:\\Salvation\\public\\sounds\\strong-pron",
+  "stats": {
+    "ok": 5,
+    "skip": 14192,
+    "err": 0
+  },
+  "failures": []
+}

@@ -3,12 +3,14 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { resolve } from 'path'
 import { salvationBeastiesPlugin } from './vite-plugin-beasties.js'
+import { stripBiblicalAudioFromDist } from './vite-plugin-strip-biblical-audio.js'
 
 // Versão de build (timestamp em base 36). Injetada como `__APP_VERSION__` no
 // código; o `appVersionGuard` usa esse valor para detectar deploy novo e
 // forçar reset de caches do SW no próximo acesso — sem precisar de "Limpar
 // dados do app" manual. Cada `vite build` produz um valor diferente.
 const APP_BUILD_VERSION = Date.now().toString(36)
+const lowMemoryBuild = String(process.env.VITE_LOW_MEMORY_BUILD || '').toLowerCase() === '1'
 
 export default defineConfig({
   base: process.env.VITE_BASE_URL || '/', // '/' = APK/Android; '/biblia/' = foundcine.com/biblia
@@ -20,6 +22,7 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(APP_BUILD_VERSION)
   },
   plugins: [
+    stripBiblicalAudioFromDist(),
     react(),
     // PWA: só ativo no build; no Android (Capacitor) o SW não é registrado (ver main.jsx)
     VitePWA({
@@ -93,7 +96,7 @@ export default defineConfig({
       }
     }),
     // Depois do PWA: inline de CSS crítico no HTML final (Beasties).
-    salvationBeastiesPlugin()
+    ...(lowMemoryBuild ? [] : [salvationBeastiesPlugin()])
   ],
   server: {
     port: 3000
@@ -101,6 +104,7 @@ export default defineConfig({
   publicDir: 'public',
   build: {
     chunkSizeWarningLimit: 2000,
+    minify: lowMemoryBuild ? false : 'esbuild',
     // O grafo do entry ainda referencia `import('firebase/...')` (auth listener).
     // O Vite, por defeito, injeta `modulepreload` para esses chunks — o browser
     // baixa ~84 kB gzip em paralelo ao primeiro capítulo, competindo por banda e

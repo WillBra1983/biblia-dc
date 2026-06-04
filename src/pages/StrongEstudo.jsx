@@ -19,6 +19,7 @@ import { verificarBancoStepBible } from '../services/stepBibleLexiconService'
 import { verificarBancoLexiconPtBr } from '../services/lexiconPtBrService'
 import { carregarDetalheStrong } from '../services/carregarDetalheStrong'
 import { limparResumoLexicalParaExibicao } from '../utils/strongEstudoHelpers'
+import { textoCurtoLexicalPt } from '../utils/strongTextoPt'
 import { iaGeminiDisponivel, gerarResumoStrongGemini } from '../services/strongEstudoAiService'
 import { useApp } from '../contexts/AppContext'
 import { resolveFontFamily } from '../utils/fontFamily'
@@ -26,7 +27,7 @@ import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { saveStrongNote, subscribeStrongNote } from '../services/strongNotesCloudService'
 import StrongLexiconAttributions from '../components/StrongLexiconAttributions'
-import StrongVerbeteApresentacao, { BarraTokenPassagem } from '../components/StrongVerbeteApresentacao'
+import StrongVerbeteApresentacao, { CabecalhoStrongPassagem } from '../components/StrongVerbeteApresentacao'
 import StrongOcorrenciaDialog from '../components/StrongOcorrenciaDialog'
 import { useStrongOcorrenciaDialog } from '../hooks/useStrongOcorrenciaDialog'
 import {
@@ -75,7 +76,6 @@ function StrongEstudo() {
 
   const [detalhe, setDetalhe] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [traduzirStrongPtBr, setTraduzirStrongPtBr] = useState(true)
   const [bdbDetalhe, setBdbDetalhe] = useState({ code: '', loading: false, entry: null })
   const [aiResumo, setAiResumo] = useState({ status: 'idle', text: '', error: '' })
   const [historicoStrong, setHistoricoStrong] = useState([])
@@ -318,7 +318,7 @@ function StrongEstudo() {
       })
       return
     }
-    const r = await gerarResumoStrongGemini({ detalhe, traduzirStrongPtBr, token })
+    const r = await gerarResumoStrongGemini({ detalhe, token })
     if (r.ok && r.text) {
       try {
         sessionStorage.setItem(strongResumoIaStorageKey(code), r.text)
@@ -346,8 +346,7 @@ function StrongEstudo() {
 
   const significadoPtAlvo = useMemo(() => {
     const best =
-      detalhe?.lexicalIndex?.find((li) => li?.short_def_pt && String(li.short_def_pt).trim())?.short_def_pt ||
-      detalhe?.lexicalIndex?.find((li) => li?.short_def && String(li.short_def).trim())?.short_def ||
+      detalhe?.lexicalIndex?.map((li) => textoCurtoLexicalPt(li)).find((t) => t) ||
       detalhe?.definition_pt ||
       detalhe?.definition ||
       ''
@@ -470,12 +469,7 @@ function StrongEstudo() {
         </Box>
 
         {deveExibirBarraToken(token) && (
-          <BarraTokenPassagem
-            tokenTexto={limparTextoTokenPassagem(token?.text || token?.word || '')}
-            ehGrego={ehGrego}
-            detalhe={detalhe}
-            tokenRef={token}
-          />
+          <CabecalhoStrongPassagem tokenRef={token} ehGrego={ehGrego} />
         )}
 
         {aiResumo.status === 'error' && !!aiResumo.error && (
@@ -506,7 +500,6 @@ function StrongEstudo() {
             detalhe={detalhe}
             code={code}
             ehGrego={ehGrego}
-            traduzirStrongPtBr={traduzirStrongPtBr}
             sxTextoLeitura={sxTextoLeitura}
             token={token}
             bdbDetalhe={bdbDetalhe}

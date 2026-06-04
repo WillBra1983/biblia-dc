@@ -1,4 +1,5 @@
 import { limparResumoLexicalParaExibicao, limparTextoStepBible, resumoLexicalPareceVazado } from '../utils/strongEstudoHelpers'
+import { textoBdbExibicao, textoCurtoLexicalPt, textoStepBibleDefPt, textoStepBibleGlossPt } from '../utils/strongTextoPt'
 import {
   iaGeminiChaveConfigurada,
   mensagemErroChaveGeminiAusente,
@@ -105,7 +106,7 @@ async function carregarOcorrenciasResumoIa(code) {
 /**
  * Acrescenta BDB completo e entradas do léxico PT-BR ao objeto `detalhe` antes do resumo IA.
  */
-export async function enriquecerDetalheParaResumoIa(detalhe, { traduzirStrongPtBr = true } = {}) {
+export async function enriquecerDetalheParaResumoIa(detalhe) {
   if (!detalhe) return detalhe
   const code = String(detalhe.strong || '').trim().toUpperCase()
   const out = { ...detalhe }
@@ -123,10 +124,7 @@ export async function enriquecerDetalheParaResumoIa(detalhe, { traduzirStrongPtB
       try {
         const entry = await buscarBdbHebraico(bdbCode)
         if (!entry) continue
-        const text = traduzirStrongPtBr
-          ? entry.content_text_pt || entry.content_text || entry.content_text_original
-          : entry.content_text_original || entry.content_text || entry.content_text_pt
-        const limpo = limparTextoStepBible(text).slice(0, LIMITE_BDB)
+        const limpo = limparTextoStepBible(textoBdbExibicao(entry)).slice(0, LIMITE_BDB)
         if (limpo) {
           bdbEntries.push({
             code: entry.entry_id || bdbCode,
@@ -141,7 +139,7 @@ export async function enriquecerDetalheParaResumoIa(detalhe, { traduzirStrongPtB
     if (bdbEntries.length) out.bdbEntriesParaIa = bdbEntries
   }
 
-  if (traduzirStrongPtBr && code) {
+  if (code) {
     try {
       const ptLex = await buscarLexiconPtBr(code)
       if (ptLex?.definicoes?.length) {
@@ -172,18 +170,14 @@ export async function enriquecerDetalheParaResumoIa(detalhe, { traduzirStrongPtB
   return out
 }
 
-export function montarContextoLexicalParaIa(detalhe, traduzirStrongPtBr, token) {
+export function montarContextoLexicalParaIa(detalhe, token) {
   const parts = []
   if (detalhe?.strong) parts.push(`Código Strong: ${detalhe.strong}`)
   if (detalhe?.greek_unicode) parts.push(`Forma original (Unicode): ${detalhe.greek_unicode}`)
   if (detalhe?.greek_translit) parts.push(`Transliteração: ${detalhe.greek_translit}`)
-  const def = traduzirStrongPtBr
-    ? detalhe.definition_pt || detalhe.definition
-    : detalhe.definition_original || detalhe.definition
+  const def = detalhe.definition_pt || detalhe.definition
   if (def) parts.push(`Definição Strong (dicionário local): ${String(def).slice(0, LIMITE_DEF_STRONG)}`)
-  const deriv = traduzirStrongPtBr
-    ? detalhe.derivation_pt || detalhe.derivation
-    : detalhe.derivation_original || detalhe.derivation
+  const deriv = detalhe.derivation_pt || detalhe.derivation
   if (deriv) parts.push(`Derivação / referências cruzadas: ${String(deriv).slice(0, LIMITE_DERIVACAO)}`)
 
   if (detalhe.lexiconPtBrCategoria || detalhe.lexiconPtBrRaiz) {
@@ -205,9 +199,7 @@ export function montarContextoLexicalParaIa(detalhe, traduzirStrongPtBr, token) 
   if (detalhe.lexicalIndex?.length) {
     parts.push('Índice lexical Open Scriptures:')
     detalhe.lexicalIndex.slice(0, 20).forEach((li, i) => {
-      const gloss = traduzirStrongPtBr
-        ? li.short_def_pt || li.short_def
-        : li.short_def_original || li.short_def
+      const gloss = textoCurtoLexicalPt(li)
       const etym = [li.etym_type, li.etym_value, li.etym_root].filter(Boolean).join(' / ')
       parts.push(
         `  ${i + 1}. id=${li.entry_id || '—'} pos=${li.pos || '—'} TWOT=${li.twot || '—'} BDB=${li.bdb || '—'} etym=${etym || '—'} gloss=${gloss ? String(gloss).slice(0, LIMITE_GLOSS_INDICE) : '—'}`
@@ -227,16 +219,8 @@ export function montarContextoLexicalParaIa(detalhe, traduzirStrongPtBr, token) 
   if (detalhe.stepBibleEntries?.length) {
     parts.push('STEPBible local (TBESH/TBESG/TFLSJ — base factual):')
     detalhe.stepBibleEntries.slice(0, 14).forEach((e, i) => {
-      const t = limparTextoStepBible(
-        traduzirStrongPtBr
-          ? e.definition_pt || e.definition_original || e.definition_clean || e.definition || ''
-          : e.definition_original || e.definition_clean || e.definition || e.definition_pt || ''
-      ).slice(0, LIMITE_STEPBIBLE_DEF)
-      const g = limparTextoStepBible(
-        traduzirStrongPtBr
-          ? e.gloss_pt || e.gloss_original || e.gloss || ''
-          : e.gloss_original || e.gloss || e.gloss_pt || ''
-      ).slice(0, 180)
+      const t = limparTextoStepBible(textoStepBibleDefPt(e)).slice(0, LIMITE_STEPBIBLE_DEF)
+      const g = limparTextoStepBible(textoStepBibleGlossPt(e)).slice(0, 180)
       parts.push(
         `  ${i + 1}. fonte=${e.source || '?'} lemma=${e.lemma || '—'} gloss=${g}${t ? ` def=${t}` : ''}`
       )
@@ -386,7 +370,7 @@ export function classificarErroIa(status, msg) {
 /**
  * @returns {Promise<{ ok: boolean, text?: string, error?: string, code?: string }>}
  */
-export async function gerarResumoStrongGemini({ detalhe, traduzirStrongPtBr, token }) {
+export async function gerarResumoStrongGemini({ detalhe, token }) {
   if (!iaGeminiDisponivel()) {
     return {
       ok: false,
@@ -394,8 +378,8 @@ export async function gerarResumoStrongGemini({ detalhe, traduzirStrongPtBr, tok
       code: 'NO_KEY'
     }
   }
-  const detalheEnriquecido = await enriquecerDetalheParaResumoIa(detalhe, { traduzirStrongPtBr })
-  const contexto = montarContextoLexicalParaIa(detalheEnriquecido, traduzirStrongPtBr, token)
+  const detalheEnriquecido = await enriquecerDetalheParaResumoIa(detalhe)
+  const contexto = montarContextoLexicalParaIa(detalheEnriquecido, token)
   if (!String(contexto || '').trim()) {
     return { ok: false, error: 'Sem dados lexicais suficientes para montar o pedido.', code: 'EMPTY' }
   }

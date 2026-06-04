@@ -10,6 +10,7 @@ import {
   useTheme,
   IconButton,
   Tooltip,
+  Link,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -19,19 +20,28 @@ import {
 import VolumeUpOutlined from '@mui/icons-material/VolumeUpOutlined'
 import HeadphonesOutlined from '@mui/icons-material/HeadphonesOutlined'
 import StarOutline from '@mui/icons-material/StarOutline'
-import { limparTextoStepBible, montarDefinicaoExibicao, montarTwotPesquisaUrl } from '../utils/strongEstudoHelpers'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
+import { limparTextoStepBible, montarDefinicaoExibicao } from '../utils/strongEstudoHelpers'
+import {
+  textoBdbExibicao,
+  textoCurtoLexicalPt,
+  textoStepBibleDefPt,
+  textoStepBibleGlossPt,
+  capitalizarFrasesPtBr,
+} from '../utils/strongTextoPt'
 import {
   limparTextoTokenPassagem,
   montarLeituraToken,
   formatarTextoMorphHb,
   formatarReferenciaPassagemToken,
-  formasLexicaisEquivalentes,
   referenciaPassagemCompleta,
   montarTranslitTokenHebraico,
+  deveExibirBarraToken,
 } from '../utils/strongTokenHelpers'
 import { fontFamilyStrongPassagem, sxHebrewVocalizado } from '../utils/hebrewDisplay'
 import { livros as livrosData } from '../data/biblia'
 import { buscarIntervaloVersiculos } from '../services/bibliaService'
+import VersiculoPopup from './VersiculoPopup'
 import { buscarTokensOt, buscarTokensOtCapitulo, buscarStrongHebrewMap } from '../services/otStrongService'
 import {
   pararPronunciaStrong,
@@ -87,12 +97,43 @@ function useStrongDictPalette() {
     label: dark ? 'rgba(255,255,255,0.48)' : 'rgba(0,0,0,0.45)',
     chipBg: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
     chipBorder: dark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.08)',
+    /** Cards principais (token, lemma, definição) — segue o tema claro/escuro. */
+    cardBg: theme.palette.background.paper,
+    cardBorder: dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.07)',
+    /** Caixas secundárias (usos, índice, BDB interno). */
     itemBg: dark ? 'rgba(255,255,255,0.06)' : '#f4f4f6',
     itemBorder: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)',
     heroScript: dark ? '#fff' : '#111',
-    noteBg: '#ffffff',
-    noteText: '#1a1a1a',
-    noteBorder: 'rgba(0,0,0,0.12)',
+    noteBg: theme.palette.background.paper,
+    noteText: theme.palette.text.primary,
+    noteBorder: dark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.12)',
+  }
+}
+
+/** Palavra original centralizada (coluna do meio). */
+function sxPalavraColunaCentro({ ehGrego, fontSerifLexico, fontSize, color }) {
+  const base = {
+    m: 0,
+    width: '100%',
+    textAlign: 'center',
+    lineHeight: 1.15,
+    color,
+  }
+  if (ehGrego) {
+    return {
+      ...base,
+      fontFamily: fontSerifLexico,
+      fontWeight: 800,
+      fontSize,
+      direction: 'ltr',
+      unicodeBidi: 'plaintext',
+    }
+  }
+  return {
+    ...base,
+    ...sxHebrewVocalizado,
+    fontSize,
+    fontWeight: 400,
   }
 }
 
@@ -154,6 +195,153 @@ function ItemCaixa({ children, onClick, sx = {} }) {
       }}
     >
       {children}
+    </Box>
+  )
+}
+
+/** Card principal (token, lemma, definição) — papel no claro, surface no escuro. */
+function CardCaixa({ children, sx = {} }) {
+  const p = useStrongDictPalette()
+  return (
+    <Box
+      sx={{
+        px: 1.75,
+        py: 1.35,
+        borderRadius: 2.5,
+        bgcolor: p.cardBg,
+        border: '1px solid',
+        borderColor: p.cardBorder,
+        ...sx,
+      }}
+    >
+      {children}
+    </Box>
+  )
+}
+
+function IconeInfoLexico({ dica, ariaLabel }) {
+  return (
+    <Tooltip title={dica} arrow enterTouchDelay={0}>
+      <IconButton
+        size="small"
+        aria-label={ariaLabel}
+        sx={{
+          p: 0,
+          width: 20,
+          height: 20,
+          color: 'inherit',
+          border: '1px solid',
+          borderColor: 'currentColor',
+          borderRadius: '50%',
+          flexShrink: 0,
+        }}
+      >
+        <InfoOutlined sx={{ fontSize: 14 }} />
+      </IconButton>
+    </Tooltip>
+  )
+}
+
+function RotuloLexicoGrande({ rotulo, dica, ariaLabel }) {
+  const p = useStrongDictPalette()
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        gap: 0.35,
+        color: p.label,
+        width: '100%',
+        pr: { xs: 0.25, sm: 0.5 },
+      }}
+    >
+      <Typography
+        component="span"
+        sx={{
+          fontSize: { xs: '1.05rem', sm: '1.14rem' },
+          fontWeight: 700,
+          color: 'inherit',
+          lineHeight: 1.2,
+          unicodeBidi: 'isolate',
+        }}
+      >
+        {rotulo}
+      </Typography>
+      {!!dica && <IconeInfoLexico dica={dica} ariaLabel={ariaLabel} />}
+    </Box>
+  )
+}
+
+/** Três colunas: rótulo (esq.) | palavra + transliteração (centro) | espaço (dir.). */
+function LinhaFormaLexica3Col({
+  rotulo,
+  dica,
+  ariaLabel,
+  ehGrego,
+  unicode,
+  translitLinhas,
+  fontSerifLexico,
+  fontSizePalavra,
+  colorPalavra,
+}) {
+  return (
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: 'minmax(72px, 26%) 1fr minmax(40px, 12%)',
+          sm: 'minmax(88px, 22%) 1fr minmax(56px, 16%)',
+        },
+        alignItems: 'center',
+        columnGap: { xs: 0.75, sm: 1.25 },
+        py: { xs: 0.65, sm: 0.85 },
+      }}
+    >
+      <RotuloLexicoGrande rotulo={rotulo} dica={dica} ariaLabel={ariaLabel} />
+
+      <Box sx={{ justifySelf: 'center', width: '100%', maxWidth: 300, mx: 'auto' }}>
+        <Typography
+          component="p"
+          className={ehGrego ? undefined : 'hebrew-vocalizado'}
+          sx={sxPalavraColunaCentro({
+            ehGrego,
+            fontSerifLexico,
+            fontSize: fontSizePalavra,
+            color: colorPalavra,
+          })}
+        >
+          {unicode || '—'}
+        </Typography>
+        <LinhasTranslit linhas={translitLinhas} alinhar="center" />
+      </Box>
+
+      <Box aria-hidden="true" />
+    </Box>
+  )
+}
+
+function LinhasTranslit({ linhas, alinhar = 'left' }) {
+  const items = (linhas || []).filter(Boolean)
+  if (!items.length) return null
+  return (
+    <Box sx={{ mt: 0.5, textAlign: alinhar, width: '100%' }}>
+      {items.map((linha, idx) => (
+        <Typography
+          key={`${linha}-${idx}`}
+          component="p"
+          sx={{
+            m: 0,
+            mb: idx < items.length - 1 ? 0.2 : 0,
+            fontStyle: 'italic',
+            fontSize: { xs: '1rem', sm: '1.08rem' },
+            color: 'text.primary',
+            lineHeight: 1.35,
+          }}
+        >
+          {linha}
+        </Typography>
+      ))}
     </Box>
   )
 }
@@ -651,145 +839,129 @@ function BotaoOuvirVersiculo({ tokenRef, ehGrego }) {
   )
 }
 
-export function BarraTokenPassagem({ tokenTexto, ehGrego, detalhe, tokenRef }) {
-  const fontSerifLexico = fontFamilyStrongPassagem(ehGrego)
+const DICA_TOKEN_PASSAGEM =
+  'Forma como aparece no texto bíblico. (pode incluir prefixo ou flexão.)'
+
+const DICA_LEMMA_STRONG = 'Palavra como aparece no Dicionário Strong.'
+
+function PassagemClicavel({ tokenRef, refPassagem }) {
+  const theme = useTheme()
+  const isDark = theme.palette.mode === 'dark'
+  const [versiculosPopup, setVersiculosPopup] = useState(null)
+
+  const abrirPassagem = useCallback(async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const ref = referenciaPassagemCompleta(tokenRef)
+    if (!ref) return
+    try {
+      const livro = livrosData.find((l) => Number(l.id) === Number(ref.livroId))
+      const resultado = await buscarIntervaloVersiculos(
+        ref.livroId,
+        ref.capitulo,
+        ref.versiculo,
+        ref.versiculo
+      )
+      const lista = resultado?.versiculos || resultado || []
+      if (!lista.length) return
+      setVersiculosPopup(
+        lista.map((v) => ({
+          ...v,
+          livro: livro?.nome || '',
+        }))
+      )
+    } catch {
+      /* ignore */
+    }
+  }, [tokenRef])
+
+  return (
+    <>
+      <Link
+        component="button"
+        type="button"
+        onClick={(e) => void abrirPassagem(e)}
+        sx={{
+          fontSize: '0.9rem',
+          color: isDark ? theme.palette.primary.light : 'primary.main',
+          fontWeight: 700,
+          cursor: 'pointer',
+          textDecoration: 'underline',
+          textUnderlineOffset: '2px',
+          verticalAlign: 'baseline',
+          p: 0,
+          border: 0,
+          bgcolor: 'transparent',
+          fontFamily: 'inherit',
+          '&:hover': { opacity: 0.88 },
+        }}
+      >
+        {refPassagem}
+      </Link>
+      {versiculosPopup && (
+        <VersiculoPopup versiculos={versiculosPopup} onClose={() => setVersiculosPopup(null)} />
+      )}
+    </>
+  )
+}
+
+export function CabecalhoStrongPassagem({ tokenRef, ehGrego, mostrarTitulo = true }) {
   const p = useStrongDictPalette()
-  const textoLimpo = limparTextoTokenPassagem(tokenTexto)
-  const textoExibicao = ehGrego ? textoLimpo : formatarTextoMorphHb(textoLimpo)
   const refPassagem = formatarReferenciaPassagemToken(tokenRef)
-  const mesmaFormaQueLema = formasLexicaisEquivalentes(textoExibicao, detalhe?.greek_unicode)
-  const { translit, fonetica, linha } = montarLeituraToken(textoLimpo, ehGrego, {
-    lemmaUnicode: detalhe?.greek_unicode,
-    lemmaTranslit: detalhe?.greek_translit,
-    lemmaPron: detalhe?.pronunciation,
-  })
+
+  if (!refPassagem && !mostrarTitulo) return null
 
   return (
     <Box
       sx={{
-        px: 1.5,
-        py: 1.15,
-        borderRadius: 2.5,
-        bgcolor: p.itemBg,
-        border: '1px solid',
-        borderColor: p.itemBorder,
-        display: 'flex',
-        flexDirection: 'column',
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', sm: '1fr auto 1fr' },
+        alignItems: 'center',
         gap: 0.75,
+        mb: 1.25,
+        minHeight: 32,
       }}
     >
-      {!!refPassagem && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, flexWrap: 'wrap' }}>
-          <Typography component="span" sx={{ fontSize: '0.9rem', color: p.label, fontWeight: 600 }}>
-            Passagem:{' '}
-          </Typography>
-          <Typography
-            component="span"
-            sx={{ fontSize: '0.9rem', color: 'text.primary', fontWeight: 700 }}
-          >
-            {refPassagem}
-          </Typography>
-          <BotaoOuvirVersiculo tokenRef={tokenRef} ehGrego={ehGrego} />
-        </Box>
-      )}
-
-      <Typography
-        component="h2"
-        sx={{
-          m: 0,
-          pt: 0.2,
-          pb: 0.25,
-          textAlign: 'center',
-          fontWeight: 700,
-          fontSize: { xs: '1.02rem', sm: '1.08rem' },
-          color: 'text.primary',
-          letterSpacing: 0.2,
-        }}
-      >
-        Significado Original
-      </Typography>
-
       <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
+          gap: 0.25,
           flexWrap: 'wrap',
-          gap: 0.5,
-          rowGap: 0.35,
-          direction: 'ltr',
+          justifySelf: { xs: 'start', sm: 'start' },
         }}
       >
-        <Typography
-          component="span"
-          sx={{
-            fontSize: '0.9rem',
-            color: p.label,
-            fontWeight: 600,
-            direction: 'ltr',
-            unicodeBidi: 'isolate',
-          }}
-        >
-          Token:
-        </Typography>
-        <Typography
-          component="span"
-          className={ehGrego ? undefined : 'hebrew-vocalizado'}
-          sx={{
-            ...(ehGrego
-              ? { fontFamily: fontSerifLexico, fontWeight: 800, direction: 'ltr', unicodeBidi: 'plaintext' }
-              : { ...sxHebrewVocalizado, fontSize: { xs: '1.85rem', sm: '2.1rem' } }),
-            fontWeight: ehGrego ? 800 : 400,
-            lineHeight: 1.15,
-            color: 'text.primary',
-          }}
-        >
-          {textoExibicao}
-        </Typography>
-        {!!linha && (
+        {!!refPassagem && (
           <>
-            <Typography
-              component="span"
-              sx={{ color: p.label, fontWeight: 600, mx: 0.15, direction: 'ltr', unicodeBidi: 'isolate' }}
-            >
-              &gt;&gt;
+            <Typography component="span" sx={{ fontSize: '0.9rem', color: p.label, fontWeight: 600 }}>
+              Passagem:{' '}
             </Typography>
-            <Box
-              component="span"
-              sx={{
-                fontStyle: 'italic',
-                color: 'text.primary',
-                fontSize: { xs: '1rem', sm: '1.08rem' },
-                direction: 'ltr',
-              }}
-            >
-              {translit}
-              {!!fonetica && translit !== fonetica && (
-                <>
-                  <Box component="span" sx={{ fontStyle: 'normal', color: p.label, mx: 0.5 }}>
-                    |
-                  </Box>
-                  {fonetica}
-                </>
-              )}
-            </Box>
+            <PassagemClicavel tokenRef={tokenRef} refPassagem={refPassagem} />
+            <BotaoOuvirVersiculo tokenRef={tokenRef} ehGrego={ehGrego} />
           </>
         )}
-        <Box sx={{ display: 'inline-flex', alignItems: 'center', direction: 'ltr' }}>
-          {/* Removido: áudio do token (forma exata). Mantemos só o áudio do versículo. */}
-        </Box>
       </Box>
 
-      {!refPassagem && (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <BotaoOuvirVersiculo tokenRef={tokenRef} ehGrego={ehGrego} />
-        </Box>
-      )}
-
-      {!ehGrego && !mesmaFormaQueLema && (
-        <Typography component="p" sx={{ m: 0, fontSize: '0.75rem', color: p.label, lineHeight: 1.35 }}>
-          Forma na passagem (pode incluir prefixo ou flexão). O <em>lemma</em> abaixo é a entrada do dicionário Strong.
+      {mostrarTitulo && (
+        <Typography
+          component="h2"
+          sx={{
+            m: 0,
+            textAlign: 'center',
+            fontWeight: 700,
+            fontSize: { xs: '1.02rem', sm: '1.08rem' },
+            color: 'text.primary',
+            letterSpacing: 0.2,
+            justifySelf: 'center',
+            gridColumn: { xs: '1', sm: '2' },
+            gridRow: { xs: refPassagem ? '2' : '1', sm: '1' },
+          }}
+        >
+          Significado Original
         </Typography>
       )}
+
+      <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
     </Box>
   )
 }
@@ -798,7 +970,6 @@ export default function StrongVerbeteApresentacao({
   detalhe,
   code,
   ehGrego,
-  traduzirStrongPtBr,
   sxTextoLeitura,
   token,
   bdbDetalhe,
@@ -818,10 +989,9 @@ export default function StrongVerbeteApresentacao({
   const p = useStrongDictPalette()
   const fontSerifLexico = fontFamilyStrongPassagem(ehGrego)
 
-  const definicao =
-    traduzirStrongPtBr
-      ? detalhe.definition_pt || detalhe.definition || montarDefinicaoExibicao(detalhe)
-      : detalhe.definition_original || montarDefinicaoExibicao(detalhe)
+  const definicaoRaw =
+    detalhe.definition_pt || detalhe.definition || montarDefinicaoExibicao(detalhe)
+  const definicao = definicaoRaw ? capitalizarFrasesPtBr(definicaoRaw) : ''
 
   const pronuncia = String(detalhe.pronunciation || '').trim()
   const posLabel = detalhe.lexicalIndex?.find((li) => li?.pos)?.pos || ''
@@ -829,106 +999,102 @@ export default function StrongVerbeteApresentacao({
   const usosPt = [
     ...new Set(
       (detalhe.lexicalIndex || []).flatMap((li) => {
-        const raw = String(
-          traduzirStrongPtBr ? li.short_def_pt || li.short_def : li.short_def_original || li.short_def || ''
-        ).trim()
+        const raw = textoCurtoLexicalPt(li)
         if (!raw) return []
         return raw.split(/[;|]/).map((p) => p.trim()).filter(Boolean)
       })
     ),
   ]
 
-  const derivacaoRaw = traduzirStrongPtBr
-    ? String(detalhe.derivation_pt || detalhe.derivation || detalhe.derivation_original || '').trim()
-    : String(detalhe.derivation_original || detalhe.derivation || '').trim()
+  const derivacaoRaw = String(detalhe.derivation_pt || detalhe.derivation || '').trim()
 
   const codigosDerivacao = derivacaoRaw ? renderSomenteCodigosDerivacao(derivacaoRaw) : null
+  const temBarraToken = deveExibirBarraToken(token)
+
+  const translitLemma = [
+    detalhe.greek_translit,
+    pronuncia && pronuncia !== detalhe.greek_translit ? pronuncia : '',
+  ].filter(Boolean)
+
+  const textoTokenLimpo = temBarraToken
+    ? limparTextoTokenPassagem(token?.text || token?.word || '')
+    : ''
+  const textoTokenExibicao = temBarraToken
+    ? (ehGrego ? textoTokenLimpo : formatarTextoMorphHb(textoTokenLimpo))
+    : ''
+  const leituraToken = temBarraToken
+    ? montarLeituraToken(textoTokenLimpo, ehGrego, {
+        lemmaUnicode: detalhe?.greek_unicode,
+        lemmaTranslit: detalhe?.greek_translit,
+        lemmaPron: detalhe?.pronunciation,
+      })
+    : null
+  const translitTokenLinhas = leituraToken
+    ? [
+        leituraToken.linha ? leituraToken.translit : '',
+        leituraToken.fonetica && leituraToken.fonetica !== leituraToken.translit
+          ? leituraToken.fonetica
+          : '',
+      ].filter(Boolean)
+    : []
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
 
-      {/* Card do lema (entrada Strong) */}
-      <ItemCaixa sx={{ py: 1.75 }}>
-        <Typography
-          sx={{
-            m: 0,
-            mb: 0.75,
-            fontSize: '0.78rem',
-            color: p.label,
-            fontWeight: 500,
-          }}
-        >
-          Lemma:
-        </Typography>
+      {!temBarraToken && (
+        <CabecalhoStrongPassagem tokenRef={token} ehGrego={ehGrego} mostrarTitulo />
+      )}
 
-        <Typography
-          component="p"
-          className={ehGrego ? undefined : 'hebrew-vocalizado'}
-          sx={{
-            m: 0,
-            mb: detalhe.greek_translit ? 0.35 : 1,
-            ...(ehGrego
-              ? { fontFamily: fontSerifLexico, fontWeight: 800, fontSize: { xs: '2rem', sm: '2.35rem' } }
-              : { ...sxHebrewVocalizado, fontSize: { xs: '2rem', sm: '2.35rem' } }),
-            lineHeight: 1.15,
-            color: p.heroScript,
-            wordBreak: 'break-word',
-          }}
-        >
-          {detalhe.greek_unicode || '—'}
-        </Typography>
-
-        {!!detalhe.greek_translit && (
-          <Typography
-            sx={{
-              m: 0,
-              mb: pronuncia ? 0.35 : 1.25,
-              fontStyle: 'italic',
-              fontSize: { xs: '1.05rem', sm: '1.15rem' },
-              color: 'text.primary',
-            }}
-          >
-            {detalhe.greek_translit}
-          </Typography>
+      <CardCaixa sx={{ py: 1.35, mb: 0.25 }}>
+        {temBarraToken && (
+          <>
+            <LinhaFormaLexica3Col
+              rotulo="Token:"
+              dica={DICA_TOKEN_PASSAGEM}
+              ariaLabel="O que é o token na passagem"
+              ehGrego={ehGrego}
+              unicode={textoTokenExibicao}
+              translitLinhas={translitTokenLinhas}
+              fontSerifLexico={fontSerifLexico}
+              fontSizePalavra={{ xs: '1.85rem', sm: '2.1rem' }}
+              colorPalavra="text.primary"
+            />
+            <Divider sx={{ my: 0.5, borderColor: p.cardBorder }} />
+          </>
         )}
 
-        {(!!pronuncia || !!(detalhe.greek_unicode || detalhe.greek_translit)) && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mb: 1.25, flexWrap: 'wrap' }}>
-            {!!pronuncia && (
-              <Typography
-                sx={{
-                  m: 0,
-                  fontStyle: 'italic',
-                  fontSize: '0.98rem',
-                  color: 'text.primary',
-                }}
-              >
-                {pronuncia}
-              </Typography>
-            )}
-          </Box>
-        )}
+        <LinhaFormaLexica3Col
+          rotulo="Lemma:"
+          dica={DICA_LEMMA_STRONG}
+          ariaLabel="O que é o lemma no dicionário Strong"
+          ehGrego={ehGrego}
+          unicode={detalhe.greek_unicode}
+          translitLinhas={translitLemma}
+          fontSerifLexico={fontSerifLexico}
+          fontSizePalavra={{ xs: '2rem', sm: '2.35rem' }}
+          colorPalavra={p.heroScript}
+        />
 
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: definicao ? 1.5 : 0 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1.25 }}>
           <ChipMeta label={detalhe.strong || code} />
           <ChipMeta label={ehGrego ? 'Grego' : 'Hebraico'} icon={<StarOutline />} />
           {!!posLabel && <ChipMeta label={posLabel} />}
         </Box>
+      </CardCaixa>
 
-        {!!definicao && (
-          <Box>
-            <SecaoRotulo>Definição</SecaoRotulo>
-            <Typography variant="body1" sx={{ ...sxTextoLeitura, color: 'text.primary', lineHeight: 1.65, m: 0 }}>
-              {definicao}
-            </Typography>
-          </Box>
-        )}
-      </ItemCaixa>
+      {!!definicao && (
+        <CardCaixa sx={{ py: 1.35 }}>
+          <SecaoRotulo>Definição</SecaoRotulo>
+          <Typography variant="body1" sx={{ ...sxTextoLeitura, color: 'text.primary', lineHeight: 1.65, m: 0 }}>
+            {definicao}
+          </Typography>
+        </CardCaixa>
+      )}
 
       {!!codigosDerivacao && (
         <Box>
           <SecaoRotulo>Referências Strong relacionadas</SecaoRotulo>
-          <Typography variant="body1" sx={{ ...sxTextoLeitura, color: 'text.secondary' }}>
+          <Typography component="div" variant="body1" sx={{ ...sxTextoLeitura, color: 'text.primary', m: 0 }}>
             {codigosDerivacao}
           </Typography>
         </Box>
@@ -965,27 +1131,12 @@ export default function StrongVerbeteApresentacao({
                   <Typography variant="body2" component="div" sx={{ color: 'text.secondary', ...sxTextoLeitura }}>
                     {li.bdb ? `BDB ${li.bdb}` : ''}
                     {li.bdb && li.twot ? ' · ' : ''}
-                    {li.twot && (
-                      <Box
-                        component="a"
-                        href={montarTwotPesquisaUrl(li.twot)}
-                        target="_blank"
-                        rel="noreferrer"
-                        sx={{
-                          color: 'primary.main',
-                          textDecoration: 'underline',
-                          textUnderlineOffset: '2px',
-                          fontWeight: 600,
-                        }}
-                      >
-                        {`TWOT ${li.twot}`}
-                      </Box>
-                    )}
+                    {li.twot ? `TWOT ${li.twot}` : ''}
                   </Typography>
                 )}
-                {(traduzirStrongPtBr ? li.short_def_pt || li.short_def : li.short_def_original || li.short_def) && (
+                {textoCurtoLexicalPt(li) && (
                   <Typography variant="body2" sx={{ mt: 0.5, color: 'text.primary', ...sxTextoLeitura }}>
-                    {traduzirStrongPtBr ? li.short_def_pt || li.short_def : li.short_def_original || li.short_def}
+                    {textoCurtoLexicalPt(li)}
                   </Typography>
                 )}
               </ItemCaixa>
@@ -1007,15 +1158,7 @@ export default function StrongVerbeteApresentacao({
           ) : (
             <ItemCaixa>
               <Typography variant="body1" sx={{ ...sxTextoLeitura, color: 'text.primary', whiteSpace: 'pre-wrap' }}>
-                {String(
-                  (traduzirStrongPtBr
-                    ? bdbDetalhe.entry.content_text_pt ||
-                      bdbDetalhe.entry.content_text ||
-                      bdbDetalhe.entry.content_text_original
-                    : bdbDetalhe.entry.content_text_original ||
-                      bdbDetalhe.entry.content_text_pt ||
-                      bdbDetalhe.entry.content_text) || ''
-                )}
+                {textoBdbExibicao(bdbDetalhe.entry)}
               </Typography>
             </ItemCaixa>
           )}
@@ -1027,12 +1170,9 @@ export default function StrongVerbeteApresentacao({
         {!!detalhe.stepBibleEntries?.length ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {detalhe.stepBibleEntries.map((e, idx) => {
-              const glossEn = limparTextoStepBible(e.gloss_original || e.gloss || '')
-              const glossPt = limparTextoStepBible(e.gloss_pt || '')
-              const glossLinha = traduzirStrongPtBr ? glossPt || glossEn : glossEn
-              const definicaoPt = limparTextoStepBible(e.definition_pt || e.definition_original || '')
-              const definicaoEn = limparTextoStepBible(e.definition_clean || e.definition || '')
-              const definicaoSb = traduzirStrongPtBr ? definicaoPt || definicaoEn : definicaoEn
+              const glossLinha = textoStepBibleGlossPt(e, limparTextoStepBible)
+              const definicaoSb = textoStepBibleDefPt(e, limparTextoStepBible)
+              if (!glossLinha && !definicaoSb) return null
               return (
                 <ItemCaixa key={`${e.source}-${e.strongs_extended}-${idx}`}>
                   <Typography

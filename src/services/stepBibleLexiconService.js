@@ -149,6 +149,7 @@ const QUERIES_BUSCAR_POR_STRONG = [
            definition_clean,
            definition_original,
            definition_pt,
+           definition_clean_pt,
            COALESCE(gloss_clean, gloss) AS gloss,
            COALESCE(definition_clean, definition) AS definition
     FROM stepbible_lexicon

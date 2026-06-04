@@ -1,13 +1,12 @@
 import initSqlJs from 'sql.js'
 
 let db = null
+let lastLexiconFetchKey = null
 
 async function initLexiconPtBrDB() {
-  if (db) return db
   const base = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/'
-  const SQL = await initSqlJs({
-    locateFile: (file) => `${base}sql.js/${file}`
-  })
+  const rev = String(import.meta.env?.VITE_SQLITE_ASSET_REV || '').trim()
+
   let dbFile = 'lexicon_ptbr_v2.sqlite'
   try {
     const p = await fetch(`${base}lexicon_ptbr_current.txt`)
@@ -18,10 +17,28 @@ async function initLexiconPtBrDB() {
   } catch {
     // fallback para arquivo fixo
   }
-  const response = await fetch(`${base}${dbFile}`)
+
+  const fetchKey = `${dbFile}@${rev || 'noversion'}`
+  if (db && lastLexiconFetchKey === fetchKey) return db
+
+  if (db) {
+    try {
+      db.close()
+    } catch {
+      /* ignore */
+    }
+    db = null
+  }
+
+  const SQL = await initSqlJs({
+    locateFile: (file) => `${base}sql.js/${file}`
+  })
+  const url = `${base}${dbFile}${rev ? `?v=${encodeURIComponent(rev)}` : ''}`
+  const response = await fetch(url)
   if (!response.ok) throw new Error(`Falha ao carregar ${dbFile}`)
   const arrayBuffer = await response.arrayBuffer()
   db = new SQL.Database(new Uint8Array(arrayBuffer))
+  lastLexiconFetchKey = fetchKey
   return db
 }
 

@@ -20,13 +20,12 @@ import {
 import VolumeUpOutlined from '@mui/icons-material/VolumeUpOutlined'
 import HeadphonesOutlined from '@mui/icons-material/HeadphonesOutlined'
 import StarOutline from '@mui/icons-material/StarOutline'
-import InfoOutlined from '@mui/icons-material/InfoOutlined'
-import { limparTextoStepBible, montarDefinicaoExibicao } from '../utils/strongEstudoHelpers'
+import { montarDefinicaoExibicao } from '../utils/strongEstudoHelpers'
 import {
   textoBdbExibicao,
   textoCurtoLexicalPt,
-  textoStepBibleDefPt,
-  textoStepBibleGlossPt,
+  textoStepBibleDefPtExibicao,
+  textoStepBibleGlossPtExibicao,
   capitalizarFrasesPtBr,
 } from '../utils/strongTextoPt'
 import {
@@ -37,6 +36,7 @@ import {
   referenciaPassagemCompleta,
   montarTranslitTokenHebraico,
   deveExibirBarraToken,
+  formasLexicaisEquivalentes,
 } from '../utils/strongTokenHelpers'
 import { fontFamilyStrongPassagem, sxHebrewVocalizado } from '../utils/hebrewDisplay'
 import { livros as livrosData } from '../data/biblia'
@@ -222,22 +222,26 @@ function CardCaixa({ children, sx = {} }) {
 function IconeInfoLexico({ dica, ariaLabel }) {
   return (
     <Tooltip title={dica} arrow enterTouchDelay={0}>
-      <IconButton
-        size="small"
+      <Typography
+        component="span"
+        role="button"
+        tabIndex={0}
         aria-label={ariaLabel}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') e.currentTarget.click()
+        }}
         sx={{
-          p: 0,
-          width: 20,
-          height: 20,
-          color: 'inherit',
-          border: '1px solid',
-          borderColor: 'currentColor',
-          borderRadius: '50%',
+          fontSize: { xs: '0.9rem', sm: '0.95rem' },
+          fontWeight: 700,
+          fontStyle: 'italic',
+          lineHeight: 1,
+          cursor: 'help',
           flexShrink: 0,
+          userSelect: 'none',
         }}
       >
-        <InfoOutlined sx={{ fontSize: 14 }} />
-      </IconButton>
+        i
+      </Typography>
     </Tooltip>
   )
 }
@@ -1038,6 +1042,10 @@ export default function StrongVerbeteApresentacao({
       ].filter(Boolean)
     : []
 
+  const tokenIgualLemma =
+    temBarraToken &&
+    formasLexicaisEquivalentes(textoTokenLimpo, String(detalhe?.greek_unicode || '').trim())
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
 
@@ -1046,7 +1054,7 @@ export default function StrongVerbeteApresentacao({
       )}
 
       <CardCaixa sx={{ py: 1.35, mb: 0.25 }}>
-        {temBarraToken && (
+        {temBarraToken && !tokenIgualLemma && (
           <>
             <LinhaFormaLexica3Col
               rotulo="Token:"
@@ -1170,8 +1178,8 @@ export default function StrongVerbeteApresentacao({
         {!!detalhe.stepBibleEntries?.length ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {detalhe.stepBibleEntries.map((e, idx) => {
-              const glossLinha = textoStepBibleGlossPt(e, limparTextoStepBible)
-              const definicaoSb = textoStepBibleDefPt(e, limparTextoStepBible)
+              const glossLinha = textoStepBibleGlossPtExibicao(e)
+              const definicaoSb = textoStepBibleDefPtExibicao(e)
               if (!glossLinha && !definicaoSb) return null
               return (
                 <ItemCaixa key={`${e.source}-${e.strongs_extended}-${idx}`}>
@@ -1187,7 +1195,14 @@ export default function StrongVerbeteApresentacao({
                     </Typography>
                   )}
                   {!!definicaoSb && (
-                    <Typography variant="body2" sx={{ color: 'text.primary', ...sxTextoLeitura }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.primary',
+                        whiteSpace: 'pre-wrap',
+                        ...sxTextoLeitura,
+                      }}
+                    >
                       {definicaoSb}
                     </Typography>
                   )}

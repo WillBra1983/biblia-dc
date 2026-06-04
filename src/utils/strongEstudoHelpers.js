@@ -18,6 +18,17 @@ export function limparTextoStepBible(texto) {
     .trim()
 }
 
+/** Para a UI: remove HTML mas preserva quebras de linha. */
+export function limparTextoStepBibleExibicao(texto) {
+  return String(texto || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/ *\n */g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 export function montarTwotPesquisaUrl(twotCode) {
   return `https://www.google.com/search?q=${encodeURIComponent(`TWOT ${String(twotCode || '').trim()}`)}`
 }

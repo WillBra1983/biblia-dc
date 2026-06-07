@@ -1,32 +1,25 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Box,
   Typography,
   IconButton,
   CircularProgress,
-  Button,
   Container,
   Tooltip,
-  Alert,
 } from '@mui/material'
 import ArrowBack from '@mui/icons-material/ArrowBack'
-import AutoAwesome from '@mui/icons-material/AutoAwesome'
 import NavigateBefore from '@mui/icons-material/NavigateBefore'
 import NavigateNext from '@mui/icons-material/NavigateNext'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import { buscarBdbHebraico } from '../services/otStrongService'
-import { verificarBancoStepBible } from '../services/stepBibleLexiconService'
 import { verificarBancoLexiconPtBr } from '../services/lexiconPtBrService'
 import { carregarDetalheStrong } from '../services/carregarDetalheStrong'
-import { limparResumoLexicalParaExibicao } from '../utils/strongEstudoHelpers'
 import { textoCurtoLexicalPt } from '../utils/strongTextoPt'
-import { iaGeminiDisponivel, gerarResumoStrongGemini } from '../services/strongEstudoAiService'
+import { resolverResumoLexicalInline } from '../services/strongResumoInlineService'
 import { useApp } from '../contexts/AppContext'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { saveStrongNote, subscribeStrongNote } from '../services/strongNotesCloudService'
-import StrongLexiconAttributions from '../components/StrongLexiconAttributions'
 import StrongVerbeteApresentacao, { CabecalhoStrongPassagem } from '../components/StrongVerbeteApresentacao'
 import StrongOcorrenciaDialog from '../components/StrongOcorrenciaDialog'
 import { useStrongOcorrenciaDialog } from '../hooks/useStrongOcorrenciaDialog'
@@ -36,27 +29,18 @@ import {
   STRONG_OCORRENCIAS_PREVIEW,
 } from '../services/strongOcorrenciasService'
 import { strongResumoIaStorageKey } from '../utils/strongResumoIaStorage'
-import { strongEvalPendingKey } from '../utils/strongResumoEvaluacao'
-import { obterResumoStrongPublicadoPorCodigo } from '../services/strongResumoShareService'
-import { mostrarSnackbar } from '../utils/uiDialogs'
-import { estaSemRede, MSG_SEM_INTERNET_RECURSO } from '../utils/conteudoLocalOffline'
 import {
   carregarTokenPassagem,
   limparTokenPassagem,
-  limparTextoTokenPassagem,
   salvarTokenPassagem,
 } from '../utils/strongTokenContext'
-import { deveExibirBarraToken } from '../utils/strongTokenHelpers'
+import {
+  deveExibirBarraToken,
+  chaveCacheAnaliseToken,
+} from '../utils/strongTokenHelpers'
+import { limparResumoLemmaLocalStrong, limparResumoTokenLocalStrong } from '../utils/strongResumoLocalCache'
 
-let stepBibleDisponivelCachePromise = null
 let lexiconPtBrDisponivelCachePromise = null
-
-function obterStepBibleDisponivel() {
-  if (!stepBibleDisponivelCachePromise) {
-    stepBibleDisponivelCachePromise = verificarBancoStepBible().catch(() => false)
-  }
-  return stepBibleDisponivelCachePromise
-}
 
 function obterLexiconPtBrDisponivel() {
   if (!lexiconPtBrDisponivelCachePromise) {
@@ -76,8 +60,15 @@ function StrongEstudo() {
 
   const [detalhe, setDetalhe] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [bdbDetalhe, setBdbDetalhe] = useState({ code: '', loading: false, entry: null })
-  const [aiResumo, setAiResumo] = useState({ status: 'idle', text: '', error: '' })
+  const [resumoLexical, setResumoLexical] = useState({
+    status: 'idle',
+    lemmaText: '',
+    tokenText: '',
+    refPassagem: '',
+    tokenIndisponivelOffline: false,
+    text: '',
+    error: '',
+  })
   const [historicoStrong, setHistoricoStrong] = useState([])
   const [historicoStrongIdx, setHistoricoStrongIdx] = useState(-1)
   const [notaTexto, setNotaTexto] = useState('')
@@ -85,6 +76,8 @@ function StrongEstudo() {
   const [ocorrencias, setOcorrencias] = useState([])
   const [ocorrenciasTotal, setOcorrenciasTotal] = useState(null)
   const [ocorrenciasLoading, setOcorrenciasLoading] = useState(false)
+
+  const resumoReqRef = useRef(0)
 
   const { fontSize, fontFamily, textAlign, lineHeight } = useApp()
   const { user } = useFirebaseAuth()
@@ -96,7 +89,7 @@ function StrongEstudo() {
       fontSize: `${(fontSize || 100) / 100}rem`,
       fontFamily: resolveFontFamily(fontFamily),
       textAlign: textAlign || 'left',
-      lineHeight: readingLineHeightToCss(lineHeight)
+      lineHeight: readingLineHeightToCss(lineHeight),
     }),
     [fontSize, fontFamily, textAlign, lineHeight]
   )
@@ -113,17 +106,11 @@ function StrongEstudo() {
       setLoading(true)
       setDetalhe(null)
 
-      // 1ª fase (paint inicial): Strong base + dicionário pt-BR.
-      // O lexiconPtBr é um singleton SQLite em memória após a primeira abertura
-      // (cache controlado por `lexiconPtBrService`), então em palavras seguintes
-      // esta espera é praticamente instantânea. Com isto evitamos o efeito de
-      // “piscar” a definição em inglês antes de carregar a versão portuguesa
-      // — o usuário sempre vê pt-BR primeiro.
       const ptLex = await obterLexiconPtBrDisponivel()
       if (!active) return
       const { detalhe: rapido } = await carregarDetalheStrong(code, {
         stepBibleDisponivel: false,
-        lexiconPtBrDisponivel: ptLex
+        lexiconPtBrDisponivel: ptLex,
       }).catch(() => ({ detalhe: null }))
       if (!active) return
       if (rapido) {
@@ -139,18 +126,15 @@ function StrongEstudo() {
             definition: token.morph
               ? `Dados lexicais indisponíveis para ${code}. Morfologia: ${token.morph}`
               : `Dados lexicais indisponíveis para ${code}.`,
-            derivation: token.morph || ''
+            derivation: token.morph || '',
           })
           setLoading(false)
         }
       }
 
-      // 2ª fase: enriquece com StepBible (ocorrências/glosas adicionais).
-      const step = await obterStepBibleDisponivel()
-      if (!active) return
       const { detalhe: completo } = await carregarDetalheStrong(code, {
-        stepBibleDisponivel: step,
-        lexiconPtBrDisponivel: ptLex
+        stepBibleDisponivel: false,
+        lexiconPtBrDisponivel: ptLex,
       }).catch(() => ({ detalhe: null }))
       if (!active) return
       if (completo) setDetalhe(completo)
@@ -161,9 +145,81 @@ function StrongEstudo() {
     }
   }, [code, token])
 
+  const carregarResumoInline = useCallback(
+    async (forcar = false) => {
+      if (!detalhe || !code) return
+      const reqId = ++resumoReqRef.current
+      setResumoLexical({
+        status: 'loading',
+        lemmaText: '',
+        tokenText: '',
+        refPassagem: '',
+        tokenIndisponivelOffline: false,
+        text: '',
+        error: '',
+      })
+
+      if (forcar) {
+        try {
+          limparResumoLemmaLocalStrong(code)
+          if (token) limparResumoTokenLocalStrong(chaveCacheAnaliseToken(code, token))
+          sessionStorage.removeItem(strongResumoIaStorageKey(code, token))
+        } catch {
+          /* ignore */
+        }
+      }
+
+      const r = await resolverResumoLexicalInline({
+        code,
+        detalhe,
+        token,
+        user,
+        ehGrego,
+        forcar,
+      })
+      if (reqId !== resumoReqRef.current) return
+
+      if (r.ok && r.lemmaText) {
+        setResumoLexical({
+          status: 'ready',
+          lemmaText: r.lemmaText,
+          tokenText: r.tokenText || '',
+          refPassagem: r.refPassagem || '',
+          tokenIndisponivelOffline: Boolean(r.tokenIndisponivelOffline),
+          text: r.lemmaText,
+          error: '',
+        })
+      } else {
+        setResumoLexical({
+          status: 'error',
+          lemmaText: '',
+          tokenText: '',
+          refPassagem: '',
+          tokenIndisponivelOffline: false,
+          text: '',
+          error: r.error || 'Não foi possível carregar o estudo lexical.',
+        })
+      }
+    },
+    [code, detalhe, token, user, ehGrego]
+  )
+
   useEffect(() => {
-    setAiResumo({ status: 'idle', text: '', error: '' })
+    setResumoLexical({
+      status: 'idle',
+      lemmaText: '',
+      tokenText: '',
+      refPassagem: '',
+      tokenIndisponivelOffline: false,
+      text: '',
+      error: '',
+    })
   }, [code])
+
+  useEffect(() => {
+    if (!detalhe || loading) return
+    void carregarResumoInline(false)
+  }, [detalhe, loading, carregarResumoInline])
 
   useEffect(() => {
     setOcorrencias([])
@@ -203,32 +259,6 @@ function StrongEstudo() {
     })
   }, [user?.uid, code])
 
-  const abrirBdbLocal = useCallback(async (bdbCode) => {
-    const raw = String(bdbCode || '').replace(/^bdb\s+/i, '').trim()
-    const cod = (raw.split(/[;,/|]/).map((p) => p.trim()).filter(Boolean)[0] || raw)
-      .replace(/[;,:.\s]+$/g, '')
-      .trim()
-    if (!cod) return
-    setBdbDetalhe({ code: cod, loading: true, entry: null })
-    try {
-      const entry = await buscarBdbHebraico(cod)
-      setBdbDetalhe({ code: cod, loading: false, entry: entry || null })
-    } catch {
-      setBdbDetalhe({ code: cod, loading: false, entry: null })
-    }
-  }, [])
-
-  useEffect(() => {
-    const bdbInicial = String(
-      detalhe?.lexicalIndex?.find((li) => li?.bdb && String(li.bdb).trim())?.bdb || ''
-    ).trim()
-    if (!bdbInicial) {
-      setBdbDetalhe({ code: '', loading: false, entry: null })
-      return
-    }
-    void abrirBdbLocal(bdbInicial)
-  }, [detalhe, abrirBdbLocal])
-
   const irParaStrong = useCallback(
     (nextCode) => {
       const c = String(nextCode || '').trim().toUpperCase()
@@ -258,7 +288,7 @@ function StrongEstudo() {
               color: 'primary.main',
               textDecoration: 'underline',
               textUnderlineOffset: '2px',
-              fontWeight: 600
+              fontWeight: 600,
             }}
           >
             {tok}
@@ -287,52 +317,6 @@ function StrongEstudo() {
     navigate(`/estudo-strong/${encodeURIComponent(targetCode)}`, { state: { token: null } })
   }
 
-  const handleAbrirResumo = async () => {
-    if (!detalhe) return
-    setAiResumo((prev) => ({ ...prev, status: 'loading', error: '' }))
-    const publicado = await obterResumoStrongPublicadoPorCodigo(code).catch(() => null)
-    if (publicado?.id && publicado?.resumo) {
-      const resumoLimpo = limparResumoLexicalParaExibicao(publicado.resumo)
-      try {
-        sessionStorage.setItem(strongResumoIaStorageKey(code), resumoLimpo)
-      } catch {
-        /* ignore quota / modo privado */
-      }
-      setAiResumo({ status: 'idle', text: '', error: '' })
-      navigate(`/estudo-strong/${encodeURIComponent(code)}/resumo?rid=${encodeURIComponent(publicado.id)}`, {
-        state: { resumoIa: resumoLimpo }
-      })
-      return
-    }
-    if (estaSemRede()) {
-      setAiResumo({ status: 'idle', text: '', error: '' })
-      mostrarSnackbar({ mensagem: MSG_SEM_INTERNET_RECURSO, severidade: 'info' })
-      return
-    }
-    if (!iaGeminiDisponivel()) {
-      setAiResumo({
-        status: 'error',
-        text: '',
-        error:
-          'Ainda não há resumo publicado para este verbete e a IA não está configurada (chaves Gemini no .env).'
-      })
-      return
-    }
-    const r = await gerarResumoStrongGemini({ detalhe, token })
-    if (r.ok && r.text) {
-      try {
-        sessionStorage.setItem(strongResumoIaStorageKey(code), r.text)
-        sessionStorage.setItem(strongEvalPendingKey(code), '1')
-      } catch {
-        /* ignore quota / modo privado */
-      }
-      setAiResumo({ status: 'idle', text: '', error: '' })
-      navigate(`/estudo-strong/${encodeURIComponent(code)}/resumo`, {
-        state: { resumoIa: r.text, avaliacaoNecessaria: true }
-      })
-    } else setAiResumo({ status: 'error', text: '', error: r.error || 'Não foi possível gerar o resumo.' })
-  }
-
   const salvarNota = () => {
     if (!user?.uid) return
     saveStrongNote(user.uid, code, notaTexto)
@@ -349,11 +333,13 @@ function StrongEstudo() {
       detalhe?.lexicalIndex?.map((li) => textoCurtoLexicalPt(li)).find((t) => t) ||
       detalhe?.definition_pt ||
       detalhe?.definition ||
+      resumoLexical.lemmaText ||
+      resumoLexical.text ||
       ''
     return String(best || '')
       .split(/[;|]/)[0]
       .trim()
-  }, [detalhe])
+  }, [detalhe, resumoLexical.lemmaText, resumoLexical.text])
 
   useEffect(() => {
     if (!code) return
@@ -430,58 +416,26 @@ function StrongEstudo() {
               </span>
             </Tooltip>
           </Box>
-          <Box
+          <Typography
+            component="h1"
+            variant="subtitle1"
             sx={{
               flex: 1,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              textAlign: 'center',
+              fontWeight: 800,
+              letterSpacing: '0.04em',
               minWidth: 0,
-              px: 0.25
+              px: 0.5,
             }}
           >
-            <Button
-              variant="outlined"
-              size="small"
-              color="primary"
-              aria-label="Resumo do token"
-              startIcon={
-                aiResumo.status === 'loading' ? (
-                  <CircularProgress size={16} color="inherit" />
-                ) : (
-                  <AutoAwesome fontSize="small" />
-                )
-              }
-              onClick={() => void handleAbrirResumo()}
-              disabled={aiResumo.status === 'loading' || !detalhe}
-              sx={{
-                textTransform: 'none',
-                fontWeight: 600,
-                whiteSpace: 'nowrap',
-                maxWidth: '100%',
-                px: { xs: 0.75, sm: 1.25 },
-                fontSize: { xs: '0.7rem', sm: '0.8125rem' }
-              }}
-            >
-              {aiResumo.status === 'loading' ? 'Abrindo…' : 'Resumo do Token'}
-            </Button>
-          </Box>
+            {code || 'Strong'}
+          </Typography>
+          <Box sx={{ width: 40, flexShrink: 0 }} aria-hidden />
         </Box>
 
         {deveExibirBarraToken(token) && (
           <CabecalhoStrongPassagem tokenRef={token} ehGrego={ehGrego} />
         )}
-
-        {aiResumo.status === 'error' && !!aiResumo.error && (
-          <Alert
-            severity="warning"
-            sx={{ mb: 1.25 }}
-            onClose={() => setAiResumo({ status: 'idle', text: '', error: '' })}
-          >
-            {aiResumo.error}
-          </Alert>
-        )}
-
 
         {loading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
@@ -502,7 +456,8 @@ function StrongEstudo() {
             ehGrego={ehGrego}
             sxTextoLeitura={sxTextoLeitura}
             token={token}
-            bdbDetalhe={bdbDetalhe}
+            resumoLexical={resumoLexical}
+            onRegenerarResumo={() => void carregarResumoInline(true)}
             notaTexto={notaTexto}
             setNotaTexto={setNotaTexto}
             salvarNota={salvarNota}
@@ -517,8 +472,6 @@ function StrongEstudo() {
             renderSomenteCodigosDerivacao={renderSomenteCodigosDerivacao}
           />
         )}
-
-        <StrongLexiconAttributions />
       </Container>
       <StrongOcorrenciaDialog
         open={ocorrenciaDialog.open}

@@ -48,7 +48,7 @@ import AuthConectarForm from '../components/AuthConectarForm'
 import { usuarioPrecisaVerificarEmail } from '../utils/emailVerificationAuth'
 import { gravatarPhotoUrl } from '../utils/gravatarUrl'
 import { compressImageToJpeg } from '../utils/profileImage'
-import { confirmarAsync } from '../utils/uiDialogs'
+import { confirmarAsync, mostrarSnackbar } from '../utils/uiDialogs'
 import { updateProfile } from 'firebase/auth'
 import { getFirebaseAuth } from '../config/firebase'
 import {
@@ -1091,6 +1091,30 @@ export default function Chat() {
     setPeerDialog(null)
     setPeerDialogInput('')
     setPeerDialogError('')
+  }
+
+  const handleSairConta = async () => {
+    const ok = await confirmarAsync({
+      titulo: 'Sair da conta?',
+      mensagem:
+        'Você continuará podendo usar a Bíblia neste aparelho. Para chat e recursos na nuvem, será preciso entrar de novo.',
+      labelOk: 'Sair',
+      labelCancelar: 'Cancelar',
+      destrutivo: true,
+    })
+    if (!ok) return
+    setInboxMenuAnchor(null)
+    setSettingsDialogOpen(false)
+    setBusy(true)
+    try {
+      await logout()
+      mostrarSnackbar({ mensagem: 'Você saiu da conta.', severidade: 'info' })
+      navigate('/biblia', { replace: true })
+    } catch {
+      setLastError('Não foi possível sair agora. Tente de novo.')
+    } finally {
+      setBusy(false)
+    }
   }
 
   const submitPeerDialog = async () => {
@@ -2309,6 +2333,14 @@ export default function Chat() {
               >
                 Amigos
               </MenuItem>
+              <Divider />
+              <MenuItem
+                disabled={busy}
+                onClick={() => void handleSairConta()}
+                sx={{ color: 'error.main' }}
+              >
+                Sair da conta
+              </MenuItem>
             </Menu>
 
             <Dialog open={settingsDialogOpen} onClose={() => setSettingsDialogOpen(false)} fullWidth maxWidth="sm">
@@ -2337,6 +2369,14 @@ export default function Chat() {
                     }}
                   >
                     Editar perfil
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    disabled={busy}
+                    onClick={() => void handleSairConta()}
+                  >
+                    Sair da conta
                   </Button>
                 </Stack>
               </DialogContent>

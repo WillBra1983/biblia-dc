@@ -21,6 +21,7 @@ import { VERSICULOS_MARCADOS_CLOUD_SYNC_ENABLED } from '../config/featureFlags'
 import { loadFirebaseModules } from '../config/firebase'
 import { aguardarPosSplash } from '../utils/posSplash'
 import { usuarioPrecisaVerificarEmail } from '../utils/emailVerificationAuth'
+import { registrarEntradaUsuario } from '../services/chatService'
 
 /**
  * Sincroniza tema, preferências de leitura e versículos marcados com o Realtime Database
@@ -43,6 +44,27 @@ export default function UserCloudSync() {
   useEffect(() => {
     prefsRef.current = { isDarkMode, leituraPorPagina }
   }, [isDarkMode, leituraPorPagina])
+
+  useEffect(() => {
+    if (!isConfigured || !user?.uid || usuarioPrecisaVerificarEmail(user)) return
+
+    let cancelled = false
+    const cancelarEspera = aguardarPosSplash(() => {
+      void loadFirebaseModules().then(() => {
+        if (cancelled) return
+        void registrarEntradaUsuario(user.uid, {
+          email: user.email || '',
+          photoURL: user.photoURL || '',
+          displayName: user.displayName || '',
+        })
+      })
+    })
+
+    return () => {
+      cancelled = true
+      cancelarEspera()
+    }
+  }, [isConfigured, user?.uid, user?.email, user?.photoURL, user?.displayName, user?.emailVerified])
 
   useEffect(() => {
     if (!isConfigured || !user?.uid || usuarioPrecisaVerificarEmail(user)) {

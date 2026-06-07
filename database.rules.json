@@ -312,6 +312,12 @@
         ".write": false
       }
     },
+    "appConfig": {
+      "lojaVersao": {
+        ".read": true,
+        ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true"
+      }
+    },
     "chatReports": {
       "$reportId": {
         ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",

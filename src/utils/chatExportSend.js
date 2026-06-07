@@ -19,7 +19,13 @@ const PENDING_LOGIN_REDIRECT_TTL_MS = 10 * 60 * 1000 // 10 min
 
 /** Exige usuário autenticado; caso contrário avisa e envia para o chat. */
 export function ensureUserForChatExport(user, navigate) {
-  if (user === undefined) return false
+  if (user === undefined) {
+    mostrarSnackbar({
+      mensagem: 'Aguarde, verificando sua sessão…',
+      severidade: 'info',
+    })
+    return false
+  }
   if (!user?.uid) {
     if (estaSemRede()) {
       mostrarSnackbar({ mensagem: MSG_SEM_INTERNET_RECURSO, severidade: 'info' })
@@ -58,7 +64,13 @@ export function ensureUserForChatExport(user, navigate) {
  *                    redirect para login já tenha sido disparado.
  */
 export function ensureUserForFeature(user, navigate, { mensagem, redirectTo } = {}) {
-  if (user === undefined) return false
+  if (user === undefined) {
+    mostrarSnackbar({
+      mensagem: 'Aguarde, verificando sua sessão…',
+      severidade: 'info',
+    })
+    return false
+  }
 
   const destino =
     redirectTo ||

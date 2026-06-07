@@ -65,3 +65,9 @@ exports.onPlanoLeituraRankingSync =
 // Backfill: lê todos os planos já na nuvem e publica o ranking (só admin, uma vez após deploy)
 exports.reconstruirRankingPlanoLeituraAdmin =
   require('./src/reconstruirRankingPlanoLeituraAdmin').reconstruirRankingPlanoLeituraAdmin
+
+// Versão Android na Play Store → RTDB (aviso in-app); cron + callable admin
+exports.sincronizarVersaoPlayStoreAdmin =
+  require('./src/sincronizarVersaoPlayStoreAdmin').sincronizarVersaoPlayStoreAdmin
+exports.sincronizarVersaoPlayStoreCron =
+  require('./src/sincronizarVersaoPlayStoreCron').sincronizarVersaoPlayStoreCron

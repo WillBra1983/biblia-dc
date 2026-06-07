@@ -19,9 +19,11 @@ import {
   TextField,
   Button,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Divider,
 } from '@mui/material'
 import CampaignIcon from '@mui/icons-material/Campaign'
+import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import {
   getFirebaseDatabase,
@@ -29,6 +31,64 @@ import {
   loadFirebaseModules
 } from '../config/firebase'
 import { mostrarSnackbar, confirmarAsync } from '../utils/uiDialogs'
+import {
+  obterConfigLojaVersao,
+  salvarConfigLojaVersao,
+} from '../services/appLojaVersaoService'
+
+const CFG_LOJA_VAZIA = Object.freeze({
+  versaoAtual: '',
+  versaoMinima: '',
+  mensagem: '',
+  urlLoja: '',
+})
+
+function PlataformaLojaFields({ titulo, cfg, onChange }) {
+  return (
+    <Box sx={{ p: 2, borderRadius: 1, border: 1, borderColor: 'divider' }}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>
+        {titulo}
+      </Typography>
+      <Stack spacing={1.5}>
+        <TextField
+          label="Versão na loja (versaoAtual)"
+          size="small"
+          fullWidth
+          placeholder="ex.: 1.2.0"
+          value={cfg.versaoAtual}
+          onChange={(e) => onChange({ ...cfg, versaoAtual: e.target.value })}
+          helperText="Quem estiver abaixo disto vê o aviso de atualização."
+        />
+        <TextField
+          label="Versão mínima obrigatória (opcional)"
+          size="small"
+          fullWidth
+          placeholder="ex.: 1.0.0"
+          value={cfg.versaoMinima}
+          onChange={(e) => onChange({ ...cfg, versaoMinima: e.target.value })}
+          helperText="Abaixo disto: só botão Atualizar (sem Depois)."
+        />
+        <TextField
+          label="Mensagem no diálogo (opcional)"
+          size="small"
+          fullWidth
+          multiline
+          minRows={2}
+          value={cfg.mensagem}
+          onChange={(e) => onChange({ ...cfg, mensagem: e.target.value.slice(0, 400) })}
+        />
+        <TextField
+          label="URL da loja"
+          size="small"
+          fullWidth
+          placeholder="Play Store ou App Store"
+          value={cfg.urlLoja}
+          onChange={(e) => onChange({ ...cfg, urlLoja: e.target.value })}
+        />
+      </Stack>
+    </Box>
+  )
+}
 
 const ROTAS_SUGERIDAS = [
   { label: 'Devocional', value: '/devocional' },
@@ -48,6 +108,11 @@ export default function AdminNotificar() {
   const [url, setUrl] = useState('/')
   const [enviando, setEnviando] = useState(false)
   const [ultimoEnvio, setUltimoEnvio] = useState(null)
+  const [cfgAndroid, setCfgAndroid] = useState({ ...CFG_LOJA_VAZIA })
+  const [cfgIos, setCfgIos] = useState({ ...CFG_LOJA_VAZIA })
+  const [carregandoCfgLoja, setCarregandoCfgLoja] = useState(false)
+  const [salvandoCfgLoja, setSalvandoCfgLoja] = useState(false)
+  const [sincronizandoPlay, setSincronizandoPlay] = useState(false)
 
   useEffect(() => {
     let cancelado = false
@@ -88,6 +153,79 @@ export default function AdminNotificar() {
     void checar()
     return () => { cancelado = true }
   }, [user, navigate])
+
+  useEffect(() => {
+    if (!ehAdmin || checandoAdmin) return
+    let cancelado = false
+    setCarregandoCfgLoja(true)
+    void obterConfigLojaVersao()
+      .then(({ android, ios }) => {
+        if (cancelado) return
+        setCfgAndroid({ ...CFG_LOJA_VAZIA, ...(android || {}) })
+        setCfgIos({ ...CFG_LOJA_VAZIA, ...(ios || {}) })
+      })
+      .finally(() => {
+        if (!cancelado) setCarregandoCfgLoja(false)
+      })
+    return () => {
+      cancelado = true
+    }
+  }, [ehAdmin, checandoAdmin])
+
+  async function salvarCfgLoja() {
+    setSalvandoCfgLoja(true)
+    try {
+      await loadFirebaseModules()
+      await salvarConfigLojaVersao({ android: cfgAndroid, ios: cfgIos })
+      mostrarSnackbar({
+        mensagem: 'Versões da loja salvas. Quem abrir o app verá o aviso se estiver desatualizado.',
+        severidade: 'success',
+      })
+    } catch (e) {
+      mostrarSnackbar({
+        mensagem: e?.message || 'Falha ao salvar versões da loja.',
+        severidade: 'error',
+      })
+    } finally {
+      setSalvandoCfgLoja(false)
+    }
+  }
+
+  async function sincronizarComGooglePlay() {
+    setSincronizandoPlay(true)
+    try {
+      await loadFirebaseModules()
+      const fns = getFirebaseFunctions()
+      if (!fns) throw new Error('Cloud Functions indisponível')
+      const { httpsCallable } = await import('firebase/functions')
+      const fn = httpsCallable(fns, 'sincronizarVersaoPlayStoreAdmin')
+      const res = await fn({})
+      const data = res.data || {}
+      const versao = data.versaoAtual || ''
+      if (versao) {
+        setCfgAndroid((prev) => ({
+          ...prev,
+          versaoAtual: versao,
+        }))
+      }
+      mostrarSnackbar({
+        mensagem: versao
+          ? `Google Play: versão ${versao} sincronizada no Firebase.`
+          : 'Sincronização concluída.',
+        severidade: 'success',
+      })
+    } catch (e) {
+      const msg = String(e?.message || e?.code || e || '')
+      mostrarSnackbar({
+        mensagem: msg.includes('PLAY_STORE_SERVICE_ACCOUNT') || msg.includes('failed-precondition')
+          ? 'Play API ainda não configurada. Use npm run sync:android-version ou veja docs/SYNC_VERSAO_LOJAS.md'
+          : msg || 'Falha ao sincronizar com a Google Play.',
+        severidade: 'warning',
+      })
+    } finally {
+      setSincronizandoPlay(false)
+    }
+  }
 
   async function enviar() {
     const t = titulo.trim()
@@ -222,6 +360,61 @@ export default function AdminNotificar() {
           </Alert>
         )}
       </Stack>
+
+      <Divider sx={{ my: 3 }} />
+
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+        <SystemUpdateAltIcon color="primary" />
+        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+          Aviso de atualização na loja
+        </Typography>
+      </Stack>
+
+      <Alert severity="info" sx={{ mb: 2 }}>
+        A Google Play <strong>não atualiza o Firebase sozinha</strong>. Opções:
+        <br />
+        • <strong>Automático:</strong> botão abaixo (requer API Play configurada — ver{' '}
+        <code>docs/SYNC_VERSAO_LOJAS.md</code>)
+        <br />
+        • <strong>Ao publicar:</strong> no PC, <code>npm run sync:android-version</code> (lê o{' '}
+        <code>build.gradle</code>)
+        <br />
+        • <strong>Manual:</strong> preencher os campos e salvar. iOS continua manual.
+      </Alert>
+
+      {carregandoCfgLoja ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+          <CircularProgress size={28} />
+        </Box>
+      ) : (
+        <Stack spacing={2}>
+          <PlataformaLojaFields
+            titulo="Android (Google Play)"
+            cfg={cfgAndroid}
+            onChange={setCfgAndroid}
+          />
+          <Button
+            variant="contained"
+            color="secondary"
+            disabled={sincronizandoPlay}
+            onClick={() => void sincronizarComGooglePlay()}
+          >
+            {sincronizandoPlay ? 'Consultando Play Store…' : 'Sincronizar Android com Google Play'}
+          </Button>
+          <PlataformaLojaFields
+            titulo="iOS (App Store)"
+            cfg={cfgIos}
+            onChange={setCfgIos}
+          />
+          <Button
+            variant="outlined"
+            disabled={salvandoCfgLoja}
+            onClick={() => void salvarCfgLoja()}
+          >
+            {salvandoCfgLoja ? 'Salvando…' : 'Salvar versões da loja'}
+          </Button>
+        </Stack>
+      )}
     </Container>
   )
 }

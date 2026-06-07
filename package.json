@@ -37,6 +37,7 @@
     "apple:mobileprovision-base64": "powershell -ExecutionPolicy Bypass -File scripts/apple-mobileprovision-base64.ps1",
     "ios:setup-free": "node scripts/ios-setup-free.mjs",
     "deploy:rules": "firebase deploy --only database",
+    "sync:android-version": "node scripts/sync-android-version-rtdb.mjs",
     "deploy:storage": "firebase deploy --only storage",
     "deploy:pwa-apis": "powershell -ExecutionPolicy Bypass -File scripts/deploy-pwa-para-apis.ps1",
     "rebuild:pericopes": "node scripts/rebuild-pericopes-from-ara-backup.mjs",

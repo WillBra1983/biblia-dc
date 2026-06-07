@@ -180,3 +180,10 @@ export function limparResumoLexicalParaExibicao(texto) {
 
   return s.replace(/\n{3,}/g, '\n\n').trim()
 }
+
+/** Prosa terminada (evita exibir/cachear resposta cortada no meio da frase). */
+export function resumoTextoPareceCompleto(texto) {
+  const s = String(texto || '').trim()
+  if (!s) return false
+  return /[.!?…]["'\u2019\u00bb)]*\s*$/.test(s)
+}

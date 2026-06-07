@@ -7,7 +7,7 @@
  */
 
 import { limparTextoTokenPassagem, formatarTextoMorphHb } from './strongTokenContext'
-import { transliterarHebraicoVocalizado } from './hebrewDisplay'
+import { textoHebraicoVocalizado, transliterarHebraicoVocalizado } from './hebrewDisplay'
 import { livros } from '../data/biblia'
 
 export { limparTextoTokenPassagem, formatarTextoMorphHb } from './strongTokenContext'
@@ -29,6 +29,57 @@ export function formasLexicaisEquivalentes(a, b) {
   const x = normalizarFormaLexical(a)
   const y = normalizarFormaLexical(b)
   return !!x && x === y
+}
+
+function aplicarVocalizacaoSeNecessario(forma, headwordVocalizado) {
+  const f = String(forma || '').trim()
+  const hw = String(headwordVocalizado || '').trim()
+  if (!f) return hw
+  if (textoHebraicoVocalizado(f)) return f
+  if (hw && formasLexicaisEquivalentes(f, hw)) return hw
+  return f
+}
+
+function vocalizarPrefixoMorphHb(prefixo, parteSeguinteVocalizada) {
+  const p = String(prefixo || '').trim()
+  if (!p || textoHebraicoVocalizado(p) || !parteSeguinteVocalizada) return p
+  if (p.length !== 1) return p
+  const comSheva = {
+    '\u05D1': '\u05D1\u05B0', // בְ
+    '\u05DB': '\u05DB\u05B0', // כְ
+    '\u05DC': '\u05DC\u05B0', // לְ
+    '\u05D5': '\u05D5\u05B0', // וְ
+  }
+  return comSheva[p] || p
+}
+
+/**
+ * MorphHB + vocalização: se o token não traz niqqud, usa o headword Strong
+ * quando a forma consonantal coincide (ex.: ראשית → רֵאשִׁית).
+ * Prefixos ב/כ/ל/ו recebem sheva quando a parte seguinte está vocalizada.
+ */
+export function formatarTextoMorphHbVocalizado(texto, headwordVocalizado) {
+  const raw = String(texto || '').trim()
+  const hw = String(headwordVocalizado || '').trim()
+  if (!raw) return hw
+  if (!raw.includes('/')) {
+    return aplicarVocalizacaoSeNecessario(formatarTextoMorphHb(raw), hw)
+  }
+  const partesRaw = raw.split('/')
+  const partes = partesRaw.map((parte, idx) => {
+    const p = parte.trim()
+    if (!p) return ''
+    if (idx === partesRaw.length - 1 && hw) {
+      return aplicarVocalizacaoSeNecessario(p, hw)
+    }
+    return p
+  })
+  for (let i = 0; i < partes.length - 1; i++) {
+    if (partes[i] && partes[i + 1] && textoHebraicoVocalizado(partes[i + 1])) {
+      partes[i] = vocalizarPrefixoMorphHb(partes[i], true)
+    }
+  }
+  return partes.join('').normalize('NFC')
 }
 
 const MAP_GREGO = {
@@ -114,13 +165,16 @@ export function transliterarGregoBasico(texto) {
 }
 
 export function montarTranslitTokenHebraico(texto, opts = {}) {
-  const he = formatarTextoMorphHb(texto)
-  if (!he) return { translit: '', fonetica: '', linha: '', mesmaFormaQueLema: false }
-
   const lemmaUnicode = String(opts.lemmaUnicode || '').trim()
   const xlit = String(opts.lemmaTranslit || '').trim()
   const pron = String(opts.lemmaPron || '').trim()
-  const mesmaForma = !!lemmaUnicode && formasLexicaisEquivalentes(he, lemmaUnicode)
+
+  const raw = String(texto || '').trim()
+  const heConsonantal = formatarTextoMorphHb(raw)
+  if (!heConsonantal) return { translit: '', fonetica: '', linha: '', mesmaFormaQueLema: false }
+
+  const mesmaForma = !!lemmaUnicode && formasLexicaisEquivalentes(heConsonantal, lemmaUnicode)
+  const he = formatarTextoMorphHbVocalizado(raw, lemmaUnicode)
 
   const daForma = transliterarHebraicoVocalizado(he)
   if (daForma) {
@@ -225,7 +279,9 @@ export function transliteracaoTokenPassagem(token, detalhe, ehGrego) {
   }
 
   if (formasLexicaisEquivalentes(texto, raizUnicode)) return raizTranslit
-  return transliterarHebraicoVocalizado(formatarTextoMorphHb(texto))
+  return transliterarHebraicoVocalizado(
+    formatarTextoMorphHbVocalizado(texto, raizUnicode)
+  )
 }
 
 export function deveExibirBarraToken(token) {
@@ -253,4 +309,40 @@ export function referenciaPassagemCompleta(tokenRef) {
   const versiculo = Number(tokenRef.versiculo ?? tokenRef.verse)
   if (!livroId || !capitulo || !versiculo) return null
   return { livroId, capitulo, versiculo }
+}
+
+/** Chave estável para cache da análise de forma (prefixo/flexão) numa passagem. */
+export function chaveCacheAnaliseToken(code, token) {
+  const c = String(code || '').trim().toUpperCase()
+  const forma = normalizarFormaLexical(
+    formatarTextoMorphHb(limparTextoTokenPassagem(token?.text || token?.word || ''))
+  )
+  const ref = referenciaPassagemCompleta(token)
+  const refKey = ref ? `${ref.livroId}.${ref.capitulo}.${ref.versiculo}` : 'sem-ref'
+  const morph = String(token?.morph || '')
+    .trim()
+    .toLowerCase()
+    .slice(0, 48)
+  return `${c}@${forma || 'forma'}@${refKey}@${morph || 'm'}`
+}
+
+/**
+ * A forma na passagem merece bloco próprio (prefixo MorphHB, flexão ou morfologia)?
+ * Igual ao léma isolado → só o resumo do léma.
+ */
+export function precisaAnaliseFormaPassagem(token, detalhe, ehGrego) {
+  if (!deveExibirBarraToken(token)) return false
+  const raw = limparTextoTokenPassagem(token?.text || token?.word || '')
+  if (!raw) return false
+  const lemma = String(detalhe?.greek_unicode || '').trim()
+  if (ehGrego) {
+    if (!lemma) return true
+    return !formasLexicaisEquivalentes(raw, lemma)
+  }
+  if (raw.includes('/')) return true
+  const he = formatarTextoMorphHb(raw)
+  if (lemma && he && !formasLexicaisEquivalentes(he, lemma)) return true
+  const morph = String(token?.morph || '').trim()
+  if (morph && !/^[-—?]$/.test(morph)) return true
+  return false
 }

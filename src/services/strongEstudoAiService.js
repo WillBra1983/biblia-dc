@@ -1,4 +1,4 @@
-import { limparResumoLexicalParaExibicao, limparTextoStepBible, resumoLexicalPareceVazado } from '../utils/strongEstudoHelpers'
+import { limparResumoLexicalParaExibicao, limparTextoStepBible, resumoLexicalPareceVazado, resumoTextoPareceCompleto } from '../utils/strongEstudoHelpers'
 import { textoBdbExibicao, textoCurtoLexicalPt, textoStepBibleDefPt, textoStepBibleGlossPt } from '../utils/strongTextoPt'
 import {
   iaGeminiChaveConfigurada,
@@ -10,6 +10,15 @@ import { buscarBdbHebraico, buscarOcorrenciasStrongHebraico, contarOcorrenciasSt
 import { buscarLexiconPtBr } from './lexiconPtBrService'
 import { buscarOcorrenciasStrongGrego, contarOcorrenciasStrongGrego } from './ntStrongProvaService'
 import { livros as livrosBiblia } from '../data/biblia'
+import {
+  formatarReferenciaPassagemToken,
+  formatarTextoMorphHb,
+  formatarTextoMorphHbVocalizado,
+  formasLexicaisEquivalentes,
+  limparTextoTokenPassagem,
+  montarLeituraToken,
+  montarTranslitTokenHebraico,
+} from '../utils/strongTokenHelpers'
 
 /**
  * Resumo lexical via Google Gemini (mesmo ecossistema que o módulo Android de exemplo).
@@ -71,6 +80,7 @@ const LIMITE_BDB = 3200
 const LIMITE_STEPBIBLE_DEF = 2200
 const LIMITE_GLOSS_INDICE = 400
 const MAX_CHARS_RESUMO = 10000
+const MAX_CHARS_RESUMO_TOKEN = 5200
 
 function nomeLivroPorId(livroId) {
   const id = Number(livroId)
@@ -238,13 +248,95 @@ export function montarContextoLexicalParaIa(detalhe, token) {
     })
   }
 
-  if (token?.lemma || token?.lemma_raw) {
-    parts.push(`Lemma / forma analisada na passagem: ${token.lemma || token.lemma_raw || ''}`)
-  }
   return parts.join('\n')
 }
 
+/** Contexto só da forma concreta na passagem (prefixo, flexão, referência). */
+export function montarContextoTokenParaIa(detalhe, token, ehGrego) {
+  if (!token) return ''
+  const parts = []
+  const ref = formatarReferenciaPassagemToken(token)
+  if (ref) parts.push(`Referência bíblica: ${ref}`)
+  if (detalhe?.strong) parts.push(`Código Strong do léma: ${detalhe.strong}`)
+
+  const raw = limparTextoTokenPassagem(token?.text || token?.word || '')
+  const lemma = String(detalhe?.greek_unicode || '').trim()
+  if (raw) parts.push(`Forma na passagem (MorphHB): ${raw}`)
+  if (lemma) parts.push(`Léma no dicionário (Unicode): ${lemma}`)
+
+  if (!ehGrego && raw) {
+    const vocal = formatarTextoMorphHbVocalizado(raw, lemma)
+    if (vocal && vocal !== raw) parts.push(`Forma vocalizada (reconstruída): ${vocal}`)
+    const { translit, fonetica } = montarTranslitTokenHebraico(raw, {
+      lemmaUnicode: lemma,
+      lemmaTranslit: detalhe?.greek_translit,
+      lemmaPron: detalhe?.pronunciation,
+    })
+    if (translit) parts.push(`Transliteração da forma: ${translit}`)
+    if (fonetica) parts.push(`Pronúncia Strong (só se forma = léma): ${fonetica}`)
+    if (raw.includes('/')) {
+      const segmentos = raw.split('/').map((s) => s.trim()).filter(Boolean)
+      parts.push(`Segmentos morfológicos (prefixo + base): ${segmentos.join(' + ')}`)
+    }
+  } else if (raw) {
+    const leitura = montarLeituraToken(raw, true, {
+      lemmaUnicode: lemma,
+      lemmaTranslit: detalhe?.greek_translit,
+      lemmaPron: detalhe?.pronunciation,
+    })
+    if (leitura.translit) parts.push(`Transliteração da forma: ${leitura.translit}`)
+  }
+
+  const morph = String(token?.morph || token?.parsing || '').trim()
+  if (morph) parts.push(`Morfologia / parsing: ${morph}`)
+
+  if (lemma && raw) {
+    const mesma =
+      ehGrego
+        ? formasLexicaisEquivalentes(raw, lemma)
+        : formasLexicaisEquivalentes(formatarTextoMorphHb(raw), lemma)
+    parts.push(
+      mesma
+        ? 'Relação forma–léma: mesma raiz/grafia (pode haver flexão menor).'
+        : 'Relação forma–léma: forma estendida (prefixo, proclítico ou flexão) em relação ao léma.'
+    )
+  }
+
+  if (token?.lemma_raw) parts.push(`Lemma_raw na passagem: ${token.lemma_raw}`)
+  return parts.join('\n')
+}
+
+function montarInstrucoesSistemaLemma(maxChars = MAX_CHARS_RESUMO) {
+  return `${montarInstrucoesSistemaLexicalBase(maxChars)}
+
+ESCOPO DESTA RESPOSTA — SOMENTE O LÉMA:
+- Explique o significado lexical geral da entrada Strong (sem foco em prefixos de uma passagem específica).
+- Desenvolva etimologia, campos semânticos, usos bíblicos representativos e nuances (ex.: temporal, primazia, primícias).
+- Não analise prefixos hebraicos (ב, כ, ל…) nem o efeito de uma forma concreta num versículo — isso será tratado noutro bloco.`
+}
+
+function montarInstrucoesSistemaToken(maxChars = MAX_CHARS_RESUMO_TOKEN) {
+  return `Você explica como a FORMA CONCRETA da palavra numa passagem bíblica (prefixos, proclíticos, flexão, morfologia) nuanceia o sentido — em português do Brasil, tom de estudo.
+
+TOM:
+- Proibido vocativos e saudações. Comece pelo prefixo, flexão ou referência.
+- Prosa corrida, sem títulos. Até ~${maxChars} caracteres se necessário; prefira 1–3 parágrafos densos.
+
+ESCOPO:
+- NÃO repita a exposição geral do léma (etimologia ampla, survey de todas as ocorrências, primícias em geral, etc.).
+- FOQUE: o que o prefixo/flexão/morfologia acrescenta ou restringe NESTA referência; argumente o sentido teológico ou sintático que essas inclusões dão ao texto.
+- NÃO repita citações longas da forma hebraica/grega no início — o usuário já vê o token na tela. Vá direto à análise.
+- Use só a referência e os dados fornecidos; não invente contexto.
+- Encerre com frase completa (ponto final).
+
+PROIBIDO: tool_code, thought, URLs, metadados do prompt.`
+}
+
 function montarInstrucoesSistemaLexical(maxChars = MAX_CHARS_RESUMO) {
+  return montarInstrucoesSistemaLemma(maxChars)
+}
+
+function montarInstrucoesSistemaLexicalBase(maxChars = MAX_CHARS_RESUMO) {
   return `Você explica verbetes léxico-bíblicos em português do Brasil — tom didático, direto e natural, como texto de estudo (NÃO carta pessoal, NÃO diálogo íntimo).
 
 TOM E ABERTURA:
@@ -306,7 +398,57 @@ ${contexto}
 Responda só com o texto final em prosa, sem títulos, cabeçalhos nem saudações. Extensão conforme a riqueza do verbete — não fixe número de parágrafos.`
 }
 
-function montarCorpoPedidoGemini(contexto, { modoPrompt, usarGoogleSearch }) {
+function montarPromptUsuarioLemma(contexto, { modo = 'enriquecido', usarGoogleSearch = false } = {}) {
+  const base = montarPromptUsuario(contexto, { modo, usarGoogleSearch })
+  return base.replace(
+    'Explique este verbete em pt-BR',
+    'Explique o LÉMA deste verbete Strong em pt-BR (significado lexical geral, não a forma prefixada de um versículo)'
+  ).replace(
+    'Com base APENAS nos dados locais abaixo, escreva uma explicação lexical natural',
+    'Com base APENAS nos dados locais abaixo, escreva a explicação do LÉMA (significado geral da palavra no léxico'
+  )
+}
+
+function montarPromptUsuarioToken(contexto, resumoLemma, { referencia = '' } = {}) {
+  const lemmaBreve = String(resumoLemma || '').trim().slice(0, 900)
+  return `Explique o que a forma concreta abaixo acrescenta ao sentido${referencia ? ` em ${referencia}` : ' nesta passagem'} — prefixos hebraicos, artigos, flexões ou morfologia. Não repita o estudo geral do léma.
+
+${lemmaBreve ? `Resumo do léma (já apresentado ao leitor — NÃO repetir):\n${lemmaBreve}\n\n` : ''}DADOS DA FORMA NA PASSAGEM:
+---
+${contexto}
+---
+
+Responda só com o texto final em prosa (1–3 parágrafos), sem títulos nem saudações.`
+}
+
+function montarCorpoPedidoGemini(contexto, { modoPrompt, usarGoogleSearch, tipo = 'lemma' } = {}) {
+  const isToken = tipo === 'token'
+  const prompt = isToken
+    ? contexto.promptUsuario
+    : montarPromptUsuarioLemma(contexto.contextoLexical, { modo: modoPrompt, usarGoogleSearch })
+  const maxChars = isToken ? MAX_CHARS_RESUMO_TOKEN : MAX_CHARS_RESUMO
+  const body = {
+    systemInstruction: {
+      parts: [{
+        text: isToken
+          ? montarInstrucoesSistemaToken(maxChars)
+          : montarInstrucoesSistemaLemma(maxChars),
+      }],
+    },
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: {
+      temperature: isToken ? 0.34 : 0.38,
+      maxOutputTokens: isToken ? 4096 : 8192,
+      topP: 0.92,
+    },
+  }
+  if (usarGoogleSearch && !isToken) {
+    body.tools = [{ google_search: {} }]
+  }
+  return body
+}
+
+function montarCorpoPedidoGeminiLegacy(contexto, { modoPrompt, usarGoogleSearch }) {
   const prompt = montarPromptUsuario(contexto, { modo: modoPrompt, usarGoogleSearch })
   const body = {
     systemInstruction: {
@@ -323,24 +465,6 @@ function montarCorpoPedidoGemini(contexto, { modoPrompt, usarGoogleSearch }) {
     body.tools = [{ google_search: {} }]
   }
   return body
-}
-
-function resumoLexicalPareceValido(texto) {
-  const s = String(texto || '').trim()
-  if (s.length < 120) return false
-  const frases = s.split(/[.!?]+/).filter((f) => f.trim().length > 12)
-  return frases.length >= 2
-}
-
-function processarTextoResumoLexical(textoBruto) {
-  const out = limparResumoLexicalParaExibicao(ajustarTamanhoResposta(textoBruto, MAX_CHARS_RESUMO))
-  if (!out || !resumoLexicalPareceValido(out)) {
-    return { ok: false, text: out, vazado: false }
-  }
-  if (resumoLexicalPareceVazado(out)) {
-    return { ok: false, text: out, vazado: true }
-  }
-  return { ok: true, text: out, vazado: false }
 }
 
 function erroIndicaToolIncompativel(msg) {
@@ -360,66 +484,52 @@ export function classificarErroIa(status, msg) {
   if (status === 429 || /resource[_ ]?exhausted|quota/i.test(m)) {
     if (/per[_ ]?day|daily|day\b/i.test(m)) return 'QUOTA_EXCEEDED'
     if (/per[_ ]?minute|rpm|rate[_ ]?limit/i.test(m)) return 'RATE_LIMIT'
-    // 429 genérico — quase sempre é o limite diário do Free Tier.
     return status === 429 ? 'QUOTA_EXCEEDED' : 'RATE_LIMIT'
   }
   if (status === 503 || /overloaded|unavailable|try again later/i.test(m)) return 'OVERLOADED'
   return null
 }
 
-/**
- * @returns {Promise<{ ok: boolean, text?: string, error?: string, code?: string }>}
- */
-export async function gerarResumoStrongGemini({ detalhe, token }) {
+function resumoLexicalPareceValido(texto, minChars = 120) {
+  const s = String(texto || '').trim()
+  if (s.length < minChars) return false
+  const frases = s.split(/[.!?]+/).filter((f) => f.trim().length > 12)
+  return frases.length >= (minChars < 100 ? 1 : 2)
+}
+
+function processarTextoResumoLexical(textoBruto, maxChars = MAX_CHARS_RESUMO) {
+  const out = limparResumoLexicalParaExibicao(ajustarTamanhoResposta(textoBruto, maxChars))
+  const minChars = maxChars <= MAX_CHARS_RESUMO_TOKEN ? 80 : 120
+  if (!out || !resumoLexicalPareceValido(out, minChars)) {
+    return { ok: false, text: out, vazado: false }
+  }
+  if (resumoLexicalPareceVazado(out)) {
+    return { ok: false, text: out, vazado: true }
+  }
+  const isToken = maxChars <= MAX_CHARS_RESUMO_TOKEN
+  if (isToken && !resumoTextoPareceCompleto(out)) {
+    return { ok: false, text: out, vazado: false, truncado: true }
+  }
+  return { ok: true, text: out, vazado: false }
+}
+
+async function executarGeminiResumo({ montarTentativas, maxChars = MAX_CHARS_RESUMO }) {
   if (!iaGeminiDisponivel()) {
     return {
       ok: false,
       error: mensagemErroChaveGeminiAusente(),
-      code: 'NO_KEY'
+      code: 'NO_KEY',
     }
-  }
-  const detalheEnriquecido = await enriquecerDetalheParaResumoIa(detalhe)
-  const contexto = montarContextoLexicalParaIa(detalheEnriquecido, token)
-  if (!String(contexto || '').trim()) {
-    return { ok: false, error: 'Sem dados lexicais suficientes para montar o pedido.', code: 'EMPTY' }
   }
   const apiKey = obterChaveGeminiApi()
   const modelos = obterListaModelosTentativa()
-  const webOn = lexicalWebEnrichmentAtivo()
-
   let lastError = ''
+
   for (const model of modelos) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
       model
     )}:generateContent?key=${encodeURIComponent(apiKey)}`
-
-    const tentativas = webOn
-      ? [
-          {
-            body: montarCorpoPedidoGemini(contexto, {
-              modoPrompt: 'enriquecido',
-              usarGoogleSearch: true
-            }),
-            label: 'web'
-          },
-          {
-            body: montarCorpoPedidoGemini(contexto, {
-              modoPrompt: 'enriquecido',
-              usarGoogleSearch: false
-            }),
-            label: 'enriquecido_sem_busca'
-          }
-        ]
-      : [
-          {
-            body: montarCorpoPedidoGemini(contexto, {
-              modoPrompt: 'local',
-              usarGoogleSearch: false
-            }),
-            label: 'local'
-          }
-        ]
-
+    const tentativas = montarTentativas()
     const cabecalhosGemini = await obterCabecalhosGeminiApi()
 
     for (const { body, label } of tentativas) {
@@ -428,13 +538,13 @@ export async function gerarResumoStrongGemini({ detalhe, token }) {
         res = await fetch(url, {
           method: 'POST',
           headers: cabecalhosGemini,
-          body: JSON.stringify(body)
+          body: JSON.stringify(body),
         })
       } catch (e) {
         return { ok: false, error: e?.message || 'Falha de rede ao chamar a IA.', code: 'NETWORK' }
       }
 
-      let data = await res.json().catch(() => ({}))
+      const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         const msg = data?.error?.message || res.statusText || 'Erro da API Gemini'
         lastError = msg
@@ -445,13 +555,11 @@ export async function gerarResumoStrongGemini({ detalhe, token }) {
         const isModelNotFound =
           /not found|is not supported|unsupported|unknown model/i.test(msg || '')
         if (isModelNotFound) break
-        if (label === 'web' && webOn && erroIndicaToolIncompativel(msg)) {
-          continue
-        }
+        if (label === 'web' && erroIndicaToolIncompativel(msg)) continue
         return {
           ok: false,
           error: `${msg}. Verifique o modelo (VITE_GEMINI_MODEL) e a chave.`,
-          code: 'API'
+          code: 'API',
         }
       }
 
@@ -462,27 +570,35 @@ export async function gerarResumoStrongGemini({ detalhe, token }) {
         .join('\n')
       const block = data?.candidates?.[0]?.finishReason
       if (!text.trim()) {
-        if (label === 'web' && webOn) continue
+        if (label === 'web') continue
         return {
           ok: false,
           error: `Resposta vazia da IA${block ? ` (${block})` : ''}. Tente de novo ou outro modelo.`,
-          code: 'EMPTY_REPLY'
+          code: 'EMPTY_REPLY',
         }
       }
-      const processado = processarTextoResumoLexical(text)
+      if (block === 'MAX_TOKENS' && maxChars <= MAX_CHARS_RESUMO_TOKEN) {
+        lastError = 'Resposta do token cortada pelo limite do modelo.'
+        continue
+      }
+      const processado = processarTextoResumoLexical(text, maxChars)
       if (!processado.ok) {
-        if (label === 'web' && webOn) continue
+        if (label === 'web') continue
+        if (processado.truncado) {
+          lastError = 'Resposta do token incompleta. Tente gerar novamente.'
+          continue
+        }
         if (processado.vazado) {
           return {
             ok: false,
             error: 'A IA devolveu metadados internos em vez do resumo. Tente gerar novamente.',
-            code: 'LEAK'
+            code: 'LEAK',
           }
         }
         return {
           ok: false,
           error: 'Resposta incompleta ou inválida. Tente gerar novamente.',
-          code: 'INVALID_REPLY'
+          code: 'INVALID_REPLY',
         }
       }
       return { ok: true, text: processado.text, finishReason: block || null }
@@ -492,8 +608,80 @@ export async function gerarResumoStrongGemini({ detalhe, token }) {
   return {
     ok: false,
     error: `${lastError || 'Nenhum modelo disponível respondeu.'}. Ajuste VITE_GEMINI_MODEL para um modelo válido da sua conta.`,
-    code: 'API'
+    code: 'API',
   }
+}
+
+function montarTentativasLemma(contextoLexical) {
+  const webOn = lexicalWebEnrichmentAtivo()
+  return webOn
+    ? [
+        {
+          body: montarCorpoPedidoGemini(
+            { contextoLexical },
+            { modoPrompt: 'enriquecido', usarGoogleSearch: true, tipo: 'lemma' }
+          ),
+          label: 'web',
+        },
+        {
+          body: montarCorpoPedidoGemini(
+            { contextoLexical },
+            { modoPrompt: 'enriquecido', usarGoogleSearch: false, tipo: 'lemma' }
+          ),
+          label: 'enriquecido_sem_busca',
+        },
+      ]
+    : [
+        {
+          body: montarCorpoPedidoGemini(
+            { contextoLexical },
+            { modoPrompt: 'local', usarGoogleSearch: false, tipo: 'lemma' }
+          ),
+          label: 'local',
+        },
+      ]
+}
+
+/** Resumo geral do léma Strong (reutilizável em qualquer passagem). */
+export async function gerarResumoLemmaStrongGemini({ detalhe }) {
+  const detalheEnriquecido = await enriquecerDetalheParaResumoIa(detalhe)
+  const contextoLexical = montarContextoLexicalParaIa(detalheEnriquecido, null)
+  if (!String(contextoLexical || '').trim()) {
+    return { ok: false, error: 'Sem dados lexicais suficientes para montar o pedido.', code: 'EMPTY' }
+  }
+  return executarGeminiResumo({
+    montarTentativas: () => montarTentativasLemma(contextoLexical),
+    maxChars: MAX_CHARS_RESUMO,
+  })
+}
+
+/** Análise da forma na passagem (prefixo, flexão, morfologia). */
+export async function gerarResumoTokenStrongGemini({ detalhe, token, ehGrego, resumoLemma }) {
+  const contextoToken = montarContextoTokenParaIa(detalhe, token, ehGrego)
+  if (!String(contextoToken || '').trim()) {
+    return { ok: false, error: 'Sem dados da forma na passagem.', code: 'EMPTY' }
+  }
+  const referencia = formatarReferenciaPassagemToken(token)
+  const promptUsuario = montarPromptUsuarioToken(contextoToken, resumoLemma, { referencia })
+  return executarGeminiResumo({
+    montarTentativas: () => [
+      {
+        body: montarCorpoPedidoGemini(
+          { promptUsuario },
+          { modoPrompt: 'local', usarGoogleSearch: false, tipo: 'token' }
+        ),
+        label: 'token',
+      },
+    ],
+    maxChars: MAX_CHARS_RESUMO_TOKEN,
+  })
+}
+
+/**
+ * @returns {Promise<{ ok: boolean, text?: string, error?: string, code?: string }>}
+ */
+export async function gerarResumoStrongGemini({ detalhe }) {
+  return gerarResumoLemmaStrongGemini({ detalhe })
 }
 
 const PROMPT_CONTINUACAO_ESTUDO =

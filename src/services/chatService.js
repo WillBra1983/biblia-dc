@@ -1126,6 +1126,48 @@ export async function ensurePublicProfileMirrorAuth(uid, { email, photoURL, disp
   invalidateUserSearchCache()
 }
 
+const SESSION_ENTRADA_KEY = 'salvation_user_entry_registered'
+
+function entradaJaRegistadaNestaSessao(uid) {
+  if (!uid || typeof sessionStorage === 'undefined') return false
+  try {
+    return sessionStorage.getItem(`${SESSION_ENTRADA_KEY}:${uid}`) === '1'
+  } catch {
+    return false
+  }
+}
+
+function marcarEntradaRegistadaNestaSessao(uid) {
+  if (!uid || typeof sessionStorage === 'undefined') return
+  try {
+    sessionStorage.setItem(`${SESSION_ENTRADA_KEY}:${uid}`, '1')
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Regista a entrada do utilizador na app (uma vez por sessão/aba):
+ * espelha e-mail/nome/foto do Auth se faltarem e grava `lastAccessAt` no perfil RTDB.
+ */
+export async function registrarEntradaUsuario(uid, { email, photoURL, displayName } = {}) {
+  if (!uid || entradaJaRegistadaNestaSessao(uid)) return
+  const db = getFirebaseDatabase()
+  if (!db) return
+
+  try {
+    await ensurePublicProfileHasEmail(uid, email)
+    await ensurePublicProfileMirrorAuth(uid, { email, photoURL, displayName })
+    await update(ref(db, `users/${uid}/profile`), {
+      lastAccessAt: serverTimestamp(),
+      clientId: getRtdbClientId(),
+    })
+    marcarEntradaRegistadaNestaSessao(uid)
+  } catch {
+    /* permissão / rede — nova tentativa na próxima montagem ou login */
+  }
+}
+
 export function subscribeMessages(chatId, callback) {
   const db = getFirebaseDatabase()
   if (!db || !chatId) return () => {}

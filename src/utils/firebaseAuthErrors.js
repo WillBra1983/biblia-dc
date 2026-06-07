@@ -109,7 +109,14 @@ export function hintForFirebaseAuthError(error) {
   }
 
   if (code.includes('operation-not-allowed')) {
-    return 'Este método de login está desativado. No Firebase → Authentication → Método de login, ative Google e/ou Anônimo.'
+    return [
+      'Este método de login está desativado no Firebase (opção bloqueada).',
+      '',
+      'Firebase Console → Authentication → Método de login — ative:',
+      '• E-mail/senha',
+      '• Link do e-mail (entrada sem senha) — necessário para «Criar conta»',
+      '• Google — necessário para «Continuar com Google» no app',
+    ].join('\n')
   }
 
   if (

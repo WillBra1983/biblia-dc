@@ -22,6 +22,7 @@ import AppDialogsHost from './components/AppDialogsHost'
 import RecoverFromDeployError from './components/RecoverFromDeployError'
 import { FirebaseAuthProvider } from './contexts/FirebaseAuthContext'
 import PushNotificationsBootstrap from './components/PushNotificationsBootstrap'
+import AvisoAtualizacaoLoja from './components/AvisoAtualizacaoLoja'
 import RequireAuth from './components/RequireAuth'
 import ApresentacaoSomenteDesktop from './components/ApresentacaoSomenteDesktop'
 import { aguardarPosSplash, jaPassouDoSplash, marcarSplashFechado, splashUiJaConcluiu } from './utils/posSplash'
@@ -142,6 +143,7 @@ function AppShell() {
         <IncentivosListener />
         <NativeDeepLinkHandler />
         <PushNotificationsBootstrap />
+        <AvisoAtualizacaoLoja />
         <ScrollToTop />
         <RequireAuth>
           <Suspense

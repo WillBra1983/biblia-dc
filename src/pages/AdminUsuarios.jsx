@@ -261,7 +261,11 @@ export default function AdminUsuarios() {
               <TableCell>Provedor</TableCell>
               <TableCell align="center">Conta</TableCell>
               <TableCell>Criação</TableCell>
-              <TableCell>Último acesso</TableCell>
+              <TableCell>
+                <Tooltip title="Última abertura do app (RTDB) ou último login, o que for mais recente">
+                  <span>Último acesso</span>
+                </Tooltip>
+              </TableCell>
               <TableCell align="center" sx={{ width: 88 }}>
                 Ações
               </TableCell>
@@ -311,7 +315,9 @@ export default function AdminUsuarios() {
                     {r.creationTime ? new Date(r.creationTime).toLocaleString('pt-BR') : '—'}
                   </TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap', fontSize: '0.8rem' }}>
-                    {r.lastSignInTime ? new Date(r.lastSignInTime).toLocaleString('pt-BR') : '—'}
+                    {(r.ultimoAcesso || r.lastAccessAt || r.lastSignInTime)
+                      ? new Date(r.ultimoAcesso || r.lastAccessAt || r.lastSignInTime).toLocaleString('pt-BR')
+                      : '—'}
                   </TableCell>
                   <TableCell align="center">
                     {r.uid === user?.uid ? (

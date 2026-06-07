@@ -29,6 +29,17 @@ function rotuloProvedor(signInProvider, emailVerified) {
   return nome
 }
 
+function msFromTimestamp(val) {
+  if (typeof val === 'number' && Number.isFinite(val) && val > 0) return val
+  return 0
+}
+
+function msFromAuthTime(iso) {
+  if (typeof iso !== 'string' || !iso.trim()) return 0
+  const ms = Date.parse(iso)
+  return Number.isFinite(ms) ? ms : 0
+}
+
 exports.listarUsuariosAdmin = onCall(
   { region: 'us-central1', maxInstances: 3, cors: true },
   async (req) => {
@@ -72,6 +83,7 @@ exports.listarUsuariosAdmin = onCall(
         listResult.users.map(async (u) => {
           let profileHandle = uidParaHandle[u.uid] || ''
           let profileDisplayName = ''
+          let lastAccessAtMs = 0
           try {
             const profSnap = await admin.database().ref(`users/${u.uid}/profile`).get()
             const prof = profSnap.val() || {}
@@ -79,6 +91,7 @@ exports.listarUsuariosAdmin = onCall(
               profileHandle = prof.handle.trim().replace(/^@+/, '').toLowerCase()
             }
             if (typeof prof.displayName === 'string') profileDisplayName = prof.displayName.trim()
+            lastAccessAtMs = msFromTimestamp(prof.lastAccessAt)
           } catch {
             /* ignore */
           }
@@ -86,6 +99,8 @@ exports.listarUsuariosAdmin = onCall(
           const signInProvider = providers[0] || ''
           const email = (u.email || '').trim()
           const emailVerified = Boolean(u.emailVerified)
+          const lastSignInMs = msFromAuthTime(u.metadata.lastSignInTime || '')
+          const ultimoAcessoMs = Math.max(lastAccessAtMs, lastSignInMs)
           let ehAdminConta = false
           try {
             const admSnap = await admin.database().ref(`users/${u.uid}/admin`).get()
@@ -107,6 +122,8 @@ exports.listarUsuariosAdmin = onCall(
             photoURL: u.photoURL || '',
             creationTime: u.metadata.creationTime || '',
             lastSignInTime: u.metadata.lastSignInTime || '',
+            lastAccessAt: lastAccessAtMs ? new Date(lastAccessAtMs).toISOString() : '',
+            ultimoAcesso: ultimoAcessoMs ? new Date(ultimoAcessoMs).toISOString() : '',
           }
         })
       )

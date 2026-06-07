@@ -1,16 +1,8 @@
 /**
- * Tela de Configurações de Notificações.
+ * Tela de Configurações — conta e notificações.
  *
- * Reúne todos os switches e o seletor de horário em um só lugar:
- *  - Receber mensagens do chat
- *  - Avisos de novidades (estudos, devocional novo, etc.)
- *  - Lembrete diário de devocional
- *  - Lembrete diário de plano de leitura
- *  - Horário dos lembretes (compartilhado entre os dois)
- *  - Botão "Ativar push neste aparelho" (na web; no nativo o ícone fica
- *    como status, porque o bootstrap já cuida).
- *
- * Layout: usa o `Layout` global (cabeçalho + drawer já vêm dele).
+ * Notificações: um único controle liga ou desliga todos os tipos na conta
+ * (chat, novidades, lembretes) e o push neste aparelho quando aplicável.
  */
 
 import { useEffect, useMemo, useState } from 'react'
@@ -20,20 +12,15 @@ import {
   Container,
   Typography,
   Switch,
-  TextField,
   Stack,
   Button,
   Alert,
   Divider,
   CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions
 } from '@mui/material'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
-import SwitchAccountOutlinedIcon from '@mui/icons-material/SwitchAccountOutlined'
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
 import { Capacitor } from '@capacitor/core'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import {
@@ -46,55 +33,20 @@ import {
   desativarPushNotifications,
   getTokenAtual
 } from '../services/notificacoesPushService'
-import { mostrarSnackbar } from '../utils/uiDialogs'
+import { mostrarSnackbar, confirmarAsync } from '../utils/uiDialogs'
 import { ensureUserForFeature } from '../utils/chatExportSend'
 import EmailVerificationGate from '../components/EmailVerificationGate'
 import { usuarioPrecisaVerificarEmail } from '../utils/emailVerificationAuth'
 
 export default function ConfiguracoesNotificacoes() {
-  const { user, tentarAcessarComOutraConta } = useFirebaseAuth()
+  const { user, logout } = useFirebaseAuth()
   const navigate = useNavigate()
   const [prefs, setPrefs] = useState(PREFS_PADRAO)
   const [carregando, setCarregando] = useState(true)
   const [salvando, setSalvando] = useState(false)
   const [ativandoPush, setAtivandoPush] = useState(false)
   const [pushAtivoNoAparelho, setPushAtivoNoAparelho] = useState(Boolean(getTokenAtual()))
-  const [dialogOutraConta, setDialogOutraConta] = useState(false)
-  /** null | 'sucesso' | 'falha' — quadro após tentativa de troca de conta */
-  const [dialogResultadoTroca, setDialogResultadoTroca] = useState(null)
-  const [outraContaBusy, setOutraContaBusy] = useState(false)
-  const [outraEmail, setOutraEmail] = useState('')
-  const [outraSenha, setOutraSenha] = useState('')
-
-  function fecharResultadoTroca() {
-    setDialogResultadoTroca(null)
-  }
-
-  function irParaBibliaAposTroca() {
-    fecharResultadoTroca()
-    setDialogOutraConta(false)
-    navigate('/biblia', { replace: true })
-  }
-
-  function irParaMenuAposTroca() {
-    fecharResultadoTroca()
-    setDialogOutraConta(false)
-    window.dispatchEvent(new Event('salvation-open-main-menu'))
-  }
-
-  function tentarNovamenteTrocaConta() {
-    fecharResultadoTroca()
-    setDialogOutraConta(true)
-  }
-
-  function abrirResultadoTroca(tipo) {
-    setDialogOutraConta(false)
-    setDialogResultadoTroca(tipo)
-  }
-
-  function trocaNaoRealizada(r) {
-    return r.cancelado || r.mesmaConta || (!r.ok && r.manteveConta)
-  }
+  const [saindoConta, setSaindoConta] = useState(false)
 
   const ehWeb = !Capacitor.isNativePlatform?.()
   const navegadorPermitido = useMemo(() => {
@@ -127,22 +79,6 @@ export default function ConfiguracoesNotificacoes() {
       .finally(() => { if (!cancelado) setCarregando(false) })
     return () => { cancelado = true }
   }, [user?.uid])
-
-  async function atualizar(patch) {
-    if (!user?.uid) return
-    setPrefs((prev) => ({ ...prev, ...patch }))
-    setSalvando(true)
-    try {
-      await atualizarPreferenciasNotificacao(user.uid, patch)
-    } catch (e) {
-      mostrarSnackbar({
-        mensagem: e?.message || 'Falha ao salvar preferências.',
-        severidade: 'error'
-      })
-    } finally {
-      setSalvando(false)
-    }
-  }
 
   async function aoAtivarPush() {
     if (!user?.uid) return
@@ -188,15 +124,15 @@ export default function ConfiguracoesNotificacoes() {
     }
   }
 
-  const todasLigadas =
-    Boolean(prefs.chat) &&
-    Boolean(prefs.novidades) &&
-    Boolean(prefs.lembreteDevocional) &&
+  const notificacoesAtivas =
+    Boolean(prefs.chat) ||
+    Boolean(prefs.novidades) ||
+    Boolean(prefs.lembreteDevocional) ||
     Boolean(prefs.lembretePlano)
 
-  async function alternarTodasNotificacoes() {
+  async function alternarNotificacoes() {
     if (!user?.uid) return
-    const ligar = !todasLigadas
+    const ligar = !notificacoesAtivas
     const patch = {
       chat: ligar,
       novidades: ligar,
@@ -207,12 +143,22 @@ export default function ConfiguracoesNotificacoes() {
     setPrefs((prev) => ({ ...prev, ...patch }))
     try {
       await atualizarPreferenciasNotificacao(user.uid, patch)
-      if (ehWeb && navegadorPermitido) {
+      if (!ehWeb || navegadorPermitido) {
         if (ligar && !pushAtivoNoAparelho) {
           await aoAtivarPush()
         } else if (!ligar && pushAtivoNoAparelho) {
           await aoDesativarPush()
         }
+      } else if (ligar) {
+        mostrarSnackbar({
+          mensagem: 'Notificações ativadas na sua conta.',
+          severidade: 'success'
+        })
+      } else {
+        mostrarSnackbar({
+          mensagem: 'Notificações desativadas na sua conta.',
+          severidade: 'info'
+        })
       }
     } catch (e) {
       const p = await obterPreferenciasNotificacao(user.uid)
@@ -250,52 +196,25 @@ export default function ConfiguracoesNotificacoes() {
     )
   }
 
-  async function handleOutraContaGoogle() {
-    setOutraContaBusy(true)
+  async function handleSairConta() {
+    const ok = await confirmarAsync({
+      titulo: 'Sair da conta?',
+      mensagem:
+        'Você continuará podendo usar a Bíblia e o conteúdo local neste aparelho. Recursos da nuvem (chat, estudos sincronizados, IA na conta) exigirão entrar de novo.',
+      labelOk: 'Sair',
+      labelCancelar: 'Cancelar',
+      destrutivo: true,
+    })
+    if (!ok) return
+    setSaindoConta(true)
     try {
-      const r = await tentarAcessarComOutraConta({ tipo: 'google' })
-      if (trocaNaoRealizada(r)) {
-        abrirResultadoTroca('falha')
-        return
-      }
-      if (r.trocou) {
-        setOutraSenha('')
-        abrirResultadoTroca('sucesso')
-      }
+      await logout()
+      mostrarSnackbar({ mensagem: 'Você saiu da conta.', severidade: 'info' })
+      navigate('/biblia', { replace: true })
     } catch {
-      abrirResultadoTroca('falha')
+      mostrarSnackbar({ mensagem: 'Não foi possível sair agora. Tente de novo.', severidade: 'error' })
     } finally {
-      setOutraContaBusy(false)
-    }
-  }
-
-  async function handleOutraContaEmail() {
-    if (!outraEmail.trim() || !outraSenha) {
-      mostrarSnackbar({
-        mensagem: 'Informe e-mail e senha da outra conta.',
-        severidade: 'warning'
-      })
-      return
-    }
-    setOutraContaBusy(true)
-    try {
-      const r = await tentarAcessarComOutraConta({
-        tipo: 'email',
-        email: outraEmail,
-        password: outraSenha
-      })
-      if (trocaNaoRealizada(r)) {
-        abrirResultadoTroca('falha')
-        return
-      }
-      if (r.trocou || r.ok) {
-        setOutraSenha('')
-        abrirResultadoTroca('sucesso')
-      }
-    } catch {
-      abrirResultadoTroca('falha')
-    } finally {
-      setOutraContaBusy(false)
+      setSaindoConta(false)
     }
   }
 
@@ -308,6 +227,15 @@ export default function ConfiguracoesNotificacoes() {
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
         Conta
       </Typography>
+      {user?.email ? (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Conectado como <strong>{user.email}</strong>
+        </Typography>
+      ) : user?.displayName ? (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Conectado como <strong>{user.displayName}</strong>
+        </Typography>
+      ) : null}
       <Stack spacing={1} sx={{ mb: 2 }}>
         <Button
           variant="outlined"
@@ -319,132 +247,21 @@ export default function ConfiguracoesNotificacoes() {
         </Button>
         <Button
           variant="outlined"
-          startIcon={<SwitchAccountOutlinedIcon />}
+          color="error"
+          startIcon={<LogoutOutlinedIcon />}
           fullWidth
-          onClick={() => setDialogOutraConta(true)}
+          onClick={() => void handleSairConta()}
+          disabled={saindoConta}
         >
-          Acessar com outra conta
+          {saindoConta ? 'Saindo…' : 'Sair da conta'}
         </Button>
       </Stack>
 
-      <Dialog
-        open={dialogOutraConta}
-        onClose={() => {
-          if (!outraContaBusy) setDialogOutraConta(false)
-        }}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle>Acessar com outra conta</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Você <strong>não será desconectado</strong> até a outra conta entrar com sucesso. Se cancelar ou
-            falhar, permanece na conta atual.
-          </Typography>
-          <Stack spacing={1.5}>
-            <Button
-              variant="contained"
-              fullWidth
-              disabled={outraContaBusy}
-              onClick={() => void handleOutraContaGoogle()}
-            >
-              Continuar com Google
-            </Button>
-            <Divider>ou e-mail</Divider>
-            <TextField
-              size="small"
-              fullWidth
-              label="E-mail da outra conta"
-              type="email"
-              autoComplete="email"
-              value={outraEmail}
-              onChange={(e) => setOutraEmail(e.target.value)}
-              disabled={outraContaBusy}
-            />
-            <TextField
-              size="small"
-              fullWidth
-              label="Senha"
-              type="password"
-              autoComplete="current-password"
-              value={outraSenha}
-              onChange={(e) => setOutraSenha(e.target.value)}
-              disabled={outraContaBusy}
-            />
-            <Button
-              variant="outlined"
-              fullWidth
-              disabled={outraContaBusy}
-              onClick={() => void handleOutraContaEmail()}
-            >
-              Entrar com e-mail e senha
-            </Button>
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogOutraConta(false)} disabled={outraContaBusy}>
-            Cancelar
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={dialogResultadoTroca === 'sucesso'}
-        fullWidth
-        maxWidth="xs"
-        onClose={fecharResultadoTroca}
-      >
-        <DialogTitle sx={{ fontWeight: 700 }}>Troca concluída!</DialogTitle>
-        <DialogContent>
-          <Alert severity="success" sx={{ mb: 1 }}>
-            Você está conectado na nova conta. Escolha para onde ir agora.
-          </Alert>
-        </DialogContent>
-        <DialogActions sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 1, px: 2, pb: 2 }}>
-          <Button variant="contained" fullWidth onClick={irParaBibliaAposTroca}>
-            Ir para a bíblia
-          </Button>
-          <Button variant="outlined" fullWidth onClick={irParaMenuAposTroca}>
-            Ir para o menu
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={dialogResultadoTroca === 'falha'}
-        fullWidth
-        maxWidth="xs"
-        onClose={fecharResultadoTroca}
-      >
-        <DialogTitle sx={{ fontWeight: 700 }}>Troca não realizada</DialogTitle>
-        <DialogContent>
-          <Alert severity="info" sx={{ mb: 1 }}>
-            A conta atual foi mantida. Você pode tentar de novo ou ir para a Bíblia.
-          </Alert>
-        </DialogContent>
-        <DialogActions sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 1, px: 2, pb: 2 }}>
-          <Button variant="contained" fullWidth onClick={irParaBibliaAposTroca}>
-            Ir para a bíblia
-          </Button>
-          <Button variant="outlined" fullWidth onClick={tentarNovamenteTrocaConta}>
-            Tentar novamente
-          </Button>
-        </DialogActions>
-      </Dialog>
-
       <Divider sx={{ mb: 2 }} />
-
-      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-        <NotificationsActiveIcon color="primary" />
-        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-          Notificações
-        </Typography>
-      </Stack>
 
       {ehWeb && !navegadorPermitido ? (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          Este navegador não suporta notificações push. Você ainda pode ligar ou desligar os tipos abaixo na
-          conta.
+          Este navegador não suporta notificações push. Você ainda pode ligar ou desligar na conta.
         </Alert>
       ) : null}
 
@@ -452,84 +269,27 @@ export default function ConfiguracoesNotificacoes() {
         direction="row"
         alignItems="center"
         spacing={2}
-        sx={{
-          mb: 2,
-          py: 1.25,
-          px: 1.5,
-          borderRadius: 1,
-          bgcolor: 'action.hover'
-        }}
+        sx={{ py: 0.5 }}
       >
-        <Typography variant="body2" sx={{ flex: 1, fontWeight: 600 }}>
-          {todasLigadas ? 'Desativar todas as notificações' : 'Ativar todas as notificações'}
-        </Typography>
-        <Button
-          variant="contained"
-          size="small"
-          disabled={salvando || ativandoPush || (ehWeb && !navegadorPermitido)}
-          onClick={() => void alternarTodasNotificacoes()}
-        >
-          {salvando || ativandoPush ? '…' : todasLigadas ? 'Desativar' : 'Ativar'}
-        </Button>
-      </Stack>
-
-      <Stack divider={<Divider flexItem />} spacing={0.5}>
-        <LinhaSwitch
-          titulo="Mensagens do chat"
-          descricao="Avisa quando alguém te enviar uma mensagem."
-          ligado={prefs.chat}
-          aoMudar={(v) => atualizar({ chat: v })}
-        />
-        <LinhaSwitch
-          titulo="Novidades e estudos"
-          descricao="Anúncios quando há novo devocional, estudo compartilhado ou plano de leitura."
-          ligado={prefs.novidades}
-          aoMudar={(v) => atualizar({ novidades: v })}
-        />
-        <LinhaSwitch
-          titulo="Lembrete diário de Devocional"
-          descricao="Convite para abrir o devocional do dia."
-          ligado={prefs.lembreteDevocional}
-          aoMudar={(v) => atualizar({ lembreteDevocional: v })}
-        />
-        <LinhaSwitch
-          titulo="Lembrete diário do Plano de Leitura"
-          descricao="Para não perder a leitura programada."
-          ligado={prefs.lembretePlano}
-          aoMudar={(v) => atualizar({ lembretePlano: v })}
-        />
-
-        {(prefs.lembreteDevocional || prefs.lembretePlano) && (
-          <Box sx={{ pt: 1.5 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              Horário dos lembretes
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <NotificationsActiveIcon color="primary" fontSize="small" />
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              Notificações
             </Typography>
-            <TextField
-              type="time"
-              value={prefs.horarioLembrete || '07:00'}
-              onChange={(e) => atualizar({ horarioLembrete: e.target.value })}
-              size="small"
-              fullWidth
-            />
-          </Box>
-        )}
+          </Stack>
+          <Typography variant="caption" color="text.secondary">
+            {notificacoesAtivas
+              ? 'Chat, novidades e lembretes diários ligados.'
+              : 'Chat, novidades e lembretes diários desligados.'}
+          </Typography>
+        </Box>
+        <Switch
+          checked={notificacoesAtivas}
+          disabled={salvando || ativandoPush || (ehWeb && !navegadorPermitido)}
+          onChange={() => void alternarNotificacoes()}
+        />
       </Stack>
-
-      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 3 }}>
-        {salvando ? 'Salvando…' : 'Suas preferências sincronizam em todos os seus aparelhos.'}
-      </Typography>
     </Container>
-  )
-}
-
-function LinhaSwitch({ titulo, descricao, ligado, aoMudar }) {
-  return (
-    <Stack direction="row" alignItems="center" spacing={2} sx={{ py: 1.5 }}>
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{titulo}</Typography>
-        <Typography variant="caption" color="text.secondary">{descricao}</Typography>
-      </Box>
-      <Switch checked={Boolean(ligado)} onChange={(_, v) => aoMudar(v)} />
-    </Stack>
   )
 }

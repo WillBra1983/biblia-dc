@@ -76,7 +76,7 @@ import {
 } from '../utils/planoLeituraUsuario'
 import { usePinchNumeric } from '../hooks/usePinchNumeric'
 import { salvarTokenPassagem } from '../utils/strongTokenContext'
-import { formatarTextoMorphHb } from '../utils/strongTokenHelpers'
+import { formatarTextoMorphHb, formatarTextoMorphHbVocalizado } from '../utils/strongTokenHelpers'
 import { sxHebrewVocalizado } from '../utils/hebrewDisplay'
 
 const loadNtStrongProvaService = () => import('../services/ntStrongProvaService')
@@ -215,6 +215,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const [tokensNtCapitulo, setTokensNtCapitulo] = useState({})
   const [otStrongDisponivel, setOtStrongDisponivel] = useState(false)
   const [tokensOtCapitulo, setTokensOtCapitulo] = useState({})
+  const [headwordsOtCapitulo, setHeadwordsOtCapitulo] = useState({})
   const [planoLeituraTick, setPlanoLeituraTick] = useState(0)
   const [filaCelebracaoPlano, setFilaCelebracaoPlano] = useState([])
   /** Só para NT: vários possíveis Strong para o mesmo lema (escolhe e abre a página de estudo). */
@@ -566,16 +567,32 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   useEffect(() => {
     if (!otStrongDisponivel || !modoStrongProva || ehNovoTestamento || !livroAtual?.id || !capitulo) {
       setTokensOtCapitulo({})
+      setHeadwordsOtCapitulo({})
       return
     }
     let active = true
     void (async () => {
       try {
-        const { buscarTokensOtCapitulo } = await loadOtStrongService()
+        const { buscarTokensOtCapitulo, buscarStrongHebrewMap } = await loadOtStrongService()
         const byVerse = await buscarTokensOtCapitulo(livroAtual.id, capitulo)
-        if (active) setTokensOtCapitulo(byVerse || {})
+        const codes = [
+          ...new Set(
+            Object.values(byVerse || {})
+              .flat()
+              .map((t) => String(t?.strong_code || '').trim().toUpperCase())
+              .filter(Boolean)
+          ),
+        ]
+        const headwordMap = codes.length ? await buscarStrongHebrewMap(codes) : {}
+        if (active) {
+          setTokensOtCapitulo(byVerse || {})
+          setHeadwordsOtCapitulo(headwordMap || {})
+        }
       } catch {
-        if (active) setTokensOtCapitulo({})
+        if (active) {
+          setTokensOtCapitulo({})
+          setHeadwordsOtCapitulo({})
+        }
       }
     })()
     return () => {
@@ -2397,7 +2414,10 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                               lineHeight: 1.2,
                             }}
                           >
-                            {formatarTextoMorphHb(String(tk.text || ''))}
+                            {formatarTextoMorphHbVocalizado(
+                              String(tk.text || ''),
+                              headwordsOtCapitulo[String(tk.strong_code || '').trim().toUpperCase()]?.headword
+                            )}
                           </Typography>
                         </Box>
                       ))}

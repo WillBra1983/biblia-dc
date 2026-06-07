@@ -1,0 +1,5 @@
+H7225 headword repr: ('H7225', 'רֵאשִׁית')
+strong_hebrew with niqqud: 8674/8674
+tokens repr: ["'ראשית'", "'ב/ראשית'", "'ראשית'"]
+BDB t.ad.ag start repr: 'רֵאשִׁית nf · Início, Chefe, Primeiro'
+BDB has niqqud: True

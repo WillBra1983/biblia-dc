@@ -16,7 +16,6 @@ import {
   MSG_SEM_INTERNET_RECURSO,
 } from '../utils/conteudoLocalOffline'
 import { mostrarSnackbar } from '../utils/uiDialogs'
-import LoginConectarOverlay from './LoginConectarOverlay'
 
 const PENDING_LOGIN_REDIRECT_KEY = 'salvation-pending-login-redirect'
 const AUTH_WAIT_MS = 2800
@@ -29,11 +28,10 @@ function dispararBibliaProntaSeguro() {
 }
 
 /**
- * - **Com internet (web):** conteúdo local abre sem login; rotas de conta/nuvem pedem login.
- * - **Com internet (app nativo):** login em overlay sobre a tela (ex.: Bíblia), sem ir ao Chat.
+ * - **Com internet (web e app nativo):** conteúdo local abre sem login; rotas de conta/nuvem pedem login.
  * - **Sem internet e sem login:** só conteúdo local, com aviso de acesso limitado.
  * - **Sem internet no `/chat`:** vai ao conteúdo local (não dá para autenticar).
- * - **Logado:** permanece na sessão; sem opção de deslogar na UI.
+ * - **Logado:** permanece na sessão até escolher «Sair da conta» (Configurações ou Chat).
  */
 export default function RequireAuth({ children }) {
   const { user } = useFirebaseAuth()
@@ -52,13 +50,6 @@ export default function RequireAuth({ children }) {
   const limitado = modoAcessoLimitadoOffline(sessaoOk) && local
   const liberaConteudoLocal = local
   const podeVer = sessaoOk || limitado
-  const mostrarLoginOverlay =
-    isNativeApp &&
-    isFirebaseConfigured() &&
-    !offline &&
-    local &&
-    user !== undefined &&
-    !sessaoOk
 
   useEffect(() => {
     if (user !== undefined) {
@@ -188,10 +179,5 @@ export default function RequireAuth({ children }) {
     )
   }
 
-  return (
-    <>
-      {renderConteudo()}
-      {mostrarLoginOverlay ? <LoginConectarOverlay open /> : null}
-    </>
-  )
+  return renderConteudo()
 }

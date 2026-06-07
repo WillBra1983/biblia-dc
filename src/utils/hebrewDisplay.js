@@ -29,6 +29,20 @@ export function fontFamilyStrongPassagem(ehGrego) {
   return ehGrego ? FONT_FAMILY_GREEK_STRONG : FONT_FAMILY_HEBREW
 }
 
+/** Texto misto PT+hebraico (ex.: BDB): Noto primeiro, sem bold sintético. */
+export function sxTextoMistoHebraico(sxBase = {}) {
+  return {
+    ...sxBase,
+    fontFamily: FONT_FAMILY_HEBREW,
+    fontWeight: 400,
+    fontSynthesis: 'none',
+    fontFeatureSettings: '"mark" 1, "mkmk" 1',
+    textRendering: 'optimizeLegibility',
+    WebkitFontSmoothing: 'antialiased',
+    lineHeight: sxBase.lineHeight ?? 1.55,
+  }
+}
+
 const CANTILACAO_MIN = 0x0591
 const CANTILACAO_MAX = 0x05af
 

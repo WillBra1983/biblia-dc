@@ -164,6 +164,122 @@ export function transliterarGregoBasico(texto) {
   return out
 }
 
+/** Normaliza transliteração para exibição. */
+export function guiaLeituraToken(tokenTranslit) {
+  return String(tokenTranslit || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^[\u2018\u2019\u05F3'`"]+|[\u2018\u2019\u05F3'`"]+$/g, '')
+    .replace(/[ʻʼ''`´]/g, '')
+    .replace(/[–—]/g, '-')
+    .replace(/[ēėê]/g, 'e')
+    .replace(/[ōô]/g, 'o')
+    .replace(/[āăâ]/g, 'a')
+    .replace(/[īíî]/g, 'i')
+    .replace(/[ūúû]/g, 'u')
+}
+
+function transliteracaoTemVogalLatinas(s) {
+  const t = guiaLeituraToken(s)
+  return /[aeiou]/i.test(t)
+}
+
+/** Prefixos MorphHB (ב/כ/ל/ו/ה/מ…) → latim aproximado quando o token flexionado não traz niqqud. */
+function transliterarPrefixosMorphHb(partesPrefixo) {
+  let out = ''
+  for (const px of partesPrefixo) {
+    const p = String(px || '').trim()
+    if (!p) continue
+    if (p === 'ו') {
+      out += 've'
+      continue
+    }
+    if (p === 'ב') {
+      out += 'be'
+      continue
+    }
+    if (p === 'כ') {
+      out += 'ke'
+      continue
+    }
+    if (p === 'ל') {
+      out += 'le'
+      continue
+    }
+    if (p === 'ה') {
+      out += 'ha'
+      continue
+    }
+    if (p === 'מ') {
+      out += 'me'
+      continue
+    }
+    const voc = vocalizarPrefixoMorphHb(p, true)
+    out += transliterarHebraicoVocalizado(voc) || p
+  }
+  return out
+}
+
+/**
+ * Fallback: léma Strong (xlit) quando a forma na passagem não tem niqqud.
+ * Preserva prefixos MorphHB (ex.: ו/יאמר → veamar).
+ */
+function montarTranslitFallbackLema(raw, xlit) {
+  const raiz = guiaLeituraToken(xlit)
+  if (!raiz || !transliteracaoTemVogalLatinas(raiz)) return ''
+  if (!raw.includes('/')) return raiz
+  const prefixLat = transliterarPrefixosMorphHb(raw.split('/').slice(0, -1))
+  return prefixLat ? `${prefixLat}${raiz}` : raiz
+}
+
+/** Sufixos pronominais MorphHB (ex.: ב/ו, ל/הם) sem entrada Strong própria. */
+function transliterarUltimoSegmentoMorphHb(segmento) {
+  const map = {
+    ו: 'o',
+    ה: 'a',
+    הו: 'hu',
+    הם: 'hem',
+    הן: 'hen',
+    ך: 'kha',
+    כם: 'khem',
+    כן: 'khen',
+    נו: 'nu',
+    ם: 'm',
+    ן: 'n',
+    י: 'i',
+  }
+  const s = String(segmento || '').trim()
+  return map[s] ?? transliterarHebraicoVocalizado(s)
+}
+
+function montarTranslitApenasMorphHb(raw) {
+  if (!raw.includes('/')) return ''
+  const parts = raw.split('/').map((p) => p.trim()).filter(Boolean)
+  if (!parts.length) return ''
+  if (parts.length === 1) {
+    const t = guiaLeituraToken(transliterarHebraicoVocalizado(parts[0]))
+    return transliteracaoTemVogalLatinas(t) ? t : ''
+  }
+  const prefixLat = transliterarPrefixosMorphHb(parts.slice(0, -1))
+  const suffixLat = guiaLeituraToken(transliterarUltimoSegmentoMorphHb(parts[parts.length - 1]))
+  const out = `${prefixLat}${suffixLat}`
+  return transliteracaoTemVogalLatinas(out) ? out : ''
+}
+
+/** Formas isoladas sem Strong (artigo, pronomes enclíticos). */
+function montarTranslitFormaIsolada(raw) {
+  const map = {
+    ה: 'ha',
+    לך: 'lekha',
+    כה: 'kha',
+    בה: 'ba',
+    ממך: 'memekha',
+  }
+  const key = formatarTextoMorphHb(raw)
+  const v = map[key]
+  return v && transliteracaoTemVogalLatinas(v) ? v : ''
+}
+
 export function montarTranslitTokenHebraico(texto, opts = {}) {
   const lemmaUnicode = String(opts.lemmaUnicode || '').trim()
   const xlit = String(opts.lemmaTranslit || '').trim()
@@ -177,7 +293,9 @@ export function montarTranslitTokenHebraico(texto, opts = {}) {
   const he = formatarTextoMorphHbVocalizado(raw, lemmaUnicode)
 
   const daForma = transliterarHebraicoVocalizado(he)
-  if (daForma) {
+  const daFormaComVogais = daForma && transliteracaoTemVogalLatinas(daForma)
+
+  if (daFormaComVogais) {
     const translit = guiaLeituraToken(daForma)
     const fonetica = mesmaForma && pron ? pron : ''
     const linha = fonetica ? `${translit} | ${fonetica}` : translit
@@ -190,27 +308,27 @@ export function montarTranslitTokenHebraico(texto, opts = {}) {
     return { translit, fonetica: pron, linha, mesmaFormaQueLema: true }
   }
 
-  if (xlit) {
-    const translit = guiaLeituraToken(xlit)
-    return { translit, fonetica: '', linha: translit, mesmaFormaQueLema: false }
+  const fallbackLema = xlit ? montarTranslitFallbackLema(raw, xlit) : ''
+  if (fallbackLema) {
+    return { translit: fallbackLema, fonetica: '', linha: fallbackLema, mesmaFormaQueLema: false }
+  }
+
+  const morphOnly = montarTranslitApenasMorphHb(raw)
+  if (morphOnly) {
+    return { translit: morphOnly, fonetica: '', linha: morphOnly, mesmaFormaQueLema: false }
+  }
+
+  const isolada = montarTranslitFormaIsolada(raw)
+  if (isolada) {
+    return { translit: isolada, fonetica: '', linha: isolada, mesmaFormaQueLema: false }
+  }
+
+  if (daForma) {
+    const translit = guiaLeituraToken(daForma)
+    return { translit, fonetica: '', linha: translit, mesmaFormaQueLema: mesmaForma }
   }
 
   return { translit: '', fonetica: '', linha: '', mesmaFormaQueLema: false }
-}
-
-/** Normaliza transliteração para exibição. */
-export function guiaLeituraToken(tokenTranslit) {
-  return String(tokenTranslit || '')
-    .trim()
-    .replace(/^[\u2018\u2019\u05F3'`"]+|[\u2018\u2019\u05F3'`"]+$/g, '')
-    .replace(/[ʼ''`´]/g, '')
-    .replace(/[–—]/g, '-')
-    .replace(/[ēė]/g, 'e')
-    .replace(/[ōô]/g, 'o')
-    .replace(/[āă]/g, 'a')
-    .replace(/[īí]/g, 'i')
-    .replace(/[ūú]/g, 'u')
-    .toLowerCase()
 }
 
 /**

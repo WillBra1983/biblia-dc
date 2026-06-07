@@ -155,10 +155,10 @@ const notificacoesSubItemAdmin = Object.freeze({
 })
 
 const notificacoesSubItemUsuarios = Object.freeze({
-  text: 'Utilizadores',
+  text: 'Usuários',
   icon: <PeopleIcon sx={{ fontSize: ICON_SIZE }} />,
   path: '/admin/usuarios',
-  description: 'Contas registadas (Firebase Auth)',
+  description: 'Contas registradas (Firebase Auth)',
   requerLogin: true
 })
 

@@ -210,7 +210,7 @@ export default function AdminUsuarios() {
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
         <PeopleIcon color="primary" />
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          Utilizadores registados
+          Usuários registrados
         </Typography>
       </Stack>
 

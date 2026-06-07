@@ -1,0 +1,218 @@
+[
+  {
+    "verse": 1,
+    "idx": 1,
+    "text": "ב/ראשית",
+    "morph": "HR/Ncfsa",
+    "lemma_raw": "Hb/H7225",
+    "strong": "H7225"
+  },
+  {
+    "verse": 1,
+    "idx": 2,
+    "text": "ברא",
+    "morph": "HVqp3ms",
+    "lemma_raw": "H1254",
+    "strong": "H1254"
+  },
+  {
+    "verse": 1,
+    "idx": 3,
+    "text": "אלהים",
+    "morph": "HNcmpa",
+    "lemma_raw": "H430",
+    "strong": "H430"
+  },
+  {
+    "verse": 1,
+    "idx": 4,
+    "text": "את",
+    "morph": "HTo",
+    "lemma_raw": "H853",
+    "strong": "H853"
+  },
+  {
+    "verse": 1,
+    "idx": 5,
+    "text": "ה/שמים",
+    "morph": "HTd/Ncmpa",
+    "lemma_raw": "Hd/H8064",
+    "strong": "H8064"
+  },
+  {
+    "verse": 1,
+    "idx": 6,
+    "text": "ו/את",
+    "morph": "HC/To",
+    "lemma_raw": "Hc/H853",
+    "strong": "H853"
+  },
+  {
+    "verse": 1,
+    "idx": 7,
+    "text": "ה/ארץ",
+    "morph": "HTd/Ncbsa",
+    "lemma_raw": "Hd/H776",
+    "strong": "H776"
+  },
+  {
+    "verse": 2,
+    "idx": 1,
+    "text": "ו/ה/ארץ",
+    "morph": "HC/Td/Ncbsa",
+    "lemma_raw": "Hc/Hd/H776",
+    "strong": "H776"
+  },
+  {
+    "verse": 2,
+    "idx": 2,
+    "text": "היתה",
+    "morph": "HVqp3fs",
+    "lemma_raw": "H1961",
+    "strong": "H1961"
+  },
+  {
+    "verse": 2,
+    "idx": 3,
+    "text": "תהו",
+    "morph": "HNcmsa",
+    "lemma_raw": "H8414",
+    "strong": "H8414"
+  },
+  {
+    "verse": 2,
+    "idx": 4,
+    "text": "ו/בהו",
+    "morph": "HC/Ncmsa",
+    "lemma_raw": "Hc/H922",
+    "strong": "H922"
+  },
+  {
+    "verse": 2,
+    "idx": 5,
+    "text": "ו/חשך",
+    "morph": "HC/Ncmsa",
+    "lemma_raw": "Hc/H2822",
+    "strong": "H2822"
+  },
+  {
+    "verse": 2,
+    "idx": 6,
+    "text": "על",
+    "morph": "HR",
+    "lemma_raw": "H5921",
+    "strong": "H5921"
+  },
+  {
+    "verse": 2,
+    "idx": 7,
+    "text": "פני",
+    "morph": "HNcbpc",
+    "lemma_raw": "H6440",
+    "strong": "H6440"
+  },
+  {
+    "verse": 2,
+    "idx": 8,
+    "text": "תהום",
+    "morph": "HNcbsa",
+    "lemma_raw": "H8415",
+    "strong": "H8415"
+  },
+  {
+    "verse": 2,
+    "idx": 9,
+    "text": "ו/רוח",
+    "morph": "HC/Ncbsc",
+    "lemma_raw": "Hc/H7307",
+    "strong": "H7307"
+  },
+  {
+    "verse": 2,
+    "idx": 10,
+    "text": "אלהים",
+    "morph": "HNcmpa",
+    "lemma_raw": "H430",
+    "strong": "H430"
+  },
+  {
+    "verse": 2,
+    "idx": 11,
+    "text": "מרחפת",
+    "morph": "HVprfsa",
+    "lemma_raw": "H7363",
+    "strong": "H7363"
+  },
+  {
+    "verse": 2,
+    "idx": 12,
+    "text": "על",
+    "morph": "HR",
+    "lemma_raw": "H5921",
+    "strong": "H5921"
+  },
+  {
+    "verse": 2,
+    "idx": 13,
+    "text": "פני",
+    "morph": "HNcbpc",
+    "lemma_raw": "H6440",
+    "strong": "H6440"
+  },
+  {
+    "verse": 2,
+    "idx": 14,
+    "text": "ה/מים",
+    "morph": "HTd/Ncmpa",
+    "lemma_raw": "Hd/H4325",
+    "strong": "H4325"
+  },
+  {
+    "verse": 3,
+    "idx": 1,
+    "text": "ו/יאמר",
+    "morph": "HC/Vqw3ms",
+    "lemma_raw": "Hc/H559",
+    "strong": "H559"
+  },
+  {
+    "verse": 3,
+    "idx": 2,
+    "text": "אלהים",
+    "morph": "HNcmpa",
+    "lemma_raw": "H430",
+    "strong": "H430"
+  },
+  {
+    "verse": 3,
+    "idx": 3,
+    "text": "יהי",
+    "morph": "HVqj3ms",
+    "lemma_raw": "H1961",
+    "strong": "H1961"
+  },
+  {
+    "verse": 3,
+    "idx": 4,
+    "text": "אור",
+    "morph": "HNcbsa",
+    "lemma_raw": "H216",
+    "strong": "H216"
+  },
+  {
+    "verse": 3,
+    "idx": 5,
+    "text": "ו/יהי",
+    "morph": "HC/Vqw3ms",
+    "lemma_raw": "Hc/H1961",
+    "strong": "H1961"
+  },
+  {
+    "verse": 3,
+    "idx": 6,
+    "text": "אור",
+    "morph": "HNcbsa",
+    "lemma_raw": "H216",
+    "strong": "H216"
+  }
+]

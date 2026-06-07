@@ -79,7 +79,7 @@ function getPageTitleFromPathname(pathname) {
   if (/^\/estudos-biblicos\/ia-(passagem|pericope)/.test(path)) return 'Estudos Compartilhados'
   if (path.startsWith('/estudos-biblicos')) return 'Estudos Compartilhados'
   if (path.startsWith('/chat')) return 'Mensagens'
-  if (path.startsWith('/admin/usuarios')) return 'Utilizadores'
+  if (path.startsWith('/admin/usuarios')) return 'Usuários'
   if (path.startsWith('/admin/notificar')) return 'Enviar aviso'
   if (path.startsWith('/versiculos-marcados')) return 'Versículos marcados'
   if (path.startsWith('/biblia/apresentacao')) return 'Apresentação — Bíblia'

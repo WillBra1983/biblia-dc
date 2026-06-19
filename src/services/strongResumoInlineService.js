@@ -17,6 +17,8 @@ import {
 import {
   criarResumoStrongCompartilhavel,
   obterResumoStrongPublicadoPorCodigo,
+  obterResumoTokenPublicadoPorChave,
+  publicarResumoTokenAutomatico,
   atualizarResumoStrongCompartilhavel,
 } from './strongResumoShareService'
 import {
@@ -174,6 +176,8 @@ async function resolverTokenTexto({
   resumoLemma,
   forcar,
   chaveToken,
+  user,
+  refPassagem,
 }) {
   if (!precisaAnaliseFormaPassagem(token, detalhe, ehGrego)) {
     return { ok: true, text: '', fonte: 'nao-aplicavel' }
@@ -183,6 +187,17 @@ async function resolverTokenTexto({
     const local = tokenResumoCacheValido(lerResumoTokenLocalStrong(chaveToken))
     if (local) {
       return { ok: true, text: local, fonte: 'local-token' }
+    }
+
+    if (user?.uid && !estaSemRede()) {
+      const publicado = await obterResumoTokenPublicadoPorChave(chaveToken).catch(() => null)
+      const pubLimpo = tokenResumoCacheValido(
+        limparResumoLexicalParaExibicao(publicado?.resumo || '')
+      )
+      if (pubLimpo) {
+        salvarResumoTokenLocalStrong(chaveToken, pubLimpo)
+        return { ok: true, text: pubLimpo, fonte: 'publicado-token' }
+      }
     }
   }
 
@@ -203,6 +218,20 @@ async function resolverTokenTexto({
   const limpo = limparResumoLexicalParaExibicao(gerado.text)
   if (limpo && resumoTextoPareceCompleto(limpo)) {
     salvarResumoTokenLocalStrong(chaveToken, limpo)
+    if (user?.uid) {
+      try {
+        await publicarResumoTokenAutomatico({
+          chaveToken,
+          code: codeNorm,
+          resumo: limpo,
+          refPassagem,
+          authorUid: user.uid,
+          authorName: user.displayName || user.email || 'Usuário',
+        })
+      } catch {
+        /* opcional */
+      }
+    }
   }
   return { ok: true, text: limpo, fonte: 'gemini-token' }
 }
@@ -287,6 +316,8 @@ export async function resolverResumoLexicalInline({
           resumoLemma: lemmaLocal,
           forcar: false,
           chaveToken,
+          user,
+          refPassagem,
         })
         tokenText = tokenRes.text || ''
       }
@@ -334,6 +365,8 @@ export async function resolverResumoLexicalInline({
       resumoLemma: lemmaRes.text,
       forcar,
       chaveToken,
+      user,
+      refPassagem,
     })
     tokenText = tokenRes.text || ''
   }

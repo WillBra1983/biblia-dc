@@ -1363,8 +1363,22 @@ export default function Chat() {
 
   if (user === undefined) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
+      <Box sx={{ p: 1 }}>
+        <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
+          <IconButton onClick={() => navigate(-1)} aria-label="Voltar">
+            <ArrowBack />
+          </IconButton>
+          <Typography variant="subtitle1" fontWeight={600}>
+            Mensagens
+          </Typography>
+        </Stack>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, py: 3 }}>
+          <CircularProgress size={28} />
+          <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ px: 2 }}>
+            Verificando sua sessão… Se demorar, use o formulário abaixo para entrar.
+          </Typography>
+        </Box>
+        <AuthConectarForm />
       </Box>
     )
   }

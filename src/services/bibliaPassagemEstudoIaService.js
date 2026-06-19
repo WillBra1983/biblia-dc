@@ -301,11 +301,20 @@ A exposição deve ter **progressão homilética**, não checklist mecânico:
 — **aplique organicamente** ao coração e à vida da igreja.
 **Evite transformar a exposição em mera paráfrase versículo a versículo** ("v.1 significa X, v.2 significa Y"): mostre o **fluxo do argumento**, as **conexões entre as partes**, o **desenvolvimento da tensão** e o **propósito espiritual do autor inspirado**.
 
-**Silêncio estrutural**: se uma seção abaixo não surgir naturalmente desta perícope, **seja breve nela** — a profundidade deve acompanhar a ênfase do texto bíblico, não a expectativa do template.
+Método exegético (processo **interno** — não vire seções extras nem relatório acadêmico):
+— Antes de escrever, observe: estrutura, contexto imediato, conectivos, repetições, contrastes, paralelismos, personagens, progressão argumentativa e ênfase do autor inspirado.
+— Interprete a partir do significado **contextual**; evite falácia etimológica e falácia da raiz.
+— **Não invente** análise de línguas originais (hebraico/grego, morfologia, códigos Strong) se o material fornecido não trouxer base explícita; prefira o que o texto em português e o contexto literário sustentam.
 
-**Extensão**: o teto técnico é **máximo**, não alvo. Complete **todas** as seções obrigatórias com frases fechadas, mas **não** estique parágrafos nem repita ideias só para ocupar espaço. Uma perícope pode exigir exposição longa; outra, seções mais curtas — siga o texto.
+**Seções opcionais — regra central**: os títulos ## abaixo são **modelos de navegação**, não obrigação homilética. Se uma seção **não nascer com substância legítima** desta perícope, **omita a seção inteira** (sem cabeçalho, sem parágrafo de desculpa, sem "embora este texto não fale diretamente de Cristo…"). **Não** preencha seção só porque o template a lista.
 
-Termine **cada seção com frases completas**. Use exatamente os títulos abaixo, em Markdown com ##:
+**Âncoras de leitura, não moldes iguais**: quando uma seção existir, use o título ## **exato** indicado abaixo (para consistência na app). Porém a **densidade, o ritmo e a ordem interna das ideias** devem **variar conforme o gênero e a ênfase** do trecho. **Não** trate cada perícope como se todas as seções pedissem o mesmo peso.
+
+**Silêncio estrutural**: seção presente mas secundária neste trecho → **seja breve** (uma ou duas frases fechadas bastam).
+
+**Extensão**: o teto técnico é **máximo**, não alvo. **Não** estique parágrafos nem repita ideias só para ocupar espaço.
+
+Termine **cada seção que escrever** com frases completas. Use os títulos ## abaixo **somente nas seções que incluir**, na ordem indicada:
 
 ## Texto e contexto
 (4–8 frases: o livro bíblico, o argumento imediato, situação histórico-literária essencial, gancho do trecho dentro do todo. Mencione o gênero literário em uma frase.)
@@ -314,34 +323,28 @@ Termine **cada seção com frases completas**. Use exatamente os títulos abaixo
 (**Uma frase** curta, clara e pastoral resumindo o argumento principal da perícope. Toda a exposição e a aplicação devem servir a esta proposição — é a *unidade homilética* do sermão.)
 
 ## Propósito pastoral
-(2–3 frases: o que este texto, sob o sopro do Espírito, **busca produzir no coração do povo de Deus** — arrependimento, fé, temor, esperança, perseverança, adoração, consolo, etc. Não é a aplicação ainda; é o *burden* pastoral do sermão.)
+(**Opcional** quando o *burden* pastoral já estiver claro na proposição ou na exposição.) 2–3 frases: o que este texto busca produzir no coração do povo de Deus — arrependimento, fé, temor, esperança, adoração, consolo, etc.
 
 ## Estrutura da perícope
-(Divisão do texto em **2 a 4 movimentos** internos, cada um com referência de versículos. Liste como pontos curtos. Esta divisão guia a exposição abaixo.)
+(Divisão do texto em **2 a 4 movimentos** internos, cada um com referência de versículos. Liste como pontos curtos. Cada movimento deve ser **defensável pelo texto** — não invente pontos só por simetria homilética. Se o trecho pedir **2** ou **5** movimentos naturais, ajuste (dentro do razoável) em vez de forçar sempre o mesmo número. Esta divisão guia a exposição abaixo.)
 
 ## Exposição
-(Exposição **ponto a ponto** seguindo a divisão acima — versículo a versículo **dentro** de cada ponto, mas mostrando o **fluxo** e a **tensão** do trecho, não comentando isoladamente. Preserve o **gênero**: narrativa mantém movimento narrativo; poesia mantém imagética e afeto; epístola segue a argumentação; profecia preserva acusação/promessa/aliança; sabedoria preserva observação sob o temor de Deus. Quando o texto realmente justifica, deixe a tradição reformada aparecer com substância — pacto, soberania, depravação, graça eficaz, perseverança, união com Cristo. Quando o texto **não** justifica, **não force** essas categorias.)
+(Exposição **ponto a ponto** seguindo a divisão acima — versículo a versículo **dentro** de cada ponto, mas mostrando o **fluxo** e a **tensão** do trecho, não comentando isoladamente. Cada bloco da exposição deve **nascer dos versículos** que o sustentam; se um ponto não emerge claramente do texto, omita-o em vez de preencher por hábito de sermão. Preserve o **gênero**: narrativa mantém movimento narrativo; poesia mantém imagética e afeto; epístola segue a argumentação; profecia preserva acusação/promessa/aliança; sabedoria preserva observação sob o temor de Deus. Quando o texto realmente justifica, deixe a tradição reformada aparecer com substância — pacto, soberania, depravação, graça eficaz, perseverança, união com Cristo. Quando o texto **não** justifica, **não force** essas categorias.)
 
 ## Doutrina principal
-(**Uma** proposição doutrinária central que o texto ensina (legitimamente derivada, não meramente afirmada pelo texto — distinga). Em 2–4 frases, mostre como essa doutrina nasce deste trecho. Quando puder conectar com a Confissão de Fé de Westminster, Heidelberg, Belga ou Cânones de Dort — cite capítulo/pergunta **só** com certeza; se não, omita.)
+(**Opcional** — omita se a perícope for narrativa descritiva, genealogia ou trecho onde a exposição já articulou a verdade sem necessidade de abstração doutrinária separada.) **Uma** proposição doutrinária central legitimamente derivada do texto (distinga afirmação direta de implicação). Em 2–4 frases. Confissão reformada — cite capítulo/pergunta **só** com certeza.
 
 ## Cristo e o Evangelho
-(Comece pelas **tensões reais da perícope** — o que o texto **deixa em aberto, em ferida, em fome, em vaidade, em culpa, em espera**? Mostre os **limites da vida caída** que este trecho expõe. **Só então** mostre como a história da redenção encontra cumprimento em Cristo — por promessa, tipologia legítima, ofício mediatorial, ato redentivo, lugar na aliança da graça. **Se a passagem é mais Lei que Evangelho**, mostre como apenas Cristo cumpre. **Se a conexão seria forçada ou alegórica**, seja breve e honesto em vez de elegante; é melhor um parágrafo verdadeiro do que três parágrafos decorativos. Em **Eclesiastes** e textos sapienciais existenciais semelhantes, **não "feche o circuito"** com uma frase de resolução cristológica que apague o desconforto do autor inspirado: deixe a insuficiência "debaixo do sol" **palpável**; Cristo como resposta à **fome canônica**, não como etiqueta tranquilizadora que neutraliza o estranho do livro.)
+(**Opcional** — inclua **somente** quando houver conexão legítima com Cristo a partir das **tensões reais** do trecho. Se a perícope for primariamente criação, genealogia, lei cerimonial, sabedoria prática ou lamento sem horizonte messiânico imediato, **pode omitir esta seção inteira** em vez de forçar tipologia ou "tudo aponta para Cristo". Quando incluir: comece pelo que o texto **deixa em aberto** (ferida, fome, culpa, vaidade, espera); mostre limites da vida caída; **só então** a história da redenção em Cristo — promessa, tipologia legítima, ofício, ato redentivo. Se a conexão seria forçada, **omita a seção** ou limite-se a **um parágrafo honesto**. Em **Eclesiastes** e textos sapienciais existenciais, não "feche o circuito" com resolução cristológica que apague o desconforto do autor.)
 
-## Aplicação — usos pastorais (penetrante, puritana)
-(No estilo dos puritanos: "Usos". Divida em sub-tópicos curtos, **só os que o texto sustenta**, decorrentes da **doutrina** e do **movimento** do texto. Atinja o **coração**, não apenas o comportamento — nomeie **afetos**, **idolatrias funcionais** (segurança, controle, prazer, aprovação), **falsas seguranças**, **medos**, **autoenganos**, e ofereça **consolações específicas do Evangelho** para o aflito.
-— **Uso de informação** (o que isso nos ensina sobre Deus / sobre nós);
-— **Uso de exame** (perguntas que o texto faz à consciência — concretas, não polidas);
-— **Uso de exortação** (chamado ao crente);
-— **Uso de consolação** (consolo específico do Evangelho para o aflito deste texto);
-— **Uso de advertência** (para o incrédulo / aviso à igreja).
-**Evite aplicações genéricas e intercambiáveis** que serviriam para qualquer passagem ("seja grato", "valorize a família", "viva com propósito"), moralismo sem Evangelho e autoajuda. Não force os cinco — use os que o texto justifica.)
+## Aplicação pastoral
+(**Opcional** se o trecho for puramente descritivo/contextual e a aplicação já estiver integrada na exposição; caso contrário, inclua.) Aplicação no espírito dos puritanos ("Usos"), mas **sem rótulos fixos** na saída: use subtítulos \`###\` com **frases curtas nascidas deste texto** (ex.: \`### A majestade do Criador soberano\`, \`### Onde está nossa adoração?\`) — **não** use como cabeçalhos visíveis "Uso de informação", "Uso de exame", "Uso de exortação", etc. Inclua **só** os ângulos que o texto sustenta (pode ser um único bloco em prosa). Atinja o **coração**: afetos, idolatrias funcionais, falsas seguranças, consolo específico do Evangelho. **Evite** aplicações genéricas intercambiáveis ("seja grato", "viva com propósito").
 
 ## Perguntas para reflexão e estudo em grupo
-(4 a 6 perguntas concretas, escalonando do **texto** à **doutrina** e à **aplicação**.)
+(**Opcional** — 4 a 6 perguntas quando fizer sentido pedagógico; omita em trechos muito curtos ou quando a perícope já fechou bem sem necessidade de lista.)
 
 ## Oração breve
-(1–2 parágrafos curtos, em primeira pessoa do plural, refletindo a **proposição central** e o **uso pastoral principal** — não uma oração genérica intercambiável.)
+(**Opcional** — 1–2 parágrafos em primeira pessoa do plural, só se couber naturalmente após o estudo; não uma oração genérica intercambiável.)
 
 Termine com a linha separada:
 **Nota:** material de auxílio para estudo pessoal e para preparação devocional/pastoral — confirme sempre na Escritura, nos símbolos confessionais reformados e busque a orientação de pastores de confiança.`

@@ -34,6 +34,19 @@ export function hintForFirebaseAuthError(error) {
   const code = String(error?.code ?? '')
   const msg = String(error?.message ?? '')
 
+  if (
+    code === 'salvation/embedded-browser' ||
+    msg.toLowerCase().includes('disallowed_useragent')
+  ) {
+    return [
+      'Não dá para entrar com o Google pelo navegador interno deste app (Instagram, Facebook, etc.).',
+      '',
+      'Faça uma destas opções:',
+      '• Toque nos três pontinhos (⋯) e escolha "Abrir no Chrome" ou "Abrir no Safari" e tente de novo.',
+      '• Ou entre com e-mail e senha aqui mesmo.',
+    ].join('\n')
+  }
+
   if (msg === 'Something went wrong' && GOOGLE_SIGN_IN_STATUS_HINTS[code] && isCapacitorNative()) {
     return [
       'Falha no login Google nativo.',

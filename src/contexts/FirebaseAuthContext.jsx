@@ -23,9 +23,16 @@ import {
   usuarioPrecisaVerificarEmail,
 } from '../utils/emailVerificationAuth'
 import { validarNomeExibicaoCadastro } from '../utils/emailCadastro'
-import { signInWithGoogleWeb } from '../utils/googleSignInWeb'
+import {
+  limparRedirectGooglePendente,
+  redirectGoogleEstaPendente,
+  signInWithGoogleWeb,
+} from '../utils/googleSignInWeb'
 
 const ERRO_EMAIL_NAO_VERIFICADO = 'salvation/email-not-verified'
+/** Se a persistência do Auth travar no WebView, libera login após este tempo. */
+const AUTH_INIT_TIMEOUT_MS = isNativeApp() ? 6000 : 9000
+const REDIRECT_RESULT_TIMEOUT_MS = 5000
 
 const isNativeApp = () =>
   typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() === true
@@ -62,6 +69,23 @@ export function FirebaseAuthProvider({ children }) {
     let cancelled = false
     let cancelRedirectWait = () => {}
     let unsubAuth = () => {}
+    let authStateRecebido = false
+    let timeoutId = 0
+
+    const aplicarUsuarioAuth = (u) => {
+      if (cancelled) return
+      authStateRecebido = true
+      if (estaRegistroEmailSenhaEmCurso() && u && usuarioPrecisaVerificarEmail(u)) {
+        return
+      }
+      setUser(u ?? null)
+    }
+
+    const liberarSeAuthTravado = () => {
+      if (cancelled || authStateRecebido) return
+      console.warn('[auth] tempo esgotado ao restaurar sessão — exibindo tela de login')
+      setUser(null)
+    }
 
     void (async () => {
       try {
@@ -75,31 +99,57 @@ export function FirebaseAuthProvider({ children }) {
 
         const { onAuthStateChanged, getRedirectResult } = await import('firebase/auth')
 
-        cancelRedirectWait = aguardarPosSplash(() => {
-          try {
-            getRedirectResult(auth).catch(() => {})
-          } catch {
-            /* ignore */
-          }
-        })
+        // Listener primeiro: no iOS/WKWebView `getRedirectResult` pode demorar ou
+        // travar; sem isso o app fica em "A preparar…" / "verificando sua sessão".
+        unsubAuth = onAuthStateChanged(auth, aplicarUsuarioAuth)
+        timeoutId = window.setTimeout(liberarSeAuthTravado, AUTH_INIT_TIMEOUT_MS)
 
-        unsubAuth = onAuthStateChanged(auth, (u) => {
-          if (cancelled) return
-          if (estaRegistroEmailSenhaEmCurso() && u && usuarioPrecisaVerificarEmail(u)) {
-            return
+        if (typeof auth.authStateReady === 'function') {
+          void auth.authStateReady().catch(() => {
+            liberarSeAuthTravado()
+          })
+        }
+
+        // Redirect OAuth só no navegador web — no app da App Store usa GoogleAuth nativo.
+        if (!isNativeApp()) {
+          const redirectPendente = redirectGoogleEstaPendente()
+          try {
+            await Promise.race([
+              getRedirectResult(auth),
+              new Promise((resolve) => {
+                window.setTimeout(resolve, REDIRECT_RESULT_TIMEOUT_MS)
+              }),
+            ])
+          } catch (e) {
+            if (redirectPendente) {
+              setLastError(hintForFirebaseAuthError(e))
+            }
+          } finally {
+            limparRedirectGooglePendente()
           }
-          setUser(u ?? null)
-        })
+
+          cancelRedirectWait = aguardarPosSplash(() => {
+            void getRedirectResult(auth)
+              .catch((e) => {
+                if (redirectGoogleEstaPendente()) {
+                  setLastError(hintForFirebaseAuthError(e))
+                }
+              })
+              .finally(() => {
+                limparRedirectGooglePendente()
+              })
+          })
+        }
       } catch (e) {
         if (cancelled) return
         setLastError(hintForFirebaseAuthError(e))
-        // Evita loading infinito se o Firebase falhar ao inicializar no aparelho.
         setUser(null)
       }
     })()
 
     return () => {
       cancelled = true
+      window.clearTimeout(timeoutId)
       cancelRedirectWait()
       unsubAuth()
     }

@@ -7,7 +7,6 @@ import { initializeApp, getApps } from 'firebase/app'
 import {
   getAuth,
   initializeAuth,
-  indexedDBLocalPersistence,
   browserLocalPersistence,
   browserPopupRedirectResolver
 } from 'firebase/auth'
@@ -51,7 +50,9 @@ export function getFirebaseAuth() {
   const app = getFirebaseApp()
   if (!app) return null
   if (authSingleton) return authSingleton
-  const persistence = isNativeApp() ? indexedDBLocalPersistence : browserLocalPersistence
+  // Evita IndexedDB no Capacitor: no WKWebView (App Store) pode travar a sessão
+  // e deixar o app em "A preparar…" / "verificando sua sessão" indefinidamente.
+  const persistence = browserLocalPersistence
   try {
     authSingleton = initializeAuth(app, {
       persistence,

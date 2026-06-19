@@ -99,7 +99,15 @@ export default defineConfig({
     ...(lowMemoryBuild ? [] : [salvationBeastiesPlugin()])
   ],
   server: {
-    port: 3000
+    port: 3000,
+    // ~14k MP3 em strong-pron: o watcher do Vite esgota handles/memória no Windows
+    // (Chrome dev: ERR_INSUFFICIENT_RESOURCES ao carregar centenas de deps MUI).
+    watch: {
+      ignored: [
+        '**/public/sounds/strong-pron/**',
+        '**/public/data/ot-hebrew-audio/**',
+      ],
+    },
   },
   publicDir: 'public',
   build: {

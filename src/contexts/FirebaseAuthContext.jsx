@@ -30,12 +30,13 @@ import {
 } from '../utils/googleSignInWeb'
 
 const ERRO_EMAIL_NAO_VERIFICADO = 'salvation/email-not-verified'
-/** Se a persistência do Auth travar no WebView, libera login após este tempo. */
-const AUTH_INIT_TIMEOUT_MS = isNativeApp() ? 6000 : 9000
-const REDIRECT_RESULT_TIMEOUT_MS = 5000
 
 const isNativeApp = () =>
   typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() === true
+
+/** Se a persistência do Auth travar no WebView, libera login após este tempo. */
+const AUTH_INIT_TIMEOUT_MS = isNativeApp() ? 6000 : 9000
+const REDIRECT_RESULT_TIMEOUT_MS = 5000
 
 async function aguardarAuthPronto(auth) {
   if (!auth) return

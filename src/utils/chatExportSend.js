@@ -24,6 +24,7 @@ export function ensureUserForChatExport(user, navigate) {
       mensagem: 'Aguarde, verificando sua sessão…',
       severidade: 'info',
     })
+    navigate('/chat')
     return false
   }
   if (!user?.uid) {
@@ -69,6 +70,8 @@ export function ensureUserForFeature(user, navigate, { mensagem, redirectTo } = 
       mensagem: 'Aguarde, verificando sua sessão…',
       severidade: 'info',
     })
+    // /chat exibe AuthConectarForm mesmo durante a verificação (app nativo iOS).
+    navigate('/chat')
     return false
   }
 

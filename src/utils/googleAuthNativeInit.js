@@ -20,8 +20,9 @@ export function ensureNativeGoogleAuthInitialized() {
     const clientId = Capacitor.getPlatform() === 'ios' ? IOS_CLIENT_ID : WEB_CLIENT_ID
     nativeGoogleInitPromise = GoogleAuth.initialize({
       clientId,
+      serverClientId: WEB_CLIENT_ID,
       scopes: ['profile', 'email', 'openid'],
-      // serverClientId (web) no capacitor.config → idToken aceito pelo Firebase no iOS
+      // idToken com audience Web — exigido pelo Firebase Auth no iOS
       grantOfflineAccess: false,
     }).catch((err) => {
       nativeGoogleInitPromise = null

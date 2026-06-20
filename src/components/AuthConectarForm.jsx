@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
-import { hintForFirebaseAuthError } from '../utils/firebaseAuthErrors'
+import { hintForFirebaseAuthError, isAuthCancelError } from '../utils/firebaseAuthErrors'
 import { mostrarLoginApple } from '../utils/mostrarLoginApple'
 
 function GoogleMark18() {
@@ -182,6 +182,10 @@ export default function AuthConectarForm({ embedded = false, titleLogin = 'Entra
             setLastError(null)
             try {
               await loginWithGoogle()
+            } catch (e) {
+              if (!isAuthCancelError(e)) {
+                setLastError(hintForFirebaseAuthError(e))
+              }
             } finally {
               setBusy(false)
             }
@@ -216,6 +220,10 @@ export default function AuthConectarForm({ embedded = false, titleLogin = 'Entra
               setLastError(null)
               try {
                 await loginWithApple()
+              } catch (e) {
+                if (!isAuthCancelError(e)) {
+                  setLastError(hintForFirebaseAuthError(e))
+                }
               } finally {
                 setBusy(false)
               }

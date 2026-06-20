@@ -38,7 +38,6 @@ import {
 
 const CFG_LOJA_VAZIA = Object.freeze({
   versaoAtual: '',
-  versaoMinima: '',
   mensagem: '',
   urlLoja: '',
 })
@@ -57,16 +56,7 @@ function PlataformaLojaFields({ titulo, cfg, onChange }) {
           placeholder="ex.: 1.2.0"
           value={cfg.versaoAtual}
           onChange={(e) => onChange({ ...cfg, versaoAtual: e.target.value })}
-          helperText="Quem estiver abaixo disto vê o aviso de atualização."
-        />
-        <TextField
-          label="Versão mínima obrigatória (opcional)"
-          size="small"
-          fullWidth
-          placeholder="ex.: 1.0.0"
-          value={cfg.versaoMinima}
-          onChange={(e) => onChange({ ...cfg, versaoMinima: e.target.value })}
-          helperText="Abaixo disto: só botão Atualizar (sem Depois)."
+          helperText="Versão publicada na loja. Aviso sempre opcional (nunca bloqueia o app)."
         />
         <TextField
           label="Mensagem no diálogo (opcional)"
@@ -373,13 +363,12 @@ export default function AdminNotificar() {
       <Alert severity="info" sx={{ mb: 2 }}>
         A Google Play <strong>não atualiza o Firebase sozinha</strong>. Opções:
         <br />
-        • <strong>Automático:</strong> botão abaixo (requer API Play configurada — ver{' '}
-        <code>docs/SYNC_VERSAO_LOJAS.md</code>)
+        • <strong>Ao gerar o build:</strong> <code>npm run sync:android-version</code> (registra o build;{' '}
+        <strong>não</strong> altera a versão que o app exibe — pode rodar antes de publicar)
         <br />
-        • <strong>Ao publicar:</strong> no PC, <code>npm run sync:android-version</code> (lê o{' '}
-        <code>build.gradle</code>)
+        • <strong>Após publicar na Play:</strong> botão «Sincronizar Android com Google Play» ou cron 12h
         <br />
-        • <strong>Manual:</strong> preencher os campos e salvar. iOS continua manual.
+        • <strong>Manual:</strong> preencher versaoAtual e salvar. iOS continua manual.
       </Alert>
 
       {carregandoCfgLoja ? (

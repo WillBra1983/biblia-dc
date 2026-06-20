@@ -2,7 +2,9 @@
 
 O aviso de atualização no app lê `appConfig/lojaVersao` no Realtime Database. A Google Play **não escreve lá sozinha** — é preciso ligar os dois lados.
 
-## Android — opção A (rápida, ao publicar)
+**Importante:** o aviso é **sempre opcional** (botão «Depois»). O app **nunca bloqueia** o uso por causa de versão.
+
+## Android — ao gerar o build (pode rodar junto com android:build)
 
 Depois de alterar `versionCode` / `versionName` em `android/app/build.gradle`:
 
@@ -10,9 +12,9 @@ Depois de alterar `versionCode` / `versionName` em `android/app/build.gradle`:
 npm run sync:android-version
 ```
 
-Copia a versão do Gradle para o Firebase (requer `firebase login`).
+Isso grava só metadados do build (`versaoBuild`, `versionCodeBuild`) — **não altera** `versaoAtual` que o app usa para avisar usuários. Assim você pode sincronizar **antes** de publicar na Play sem bloquear quem acabou de baixar o app.
 
-Fluxo sugerido:
+Fluxo sugerido (tudo junto):
 
 ```bash
 npm run android:build
@@ -20,38 +22,30 @@ npm run sync:android-version
 # depois faça upload do AAB na Play Console
 ```
 
-## Android — opção B (automática, Play Store → Firebase)
+## Android — após publicar na Play (versaoAtual para usuários)
 
-Cloud Functions consultam a **Google Play Developer API** e atualizam o RTDB:
+Quando o release estiver **ativo na loja**, atualize `versaoAtual`:
 
-- **Manual (admin):** botão «Sincronizar Android com Google Play» em Admin → Enviar aviso
-- **Automático:** cron a cada 12 horas
+- **Botão admin:** «Sincronizar Android com Google Play» em Admin → Enviar aviso
+- **Automático:** cron a cada 12 horas (Cloud Functions + Play API)
 
 ### Configurar acesso à Play Console (uma vez)
 
 1. [Google Play Console](https://play.google.com/console) → **Configurações** → **Acesso à API**
 2. Vincule o projeto Google Cloud **biblia-dc**
-3. Conceda permissão à conta de serviço do Firebase, por exemplo:
-   - `firebase-adminsdk-XXXX@biblia-dc.iam.gserviceaccount.com`
-   - ou a conta padrão do Cloud Functions do projeto
-4. Permissão mínima: **Ver informações de apps e descarregar relatórios em massa** (e releases, se disponível)
-5. Publique as functions (se ainda não fez):
+3. Conceda permissão à conta de serviço do Firebase
+4. Permissão mínima: **Ver informações de apps**
+5. Publique as functions:
 
 ```bash
 firebase deploy --only functions:sincronizarVersaoPlayStoreAdmin,functions:sincronizarVersaoPlayStoreCron
 ```
 
-**Opcional:** se preferir JSON dedicado em vez da conta padrão:
-
-```bash
-firebase functions:secrets:set PLAY_STORE_SERVICE_ACCOUNT
-```
-
-(cole o JSON; depois adicione `secrets: ['PLAY_STORE_SERVICE_ACCOUNT']` nas functions e redeploy)
+**Opcional:** secret `PLAY_STORE_SERVICE_ACCOUNT` com JSON da conta de serviço.
 
 ### Nome da versão na Play Console
 
-Use o mesmo **nome da versão** do Gradle (ex.: `1.2.0`) ao criar o release na Play — a API lê esse campo.
+Use o mesmo **nome da versão** do Gradle (ex.: `1.0.1`) ao criar o release na Play — a API lê esse campo.
 
 ## iOS
 
@@ -61,6 +55,6 @@ Após publicar no TestFlight/App Store, preencha a secção iOS manualmente em A
 
 | Momento | O que fazer |
 |--------|-------------|
-| Sobe versão no Gradle | `npm run sync:android-version` |
-| Play API + conta vinculada | Botão admin ou cron a cada 12 h |
+| Sobe versão no Gradle + gera AAB | `npm run sync:android-version` (só registra build) |
+| Release **ativo** na Play | Botão admin ou cron Play API |
 | iOS | Manual no admin |

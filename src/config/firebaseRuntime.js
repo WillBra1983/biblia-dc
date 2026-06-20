@@ -8,13 +8,15 @@ import {
   getAuth,
   initializeAuth,
   browserLocalPersistence,
-  browserPopupRedirectResolver
+  browserPopupRedirectResolver,
+  inMemoryPersistence,
 } from 'firebase/auth'
 import { getDatabase } from 'firebase/database'
 import { getStorage } from 'firebase/storage'
 import { getFunctions } from 'firebase/functions'
 import { Capacitor } from '@capacitor/core'
 import { isFirebaseConfigured, readViteEnv } from './firebaseEnv'
+import { capacitorLocalStoragePersistence } from './capacitorAuthPersistence'
 
 const isNativeApp = () =>
   typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() === true
@@ -46,21 +48,38 @@ export function getFirebaseApp() {
   return appSingleton
 }
 
+function criarAuthInstance(app) {
+  if (isNativeApp()) {
+    // browserLocalPersistence tenta IndexedDB primeiro — trava no WKWebView iOS.
+    try {
+      return initializeAuth(app, {
+        persistence: capacitorLocalStoragePersistence,
+      })
+    } catch (e) {
+      console.warn('[auth] capacitorLocalStoragePersistence falhou, tentando inMemory:', e?.message || e)
+      try {
+        return initializeAuth(app, { persistence: inMemoryPersistence })
+      } catch {
+        return getAuth(app)
+      }
+    }
+  }
+
+  try {
+    return initializeAuth(app, {
+      persistence: browserLocalPersistence,
+      popupRedirectResolver: browserPopupRedirectResolver,
+    })
+  } catch {
+    return getAuth(app)
+  }
+}
+
 export function getFirebaseAuth() {
   const app = getFirebaseApp()
   if (!app) return null
   if (authSingleton) return authSingleton
-  // Evita IndexedDB no Capacitor: no WKWebView (App Store) pode travar a sessão
-  // e deixar o app em "A preparar…" / "verificando sua sessão" indefinidamente.
-  const persistence = browserLocalPersistence
-  try {
-    authSingleton = initializeAuth(app, {
-      persistence,
-      popupRedirectResolver: browserPopupRedirectResolver
-    })
-  } catch {
-    authSingleton = getAuth(app)
-  }
+  authSingleton = criarAuthInstance(app)
   return authSingleton
 }
 

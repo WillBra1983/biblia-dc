@@ -1,12 +1,16 @@
 /**
- * Lê versionName/versionCode de android/app/build.gradle e grava no RTDB.
- * Use após subir o versionCode e antes/depois de publicar na Play Store.
+ * Registra a versão do build local (Gradle) no RTDB — **sem** alterar versaoAtual
+ * que o app usa para avisar usuários (essa vem da Play Store / admin após publicar).
+ *
+ * Assim você pode rodar junto com android:build antes de subir o AAB na Play Console
+ * sem bloquear quem acabou de baixar o app na loja.
  *
  * Requer:
  * - npx firebase-tools (devDependency do projeto)
- * - firebase login com conta que tenha users/{uid}/admin = true no RTDB
+ * - firebase login com conta admin no RTDB
  *
  * Uso: npm run sync:android-version
+ * Após publicar na Play: botão admin «Sincronizar Android com Google Play» ou cron 12h.
  */
 
 import { readFileSync, writeFileSync, unlinkSync } from 'fs'
@@ -55,13 +59,13 @@ function explicarErro(texto) {
 function main() {
   const { versionName, versionCode } = lerVersaoGradle()
   const payload = {
-    versaoAtual: versionName,
-    sincronizadoEm: Date.now(),
-    origem: 'build-gradle',
+    versaoBuild: versionName,
+    buildRegistradoEm: Date.now(),
+    origemBuild: 'build-gradle',
     urlLoja: 'https://play.google.com/store/apps/details?id=com.bibliadc.app',
   }
   if (Number.isFinite(versionCode)) {
-    payload.versionCode = versionCode
+    payload.versionCodeBuild = versionCode
   }
 
   const tmpFile = join(tmpdir(), `biblia-dc-rtdb-${randomBytes(6).toString('hex')}.json`)
@@ -91,7 +95,9 @@ function main() {
 
     if (saida) console.log(saida)
     console.log(
-      `RTDB atualizado: Android versaoAtual=${versionName}${versionCode ? ` (code ${versionCode})` : ''}`
+      `RTDB: build registrado versaoBuild=${versionName}` +
+        `${versionCode ? ` (code ${versionCode})` : ''}. ` +
+        `versaoAtual da loja NÃO foi alterada — após publicar na Play, use o botão admin ou aguarde o cron.`
     )
   } finally {
     try {

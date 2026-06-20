@@ -22,12 +22,20 @@ export function isAuthCancelError(error) {
   if (
     code === 'auth/popup-closed-by-user' ||
     code === 'auth/cancelled-popup-request' ||
-    code === 'auth/user-cancelled'
+    code === 'auth/user-cancelled' ||
+    code === '1001' ||
+    code === '12501'
   ) {
     return true
   }
   const msg = String(error?.message ?? '').toLowerCase()
-  return msg.includes('popup closed') || msg.includes('cancelled') || msg.includes('canceled')
+  return (
+    msg.includes('popup closed') ||
+    msg.includes('cancelled') ||
+    msg.includes('canceled') ||
+    msg.includes('user canceled') ||
+    msg.includes('authorization canceled')
+  )
 }
 
 export function hintForFirebaseAuthError(error) {

@@ -55,15 +55,19 @@ export default function ConfiguracoesNotificacoes() {
     return 'serviceWorker' in navigator && 'Notification' in window
   }, [ehWeb])
 
-  // Exige login
+  // Exige login — pequena pausa no iOS para a sessão estabilizar após OAuth nativo.
   useEffect(() => {
     if (user === undefined) return
-    if (!user?.uid) {
+    if (user?.uid) return
+    const delay =
+      typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() ? 800 : 0
+    const t = window.setTimeout(() => {
       ensureUserForFeature(user, navigate, {
         mensagem: 'Entre na sua conta para configurar notificações.',
-        redirectTo: '/configuracoes/notificacoes'
+        redirectTo: '/configuracoes/notificacoes',
       })
-    }
+    }, delay)
+    return () => window.clearTimeout(t)
   }, [user, navigate])
 
   // Carrega preferências do servidor

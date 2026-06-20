@@ -1,6 +1,6 @@
 /**
  * Verifica versão instalada vs. versão na loja (RTDB) e mostra diálogo
- * para abrir Play Store / App Store. Roda após o splash no app nativo.
+ * opcional para abrir Play Store / App Store. Nunca bloqueia o uso do app.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -31,7 +31,7 @@ export default function AvisoAtualizacaoLoja() {
     checandoRef.current = true
     try {
       const r = await avaliarAtualizacaoLoja()
-      if (r) setAviso(r)
+      setAviso(r ?? null)
     } finally {
       checandoRef.current = false
     }
@@ -71,35 +71,27 @@ export default function AvisoAtualizacaoLoja() {
 
   if (!aviso) return null
 
-  const titulo = aviso.obrigatoria ? 'Atualização necessária' : 'Nova versão disponível'
-  const corpoPadrao = aviso.obrigatoria
-    ? `A versão ${aviso.versaoAtual} corrige problemas importantes. Atualize na loja para continuar usando o app com segurança.`
-    : `Há uma versão mais recente (${aviso.versaoAtual}) na loja. Você está na ${aviso.versaoInstalada}.`
-
-  async function irParaLoja() {
-    await abrirLojaAtualizacao(aviso.urlLoja, aviso.plataforma)
-  }
+  const versaoLocal = aviso.buildInstalado
+    ? `${aviso.versaoInstalada} (${aviso.buildInstalado})`
+    : aviso.versaoInstalada
+  const corpoPadrao = `Há uma versão mais recente (${aviso.versaoAtual}) na loja. Você está na ${versaoLocal}.`
 
   function dispensar() {
-    if (!aviso.obrigatoria) {
-      marcarAvisoVersaoDispensado(aviso.versaoAtual)
-    }
+    marcarAvisoVersaoDispensado(aviso.chaveAviso)
     setAviso(null)
   }
 
+  async function irParaLoja() {
+    marcarAvisoVersaoDispensado(aviso.chaveAviso)
+    setAviso(null)
+    await abrirLojaAtualizacao(aviso.urlLoja, aviso.plataforma)
+  }
+
   return (
-    <Dialog
-      open
-      maxWidth="xs"
-      fullWidth
-      disableEscapeKeyDown={aviso.obrigatoria}
-      onClose={() => {
-        if (!aviso.obrigatoria) dispensar()
-      }}
-    >
+    <Dialog open maxWidth="xs" fullWidth onClose={dispensar}>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 700 }}>
         <SystemUpdateAltIcon color="primary" />
-        {titulo}
+        Nova versão disponível
       </DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="text.secondary" sx={{ mb: aviso.mensagem ? 1.5 : 0 }}>
@@ -111,15 +103,13 @@ export default function AvisoAtualizacaoLoja() {
           </Typography>
         ) : null}
       </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2, flexDirection: aviso.obrigatoria ? 'column' : 'row', gap: 1 }}>
+      <DialogActions sx={{ px: 3, pb: 2, flexDirection: 'row', gap: 1 }}>
         <Button variant="contained" fullWidth onClick={() => void irParaLoja()}>
           Atualizar na loja
         </Button>
-        {!aviso.obrigatoria ? (
-          <Button color="inherit" fullWidth onClick={dispensar}>
-            Depois
-          </Button>
-        ) : null}
+        <Button color="inherit" fullWidth onClick={dispensar}>
+          Depois
+        </Button>
       </DialogActions>
     </Dialog>
   )

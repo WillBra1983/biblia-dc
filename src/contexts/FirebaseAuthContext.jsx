@@ -1,12 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Capacitor } from '@capacitor/core'
-import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth'
 import {
   getFirebaseAuth,
   getFirebaseFunctions,
   isFirebaseConfigured,
   loadFirebaseModules,
 } from '../config/firebase'
+import { ensureNativeGoogleAuthInitialized } from '../utils/googleAuthNativeInit'
 import {
   buildCadastroEmailLinkContinueUrl,
   guardarEmailParaCadastroLink,
@@ -35,7 +35,7 @@ const isNativeApp = () =>
   typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() === true
 
 /** Se a persistência do Auth travar no WebView, libera login após este tempo. */
-const AUTH_INIT_TIMEOUT_MS = isNativeApp() ? 6000 : 9000
+const AUTH_INIT_TIMEOUT_MS = isNativeApp() ? 8000 : 9000
 const REDIRECT_RESULT_TIMEOUT_MS = 5000
 
 async function aguardarAuthPronto(auth) {
@@ -45,21 +45,36 @@ async function aguardarAuthPronto(auth) {
   }
 }
 
-let nativeGoogleInitPromise = null
-
-async function ensureNativeGoogleAuthInitialized() {
-  if (!isNativeApp()) return
-  if (!nativeGoogleInitPromise) {
-    nativeGoogleInitPromise = GoogleAuth.initialize()
-  }
-  await nativeGoogleInitPromise
-}
-
 const FirebaseAuthContext = createContext(null)
 
 export function FirebaseAuthProvider({ children }) {
   const [user, setUser] = useState(undefined)
   const [lastError, setLastError] = useState(null)
+  const loginSocialEmCursoRef = useRef(false)
+  const authStateRecebidoRef = useRef(false)
+
+  const sincronizarUsuarioAtual = useCallback(async () => {
+    await loadFirebaseModules()
+    const auth = getFirebaseAuth()
+    const u = auth?.currentUser ?? null
+    if (u) {
+      authStateRecebidoRef.current = true
+      setUser(u)
+    }
+    return u
+  }, [])
+
+  const marcarLoginSocial = useCallback((ativo) => {
+    loginSocialEmCursoRef.current = Boolean(ativo)
+  }, [])
+
+  const propagarUsuarioAutenticado = useCallback(async (auth) => {
+    await aguardarAuthPronto(auth)
+    if (auth?.currentUser) {
+      authStateRecebidoRef.current = true
+      setUser(auth.currentUser)
+    }
+  }, [])
 
   useEffect(() => {
     if (!isFirebaseConfigured()) {
@@ -70,22 +85,27 @@ export function FirebaseAuthProvider({ children }) {
     let cancelled = false
     let cancelRedirectWait = () => {}
     let unsubAuth = () => {}
-    let authStateRecebido = false
     let timeoutId = 0
+
+    const liberarSeAuthTravado = () => {
+      if (cancelled || authStateRecebidoRef.current || loginSocialEmCursoRef.current) return
+      console.warn('[auth] tempo esgotado ao restaurar sessão — exibindo tela de login')
+      authStateRecebidoRef.current = true
+      setUser(null)
+    }
+
+    // Timeout antes de carregar Firebase: no iOS o import/persistência pode pendurar.
+    timeoutId = window.setTimeout(liberarSeAuthTravado, AUTH_INIT_TIMEOUT_MS)
 
     const aplicarUsuarioAuth = (u) => {
       if (cancelled) return
-      authStateRecebido = true
+      authStateRecebidoRef.current = true
+      window.clearTimeout(timeoutId)
       if (estaRegistroEmailSenhaEmCurso() && u && usuarioPrecisaVerificarEmail(u)) {
+        setUser(u)
         return
       }
       setUser(u ?? null)
-    }
-
-    const liberarSeAuthTravado = () => {
-      if (cancelled || authStateRecebido) return
-      console.warn('[auth] tempo esgotado ao restaurar sessão — exibindo tela de login')
-      setUser(null)
     }
 
     void (async () => {
@@ -94,6 +114,8 @@ export function FirebaseAuthProvider({ children }) {
         if (cancelled) return
         const auth = getFirebaseAuth()
         if (!auth) {
+          authStateRecebidoRef.current = true
+          window.clearTimeout(timeoutId)
           setUser(null)
           return
         }
@@ -103,7 +125,6 @@ export function FirebaseAuthProvider({ children }) {
         // Listener primeiro: no iOS/WKWebView `getRedirectResult` pode demorar ou
         // travar; sem isso o app fica em "A preparar…" / "verificando sua sessão".
         unsubAuth = onAuthStateChanged(auth, aplicarUsuarioAuth)
-        timeoutId = window.setTimeout(liberarSeAuthTravado, AUTH_INIT_TIMEOUT_MS)
 
         if (typeof auth.authStateReady === 'function') {
           void auth.authStateReady().catch(() => {
@@ -143,18 +164,49 @@ export function FirebaseAuthProvider({ children }) {
         }
       } catch (e) {
         if (cancelled) return
+        window.clearTimeout(timeoutId)
+        authStateRecebidoRef.current = true
         setLastError(hintForFirebaseAuthError(e))
         setUser(null)
       }
     })()
 
+    let removeAppStateListener = () => {}
+    if (isNativeApp()) {
+      void import('@capacitor/app').then(({ App: CapApp }) => {
+        if (cancelled) return
+        CapApp.addListener('appStateChange', ({ isActive }) => {
+          if (!isActive || cancelled) return
+          if (loginSocialEmCursoRef.current) {
+            void sincronizarUsuarioAtual().finally(() => {
+              loginSocialEmCursoRef.current = false
+            })
+            return
+          }
+          if (!authStateRecebidoRef.current) {
+            window.clearTimeout(timeoutId)
+            timeoutId = window.setTimeout(liberarSeAuthTravado, AUTH_INIT_TIMEOUT_MS)
+          }
+        }).then((h) => {
+          if (cancelled) {
+            void h.remove()
+            return
+          }
+          removeAppStateListener = () => {
+            void h.remove()
+          }
+        }).catch(() => {})
+      })
+    }
+
     return () => {
       cancelled = true
       window.clearTimeout(timeoutId)
       cancelRedirectWait()
+      removeAppStateListener()
       unsubAuth()
     }
-  }, [])
+  }, [sincronizarUsuarioAtual])
 
   useEffect(() => {
     if (!isFirebaseConfigured() || !isNativeApp()) return
@@ -318,6 +370,7 @@ export function FirebaseAuthProvider({ children }) {
     if (isNativeApp()) {
       try {
         await ensureNativeGoogleAuthInitialized()
+        const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth')
         await GoogleAuth.signOut()
       } catch {
         /* ignora */
@@ -328,18 +381,20 @@ export function FirebaseAuthProvider({ children }) {
 
   /**
    * No navegador: usa popup/redirect web.
-   * No APK: usa Google Sign-In nativo e converte o idToken em credencial Firebase.
+   * No app nativo: Google Sign-In nativo + credencial Firebase.
    */
   const loginWithGoogle = useCallback(async () => {
     setLastError(null)
-    await loadFirebaseModules()
-    const auth = getFirebaseAuth()
-    if (!auth) throw new Error('Firebase não configurado')
-    const { GoogleAuthProvider, signInWithCredential } = await import('firebase/auth')
-    const provider = new GoogleAuthProvider()
+    marcarLoginSocial(true)
     try {
+      await loadFirebaseModules()
+      const auth = getFirebaseAuth()
+      if (!auth) throw new Error('Firebase não configurado')
+      const { GoogleAuthProvider, signInWithCredential } = await import('firebase/auth')
+      const provider = new GoogleAuthProvider()
       if (isNativeApp()) {
         await ensureNativeGoogleAuthInitialized()
+        const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth')
         const googleUser = await GoogleAuth.signIn()
         const idToken = googleUser?.authentication?.idToken
         if (!idToken) {
@@ -347,30 +402,35 @@ export function FirebaseAuthProvider({ children }) {
         }
         const credential = GoogleAuthProvider.credential(idToken)
         await signInWithCredential(auth, credential)
+        await propagarUsuarioAutenticado(auth)
         return
       }
       await signInWithGoogleWeb(auth, provider)
     } catch (e) {
-      setLastError(hintForFirebaseAuthError(e))
+      if (!isAuthCancelError(e)) {
+        setLastError(hintForFirebaseAuthError(e))
+      }
       throw e
+    } finally {
+      marcarLoginSocial(false)
     }
-  }, [])
+  }, [marcarLoginSocial, propagarUsuarioAutenticado])
 
   /**
    * Sign in with Apple (Firebase OAuth). iOS nativo usa plugin; web usa popup.
-   * Ative o provedor Apple no Firebase Console e a capability no App ID.
    */
   const loginWithApple = useCallback(async () => {
     setLastError(null)
-    await loadFirebaseModules()
-    const auth = getFirebaseAuth()
-    if (!auth) throw new Error('Firebase não configurado')
-    const { OAuthProvider, signInWithCredential, signInWithPopup } = await import('firebase/auth')
-    const provider = new OAuthProvider('apple.com')
-    provider.addScope('email')
-    provider.addScope('name')
-
+    marcarLoginSocial(true)
     try {
+      await loadFirebaseModules()
+      const auth = getFirebaseAuth()
+      if (!auth) throw new Error('Firebase não configurado')
+      const { OAuthProvider, signInWithCredential, signInWithPopup } = await import('firebase/auth')
+      const provider = new OAuthProvider('apple.com')
+      provider.addScope('email')
+      provider.addScope('name')
+
       if (Capacitor.isNativePlatform?.() && Capacitor.getPlatform() === 'ios') {
         const { criarNonceAppleSignIn } = await import('../utils/appleSignInNonce')
         const { rawNonce, hashedNonce } = await criarNonceAppleSignIn()
@@ -379,7 +439,7 @@ export function FirebaseAuthProvider({ children }) {
           clientId: 'com.bibliadc.app',
           redirectURI: '',
           scopes: 'email name',
-          nonce: hashedNonce
+          nonce: hashedNonce,
         })
         const idToken = result?.response?.identityToken
         if (!idToken) {
@@ -387,6 +447,7 @@ export function FirebaseAuthProvider({ children }) {
         }
         const credential = provider.credential({ idToken, rawNonce })
         await signInWithCredential(auth, credential)
+        await propagarUsuarioAutenticado(auth)
         return
       }
       await signInWithPopup(auth, provider)
@@ -394,14 +455,17 @@ export function FirebaseAuthProvider({ children }) {
       if (isAuthCancelError(e)) return
       setLastError(hintForFirebaseAuthError(e))
       throw e
+    } finally {
+      marcarLoginSocial(false)
     }
-  }, [])
+  }, [marcarLoginSocial, propagarUsuarioAutenticado])
 
   /**
    * @returns {Promise<{ ok: boolean, trocou?: boolean, cancelado?: boolean, manteveConta?: boolean, mesmaConta?: boolean }>}
    */
   const tentarAcessarComOutraConta = useCallback(async ({ tipo = 'google', email, password } = {}) => {
     setLastError(null)
+    marcarLoginSocial(tipo === 'google')
     await loadFirebaseModules()
     const auth = getFirebaseAuth()
     if (!auth) throw new Error('Firebase não configurado')
@@ -413,6 +477,7 @@ export function FirebaseAuthProvider({ children }) {
         const provider = new GoogleAuthProvider()
         if (isNativeApp()) {
           await ensureNativeGoogleAuthInitialized()
+          const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth')
           const googleUser = await GoogleAuth.signIn()
           const idToken = googleUser?.authentication?.idToken
           if (!idToken) {
@@ -420,6 +485,7 @@ export function FirebaseAuthProvider({ children }) {
           }
           const credential = GoogleAuthProvider.credential(idToken)
           await signInWithCredential(auth, credential)
+          await propagarUsuarioAutenticado(auth)
         } else {
           await signInWithGoogleWeb(auth, provider)
         }
@@ -462,8 +528,10 @@ export function FirebaseAuthProvider({ children }) {
       }
       setLastError(hintForFirebaseAuthError(e))
       throw e
+    } finally {
+      if (tipo === 'google') marcarLoginSocial(false)
     }
-  }, [])
+  }, [marcarLoginSocial, propagarUsuarioAutenticado])
 
   const value = useMemo(
     () => ({

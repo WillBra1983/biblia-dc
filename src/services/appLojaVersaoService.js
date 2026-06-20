@@ -2,10 +2,13 @@
  * Configuração remota de versões publicadas nas lojas (RTDB).
  *
  * Caminho: `appConfig/lojaVersao/{android|ios}`
- *   - versaoAtual    — última versão na loja (aviso opcional se instalada for menor)
- *   - versaoMinima   — abaixo disto: update obrigatório (só botão "Atualizar")
+ *   - versaoAtual    — versão **publicada** na loja (Play API / admin após publicar)
+ *   - versionCode    — versionCode em produção na Play (quando disponível)
+ *   - versaoBuild    — último build local registrado (sync antes de publicar; app ignora)
  *   - mensagem       — texto curto no diálogo
  *   - urlLoja        — link Play Store / App Store
+ *
+ * O aviso de atualização é sempre opcional (nunca bloqueia o app).
  */
 
 import { Capacitor } from '@capacitor/core'
@@ -20,7 +23,12 @@ const ANDROID_PACKAGE = 'com.bibliadc.app'
 const URL_PLAY_PADRAO = `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`
 const URL_PLAY_NATIVO = `market://details?id=${ANDROID_PACKAGE}`
 
-const SESSION_DISMISS_PREFIX = 'salvation:update-dismiss:'
+const DISMISS_PREFIX = 'salvation:update-dismiss:'
+
+function parseVersionCode(raw) {
+  const n = parseInt(String(raw ?? '').trim(), 10)
+  return Number.isFinite(n) && n > 0 ? n : null
+}
 
 function normalizarCfgPlataforma(val) {
   if (!val || typeof val !== 'object') return null
@@ -28,10 +36,30 @@ function normalizarCfgPlataforma(val) {
   if (!versaoAtual) return null
   return {
     versaoAtual,
-    versaoMinima: String(val.versaoMinima || '').trim(),
+    versionCode: parseVersionCode(val.versionCode),
     mensagem: String(val.mensagem || '').trim(),
     urlLoja: String(val.urlLoja || '').trim(),
   }
+}
+
+/** Instalado >= loja quando versionCode bate ou semver é igual/maior. */
+function instaladoEstaAtualizado(versaoInstalada, buildInstalado, cfg) {
+  const buildLoja = cfg.versionCode
+  const buildApp = parseVersionCode(buildInstalado)
+
+  if (buildLoja != null && buildApp != null) {
+    if (buildApp >= buildLoja) return true
+    return false
+  }
+
+  return compararVersoes(versaoInstalada, cfg.versaoAtual) >= 0
+}
+
+
+/** Chave única por versão alvo (semver + code quando existir). */
+function chaveAvisoVersao(cfg) {
+  if (cfg.versionCode != null) return `${cfg.versaoAtual}#${cfg.versionCode}`
+  return cfg.versaoAtual
 }
 
 export async function obterConfigLojaVersao() {
@@ -58,7 +86,6 @@ export async function salvarConfigLojaVersao({ android, ios }) {
   if (android && typeof android === 'object') {
     patch.android = {
       versaoAtual: String(android.versaoAtual || '').trim(),
-      versaoMinima: String(android.versaoMinima || '').trim(),
       mensagem: String(android.mensagem || '').trim().slice(0, 400),
       urlLoja: String(android.urlLoja || '').trim().slice(0, 512),
     }
@@ -66,7 +93,6 @@ export async function salvarConfigLojaVersao({ android, ios }) {
   if (ios && typeof ios === 'object') {
     patch.ios = {
       versaoAtual: String(ios.versaoAtual || '').trim(),
-      versaoMinima: String(ios.versaoMinima || '').trim(),
       mensagem: String(ios.mensagem || '').trim().slice(0, 400),
       urlLoja: String(ios.urlLoja || '').trim().slice(0, 512),
     }
@@ -82,18 +108,18 @@ function urlLojaPadrao(plataforma) {
 }
 
 export function usuarioDispensouAvisoVersao(versaoAlvo) {
-  if (!versaoAlvo || typeof sessionStorage === 'undefined') return false
+  if (!versaoAlvo || typeof localStorage === 'undefined') return false
   try {
-    return sessionStorage.getItem(`${SESSION_DISMISS_PREFIX}${versaoAlvo}`) === '1'
+    return localStorage.getItem(`${DISMISS_PREFIX}${versaoAlvo}`) === '1'
   } catch {
     return false
   }
 }
 
 export function marcarAvisoVersaoDispensado(versaoAlvo) {
-  if (!versaoAlvo || typeof sessionStorage === 'undefined') return
+  if (!versaoAlvo || typeof localStorage === 'undefined') return
   try {
-    sessionStorage.setItem(`${SESSION_DISMISS_PREFIX}${versaoAlvo}`, '1')
+    localStorage.setItem(`${DISMISS_PREFIX}${versaoAlvo}`, '1')
   } catch {
     /* ignore */
   }
@@ -104,8 +130,6 @@ export function marcarAvisoVersaoDispensado(versaoAlvo) {
  *   plataforma: 'android'|'ios',
  *   versaoInstalada: string,
  *   versaoAtual: string,
- *   versaoMinima: string,
- *   obrigatoria: boolean,
  *   mensagem: string,
  *   urlLoja: string,
  * }>}
@@ -117,9 +141,11 @@ export async function avaliarAtualizacaoLoja() {
   if (plataforma !== 'android' && plataforma !== 'ios') return null
 
   let versaoInstalada = ''
+  let buildInstalado = ''
   try {
     const info = await App.getInfo()
     versaoInstalada = String(info?.version || '').trim()
+    buildInstalado = String(info?.build || '').trim()
   } catch {
     return null
   }
@@ -129,12 +155,10 @@ export async function avaliarAtualizacaoLoja() {
   const cfg = plataforma === 'ios' ? config.ios : config.android
   if (!cfg?.versaoAtual) return null
 
-  if (compararVersoes(versaoInstalada, cfg.versaoAtual) >= 0) return null
+  if (instaladoEstaAtualizado(versaoInstalada, buildInstalado, cfg)) return null
 
-  const versaoMinima = cfg.versaoMinima || cfg.versaoAtual
-  const obrigatoria = compararVersoes(versaoInstalada, versaoMinima) < 0
-
-  if (!obrigatoria && usuarioDispensouAvisoVersao(cfg.versaoAtual)) return null
+  const chave = chaveAvisoVersao(cfg)
+  if (usuarioDispensouAvisoVersao(chave)) return null
 
   const urlLoja = cfg.urlLoja || urlLojaPadrao(plataforma)
   if (!urlLoja) return null
@@ -142,26 +166,35 @@ export async function avaliarAtualizacaoLoja() {
   return {
     plataforma,
     versaoInstalada,
+    buildInstalado,
     versaoAtual: cfg.versaoAtual,
-    versaoMinima,
-    obrigatoria,
+    chaveAviso: chave,
     mensagem: cfg.mensagem,
     urlLoja,
   }
 }
 
 export async function abrirLojaAtualizacao(urlLoja, plataforma) {
-  const url = String(urlLoja || '').trim()
-  if (!url) return
+  const urlHttps = String(urlLoja || urlLojaPadrao(plataforma) || '').trim()
+  if (!urlHttps) return
 
-  if (plataforma === 'android' && Capacitor.isNativePlatform()) {
+  const urls =
+    plataforma === 'android' && Capacitor.isNativePlatform()
+      ? [URL_PLAY_NATIVO, urlHttps]
+      : [urlHttps]
+
+  for (const url of urls) {
     try {
-      await Browser.open({ url: URL_PLAY_NATIVO })
+      await Browser.open({ url })
       return
     } catch {
-      /* fallback https */
+      /* tenta próximo */
     }
   }
 
-  await Browser.open({ url })
+  try {
+    window.open(urlHttps, '_blank', 'noopener,noreferrer')
+  } catch {
+    /* ignore */
+  }
 }

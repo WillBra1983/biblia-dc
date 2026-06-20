@@ -41,6 +41,7 @@ import SendIcon from '@mui/icons-material/Send'
 import StarIcon from '@mui/icons-material/Star'
 import StarBorderIcon from '@mui/icons-material/StarBorder'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Capacitor } from '@capacitor/core'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { hintForFirebaseAuthError } from '../utils/firebaseAuthErrors'
 import EmailVerificationGate from '../components/EmailVerificationGate'
@@ -541,7 +542,12 @@ export default function Chat() {
     }
     const destino = consumePendingLoginRedirect()
     if (!destino) return
-    navigate(destino, { replace: true })
+    const delay =
+      typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() ? 600 : 0
+    const t = window.setTimeout(() => {
+      navigate(destino, { replace: true })
+    }, delay)
+    return () => window.clearTimeout(t)
   }, [user?.uid, user?.emailVerified, navigate])
 
   useEffect(() => {

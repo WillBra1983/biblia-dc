@@ -3,6 +3,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { obterCorLivro } from '../utils/coresBiblia'
 import { useEffect, useRef } from 'react'
+import { sxFullscreenFlexColumn, sxFullscreenScrollBody, sxSafeAreaTop } from '../utils/viewportHeight'
 
 export default function LivrosCards({ livros, livroAtual, onSelectLivro, open, onClose }) {
   // Dividir livros em Antigo e Novo Testamento
@@ -108,12 +109,10 @@ export default function LivrosCards({ livros, livroAtual, onSelectLivro, open, o
       fullScreen
       transitionDuration={0}
       PaperProps={{
-        sx: {
-          bgcolor: 'background.default',
-        },
+        sx: sxFullscreenFlexColumn({ bgcolor: 'background.default' }),
       }}
     >
-      <AppBar position="static" elevation={1} sx={{ bgcolor: livroAtual ? obterCorLivro(livroAtual.id) : '#004d40' }}>
+      <AppBar position="static" elevation={1} sx={{ bgcolor: livroAtual ? obterCorLivro(livroAtual.id) : '#004d40', flexShrink: 0, ...sxSafeAreaTop() }}>
         <Toolbar>
           <IconButton
             edge="start"
@@ -132,9 +131,8 @@ export default function LivrosCards({ livros, livroAtual, onSelectLivro, open, o
       <Box 
         ref={scrollContainerRef}
         sx={{ 
+          ...sxFullscreenScrollBody(),
           p: 3, 
-          overflow: 'auto', 
-          height: 'calc(100% - 64px)',
           position: 'relative'
         }}
       >

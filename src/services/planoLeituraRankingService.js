@@ -17,6 +17,8 @@ import {
 } from '../utils/planoLeituraUsuario'
 
 const OPTIN_KEY = 'salvation-plano-ranking-optin'
+const REBUILD_GLOBAL_KEY = 'salvation-plano-ranking-global-rebuild-at'
+const REBUILD_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000
 
 export function lerOptInRankingPlano() {
   try {
@@ -37,9 +39,42 @@ export function gravarOptInRankingPlano(ativo) {
   }
 }
 
+export function notificarOptInRankingPlanoAlterado() {
+  try {
+    window.dispatchEvent(new CustomEvent('salvation-plano-ranking-optin-changed'))
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Aplica opt-in do perfil RTDB ao localStorage deste aparelho (conta logada).
+ * Só sobrescreve o local quando o perfil já tem `rankingPlanoOptIn` gravado.
+ */
+export async function hidratarOptInRankingPlanoDoPerfil(uid) {
+  if (!uid || !isFirebaseConfigured()) return lerOptInRankingPlano()
+  await loadFirebaseModules()
+  const db = getFirebaseDatabase()
+  if (!db) return lerOptInRankingPlano()
+
+  try {
+    const snap = await get(ref(db, `users/${uid}/profile/rankingPlanoOptIn`))
+    if (!snap.exists()) return lerOptInRankingPlano()
+
+    const ativo = snap.val() === true
+    gravarOptInRankingPlano(ativo)
+    notificarOptInRankingPlanoAlterado()
+    return ativo
+  } catch (err) {
+    console.warn('[planoLeituraRanking] hidratar opt-in:', err?.message || err)
+    return lerOptInRankingPlano()
+  }
+}
+
 /** Espelha opt-in no perfil RTDB para a Cloud Function respeitar a escolha. */
 export async function gravarOptInRankingPlanoNaNuvem(uid, ativo) {
   gravarOptInRankingPlano(ativo)
+  notificarOptInRankingPlanoAlterado()
   if (!uid || !isFirebaseConfigured()) return
   await loadFirebaseModules()
   const db = getFirebaseDatabase()
@@ -323,5 +358,33 @@ export function subscribeRankingPlanoLeitura(callback, limite = 50) {
   return () => {
     cancelled = true
     offFn()
+  }
+}
+
+/** Pede rebuild global do ranking (no máximo a cada 7 dias). Falha silenciosa. */
+export async function solicitarAtualizacaoRankingPlanoLeitura() {
+  if (!isFirebaseConfigured()) return
+  try {
+    const raw = localStorage.getItem(REBUILD_GLOBAL_KEY)
+    const lastAt = raw ? Number(raw) : 0
+    if (lastAt && Date.now() - lastAt < REBUILD_INTERVAL_MS) return
+  } catch {
+    /* ignore */
+  }
+  await loadFirebaseModules()
+  const { getFirebaseFunctions } = await import('../config/firebaseRuntime')
+  const { httpsCallable } = await import('firebase/functions')
+  const fns = getFirebaseFunctions()
+  if (!fns) return
+  try {
+    const fn = httpsCallable(fns, 'atualizarRankingPlanoLeitura')
+    await fn()
+    try {
+      localStorage.setItem(REBUILD_GLOBAL_KEY, String(Date.now()))
+    } catch {
+      /* ignore */
+    }
+  } catch {
+    /* rede / função indisponível */
   }
 }

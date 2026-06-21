@@ -11,12 +11,20 @@ import {
   startPlanoLeituraCloudSync,
   stopPlanoLeituraCloudSync
 } from '../services/planoLeituraCloudSync'
-import { sincronizarMeuRankingPlano, lerOptInRankingPlano } from '../services/planoLeituraRankingService'
+import { sincronizarMeuRankingPlano, lerOptInRankingPlano, hidratarOptInRankingPlanoDoPerfil, removerMeuRankingPlano } from '../services/planoLeituraRankingService'
 import {
   startQuizRetiroCloudSync,
   stopQuizRetiroCloudSync
 } from '../services/quizRetiroCloudSync'
-import { sincronizarMeuRankingQuiz, lerOptInRankingQuiz } from '../services/quizBiblicoRankingService'
+import {
+  startDiscipuladoCloudSync,
+  stopDiscipuladoCloudSync
+} from '../services/discipuladoCloudSync'
+import {
+  startDevocionalCloudSync,
+  stopDevocionalCloudSync
+} from '../services/devocionalCloudSync'
+import { sincronizarMeuRankingQuiz, lerOptInRankingQuiz, hidratarOptInRankingQuizDoPerfil, removerMeuRankingQuiz } from '../services/quizBiblicoRankingService'
 import { VERSICULOS_MARCADOS_CLOUD_SYNC_ENABLED } from '../config/featureFlags'
 import { loadFirebaseModules } from '../config/firebase'
 import { aguardarPosSplash } from '../utils/posSplash'
@@ -33,7 +41,7 @@ import { registrarEntradaUsuario } from '../services/chatService'
  */
 export default function UserCloudSync() {
   const { user, isConfigured } = useFirebaseAuth()
-  const { isDarkMode, leituraPorPagina, hydratePrefsFromCloud } = useApp()
+  const { isDarkMode, leituraPorPagina, hydratePrefsFromCloud, aplicarDiscipuladoDaNuvem, aplicarDevocionalDaNuvem } = useApp()
 
   const lastLocalWriteAt = useRef(0)
   const lastAppliedRemoteAt = useRef(0)
@@ -141,6 +149,8 @@ export default function UserCloudSync() {
       stopVersiculosMarcadosCloudSync()
       stopPlanoLeituraCloudSync()
       stopQuizRetiroCloudSync()
+      stopDiscipuladoCloudSync()
+      stopDevocionalCloudSync()
       return
     }
 
@@ -155,6 +165,8 @@ export default function UserCloudSync() {
         }
         startPlanoLeituraCloudSync(user.uid)
         startQuizRetiroCloudSync(user.uid)
+        startDiscipuladoCloudSync(user.uid, { onApplyFromCloud: aplicarDiscipuladoDaNuvem })
+        startDevocionalCloudSync(user.uid, { onApplyFromCloud: aplicarDevocionalDaNuvem })
       })
     })
 
@@ -166,24 +178,50 @@ export default function UserCloudSync() {
       }
       stopPlanoLeituraCloudSync()
       stopQuizRetiroCloudSync()
+      stopDiscipuladoCloudSync()
+      stopDevocionalCloudSync()
     }
-  }, [isConfigured, user?.uid])
+  }, [isConfigured, user?.uid, aplicarDiscipuladoDaNuvem, aplicarDevocionalDaNuvem])
 
   useEffect(() => {
     if (!isConfigured || !user?.uid || usuarioPrecisaVerificarEmail(user)) return
-    if (!lerOptInRankingQuiz()) return
 
     const authUser = {
       email: user.email || '',
       photoURL: user.photoURL || '',
       displayName: user.displayName || '',
     }
+
+    let cancelled = false
+    let removeQuizListener = null
+
     const syncQuiz = () => {
+      if (!lerOptInRankingQuiz()) return
       void sincronizarMeuRankingQuiz(user.uid, { authUser })
     }
-    syncQuiz()
-    window.addEventListener('salvation-quiz-ranking-sync', syncQuiz)
-    return () => window.removeEventListener('salvation-quiz-ranking-sync', syncQuiz)
+
+    const cancelarEspera = aguardarPosSplash(() => {
+      void loadFirebaseModules().then(async () => {
+        if (cancelled) return
+        await hidratarOptInRankingQuizDoPerfil(user.uid)
+        if (cancelled) return
+
+        window.addEventListener('salvation-quiz-ranking-sync', syncQuiz)
+        removeQuizListener = () => window.removeEventListener('salvation-quiz-ranking-sync', syncQuiz)
+
+        if (lerOptInRankingQuiz()) {
+          void sincronizarMeuRankingQuiz(user.uid, { authUser })
+        } else {
+          void removerMeuRankingQuiz(user.uid)
+        }
+      })
+    })
+
+    return () => {
+      cancelled = true
+      cancelarEspera()
+      removeQuizListener?.()
+    }
   }, [isConfigured, user?.uid, user?.email, user?.photoURL, user?.displayName])
 
   useEffect(() => {
@@ -195,16 +233,35 @@ export default function UserCloudSync() {
       displayName: user.displayName || '',
     }
 
+    let cancelled = false
+    let removePlanoListener = null
+
     const onPlano = () => {
       if (!lerOptInRankingPlano()) return
       void sincronizarMeuRankingPlano(user.uid, { authUser })
     }
 
-    window.addEventListener('salvation-plano-leitura-atualizado', onPlano)
-    void sincronizarMeuRankingPlano(user.uid, { authUser })
+    const cancelarEspera = aguardarPosSplash(() => {
+      void loadFirebaseModules().then(async () => {
+        if (cancelled) return
+        await hidratarOptInRankingPlanoDoPerfil(user.uid)
+        if (cancelled) return
+
+        window.addEventListener('salvation-plano-leitura-atualizado', onPlano)
+        removePlanoListener = () => window.removeEventListener('salvation-plano-leitura-atualizado', onPlano)
+
+        if (lerOptInRankingPlano()) {
+          void sincronizarMeuRankingPlano(user.uid, { authUser })
+        } else {
+          void removerMeuRankingPlano(user.uid)
+        }
+      })
+    })
 
     return () => {
-      window.removeEventListener('salvation-plano-leitura-atualizado', onPlano)
+      cancelled = true
+      cancelarEspera()
+      removePlanoListener?.()
     }
   }, [isConfigured, user?.uid, user?.email, user?.photoURL, user?.displayName])
 

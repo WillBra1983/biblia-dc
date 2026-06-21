@@ -20,7 +20,7 @@ import QuizIcon from '@mui/icons-material/EmojiEvents'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import ShareIcon from '@mui/icons-material/Share'
 import SchoolIcon from '@mui/icons-material/School'
-import MaisDeDeusIcon from '@mui/icons-material/VolunteerActivism'
+import AddIcon from '@mui/icons-material/Add'
 import {
   EXPORT_KIND_LABELS,
   applyLabelForKind,
@@ -112,7 +112,7 @@ function KindIcon({ kind }) {
     case 'devocional':
       return <DevocionalIcon sx={{ fontSize: 18, opacity: 0.95 }} />
     case 'mais_de_deus':
-      return <MaisDeDeusIcon sx={{ fontSize: 18, opacity: 0.95 }} />
+      return <AddIcon sx={{ fontSize: 18, opacity: 0.95 }} />
     case 'quiz':
       return <QuizIcon sx={{ fontSize: 18, opacity: 0.95 }} />
     case 'estudo_biblico':

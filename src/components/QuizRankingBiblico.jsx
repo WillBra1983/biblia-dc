@@ -35,6 +35,7 @@ import {
   subscribeRankingQuizBiblico,
   sincronizarMeuRankingQuiz,
   removerMeuRankingQuiz,
+  hidratarOptInRankingQuizDoPerfil,
   calcularPosicaoNoRanking,
   calcularPosicaoFantasma,
   montarSnapshotRankingQuiz,
@@ -217,6 +218,23 @@ export default function QuizRankingBiblico({ tamanho = 'grande', tick = 0 }) {
     img.src = SRC_TROFEU
   }, [])
 
+  useEffect(() => {
+    const syncOptIn = () => setOptIn(lerOptInRankingQuiz())
+    window.addEventListener('salvation-quiz-ranking-optin-changed', syncOptIn)
+    return () => window.removeEventListener('salvation-quiz-ranking-optin-changed', syncOptIn)
+  }, [])
+
+  useEffect(() => {
+    if (!user?.uid) return
+    let cancelado = false
+    void hidratarOptInRankingQuizDoPerfil(user.uid).then((ativo) => {
+      if (!cancelado) setOptIn(ativo)
+    })
+    return () => {
+      cancelado = true
+    }
+  }, [user?.uid])
+
   const authCtx = useMemo(
     () =>
       user
@@ -254,8 +272,12 @@ export default function QuizRankingBiblico({ tamanho = 'grande', tick = 0 }) {
   }, [user?.uid])
 
   useEffect(() => {
-    if (!user?.uid || !optIn) return
-    void publicarRanking()
+    if (!user?.uid) return
+    if (optIn) {
+      void publicarRanking()
+    } else {
+      void removerMeuRankingQuiz(user.uid)
+    }
   }, [tick, user?.uid, optIn, publicarRanking])
 
   useEffect(() => {

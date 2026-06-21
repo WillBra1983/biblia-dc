@@ -27,6 +27,8 @@ import {
   obterVersiculosMarcados,
   mesclarVersiculosMarcadosImportados,
 } from '../services/versiculosMarcadosService'
+import { notificarDevocionalLocal } from '../services/devocionalCloudSync'
+import { normalizarDevocionaisConcluidos } from './devocionalConcluidos'
 import { formatarNotaProvaPtBr } from './provaPontos'
 
 export const EXPORT_KIND_LABELS = {
@@ -477,7 +479,7 @@ export function parseAnyExport(serialized, options = {}) {
 }
 
 /** Aplica o pacote no armazenamento local (exceto discipulado — usa estado React). */
-export function applyExportImport(kind, data, { setDiscipuladoRespostas, setDiscipuladoTema, navigate } = {}) {
+export function applyExportImport(kind, data, { setDiscipuladoRespostas, setDiscipuladoTema, setDevocionaisConcluidos, navigate } = {}) {
   if (kind === 'discipulado') {
     if (!setDiscipuladoRespostas || !setDiscipuladoTema || !navigate || !data?.answers) return
     setDiscipuladoRespostas((prev) => ({ ...prev, ...data.answers }))
@@ -528,14 +530,23 @@ export function applyExportImport(kind, data, { setDiscipuladoRespostas, setDisc
   }
 
   if (kind === 'devocional') {
-    try {
-      const raw = localStorage.getItem('devocionaisConcluidos')
-      const prev = raw ? JSON.parse(raw) : []
-      const a = Array.isArray(prev) ? prev.map((x) => Number(x)) : []
-      const next = [...new Set([...a, ...(data.concluidos || [])])].filter((x) => !Number.isNaN(x)).sort((x, y) => x - y)
-      localStorage.setItem('devocionaisConcluidos', JSON.stringify(next))
-    } catch {
-      /* ignore */
+    const next = normalizarDevocionaisConcluidos([
+      ...(Array.isArray(data.concluidos) ? data.concluidos : []),
+    ])
+    if (typeof setDevocionaisConcluidos === 'function') {
+      setDevocionaisConcluidos((prev) =>
+        normalizarDevocionaisConcluidos([...prev, ...next])
+      )
+    } else {
+      try {
+        const raw = localStorage.getItem('devocionaisConcluidos')
+        const prev = raw ? JSON.parse(raw) : []
+        const merged = normalizarDevocionaisConcluidos([...(Array.isArray(prev) ? prev : []), ...next])
+        localStorage.setItem('devocionaisConcluidos', JSON.stringify(merged))
+        notificarDevocionalLocal()
+      } catch {
+        /* ignore */
+      }
     }
     navigate?.('/devocional')
     return

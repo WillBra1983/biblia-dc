@@ -62,9 +62,9 @@ exports.resolverEmailParaUid = require('./src/resolverEmailParaUid').resolverEma
 exports.onPlanoLeituraRankingSync =
   require('./src/onPlanoLeituraRanking').onPlanoLeituraRankingSync
 
-// Backfill: lê todos os planos já na nuvem e publica o ranking (só admin, uma vez após deploy)
-exports.reconstruirRankingPlanoLeituraAdmin =
-  require('./src/reconstruirRankingPlanoLeituraAdmin').reconstruirRankingPlanoLeituraAdmin
+// Ranking do plano: rebuild sob demanda ao abrir a lista (throttle 7 dias)
+exports.atualizarRankingPlanoLeitura =
+  require('./src/atualizarRankingPlanoLeitura').atualizarRankingPlanoLeitura
 
 // Versão Android na Play Store → RTDB (aviso in-app); cron + callable admin
 exports.sincronizarVersaoPlayStoreAdmin =

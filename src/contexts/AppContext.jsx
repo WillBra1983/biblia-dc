@@ -28,6 +28,10 @@ import {
 import { getLeituraPaginaKey, mergeLeituraPagina } from '../utils/leituraPorPaginaKey'
 import { migrarLegadoSeNecessario, instanciaAtivaId, obterInstancia } from '../utils/planoLeituraUsuario'
 import { carregarFonteLeitura } from '../utils/fontLoader'
+import { migrarConclusoesLegadoLocalStorage } from '../utils/discipuladoConclusao'
+import { notificarDiscipuladoLocal } from '../services/discipuladoCloudSync'
+import { normalizarDevocionaisConcluidos } from '../utils/devocionalConcluidos'
+import { notificarDevocionalLocal } from '../services/devocionalCloudSync'
 
 /** Desfaz gravações antigas com JSON.stringify duplo antes de saveToStorage (que já serializa). */
 function normalizeLeituraPorPaginaRaw(raw) {
@@ -201,6 +205,15 @@ export function AppProvider({ children }) {
     const saved = loadFromStorage('discipulado_meditacao')
     return saved || {}
   })
+
+  const [discipuladoConcluidos, setDiscipuladoConcluidos] = useState(() => {
+    const saved = loadFromStorage('discipulado_concluidos', {})
+    return migrarConclusoesLegadoLocalStorage(saved || {})
+  })
+
+  const [devocionaisConcluidos, setDevocionaisConcluidos] = useState(() =>
+    normalizarDevocionaisConcluidos(loadFromStorage('devocionaisConcluidos', []))
+  )
 
   const [ultimaLeituraCFW, setUltimaLeituraCFW] = useState(() => {
     const saved = loadFromStorage('ultimaLeituraCFW')
@@ -524,11 +537,23 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     saveToStorage('discipulado_respostas', discipuladoRespostas)
+    notificarDiscipuladoLocal()
   }, [discipuladoRespostas])
 
   useEffect(() => {
     saveToStorage('discipulado_meditacao', discipuladoMeditacao)
+    notificarDiscipuladoLocal()
   }, [discipuladoMeditacao])
+
+  useEffect(() => {
+    saveToStorage('discipulado_concluidos', discipuladoConcluidos)
+    notificarDiscipuladoLocal()
+  }, [discipuladoConcluidos])
+
+  useEffect(() => {
+    saveToStorage('devocionaisConcluidos', devocionaisConcluidos)
+    notificarDevocionalLocal()
+  }, [devocionaisConcluidos])
 
   useEffect(() => {
     saveToStorage('ultimaLeituraCFW', ultimaLeituraCFW)
@@ -579,6 +604,32 @@ export function AppProvider({ children }) {
           return mudou ? out : prev
         })
       }
+    })
+  }, [])
+
+  /** Mescla progresso do Discipulado vindo do RTDB (conta logada). */
+  const aplicarDiscipuladoDaNuvem = useCallback((remoto) => {
+    if (!remoto || typeof remoto !== 'object') return
+    startTransition(() => {
+      if (remoto.respostas && typeof remoto.respostas === 'object') {
+        setDiscipuladoRespostas((prev) => ({ ...prev, ...remoto.respostas }))
+      }
+      if (remoto.meditacao && typeof remoto.meditacao === 'object') {
+        setDiscipuladoMeditacao((prev) => ({ ...prev, ...remoto.meditacao }))
+      }
+      if (remoto.concluidos && typeof remoto.concluidos === 'object') {
+        setDiscipuladoConcluidos((prev) => ({ ...prev, ...remoto.concluidos }))
+      }
+    })
+  }, [])
+
+  /** Mescla devocionais lidos vindos do RTDB (conta logada). */
+  const aplicarDevocionalDaNuvem = useCallback((remoto) => {
+    if (!remoto || !Array.isArray(remoto.concluidos)) return
+    startTransition(() => {
+      setDevocionaisConcluidos((prev) =>
+        normalizarDevocionaisConcluidos([...prev, ...remoto.concluidos])
+      )
     })
   }, [])
   
@@ -656,6 +707,10 @@ export function AppProvider({ children }) {
       setDiscipuladoRespostas,
       discipuladoMeditacao,
       setDiscipuladoMeditacao,
+      discipuladoConcluidos,
+      setDiscipuladoConcluidos,
+      devocionaisConcluidos,
+      setDevocionaisConcluidos,
       ultimaLeituraCFW,
       setUltimaLeituraCFW,
       voltarParaPaginaAnterior,
@@ -664,7 +719,9 @@ export function AppProvider({ children }) {
       setConfirmarSaida,
       handleConfirmarSaida,
       handleCancelarSaida,
-      hydratePrefsFromCloud
+      hydratePrefsFromCloud,
+      aplicarDiscipuladoDaNuvem,
+      aplicarDevocionalDaNuvem
     }),
     [
       isDarkMode,
@@ -691,13 +748,17 @@ export function AppProvider({ children }) {
       discipuladoQuestoes,
       discipuladoRespostas,
       discipuladoMeditacao,
+      discipuladoConcluidos,
+      devocionaisConcluidos,
       ultimaLeituraCFW,
       voltarParaPaginaAnterior,
       setBackButtonHandler,
       confirmarSaida,
       handleConfirmarSaida,
       handleCancelarSaida,
-      hydratePrefsFromCloud
+      hydratePrefsFromCloud,
+      aplicarDiscipuladoDaNuvem,
+      aplicarDevocionalDaNuvem
     ]
   )
 

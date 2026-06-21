@@ -87,6 +87,7 @@ function getPageTitleFromPathname(pathname) {
   if (path.match(/^\/estudo-strong\/[^/]+\/ocorrencias$/)) return 'Ocorrências Strong'
   if (path.match(/^\/estudo-strong\/[^/]+\/resumo$/)) return 'Resumo lexical'
   if (path.startsWith('/estudo-strong')) return 'Dicionário Strong'
+  if (path.startsWith('/configuracoes')) return 'Configurações'
   if (path.startsWith('/privacidade')) return 'Privacidade'
   if (path.startsWith('/sobre')) return 'Sobre'
   return 'Biblia DC'

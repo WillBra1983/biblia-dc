@@ -21,6 +21,7 @@ import {
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
+import MenuBookIcon from '@mui/icons-material/MenuBook'
 import { Capacitor } from '@capacitor/core'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import {
@@ -227,6 +228,17 @@ export default function ConfiguracoesNotificacoes() {
       <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
         Configurações
       </Typography>
+
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={<MenuBookIcon />}
+        fullWidth
+        onClick={() => navigate('/biblia')}
+        sx={{ mb: 2.5 }}
+      >
+        Menu inicial
+      </Button>
 
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
         Conta

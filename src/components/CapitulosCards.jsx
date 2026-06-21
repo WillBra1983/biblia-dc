@@ -1,7 +1,8 @@
 import { Box, Card, CardContent, Typography, Grid, Dialog, AppBar, Toolbar, IconButton } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { obterCorLivro } from '../utils/coresBiblia'
 import { useEffect, useState } from 'react'
+import { obterCorLivro } from '../utils/coresBiblia'
+import { sxFullscreenFlexColumn, sxFullscreenScrollBody, sxSafeAreaTop } from '../utils/viewportHeight'
 import { contarVersiculosPorLivro, obterVersiculosPorLivroSync } from '../services/bibliaService'
 
 export default function CapitulosCards({ 
@@ -89,12 +90,10 @@ export default function CapitulosCards({
       fullScreen
       transitionDuration={0}
       PaperProps={{
-        sx: {
-          bgcolor: 'background.default',
-        },
+        sx: sxFullscreenFlexColumn({ bgcolor: 'background.default' }),
       }}
     >
-      <AppBar position="static" elevation={1} sx={{ bgcolor: corLivro }}>
+      <AppBar position="static" elevation={1} sx={{ bgcolor: corLivro, flexShrink: 0, ...sxSafeAreaTop() }}>
         <Toolbar>
           <IconButton
             edge="start"
@@ -113,7 +112,7 @@ export default function CapitulosCards({
         </Typography>
         </Toolbar>
       </AppBar>
-      <Box sx={{ p: 3, overflow: 'auto', height: 'calc(100% - 64px)' }}>
+      <Box sx={{ ...sxFullscreenScrollBody(), p: 3 }}>
 
         <Grid container spacing={0.5}>
           {capitulos.map((cap) => {

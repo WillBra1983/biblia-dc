@@ -77,3 +77,48 @@ export function sxViewportHeightMinusOffset(offset, { kind = 'min' } = {}) {
     }
   }
 }
+
+/** Superfície fullscreen (Dialog) em coluna flex com altura real da viewport. */
+export function sxFullscreenFlexColumn(extra = {}) {
+  return {
+    ...sxFullViewportHeight(),
+    display: 'flex',
+    flexDirection: 'column',
+    m: 0,
+    width: '100vw',
+    maxWidth: '100vw',
+    borderRadius: 0,
+    ...extra,
+  }
+}
+
+/** Padding-top somando safe area (AppBar, DialogTitle). */
+export function sxSafeAreaTop(extra = '0px') {
+  return {
+    pt:
+      extra && extra !== '0px'
+        ? `calc(${extra} + env(safe-area-inset-top, 0px))`
+        : 'env(safe-area-inset-top, 0px)',
+  }
+}
+
+/** Padding-bottom somando safe area (rodapé fixo, DialogActions). */
+export function sxSafeAreaBottom(extra = '0px') {
+  return {
+    pb:
+      extra && extra !== '0px'
+        ? `calc(${extra} + env(safe-area-inset-bottom, 0px))`
+        : 'env(safe-area-inset-bottom, 0px)',
+  }
+}
+
+/** Corpo rolável dentro de layout fullscreen flex. */
+export function sxFullscreenScrollBody(extra = {}) {
+  return {
+    flex: 1,
+    minHeight: 0,
+    overflow: 'auto',
+    WebkitOverflowScrolling: 'touch',
+    ...extra,
+  }
+}

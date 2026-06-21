@@ -154,6 +154,16 @@
             ".validate": "!newData.exists() || (newData.child('pontos').isNumber() && newData.child('pontos').val() >= 0 && newData.child('acertos').isNumber() && newData.child('acertos').val() >= 0 && newData.child('perguntasRespondidas').isNumber() && newData.child('perguntasRespondidas').val() >= 0 && newData.child('totalPerguntas').isNumber() && newData.child('totalPerguntas').val() >= 1 && newData.child('updatedAt').isNumber())"
           }
         },
+        "discipulado": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+          ".validate": "newData.hasChildren(['updatedAt']) && newData.child('updatedAt').isNumber() && (!newData.child('respostas').exists() || (!newData.child('respostas').isString() && !newData.child('respostas').isNumber() && !newData.child('respostas').isBoolean())) && (!newData.child('meditacao').exists() || (!newData.child('meditacao').isString() && !newData.child('meditacao').isNumber() && !newData.child('meditacao').isBoolean())) && (!newData.child('concluidos').exists() || (!newData.child('concluidos').isString() && !newData.child('concluidos').isNumber() && !newData.child('concluidos').isBoolean()))"
+        },
+        "devocionais": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+          ".validate": "newData.hasChildren(['updatedAt']) && newData.child('updatedAt').isNumber() && (!newData.child('concluidos').exists() || (!newData.child('concluidos').isString() && !newData.child('concluidos').isNumber() && !newData.child('concluidos').isBoolean()))"
+        },
         "fcmTokens": {
           ".read": "auth != null && auth.uid === $uid",
           "$tokenKey": {

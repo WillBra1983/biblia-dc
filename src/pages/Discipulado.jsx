@@ -58,6 +58,7 @@ import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { buildDiscipuladoExport } from '../utils/appExportPayload'
 import { ensureUserForChatExport, pushPendingChatExport } from '../utils/chatExportSend'
 import { avisarAsync } from '../utils/uiDialogs'
+import { chaveConclusaoDiscipulado, chaveLocalStorageConclusao } from '../utils/discipuladoConclusao'
 
 const textoTeste = `
 A Bíblia é a Palavra viva e infalível do Deus vivo. Como declara Pedro, "homens falaram da parte de Deus, movidos pelo Espírito Santo" (2 Pedro 1:21). 
@@ -108,6 +109,8 @@ export default function Discipulado() {
     setDiscipuladoRespostas: setRespostas,
     discipuladoMeditacao,
     setDiscipuladoMeditacao,
+    discipuladoConcluidos,
+    setDiscipuladoConcluidos,
     fontSize,
     textAlign,
     fontFamily,
@@ -188,20 +191,22 @@ export default function Discipulado() {
     }
   }, [temaSelecionado, estudoSelecionado])
 
-  // Função utilitária para chave de conclusão
-  const getConclusaoKey = () => {
-    return estudoSelecionado
-      ? `discipulado_concluido_${temaSelecionado}_${estudoSelecionado}`
-      : `discipulado_concluido_${temaSelecionado}`
+  // Função utilitária para chave de conclusão (mapa unificado + legado localStorage)
+  const getConclusaoKey = () =>
+    chaveLocalStorageConclusao(temaSelecionado, estudoSelecionado)
+
+  const isConclusaoMarcada = (temaId, estudoId = estudoSelecionado) => {
+    const key = chaveConclusaoDiscipulado(temaId, estudoId)
+    return key ? !!discipuladoConcluidos[key] : false
   }
 
   // Estado para saber se já concluiu ao menos uma vez
   const [jaConcluiu, setJaConcluiu] = useState(false)
   useEffect(() => {
     if (temaSelecionado) {
-      setJaConcluiu(localStorage.getItem(getConclusaoKey()) === 'true')
+      setJaConcluiu(isConclusaoMarcada(temaSelecionado))
     }
-  }, [temaSelecionado, estudoSelecionado])
+  }, [temaSelecionado, estudoSelecionado, discipuladoConcluidos])
 
   // Persistência do diaAtual
   useEffect(() => {
@@ -339,7 +344,7 @@ export default function Discipulado() {
 
     const questoes = getQuestoes()
     const totalQuestoes = questoes.length
-    const temaConcluido = totalQuestoes > 0 && localStorage.getItem(getConclusaoKey()) === 'true'
+    const temaConcluido = totalQuestoes > 0 && isConclusaoMarcada(temaSelecionado)
 
       if (temaConcluido) {
         setFinalizado(true)
@@ -382,19 +387,7 @@ export default function Discipulado() {
       // Mostrar a próxima pergunta a responder (não a última já respondida)
       setQuestaoAtual(ultimaQuestao + 1)
     }
-  }, [temaSelecionado, estudoSelecionado])
-
-  useEffect(() => {
-    if (!temaSelecionado) return
-
-    const questoes = getQuestoes()
-    if (finalizado && questoes.length > 0) {
-      setJaConcluiu(true)
-      localStorage.setItem(getConclusaoKey(), 'true')
-    } else {
-      localStorage.removeItem(getConclusaoKey())
-    }
-  }, [finalizado, temaSelecionado, estudoSelecionado])
+  }, [temaSelecionado, estudoSelecionado, discipuladoConcluidos, respostas])
 
   // Função para responder questão
   const handleResponder = (resposta) => {
@@ -467,6 +460,14 @@ export default function Discipulado() {
       delete novasMeditacoes[getMeditacaoKey(dia)]
     }
     setDiscipuladoMeditacao(novasMeditacoes)
+    const conclusaoKey = chaveConclusaoDiscipulado(temaSelecionado, estudoSelecionado)
+    if (conclusaoKey) {
+      setDiscipuladoConcluidos((prev) => {
+        const next = { ...prev }
+        delete next[conclusaoKey]
+        return next
+      })
+    }
     // Limpar localStorage específico
     localStorage.removeItem(getDiaKey())
     localStorage.removeItem(getConclusaoKey())
@@ -532,10 +533,16 @@ export default function Discipulado() {
     }, 100);
   }, [estudoSelecionado])
 
-  // Nova função para concluir a lição manualmente
+  // Concluir lição manualmente (última questão) — grava conclusão de imediato no contexto
   const handleConcluirLicao = () => {
+    const conclusaoKey = chaveConclusaoDiscipulado(temaSelecionado, estudoSelecionado)
+    if (conclusaoKey) {
+      setDiscipuladoConcluidos((prev) => ({ ...prev, [conclusaoKey]: true }))
+      const legacyKey = getConclusaoKey()
+      if (legacyKey) localStorage.setItem(legacyKey, 'true')
+    }
+    setJaConcluiu(true)
     setFinalizado(true)
-    // Força a renderização da meditação
     setQuestaoAtual(getQuestoes().length + 1)
   }
 
@@ -545,13 +552,8 @@ export default function Discipulado() {
     }
   }, [finalizado, temaSelecionado])
 
-  // Função para verificar se um estudo está concluído
-  const isEstudoConcluido = (estudoId) => {
-    const chave = estudoId
-      ? `discipulado_concluido_${temaSelecionado}_${estudoId}`
-      : `discipulado_concluido_${temaSelecionado}`
-    return localStorage.getItem(chave) === 'true'
-  }
+  // Função para verificar se um estudo está concluído (menu de subtemas)
+  const isEstudoConcluido = (estudoId) => isConclusaoMarcada(temaSelecionado, estudoId)
 
   // Obter última lição para "Ir para onde parou"
   const getUltimaLicao = () => {

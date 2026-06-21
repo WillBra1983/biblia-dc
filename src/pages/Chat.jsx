@@ -383,7 +383,7 @@ export default function Chat() {
     lastError
   } = useFirebaseAuth()
 
-  const { setDiscipuladoRespostas, setDiscipuladoTema } = useApp()
+  const { setDiscipuladoRespostas, setDiscipuladoTema, setDevocionaisConcluidos } = useApp()
 
   const [busy, setBusy] = useState(false)
   const [activeChatId, setActiveChatId] = useState(null)
@@ -1348,6 +1348,7 @@ export default function Chat() {
     applyExportImport(kind, data, {
       setDiscipuladoRespostas,
       setDiscipuladoTema,
+      setDevocionaisConcluidos,
       navigate
     })
     setExportDialogMsg(null)

@@ -10,7 +10,7 @@
     "edgeToEdge": false
   },
   "ios": {
-    "contentInset": "automatic"
+    "contentInset": "never"
   },
   "plugins": {
     "SplashScreen": {

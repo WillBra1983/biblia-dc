@@ -2,6 +2,7 @@ import { Box, Card, CardContent, Typography, Grid, Dialog, AppBar, Toolbar, Icon
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { obterCorLivro } from '../utils/coresBiblia'
 import { useEffect, useState } from 'react'
+import { sxFullscreenFlexColumn, sxFullscreenScrollBody, sxSafeAreaTop } from '../utils/viewportHeight'
 import { contarVersiculos, obterVersiculosPorLivroSync, contarVersiculosPorLivro } from '../services/bibliaService'
 
 export default function VersiculosCards({
@@ -95,9 +96,9 @@ export default function VersiculosCards({
       onClose={onClose}
       fullScreen
       transitionDuration={0}
-      PaperProps={{ sx: { bgcolor: 'background.default' } }}
+      PaperProps={{ sx: sxFullscreenFlexColumn({ bgcolor: 'background.default' }) }}
     >
-      <AppBar position="static" elevation={1} sx={{ bgcolor: corLivro }}>
+      <AppBar position="static" elevation={1} sx={{ bgcolor: corLivro, flexShrink: 0, ...sxSafeAreaTop() }}>
         <Toolbar>
           <IconButton
             edge="start"
@@ -113,7 +114,7 @@ export default function VersiculosCards({
           </Typography>
         </Toolbar>
       </AppBar>
-      <Box sx={{ p: 2, overflow: 'auto', height: 'calc(100% - 64px)' }}>
+      <Box sx={{ ...sxFullscreenScrollBody(), p: 2 }}>
         <Grid container spacing={0.5}>
           {versiculos.map((versiculo) => {
             const ativo = versiculoAtual === versiculo

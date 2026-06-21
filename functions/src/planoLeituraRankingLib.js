@@ -360,9 +360,79 @@ async function sincronizarRankingDoPlano(db, uid, planoLeituraVal, profile = {})
 
 
 
+/** Reconstrói todas as entradas de `planoLeituraRanking` a partir dos planos na nuvem. */
+
+async function reconstruirTodosRankingsPlano(db) {
+
+  const usersSnap = await db.ref('users').get()
+
+  if (!usersSnap.exists()) {
+
+    return { processados: 0, publicados: 0, removidos: 0, ignorados: 0 }
+
+  }
+
+
+
+  let ignorados = 0
+
+  const tarefas = []
+
+
+
+  usersSnap.forEach((userChild) => {
+
+    const uid = userChild.key
+
+    if (!uid) return
+
+    const dados = userChild.val() || {}
+
+    const planoLeitura = dados.planoLeitura
+
+    if (!planoLeitura || typeof planoLeitura !== 'object') {
+
+      ignorados += 1
+
+      return
+
+    }
+
+    const profile = dados.profile && typeof dados.profile === 'object' ? dados.profile : {}
+
+    tarefas.push(
+
+      sincronizarRankingDoPlano(db, uid, planoLeitura, profile).catch(() => 'skipped')
+
+    )
+
+  })
+
+
+
+  const resultados = await Promise.all(tarefas)
+
+  return {
+
+    processados: resultados.length,
+
+    publicados: resultados.filter((r) => r === 'published').length,
+
+    removidos: resultados.filter((r) => r === 'removed').length,
+
+    ignorados,
+
+  }
+
+}
+
+
+
 module.exports = {
 
   sincronizarRankingDoPlano,
+
+  reconstruirTodosRankingsPlano,
 
   escolherInstancia,
 

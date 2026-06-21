@@ -11,7 +11,7 @@ import ConfissaoIcon from '@mui/icons-material/Article'
 import CatecismoMaiorIcon from '@mui/icons-material/LibraryBooks'
 import CatecismoBreveIcon from '@mui/icons-material/Quiz'
 import DevocionalIcon from './icons/DevocionalKneelingIcon'
-import MaisDeDeusIcon from '@mui/icons-material/VolunteerActivism'
+import AddIcon from '@mui/icons-material/Add'
 import YouTubeIcon from '@mui/icons-material/YouTube'
 import HinarioLetraIcon from '@mui/icons-material/Lyrics'
 import HinarioCifrasIcon from '@mui/icons-material/Piano'
@@ -87,9 +87,9 @@ const menuItems = [
   },
   {
     text: 'Mais de Deus',
-    icon: <MaisDeDeusIcon sx={{ fontSize: ICON_SIZE }} />,
+    icon: <AddIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/mais-de-deus',
-    description: 'Mais conteúdo sobre Deus',
+    description: 'Mais conteúdos teológicos',
     accentRing: 'rgba(255, 255, 255, 0.45)'
   },
   {

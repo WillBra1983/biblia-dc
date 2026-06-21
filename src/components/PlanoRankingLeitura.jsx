@@ -40,11 +40,13 @@ import {
   subscribeRankingPlanoLeitura,
   sincronizarMeuRankingPlano,
   removerMeuRankingPlano,
+  hidratarOptInRankingPlanoDoPerfil,
   calcularPosicaoNoRanking,
   calcularPosicaoFantasma,
   montarSnapshotRankingLocal,
   montarSnapshotRankingDeProgresso,
   mesclarRankingComSnapshotLocal,
+  solicitarAtualizacaoRankingPlanoLeitura,
 } from '../services/planoLeituraRankingService'
 
 const avatarImgProps = { referrerPolicy: 'no-referrer' }
@@ -229,6 +231,23 @@ export default function PlanoRankingLeitura({
     }
   }, [])
 
+  useEffect(() => {
+    const syncOptIn = () => setOptIn(lerOptInRankingPlano())
+    window.addEventListener('salvation-plano-ranking-optin-changed', syncOptIn)
+    return () => window.removeEventListener('salvation-plano-ranking-optin-changed', syncOptIn)
+  }, [])
+
+  useEffect(() => {
+    if (!user?.uid) return
+    let cancelado = false
+    void hidratarOptInRankingPlanoDoPerfil(user.uid).then((ativo) => {
+      if (!cancelado) setOptIn(ativo)
+    })
+    return () => {
+      cancelado = true
+    }
+  }, [user?.uid])
+
   const authCtx = useMemo(
     () =>
       user
@@ -273,6 +292,8 @@ export default function PlanoRankingLeitura({
     if (!user?.uid) return
     if (optIn) {
       void publicarRanking()
+    } else {
+      void removerMeuRankingPlano(user.uid)
     }
   }, [tick, instanciaId, user?.uid, optIn, publicarRanking])
 
@@ -346,7 +367,12 @@ export default function PlanoRankingLeitura({
   const listaParaExibir = optIn ? listaVisivel : []
   const temPodio = optIn && listaParaExibir.length > 0
 
-  const abrirTela = () => setTelaAberta(true)
+  const abrirTela = () => {
+    setTelaAberta(true)
+    if (user?.uid) {
+      void solicitarAtualizacaoRankingPlanoLeitura().catch(() => {})
+    }
+  }
   const fecharTela = () => setTelaAberta(false)
 
   const papelVerde = {

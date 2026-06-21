@@ -174,6 +174,8 @@ export const backupImportantData = () => {
   const importantKeys = [
     'discipulado_respostas',
     'discipulado_meditacao',
+    'discipulado_concluidos',
+    'devocionaisConcluidos',
     'planoLeitura',
     'ultimaLeitura',
     'fontSize',

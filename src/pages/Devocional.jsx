@@ -36,15 +36,11 @@ export default function Devocional() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useFirebaseAuth()
-  const { fontSize, voltarParaPaginaAnterior, fontFamily, lineHeight, isDarkMode } = useApp()
+  const { fontSize, voltarParaPaginaAnterior, fontFamily, lineHeight, isDarkMode, devocionaisConcluidos, setDevocionaisConcluidos } = useApp()
   const ff = resolveFontFamily(fontFamily)
   const lh = readingLineHeightToCss(lineHeight)
   const [searchTerm, setSearchTerm] = useState('')
   const [devocionalAtual, setDevocionalAtual] = useState(null)
-  const [devocionaisConcluidos, setDevocionaisConcluidos] = useState(() => {
-    const saved = localStorage.getItem('devocionaisConcluidos')
-    return saved ? JSON.parse(saved) : []
-  })
 
   const scrollRef = useRef(null);
 
@@ -60,10 +56,6 @@ export default function Devocional() {
       setDevocionalAtual(null)
     }
   }, [id, navigate])
-
-  useEffect(() => {
-    localStorage.setItem('devocionaisConcluidos', JSON.stringify(devocionaisConcluidos))
-  }, [devocionaisConcluidos])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -93,13 +85,11 @@ export default function Devocional() {
   }
 
   const toggleDevocionalConcluido = (devocionalId) => {
-    setDevocionaisConcluidos(prev => {
-      const newState = prev.includes(devocionalId)
-        ? prev.filter(id => id !== devocionalId)
+    setDevocionaisConcluidos((prev) =>
+      prev.includes(devocionalId)
+        ? prev.filter((id) => id !== devocionalId)
         : [...prev, devocionalId]
-      localStorage.setItem('devocionaisConcluidos', JSON.stringify(newState))
-      return newState
-    })
+    )
   }
 
   const devocionaisFiltrados = devocionalData.filter(devocional =>

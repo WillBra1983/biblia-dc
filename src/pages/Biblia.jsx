@@ -58,7 +58,13 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { buildBibliaVersiculosExport } from '../utils/appExportPayload'
 import { ensureUserForChatExport, ensureUserForFeature, pushPendingChatExport } from '../utils/chatExportSend'
-import { sxFullViewportHeight } from '../utils/viewportHeight'
+import {
+  sxFullViewportHeight,
+  sxFullscreenFlexColumn,
+  sxFullscreenScrollBody,
+  sxSafeAreaTop,
+  sxSafeAreaBottom,
+} from '../utils/viewportHeight'
 import { avisarAsync, mostrarSnackbar, copiarParaAreaTransferencia } from '../utils/uiDialogs'
 import { registrarLeituraBibliaHoje } from '../utils/incentivosLeitura'
 import { notificarBibliaPronta } from '../utils/posSplash'
@@ -2674,22 +2680,21 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         onClose={() => setDialogoBuscaAberto(false)}
         fullScreen
         PaperProps={{
-          sx: {
-            width: '100vw',
-            m: 0,
-            maxWidth: '100vw',
-            borderRadius: 0,
-            height: '100vh',
-            maxHeight: '100vh',
-            '@supports (height: 100dvh)': {
-              height: '100dvh',
-              maxHeight: '100dvh'
-            }
-          }
+          sx: sxFullscreenFlexColumn({ bgcolor: 'background.default' }),
         }}
       >
-        <DialogTitle>Buscar na Biblia DC</DialogTitle>
-        <DialogContent>
+        <DialogTitle sx={{ flexShrink: 0, ...sxSafeAreaTop('16px') }}>
+          Buscar na Biblia DC
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            ...sxFullscreenScrollBody(),
+            display: 'flex',
+            flexDirection: 'column',
+            px: 3,
+            pt: 1,
+          }}
+        >
           {/* Histórico de pesquisas */}
           {historicoBusca.length > 0 && (
             <Box sx={{ mb: 2 }}>
@@ -2799,7 +2804,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                   <Typography variant="subtitle2" sx={{ mt: 2, mb: 1, color: livroCorBase, fontWeight: 700 }}>
                     Textos Bíblicos
                   </Typography>
-                  <List sx={{ maxHeight: '30vh', overflow: 'auto' }}>
+                  <List sx={{ flex: 1, minHeight: 0, overflow: 'auto', py: 0 }}>
                     {textosBiblicosBusca.map((resultado, index) => {
                       // Extrair número do versículo: primeiro tenta usar o campo versiculo, depois extrai do texto
                       let numeroVersiculo = resultado.versiculo || null
@@ -2840,7 +2845,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             </>
           )}
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ flexShrink: 0, ...sxSafeAreaBottom('8px') }}>
           <Button onClick={() => setDialogoBuscaAberto(false)}>
             Fechar
           </Button>

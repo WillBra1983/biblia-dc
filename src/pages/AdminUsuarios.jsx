@@ -44,7 +44,6 @@ export default function AdminUsuarios() {
   const [erro, setErro] = useState('')
   const [filtro, setFiltro] = useState('')
   const [acaoUid, setAcaoUid] = useState(null)
-  const [reconstruindoRanking, setReconstruindoRanking] = useState(false)
 
   useEffect(() => {
     let cancelado = false
@@ -166,37 +165,6 @@ export default function AdminUsuarios() {
     }
   }, [])
 
-  const reconstruirRankingLeitura = useCallback(async () => {
-    const ok = await confirmarAsync({
-      titulo: 'Atualizar ranking da leitura',
-      mensagem:
-        'Lê todos os planos já salvos na nuvem e publica o ranking público. Use uma vez após ativar esta funcionalidade — não é preciso que cada usuário abra o app.',
-      confirmarTexto: 'Reconstruir',
-    })
-    if (!ok) return
-    setReconstruindoRanking(true)
-    setErro('')
-    try {
-      await loadFirebaseModules()
-      const fns = getFirebaseFunctions()
-      if (!fns) throw new Error('Cloud Functions indisponível')
-      const { httpsCallable } = await import('firebase/functions')
-      const fn = httpsCallable(fns, 'reconstruirRankingPlanoLeituraAdmin')
-      const res = await fn({})
-      const d = res.data || {}
-      mostrarSnackbar({
-        mensagem: `Ranking atualizado: ${d.publicados ?? 0} leitor(es) publicado(s), ${d.ignorados ?? 0} sem plano na nuvem.`,
-        severidade: 'success',
-      })
-    } catch (e) {
-      const msg = e?.message || 'Falha ao reconstruir o ranking.'
-      setErro(msg)
-      mostrarSnackbar({ mensagem: msg, severidade: 'error' })
-    } finally {
-      setReconstruindoRanking(false)
-    }
-  }, [])
-
   if (checandoAdmin || !ehAdmin) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 320 }}>
@@ -214,21 +182,11 @@ export default function AdminUsuarios() {
         </Typography>
       </Stack>
 
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 2 }}>
-        <Alert severity="info" sx={{ flex: 1 }}>
-          Lista do Firebase Authentication. O <strong>@apelido</strong> é o nome público do chat (reservado
-          no perfil), não o nome de exibição. Quem entrou só com Google costuma ter e-mail já verificado;
-          cadastro por senha exige confirmação por link se você ativar essa opção no Firebase.
-        </Alert>
-        <Button
-          variant="outlined"
-          disabled={reconstruindoRanking}
-          onClick={() => void reconstruirRankingLeitura()}
-          sx={{ whiteSpace: 'nowrap', alignSelf: { xs: 'stretch', sm: 'flex-start' } }}
-        >
-          {reconstruindoRanking ? 'Atualizando ranking…' : 'Atualizar ranking da leitura'}
-        </Button>
-      </Stack>
+      <Alert severity="info" sx={{ mb: 2 }}>
+        Lista do Firebase Authentication. O <strong>@apelido</strong> é o nome público do chat (reservado
+        no perfil), não o nome de exibição. Quem entrou só com Google costuma ter e-mail já verificado;
+        cadastro por senha exige confirmação por link se você ativar essa opção no Firebase.
+      </Alert>
 
       {erro ? (
         <Alert severity="error" sx={{ mb: 2 }}>

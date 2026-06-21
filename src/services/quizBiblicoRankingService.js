@@ -33,8 +33,38 @@ export function gravarOptInRankingQuiz(ativo) {
   }
 }
 
+export function notificarOptInRankingQuizAlterado() {
+  try {
+    window.dispatchEvent(new CustomEvent('salvation-quiz-ranking-optin-changed'))
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Aplica opt-in do perfil RTDB ao localStorage deste aparelho (conta logada). */
+export async function hidratarOptInRankingQuizDoPerfil(uid) {
+  if (!uid || !isFirebaseConfigured()) return lerOptInRankingQuiz()
+  await loadFirebaseModules()
+  const db = getFirebaseDatabase()
+  if (!db) return lerOptInRankingQuiz()
+
+  try {
+    const snap = await get(ref(db, `users/${uid}/profile/rankingQuizOptIn`))
+    if (!snap.exists()) return lerOptInRankingQuiz()
+
+    const ativo = snap.val() === true
+    gravarOptInRankingQuiz(ativo)
+    notificarOptInRankingQuizAlterado()
+    return ativo
+  } catch (err) {
+    console.warn('[quizBiblicoRanking] hidratar opt-in:', err?.message || err)
+    return lerOptInRankingQuiz()
+  }
+}
+
 export async function gravarOptInRankingQuizNaNuvem(uid, ativo) {
   gravarOptInRankingQuiz(ativo)
+  notificarOptInRankingQuizAlterado()
   if (!uid || !isFirebaseConfigured()) return
   await loadFirebaseModules()
   const db = getFirebaseDatabase()

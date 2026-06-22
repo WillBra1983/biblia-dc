@@ -13,6 +13,19 @@ const LIVRO_NOME_CACHE_MAX = 80
 const INTERVALO_VERSOS_CACHE_MAX = 200
 const capituloCache = new Map()
 const CAPITULO_CACHE_MAX = 24
+/** Primeiro livro do NT (Mateus); ids menores são AT. */
+const LIVRO_ID_NT_INICIO = 40
+
+function clausulaSqlTestamento(testamento) {
+  if (testamento === 'AT') return `AND b.id < ${LIVRO_ID_NT_INICIO}`
+  if (testamento === 'NT') return `AND b.id >= ${LIVRO_ID_NT_INICIO}`
+  return ''
+}
+
+function clausulaSqlLivro(livroId) {
+  const id = Number(livroId)
+  return Number.isFinite(id) && id > 0 ? 'AND b.id = ?' : ''
+}
 
 function gravarCacheLimitado(map, key, value, max) {
   if (map.size >= max) {
@@ -156,11 +169,13 @@ export const bibliaService = {
     }
   },
 
-  async buscarTexto(texto, tipoBusca = 'ambos') {
+  async buscarTexto(texto, tipoBusca = 'ambos', testamento = 'ambos', livroId = null) {
     const db = await initDB();
     
     const termoBusca = `%${texto}%`;
     const resultados = [];
+    const filtroTestamento = clausulaSqlTestamento(testamento);
+    const filtroLivro = clausulaSqlLivro(livroId);
 
     try {
       // Busca nos versículos (se tipoBusca for 'texto' ou 'ambos')
@@ -178,14 +193,17 @@ export const bibliaService = {
             NULL as pericope
           FROM verse v
           JOIN book b ON v.book_id = b.id
-          WHERE LOWER(v.text) LIKE LOWER(?) 
-            OR LOWER(b.name) LIKE LOWER(?)
+          WHERE LOWER(v.text) LIKE LOWER(?)
+            ${filtroTestamento}
+            ${filtroLivro}
           ORDER BY b.id, v.chapter, v.id
-          LIMIT 500
         `;
 
+        const paramsVersos = [termoBusca]
+        if (filtroLivro) paramsVersos.push(parseInt(livroId, 10))
+
         const stmt1 = db.prepare(queryVersos);
-        stmt1.bind([termoBusca, termoBusca]);
+        stmt1.bind(paramsVersos);
         while (stmt1.step()) {
           resultados.push(stmt1.getAsObject());
         }
@@ -205,12 +223,16 @@ export const bibliaService = {
           FROM pericopes p
           JOIN book b ON p.livro_id = b.id
           WHERE LOWER(p.titulo) LIKE LOWER(?)
+            ${filtroTestamento}
+            ${filtroLivro}
           ORDER BY b.id, p.capitulo, p.versiculo
-          LIMIT 100
         `;
 
+        const paramsPericopes = [termoBusca]
+        if (filtroLivro) paramsPericopes.push(parseInt(livroId, 10))
+
         const stmt2 = db.prepare(queryPericopes);
-        stmt2.bind([termoBusca]);
+        stmt2.bind(paramsPericopes);
         while (stmt2.step()) {
           resultados.push(stmt2.getAsObject());
         }

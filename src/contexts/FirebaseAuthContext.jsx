@@ -112,30 +112,40 @@ export function FirebaseAuthProvider({ children }) {
         await loadFirebaseModules()
         if (cancelled) return
 
-        timeoutId = window.setTimeout(liberarSeAuthTravado, AUTH_INIT_TIMEOUT_MS)
-
         const auth = getFirebaseAuth()
         if (!auth) {
           authPronto = true
           authStateRecebidoRef.current = true
-          window.clearTimeout(timeoutId)
           setUser(null)
           return
         }
 
         const { onAuthStateChanged, getRedirectResult } = await import('firebase/auth')
 
-        // Aguarda restauração da sessão (evita tratar null inicial como logout).
-        if (typeof auth.authStateReady === 'function') {
-          try {
-            await auth.authStateReady()
-          } catch (e) {
-            console.warn('[auth] authStateReady:', e?.message || e)
-          }
-        }
+        const authStateReadyPromise =
+          typeof auth.authStateReady === 'function'
+            ? auth.authStateReady().catch((e) => {
+                console.warn('[auth] authStateReady:', e?.message || e)
+              })
+            : Promise.resolve()
+
+        const readyResult = await Promise.race([
+          authStateReadyPromise.then(() => 'ready'),
+          new Promise((resolve) => {
+            timeoutId = window.setTimeout(() => resolve('timeout'), AUTH_INIT_TIMEOUT_MS)
+          }),
+        ])
 
         if (cancelled) return
+
+        if (readyResult === 'timeout') {
+          liberarSeAuthTravado()
+          return
+        }
+
+        window.clearTimeout(timeoutId)
         authPronto = true
+        authStateRecebidoRef.current = true
         aplicarUsuarioAuth(auth.currentUser)
 
         unsubAuth = onAuthStateChanged(auth, aplicarUsuarioAuth)

@@ -49,16 +49,19 @@ export function getFirebaseApp() {
 
 function criarAuthInstance(app) {
   if (isNativeApp()) {
-    // browserLocalPersistence tenta IndexedDB primeiro — trava no WKWebView iOS.
+    const persistence =
+      Capacitor.getPlatform() === 'android'
+        ? browserLocalPersistence
+        : capacitorLocalStoragePersistence
     try {
       return initializeAuth(app, {
-        persistence: capacitorLocalStoragePersistence,
+        persistence,
       })
     } catch (e) {
       if (e?.code === 'auth/already-initialized') {
         return getAuth(app)
       }
-      console.error('[auth] capacitorLocalStoragePersistence falhou:', e?.message || e)
+      console.error('[auth] persistência nativa falhou:', e?.message || e)
       throw e
     }
   }

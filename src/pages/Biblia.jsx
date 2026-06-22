@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, startTransition } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, startTransition, Fragment } from 'react'
 import { createPortal } from 'react-dom'
 import { 
   Box, 
@@ -21,7 +21,10 @@ import {
   Divider,
   Menu,
   MenuItem,
-  Alert
+  Alert,
+  ToggleButton,
+  ToggleButtonGroup,
+  Autocomplete
 } from '@mui/material'
 
 import CheckCircle from '@mui/icons-material/CheckCircle'
@@ -39,8 +42,10 @@ import {
   buscarCapitulo,
   buscarTexto,
   buscarPericopes,
+  buscarLivroPorNome,
   contarVersiculosPorLivro
 } from '../services/bibliaService'
+import { extrairReferenciaBiblica } from '../utils/biblia'
 import ReferenciasPericope from '../components/ReferenciasPericope'
 import ReferenciasParalelasDialog from '../components/ReferenciasParalelasDialog'
 import { useApp } from '../contexts/AppContext'
@@ -169,7 +174,10 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const [dialogoBuscaAberto, setDialogoBuscaAberto] = useState(false)
   const [termoBusca, setTermoBusca] = useState('')
   const [tipoBusca] = useState('texto') // Apenas busca por texto (perícopes removidas)
+  const [testamentoBusca, setTestamentoBusca] = useState('ambos')
+  const [livroBusca, setLivroBusca] = useState(null)
   const [resultadosBusca, setResultadosBusca] = useState([])
+  const [buscaConcluida, setBuscaConcluida] = useState(false)
   const [buscando, setBuscando] = useState(false)
   const [historicoBusca, setHistoricoBusca] = useState(() => {
     const saved = localStorage.getItem('historicoBuscaBiblia')
@@ -200,7 +208,27 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const navegacaoInternaRef = React.useRef(false)
   /** Livro/capítulo antes de abrir livros → capítulos → versículos (restaurado se cancelar). */
   const navegacaoBackupRef = React.useRef(null)
+  const buscaConteudoRef = React.useRef(null)
+  const buscaListaRef = React.useRef(null)
+  const buscaScrollSalvoRef = React.useRef({ conteudo: 0, lista: 0 })
+  const restaurarBuscaAoVoltarRef = React.useRef(false)
   const [aguardandoVoltarBusca, setAguardandoVoltarBusca] = useState(false)
+
+  const salvarScrollBusca = useCallback(() => {
+    buscaScrollSalvoRef.current = {
+      conteudo: buscaConteudoRef.current?.scrollTop ?? 0,
+      lista: buscaListaRef.current?.scrollTop ?? 0,
+    }
+    restaurarBuscaAoVoltarRef.current = true
+  }, [])
+
+  const fecharDialogoBusca = useCallback((limparRestauracao = true) => {
+    if (limparRestauracao) {
+      restaurarBuscaAoVoltarRef.current = false
+      buscaScrollSalvoRef.current = { conteudo: 0, lista: 0 }
+    }
+    setDialogoBuscaAberto(false)
+  }, [])
   // (splash interno removido)
   const [livrosDialogOpen, setLivrosDialogOpen] = useState(false)
   const [capitulosDialogOpen, setCapitulosDialogOpen] = useState(false)
@@ -281,6 +309,13 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     () => resultados.slice(0, versiculosRenderizados),
     [resultados, versiculosRenderizados]
   )
+
+  const livrosBuscaOpcoes = useMemo(() => {
+    if (!opcoesLivros.length) return []
+    if (testamentoBusca === 'AT') return opcoesLivros.filter((l) => l.id < 40)
+    if (testamentoBusca === 'NT') return opcoesLivros.filter((l) => l.id >= 40)
+    return opcoesLivros
+  }, [opcoesLivros, testamentoBusca])
   const carregarMaisVersiculos = useCallback(() => {
     startTransition(() => {
       setVersiculosRenderizados((prev) => Math.min(prev + BIBLIA_RENDER_POR_LOTE, resultados.length))
@@ -316,6 +351,38 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     maxHeight: { xs: 44, sm: 46 },
     boxSizing: 'border-box',
   }
+
+  /** Lista de resultados da busca — barra grossa para arrastar (milhares de versículos). */
+  const sxListaResultadosBusca = useMemo(
+    () => ({
+      flex: 1,
+      minHeight: 0,
+      overflow: 'auto',
+      py: 0,
+      pr: 0.5,
+      WebkitOverflowScrolling: 'touch',
+      scrollbarWidth: 'auto',
+      scrollbarColor: `${livroCorBase} rgba(0,0,0,0.1)`,
+      '&::-webkit-scrollbar': { width: { xs: 16, sm: 14 } },
+      '&::-webkit-scrollbar-track': {
+        borderRadius: 10,
+        bgcolor: 'action.hover',
+        my: 0.5,
+      },
+      '&::-webkit-scrollbar-thumb': {
+        borderRadius: 10,
+        bgcolor: livroCorBase,
+        border: '3px solid transparent',
+        backgroundClip: 'padding-box',
+        minHeight: 64,
+      },
+      '&::-webkit-scrollbar-thumb:hover': {
+        bgcolor: livroCorBase,
+        filter: 'brightness(0.9)',
+      },
+    }),
+    [livroCorBase]
+  )
 
   /**
    * Borda dos controles da barra (Livro, Capítulo, Pesquisa, Strong).
@@ -1556,7 +1623,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           }
         } else if (livrosDialogOpen) {
           encerrarFluxoNavegacao()
-        } else if (dialogoBuscaAberto) setDialogoBuscaAberto(false)
+        } else if (dialogoBuscaAberto) fecharDialogoBusca(true)
         else if (dialogoMarcarAberto) {
           setDialogoMarcarAberto(false)
           setVersiculosSelecionados([])
@@ -1584,6 +1651,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     capitulosVemDeLivros,
     versiculosVemDeCapitulos,
     aguardandoVoltarBusca,
+    fecharDialogoBusca,
   ])
 
   // Bíblia principal: sem incentivos na UI ao carregar capítulo (registo interno mantido).
@@ -1610,13 +1678,48 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     }, {})
   }, [pericopesCapitulo])
 
-  const realizarBusca = async () => {
-    if (!termoBusca.trim()) return
-    
+  const realizarBusca = async (overrides = {}) => {
+    const termo = termoBusca.trim()
+    if (!termo) return
+
+    const testamento = overrides.testamento ?? testamentoBusca
+    const livroId = overrides.livroId !== undefined
+      ? overrides.livroId
+      : (livroBusca?.id ?? null)
+
     setBuscando(true)
     try {
-      const resultados = await buscarTexto(termoBusca, tipoBusca)
+      const refs = extrairReferenciaBiblica(termo)
+      if (refs.length === 1 && refs[0].capitulo) {
+        const ref = refs[0]
+        const livroRef = await buscarLivroPorNome(ref.livroNome)
+        const livroCompativelTestamento =
+          testamento === 'ambos' ||
+          (testamento === 'AT' && livroRef?.id < 40) ||
+          (testamento === 'NT' && livroRef?.id >= 40)
+        const livroCompativelFiltro = !livroId || livroRef?.id === livroId
+
+        if (livroRef && livroCompativelTestamento && livroCompativelFiltro) {
+          salvarScrollBusca()
+          navegacaoInternaRef.current = true
+          await irParaVersiculo(
+            livroRef.id,
+            ref.capitulo,
+            ref.versiculoInicio,
+            { daBusca: true }
+          )
+          return
+        }
+      }
+
+      const resultados = await buscarTexto(termo, tipoBusca, testamento, livroId)
       setResultadosBusca(resultados)
+      restaurarBuscaAoVoltarRef.current = false
+      buscaScrollSalvoRef.current = { conteudo: 0, lista: 0 }
+      requestAnimationFrame(() => {
+        if (buscaConteudoRef.current) buscaConteudoRef.current.scrollTop = 0
+        if (buscaListaRef.current) buscaListaRef.current.scrollTop = 0
+      })
       
       // Salvar no histórico
       const novoHistorico = [
@@ -1637,6 +1740,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
       setResultadosBusca([])
     } finally {
       setBuscando(false)
+      setBuscaConcluida(true)
     }
   }
 
@@ -1796,6 +1900,23 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
 
   const textosBiblicosBusca = resultadosBusca.filter(r => r.texto);
 
+  useLayoutEffect(() => {
+    if (!dialogoBuscaAberto || !restaurarBuscaAoVoltarRef.current) return
+    if (buscando || textosBiblicosBusca.length === 0) return
+
+    const { conteudo, lista } = buscaScrollSalvoRef.current
+    const aplicar = () => {
+      if (buscaConteudoRef.current) buscaConteudoRef.current.scrollTop = conteudo
+      if (buscaListaRef.current) buscaListaRef.current.scrollTop = lista
+    }
+    aplicar()
+    const frame = requestAnimationFrame(() => {
+      aplicar()
+      restaurarBuscaAoVoltarRef.current = false
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [dialogoBuscaAberto, buscando, textosBiblicosBusca.length])
+
   const handleSelectLivro = React.useCallback((livro) => {
     contarVersiculosPorLivro(livro.id).catch(() => {})
     // Só atualizar se for um livro diferente
@@ -1872,20 +1993,8 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
 
   return (
     <>
-      {/* Removido splash duplicado - o splash global já é suficiente */}
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          // Em celulares, `100vh` inclui a área coberta pela barra do
-          // navegador (URL bar / menu inferior), fazendo o rodapé da
-          // leitura — e o botão "Marcar como lido" — ficar parcialmente
-          // escondido. `100dvh` (dynamic viewport height) mede só a área
-          // realmente visível.
-          ...sxFullViewportHeight(),
-          overflow: 'hidden',
-          position: 'relative'
-        }}>
-          {!modoImersivo && bibliaToolbarLeftSlot ? createPortal(
+      {!modoImersivo && bibliaToolbarLeftSlot
+        ? createPortal(
           <Box sx={{
             display: 'flex',
             alignItems: 'center',
@@ -1995,7 +2104,11 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             )}
             <Tooltip title="Buscar na Biblia DC">
               <IconButton
-                onClick={() => setDialogoBuscaAberto(true)}
+                onClick={() => {
+                  restaurarBuscaAoVoltarRef.current = false
+                  buscaScrollSalvoRef.current = { conteudo: 0, lista: 0 }
+                  setDialogoBuscaAberto(true)
+                }}
                 sx={{
                   ...sxIconeBarraBiblia,
                   ...sxAlturaBarraCtrl,
@@ -2163,11 +2276,21 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             )}
           </Box>,
           bibliaToolbarLeftSlot
-          ) : null}
-          {/* Removida a faixa explicativa "Escolha o(s) versículo(s)..." — a
-              barra de ações (BibliaSelecaoActionBar), em overlay no centro da
-              tela, já comunica o estado e oferece as ações. */}
-          {!modoImersivo && estudoQueryId && (
+        )
+        : null}
+      <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          // Em celulares, `100vh` inclui a área coberta pela barra do
+          // navegador (URL bar / menu inferior), fazendo o rodapé da
+          // leitura — e o botão "Marcar como lido" — ficar parcialmente
+          // escondido. `100dvh` (dynamic viewport height) mede só a área
+          // realmente visível.
+          ...sxFullViewportHeight(),
+          overflow: 'hidden',
+          position: 'relative'
+        }}>
+          {!modoImersivo && estudoQueryId ? (
             <Box sx={{ px: 2, pb: 1 }}>
               <Alert
                 severity="info"
@@ -2194,7 +2317,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 Foi aberto um link de estudo compartilhado. Pode abrir o conteúdo completo (é necessário iniciar sessão).
               </Alert>
             </Box>
-          )}
+          ) : null}
 
       <Box 
         ref={(el) => {
@@ -2348,7 +2471,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
 
               return (
                 <React.Fragment key={keyAtual}>
-                  {pericopesVerso?.length > 0 &&
+                  {pericopesVerso?.length > 0 ? (
                     pericopesVerso.map((pericopeInfo, pi) => (
                       <Box
                         key={`${numeroVersiculo}-${pi}`}
@@ -2388,7 +2511,8 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                           />
                         )}
                       </Box>
-                    ))}
+                    ))
+                  ) : null}
               <VersiculoMarcavel
                 ref={(el) => {
                   if (el) {
@@ -2531,7 +2655,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 </React.Fragment>
               )
             })}
-            {livroAtual && capitulo && (
+            {livroAtual && capitulo > 0 ? (
               <Box sx={{ mt: 2.5, mb: 1.5, display: 'flex', justifyContent: 'center', px: 1 }}>
                 <Button
                   variant={veioDoPlanoContexto ? (capituloMarcadoNoPlanoContexto ? 'outlined' : 'contained') : (capitulosPendentesIds.length > 0 ? 'contained' : 'outlined')}
@@ -2557,15 +2681,15 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                         : 'Marcar leitura no plano')}
                 </Button>
               </Box>
-            )}
-            {veioDoPlanoContexto && instanciaEscadaUiId && (
+            ) : null}
+            {veioDoPlanoContexto && instanciaEscadaUiId ? (
               <Box sx={{ mt: 0.5, mb: 1.5, px: 1 }}>
                 <PlanoEscadaBarraMedalhas
                   instanciaId={instanciaEscadaUiId}
                   tick={planoLeituraTick}
                 />
               </Box>
-            )}
+            ) : null}
             <Box
               aria-hidden
               sx={{
@@ -2776,7 +2900,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
 
       <Dialog 
         open={dialogoBuscaAberto} 
-        onClose={() => setDialogoBuscaAberto(false)}
+        onClose={() => fecharDialogoBusca(true)}
         fullScreen
         PaperProps={{
           sx: sxFullscreenFlexColumn({ bgcolor: 'background.default' }),
@@ -2786,10 +2910,12 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           Buscar na Biblia DC
         </DialogTitle>
         <DialogContent
+          ref={buscaConteudoRef}
           sx={{
             ...sxFullscreenScrollBody(),
             display: 'flex',
             flexDirection: 'column',
+            overflow: 'hidden',
             px: 3,
             pt: 1,
           }}
@@ -2863,15 +2989,18 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
               fullWidth
               size="small"
               value={termoBusca}
-              onChange={(e) => setTermoBusca(e.target.value)}
-              placeholder="Digite para buscar no texto bíblico"
+              onChange={(e) => {
+                setTermoBusca(e.target.value)
+                setBuscaConcluida(false)
+              }}
+              placeholder="Palavra ou referência (ex.: João 3:16, Sl 23)"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') realizarBusca()
               }}
             />
             <Button 
               variant="contained" 
-              onClick={realizarBusca}
+              onClick={() => realizarBusca()}
               disabled={buscando || !termoBusca.trim()}
               sx={{
                 bgcolor: livroCorBase,
@@ -2892,18 +3021,74 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             </Button>
           </Box>
 
+          <ToggleButtonGroup
+            value={testamentoBusca}
+            exclusive
+            onChange={(_, valor) => {
+              if (!valor) return
+              setTestamentoBusca(valor)
+              if (livroBusca) {
+                if (valor === 'AT' && livroBusca.id >= 40) setLivroBusca(null)
+                if (valor === 'NT' && livroBusca.id < 40) setLivroBusca(null)
+              }
+              if (termoBusca.trim()) {
+                realizarBusca({ testamento: valor })
+              }
+            }}
+            size="small"
+            sx={{ mb: 1.5, flexShrink: 0 }}
+          >
+            <ToggleButton value="ambos">Ambos</ToggleButton>
+            <ToggleButton value="AT">Antigo Testamento</ToggleButton>
+            <ToggleButton value="NT">Novo Testamento</ToggleButton>
+          </ToggleButtonGroup>
+
+          <Autocomplete
+            size="small"
+            options={livrosBuscaOpcoes}
+            value={livroBusca}
+            onChange={(_, livro) => {
+              setLivroBusca(livro)
+              if (termoBusca.trim()) {
+                realizarBusca({ livroId: livro?.id ?? null })
+              }
+            }}
+            getOptionLabel={(livro) => livro?.nome || ''}
+            isOptionEqualToValue={(a, b) => a?.id === b?.id}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Livro (opcional)"
+                placeholder="Todos os livros"
+              />
+            )}
+            sx={{ mb: 2, flexShrink: 0 }}
+          />
+
           {buscando ? (
             <Box display="flex" justifyContent="center" p={2}>
               <CircularProgress sx={{ color: livroCorBase }} />
             </Box>
           ) : (
             <>
+              {!buscando && buscaConcluida && textosBiblicosBusca.length === 0 && (
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Nenhum versículo encontrado
+                  {livroBusca ? ` em ${livroBusca.nome}` : ''}
+                  {testamentoBusca === 'AT'
+                    ? ' no Antigo Testamento'
+                    : testamentoBusca === 'NT'
+                      ? ' no Novo Testamento'
+                      : ''}
+                  .
+                </Typography>
+              )}
               {textosBiblicosBusca.length > 0 && (
                 <>
                   <Typography variant="subtitle2" sx={{ mt: 2, mb: 1, color: livroCorBase, fontWeight: 700 }}>
-                    Textos Bíblicos
+                    Textos Bíblicos ({textosBiblicosBusca.length})
                   </Typography>
-                  <List sx={{ flex: 1, minHeight: 0, overflow: 'auto', py: 0 }}>
+                  <List ref={buscaListaRef} sx={sxListaResultadosBusca}>
                     {textosBiblicosBusca.map((resultado, index) => {
                       // Extrair número do versículo: primeiro tenta usar o campo versiculo, depois extrai do texto
                       let numeroVersiculo = resultado.versiculo || null
@@ -2917,6 +3102,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                           <ListItem 
                             button 
                             onClick={() => {
+                              salvarScrollBusca()
                               navegacaoInternaRef.current = true
                               irParaVersiculo(
                                 resultado.livroId, 
@@ -2945,7 +3131,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           )}
         </DialogContent>
         <DialogActions sx={{ flexShrink: 0, ...sxSafeAreaBottom('8px') }}>
-          <Button onClick={() => setDialogoBuscaAberto(false)}>
+          <Button onClick={() => fecharDialogoBusca(true)}>
             Fechar
           </Button>
         </DialogActions>

@@ -46,7 +46,7 @@ export default function CapitulosListaCards({
 
   const drawer = (
     <Box sx={{ width: '100%', bgcolor: '#004d40', height: '100%', overflow: 'auto' }}>
-      <MenuCards onItemClick={() => setDrawerOpen(false)} />
+      <MenuCards menuOpen={drawerOpen} onItemClick={() => setDrawerOpen(false)} />
     </Box>
   )
 

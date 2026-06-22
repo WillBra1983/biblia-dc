@@ -7,7 +7,7 @@ android {
         applicationId "com.bibliadc.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 16
+        versionCode 17
         versionName "1.0.1"
         // Android App Links: mesmo host do VITE_PUBLIC_APP_URL / site (sem https://). Ajuste se o domínio mudar.
         manifestPlaceholders = [

@@ -114,7 +114,11 @@ const ABREVIACOES_VALIDAS = {
   '1jo': '1 João', '2jo': '2 João', '3jo': '3 João', 'jd': 'Judas', 'ap': 'Apocalipse',
 }
 
-export default function TextoComReferencias({ 
+/** Cache global: evita reparsear o mesmo texto em várias instâncias (estudos, discipulado). */
+const PARTES_TEXTO_CACHE = new Map()
+const PARTES_TEXTO_CACHE_MAX = 120
+
+function TextoComReferencias({
   texto, 
   inline = false, 
   component = 'div',
@@ -132,7 +136,16 @@ export default function TextoComReferencias({
   const [partes, setPartes] = useState(null)
 
   useEffect(() => {
-    if (!texto) return
+    if (!texto) {
+      setPartes(null)
+      return
+    }
+
+    const emCache = PARTES_TEXTO_CACHE.get(texto)
+    if (emCache) {
+      setPartes(emCache)
+      return
+    }
 
     // Pré-processa o texto para garantir espaços após parênteses seguidos de números
     const textoProcessado = texto.replace(/\((?=\d)/g, '( ')
@@ -368,7 +381,12 @@ export default function TextoComReferencias({
           conteudo: texto.substring(ultimoIndice)
         })
       }
-      setPartes(expandirConfessionaisNasPartes(resultado))
+      const final = expandirConfessionaisNasPartes(resultado)
+      if (PARTES_TEXTO_CACHE.size >= PARTES_TEXTO_CACHE_MAX) {
+        PARTES_TEXTO_CACHE.delete(PARTES_TEXTO_CACHE.keys().next().value)
+      }
+      PARTES_TEXTO_CACHE.set(texto, final)
+      setPartes(final)
     }
 
     processarTexto()
@@ -458,16 +476,12 @@ export default function TextoComReferencias({
           const livroAlt = await buscarLivroPorNome(livroNomeAlt);
           if (livroAlt) {
             const faixasAlt = parseFaixas(numeracaoAlt)
-            const resultadosAlt = []
-            for (const faixa of faixasAlt) {
-              const r = await buscarIntervaloVersiculos(
-                livroAlt.id,
-                faixa.capitulo,
-                faixa.inicio,
-                faixa.fim
+            const blocosAlt = await Promise.all(
+              faixasAlt.map((faixa) =>
+                buscarIntervaloVersiculos(livroAlt.id, faixa.capitulo, faixa.inicio, faixa.fim)
               )
-              if (r?.versiculos?.length) resultadosAlt.push(...r.versiculos)
-            }
+            )
+            const resultadosAlt = blocosAlt.flatMap((r) => r?.versiculos || [])
             if (resultadosAlt.length) {
               const vistos = new Set()
               const unicos = resultadosAlt.filter((v) => {
@@ -493,16 +507,12 @@ export default function TextoComReferencias({
       }
 
       const faixas = parseFaixas(numeracao)
-      const resultados = []
-      for (const faixa of faixas) {
-        const r = await buscarIntervaloVersiculos(
-          livro.id,
-          faixa.capitulo,
-          faixa.inicio,
-          faixa.fim
+      const blocos = await Promise.all(
+        faixas.map((faixa) =>
+          buscarIntervaloVersiculos(livro.id, faixa.capitulo, faixa.inicio, faixa.fim)
         )
-        if (r?.versiculos?.length) resultados.push(...r.versiculos)
-      }
+      )
+      const resultados = blocos.flatMap((r) => r?.versiculos || [])
 
       if (resultados.length) {
         const vistos = new Set()
@@ -620,4 +630,6 @@ export default function TextoComReferencias({
       />
     </>
   )
-} 
+}
+
+export default React.memo(TextoComReferencias)

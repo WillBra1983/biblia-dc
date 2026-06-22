@@ -50,6 +50,17 @@ function vocalizarPrefixoMorphHb(prefixo, parteSeguinteVocalizada) {
     '\u05DC': '\u05DC\u05B0', // לְ
     '\u05D5': '\u05D5\u05B0', // וְ
   }
+  if (p === '\u05D4') {
+    // Artigo definido (MorphHB «Hd/…»): הַ ou הָ perante guturais (אעהר)
+    const guturais = new Set(['\u05D0', '\u05E2', '\u05D7', '\u05D4', '\u05E8'])
+    const prox = String(parteSeguinteVocalizada || '').normalize('NFC')
+    const base = [...prox].find((ch) => {
+      const cp = ch.codePointAt(0)
+      return cp >= 0x05D0 && cp <= 0x05EA
+    })
+    const vogal = base && guturais.has(base) ? '\u05B8' : '\u05B7'
+    return p + vogal
+  }
   return comSheva[p] || p
 }
 
@@ -76,7 +87,7 @@ export function formatarTextoMorphHbVocalizado(texto, headwordVocalizado) {
   })
   for (let i = 0; i < partes.length - 1; i++) {
     if (partes[i] && partes[i + 1] && textoHebraicoVocalizado(partes[i + 1])) {
-      partes[i] = vocalizarPrefixoMorphHb(partes[i], true)
+      partes[i] = vocalizarPrefixoMorphHb(partes[i], partes[i + 1])
     }
   }
   return partes.join('').normalize('NFC')
@@ -280,6 +291,14 @@ function montarTranslitFormaIsolada(raw) {
   return v && transliteracaoTemVogalLatinas(v) ? v : ''
 }
 
+function tokenTemArtigoHaMorph(raw) {
+  const parts = String(raw || '')
+    .split('/')
+    .map((p) => p.trim())
+    .filter(Boolean)
+  return parts.length > 1 && parts[0] === '\u05D4'
+}
+
 export function montarTranslitTokenHebraico(texto, opts = {}) {
   const lemmaUnicode = String(opts.lemmaUnicode || '').trim()
   const xlit = String(opts.lemmaTranslit || '').trim()
@@ -296,7 +315,11 @@ export function montarTranslitTokenHebraico(texto, opts = {}) {
   const daFormaComVogais = daForma && transliteracaoTemVogalLatinas(daForma)
 
   if (daFormaComVogais) {
-    const translit = guiaLeituraToken(daForma)
+    let translit = guiaLeituraToken(daForma)
+    if (tokenTemArtigoHaMorph(raw) && xlit && !/^ha[a-z]/.test(translit)) {
+      const fb = montarTranslitFallbackLema(raw, xlit)
+      if (fb) translit = fb
+    }
     const fonetica = mesmaForma && pron ? pron : ''
     const linha = fonetica ? `${translit} | ${fonetica}` : translit
     return { translit, fonetica, linha, mesmaFormaQueLema: mesmaForma }

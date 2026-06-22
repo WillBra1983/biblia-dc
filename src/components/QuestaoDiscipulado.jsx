@@ -9,48 +9,42 @@ import {
   Button,
   Box,
   Alert,
-  IconButton,
-  StepLabel
 } from '@mui/material'
 import ArrowBack from '@mui/icons-material/ArrowBack'
-import ArrowForward from '@mui/icons-material/ArrowForward'
 import HandIcon from '@mui/icons-material/PanTool'
-import CheckIcon from '@mui/icons-material/Check'
-import CloseIcon from '@mui/icons-material/Close'
 import TextoComReferencias from './TextoComReferencias'
 import AudioPlayer from './AudioPlayer'
 import { useApp } from '../contexts/AppContext'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 
-export default function QuestaoDiscipulado({ 
-  questao, 
-  onNext, 
-  onPrev, 
-  isFirst, 
+export default function QuestaoDiscipulado({
+  questao,
+  onNext,
+  onPrev,
+  isFirst,
   isLast,
   resposta,
   onResponder,
   numero,
   onConcluirLicao,
-  audioUrl
+  audioUrl,
 }) {
   const { textAlign, lineHeight } = useApp()
   const ta = textAlign || 'left'
   const lh = readingLineHeightToCss(lineHeight)
   const [respostaAtual, setRespostaAtual] = useState(resposta || '')
   const [mostrarExplicacao, setMostrarExplicacao] = useState(false)
-  const [respostaVerificada, setRespostaVerificada] = useState(false)
   const explicacaoRef = React.useRef(null)
-  
+
   const respostaCorreta = React.useMemo(() => {
-    return questao?.alternativas?.find(alt => alt.correta)?.id
+    return questao?.alternativas?.find((alt) => alt.correta)?.id
   }, [questao])
 
   useEffect(() => {
     setRespostaAtual(resposta || '')
-    setMostrarExplicacao(false)
-    setRespostaVerificada(false)
-  }, [questao])
+    const jaRespondida = resposta !== undefined && resposta !== ''
+    setMostrarExplicacao(jaRespondida)
+  }, [questao, resposta])
 
   useEffect(() => {
     if (mostrarExplicacao && explicacaoRef.current) {
@@ -59,61 +53,51 @@ export default function QuestaoDiscipulado({
   }, [mostrarExplicacao])
 
   const handleChange = (event) => {
-    if (respostaVerificada) return // Impede mudança após verificar
     const novaResposta = event.target.value
     setRespostaAtual(novaResposta)
+    if (mostrarExplicacao) {
+      setMostrarExplicacao(false)
+    }
   }
 
   const handleVerificar = () => {
-    if (!respostaAtual) return;
+    if (!respostaAtual) return
     if (onResponder) {
       onResponder(respostaAtual)
     }
     setMostrarExplicacao(true)
-    setRespostaVerificada(true)
-  }
-
-  const handleProxima = () => {
-    setMostrarExplicacao(false)
-    setRespostaVerificada(false)
-    onNext()
   }
 
   if (!questao?.alternativas?.length) {
     return (
       <Paper sx={{ p: 3 }}>
-        <Typography color="error">
-          Erro: Questão sem alternativas
-        </Typography>
+        <Typography color="error">Erro: Questão sem alternativas</Typography>
       </Paper>
     )
   }
 
+  const respostaRevelada = mostrarExplicacao
+
   return (
     <Paper sx={{ p: 3, position: 'relative', mb: 2, lineHeight: lh }}>
-      {/* Número da questão e ícone se já respondida */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6" component="span">
           Questão {numero}
         </Typography>
-        {resposta && !respostaVerificada && (
-          <HandIcon 
-            color="primary" 
-            sx={{ ml: 1, transform: 'rotate(-45deg)' }} 
-          />
+        {respostaAtual && !mostrarExplicacao && (
+          <HandIcon color="primary" sx={{ ml: 1, transform: 'rotate(-45deg)' }} />
         )}
       </Box>
 
-      {/* Pergunta */}
       <Box sx={{ mb: 3, textAlign: ta }}>
         <Typography variant="h6" gutterBottom sx={{ lineHeight: lh }}>
           {questao.pergunta}
         </Typography>
-        
+
         {questao.referencias?.length > 0 && (
           <Box sx={{ mt: 1 }}>
-            <TextoComReferencias 
-              texto={questao.referencias.join('; ')} 
+            <TextoComReferencias
+              texto={questao.referencias.join('; ')}
               variant="references"
               style={{ textAlign: ta, lineHeight: lh }}
             />
@@ -126,7 +110,6 @@ export default function QuestaoDiscipulado({
         )}
       </Box>
 
-      {/* Alternativas */}
       <FormControl component="fieldset" sx={{ width: '100%', textAlign: ta }}>
         <RadioGroup value={respostaAtual} onChange={handleChange}>
           {questao.alternativas.map((alt) => (
@@ -135,55 +118,51 @@ export default function QuestaoDiscipulado({
               value={alt.id}
               control={<Radio />}
               label={alt.texto}
-              disabled={respostaVerificada}
               sx={{
                 mb: 1,
-                ...(respostaVerificada && {
+                ...(respostaRevelada && {
                   color: alt.correta ? 'success.main' : 'error.main',
-                  fontWeight: alt.correta ? 'bold' : 'normal'
-                })
+                  fontWeight: alt.correta ? 'bold' : 'normal',
+                }),
               }}
             />
           ))}
         </RadioGroup>
       </FormControl>
 
-      {/* Explicação */}
       {mostrarExplicacao && (
         <Box ref={explicacaoRef} data-explicacao sx={{ mt: 3, mb: 2 }}>
-          <Alert 
-            severity={respostaAtual === respostaCorreta ? "success" : "error"}
+          <Alert
+            severity={respostaAtual === respostaCorreta ? 'success' : 'error'}
             sx={{ mb: 2 }}
           >
-            {respostaAtual === respostaCorreta 
-              ? "Resposta correta!" 
-              : "Resposta incorreta."}
+            {respostaAtual === respostaCorreta ? 'Resposta correta!' : 'Resposta incorreta.'}
           </Alert>
           <Typography variant="subtitle1" gutterBottom>
             Explicação:
           </Typography>
           <Box sx={{ textAlign: ta }}>
             {questao.explicacao.split('\n\n').map((paragrafo, index) => (
-              <Box 
-                key={index} 
-                sx={{ 
+              <Box
+                key={index}
+                sx={{
                   mb: 2,
                   textAlign: ta,
-                  ...(paragrafo.startsWith('📚') || 
-                     paragrafo.startsWith('✍️') || 
-                     paragrafo.startsWith('✝️') || 
-                     paragrafo.startsWith('🌿')) && {
+                  ...((paragrafo.startsWith('📚') ||
+                    paragrafo.startsWith('✍️') ||
+                    paragrafo.startsWith('✝️') ||
+                    paragrafo.startsWith('🌿')) && {
                     bgcolor: 'rgba(0, 0, 0, 0.03)',
                     p: 2,
                     borderRadius: 1,
                     display: 'flex',
                     alignItems: 'flex-start',
-                    gap: 1
-                  }
+                    gap: 1,
+                  }),
                 }}
               >
-                <TextoComReferencias 
-                  texto={paragrafo} 
+                <TextoComReferencias
+                  texto={paragrafo}
                   component="span"
                   inline={true}
                   variant="default"
@@ -195,64 +174,61 @@ export default function QuestaoDiscipulado({
         </Box>
       )}
 
-      {/* Botões de navegação */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-        <Button 
+        <Button
           onClick={onPrev}
           disabled={isFirst}
           startIcon={<ArrowBack />}
           size="small"
-          sx={{ 
+          sx={{
             minWidth: { xs: 'auto', sm: 100 },
             px: { xs: 1, sm: 2 },
-            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+            fontSize: { xs: '0.75rem', sm: '0.875rem' },
           }}
         >
           Anterior
         </Button>
         {!mostrarExplicacao ? (
-          <Button 
+          <Button
             onClick={handleVerificar}
             variant="contained"
             disabled={!respostaAtual}
             size="small"
-            sx={{ 
+            sx={{
               minWidth: { xs: 'auto', sm: 140 },
               px: { xs: 1, sm: 2 },
-              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
             }}
           >
             Confirmar resposta
           </Button>
-        ) : (
-          isLast ? (
-            <Button 
-              onClick={onConcluirLicao}
-              variant="contained"
-              color="success"
-              size="small"
-              sx={{ 
-                minWidth: { xs: 'auto', sm: 140 },
-                px: { xs: 1, sm: 2 },
-                fontSize: { xs: '0.75rem', sm: '0.875rem' }
-              }}
-            >
-              Concluir Lição
-          </Button>
-        ) : (
-          <Button 
-              onClick={onNext}
+        ) : isLast ? (
+          <Button
+            onClick={onConcluirLicao}
             variant="contained"
+            color="success"
             size="small"
-            sx={{ 
-                minWidth: { xs: 'auto', sm: 140 },
+            sx={{
+              minWidth: { xs: 'auto', sm: 140 },
               px: { xs: 1, sm: 2 },
-              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
             }}
           >
-              Próxima
+            Concluir Lição
           </Button>
-          )
+        ) : (
+          <Button
+            onClick={onNext}
+            variant="contained"
+            size="small"
+            sx={{
+              minWidth: { xs: 'auto', sm: 140 },
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+            }}
+          >
+            Próxima
+          </Button>
         )}
       </Box>
     </Paper>

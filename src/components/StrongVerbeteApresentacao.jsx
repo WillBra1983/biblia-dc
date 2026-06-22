@@ -32,6 +32,7 @@ import {
   formasLexicaisEquivalentes,
 } from '../utils/strongTokenHelpers'
 import { fontFamilyStrongPassagem, sxHebrewVocalizado } from '../utils/hebrewDisplay'
+import { mesclarSxTextoIa } from '../utils/iaTextoStyles'
 import { livros as livrosData } from '../data/biblia'
 import { buscarIntervaloVersiculos } from '../services/bibliaService'
 import VersiculoPopup from './VersiculoPopup'
@@ -971,7 +972,7 @@ function ParagrafosResumo({ texto, sxTextoLeitura, keyPrefix = 'par' }) {
       key={`${keyPrefix}-${idx}`}
       variant="body1"
       sx={{
-        ...sxTextoLeitura,
+        ...mesclarSxTextoIa(sxTextoLeitura),
         color: 'text.primary',
         lineHeight: 1.65,
         m: 0,

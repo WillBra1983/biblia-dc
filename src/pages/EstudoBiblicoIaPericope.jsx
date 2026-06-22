@@ -55,7 +55,7 @@ import {
   registrarVotoPericope,
   lerMeuVotoPericope
 } from '../services/estudosCuradosService'
-import { confirmarAsync, mostrarSnackbar, copiarParaAreaTransferencia } from '../utils/uiDialogs'
+import { sxCorpoTextoIa } from '../utils/iaTextoStyles'
 import { buscarIntervaloVersiculos } from '../services/bibliaService'
 import VersiculoPopup from '../components/VersiculoPopup'
 import { openNativeShareSheet } from '../utils/nativeShare'
@@ -164,8 +164,7 @@ function renderLinhasEstudo(texto, lineHeightCss = 1.65) {
         sx={{
           whiteSpace: 'pre-wrap',
           lineHeight: lineHeightCss,
-          textAlign: 'justify',
-          hyphens: 'auto'
+          ...sxCorpoTextoIa,
         }}
       >
         {renderInlineMarkdown(line)}
@@ -702,7 +701,7 @@ export default function EstudoBiblicoIaPericope() {
               onClick={abrirBibliotecaEstudos}
               sx={{ mt: 0.75, alignSelf: 'flex-start' }}
             >
-              Biblioteca de estudos
+              Bíblia comentada
             </Button>
           ) : null}
         </Box>
@@ -825,7 +824,7 @@ export default function EstudoBiblicoIaPericope() {
                   )}`
                 )}
               >
-                Abrir a Bíblia de estudos
+                Abrir a Bíblia comentada
               </Button>
               <Box
                 sx={{

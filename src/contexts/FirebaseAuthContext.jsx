@@ -35,7 +35,7 @@ const isNativeApp = () =>
   typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() === true
 
 /** Se a persistência do Auth travar no WebView, libera login após este tempo. */
-const AUTH_INIT_TIMEOUT_MS = isNativeApp() ? 8000 : 9000
+const AUTH_INIT_TIMEOUT_MS = isNativeApp() ? 15000 : 9000
 const REDIRECT_RESULT_TIMEOUT_MS = 5000
 
 async function aguardarAuthPronto(auth) {
@@ -86,19 +86,18 @@ export function FirebaseAuthProvider({ children }) {
     let cancelRedirectWait = () => {}
     let unsubAuth = () => {}
     let timeoutId = 0
+    let authPronto = false
 
     const liberarSeAuthTravado = () => {
       if (cancelled || authStateRecebidoRef.current || loginSocialEmCursoRef.current) return
       console.warn('[auth] tempo esgotado ao restaurar sessão — exibindo tela de login')
+      authPronto = true
       authStateRecebidoRef.current = true
       setUser(null)
     }
 
-    // Timeout antes de carregar Firebase: no iOS o import/persistência pode pendurar.
-    timeoutId = window.setTimeout(liberarSeAuthTravado, AUTH_INIT_TIMEOUT_MS)
-
     const aplicarUsuarioAuth = (u) => {
-      if (cancelled) return
+      if (cancelled || !authPronto) return
       authStateRecebidoRef.current = true
       window.clearTimeout(timeoutId)
       if (estaRegistroEmailSenhaEmCurso() && u && usuarioPrecisaVerificarEmail(u)) {
@@ -112,8 +111,12 @@ export function FirebaseAuthProvider({ children }) {
       try {
         await loadFirebaseModules()
         if (cancelled) return
+
+        timeoutId = window.setTimeout(liberarSeAuthTravado, AUTH_INIT_TIMEOUT_MS)
+
         const auth = getFirebaseAuth()
         if (!auth) {
+          authPronto = true
           authStateRecebidoRef.current = true
           window.clearTimeout(timeoutId)
           setUser(null)
@@ -122,15 +125,20 @@ export function FirebaseAuthProvider({ children }) {
 
         const { onAuthStateChanged, getRedirectResult } = await import('firebase/auth')
 
-        // Listener primeiro: no iOS/WKWebView `getRedirectResult` pode demorar ou
-        // travar; sem isso o app fica em "A preparar…" / "verificando sua sessão".
-        unsubAuth = onAuthStateChanged(auth, aplicarUsuarioAuth)
-
+        // Aguarda restauração da sessão (evita tratar null inicial como logout).
         if (typeof auth.authStateReady === 'function') {
-          void auth.authStateReady().catch(() => {
-            liberarSeAuthTravado()
-          })
+          try {
+            await auth.authStateReady()
+          } catch (e) {
+            console.warn('[auth] authStateReady:', e?.message || e)
+          }
         }
+
+        if (cancelled) return
+        authPronto = true
+        aplicarUsuarioAuth(auth.currentUser)
+
+        unsubAuth = onAuthStateChanged(auth, aplicarUsuarioAuth)
 
         // Redirect OAuth só no navegador web — no app da App Store usa GoogleAuth nativo.
         if (!isNativeApp()) {
@@ -183,10 +191,7 @@ export function FirebaseAuthProvider({ children }) {
             })
             return
           }
-          if (!authStateRecebidoRef.current) {
-            window.clearTimeout(timeoutId)
-            timeoutId = window.setTimeout(liberarSeAuthTravado, AUTH_INIT_TIMEOUT_MS)
-          }
+          void sincronizarUsuarioAtual()
         }).then((h) => {
           if (cancelled) {
             void h.remove()

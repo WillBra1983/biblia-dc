@@ -42,7 +42,6 @@ import NavigateBefore from '@mui/icons-material/NavigateBefore'
 import NavigateNext from '@mui/icons-material/NavigateNext'
 import ShareIcon from '@mui/icons-material/Share'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import React from 'react'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import CloseIcon from '@mui/icons-material/Close'
 import Tooltip from '@mui/material/Tooltip'
@@ -337,10 +336,16 @@ export default function Discipulado() {
   // Estado e persistência das questões - REMOVIDO O LOCALSTORAGE LOCAL
   const [questaoAtual, setQuestaoAtual] = useState(1)
   const [finalizado, setFinalizado] = useState(false)
+  const respondeuNaSessaoRef = useRef(false)
 
-  // Carregar estado inicial do tema/estudo selecionado
+  useEffect(() => {
+    respondeuNaSessaoRef.current = false
+  }, [temaSelecionado, estudoSelecionado])
+
+  // Restaura progresso ao abrir lição ou quando respostas chegam da nuvem — não ao confirmar resposta.
   useEffect(() => {
     if (!temaSelecionado) return
+    if (respondeuNaSessaoRef.current) return
 
     const questoes = getQuestoes()
     const totalQuestoes = questoes.length
@@ -391,6 +396,7 @@ export default function Discipulado() {
 
   // Função para responder questão
   const handleResponder = (resposta) => {
+    respondeuNaSessaoRef.current = true
     const chave = getRespostaKey(questaoAtual)
     setRespostas(prev => ({
       ...prev,

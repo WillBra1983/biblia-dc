@@ -27,6 +27,7 @@ import { useApp } from '../contexts/AppContext'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
+import { mesclarSxTextoIa } from '../utils/iaTextoStyles'
 import { strongResumoIaStorageKey } from '../utils/strongResumoIaStorage'
 import { limparResumoLexicalParaExibicao } from '../utils/strongEstudoHelpers'
 import { strongEvalPendingKey } from '../utils/strongResumoEvaluacao'
@@ -96,17 +97,15 @@ export default function StrongEstudoResumo() {
     return Boolean(location.state?.avaliacaoNecessaria)
   }, [code, location.state?.avaliacaoNecessaria])
 
-  const { fontSize, fontFamily, textAlign, lineHeight } = useApp()
-  const alinhamentoResumo = textAlign || 'justify'
+  const { fontSize, fontFamily, lineHeight } = useApp()
   const sxTexto = useMemo(
-    () => ({
-      fontSize: `${(fontSize || 100) / 100}rem`,
-      fontFamily: resolveFontFamily(fontFamily),
-      textAlign: alinhamentoResumo,
-      lineHeight: readingLineHeightToCss(lineHeight),
-      ...(alinhamentoResumo === 'justify' ? { pr: '5pt' } : {})
-    }),
-    [fontSize, fontFamily, alinhamentoResumo, lineHeight]
+    () =>
+      mesclarSxTextoIa({
+        fontSize: `${(fontSize || 100) / 100}rem`,
+        fontFamily: resolveFontFamily(fontFamily),
+        lineHeight: readingLineHeightToCss(lineHeight),
+      }),
+    [fontSize, fontFamily, lineHeight]
   )
 
   useEffect(() => {

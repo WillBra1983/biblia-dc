@@ -71,10 +71,10 @@ const menuItems = [
     accentRing: 'rgba(255, 255, 255, 0.45)'
   },
   {
-    text: 'Bíblia de estudos',
+    text: 'Bíblia comentada',
     icon: <LibraryBooksIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/biblioteca-estudos',
-    description: 'Material do Estudo Bíblico — Perícopes e Versículos comentados',
+    description: 'Perícopes e versículos com comentários',
     requerLogin: true,
     accentRing: 'rgba(255, 255, 255, 0.45)'
   },
@@ -280,7 +280,7 @@ function conectarResumoConta(user) {
   return nomeContaCurto(user)
 }
 
-export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
+export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useFirebaseAuth()
@@ -293,13 +293,14 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
     location.pathname.startsWith('/catecismo-maior') ||
     location.pathname.startsWith('/catecismo-breve')
   )
-  const [conectarExpanded, setConectarExpanded] = useState(() =>
-    location.pathname === '/chat' ||
-    location.pathname.startsWith('/configuracoes/notificacoes') ||
-    location.pathname.startsWith('/admin/notificar') ||
-    location.pathname.startsWith('/admin/usuarios')
-  )
+  const [conectarExpanded, setConectarExpanded] = useState(false)
   const [ehAdmin, setEhAdmin] = useState(false)
+
+  // Sempre recolher «Conectar» ao abrir ou fechar o menu lateral.
+  useEffect(() => {
+    if (menuOpen === undefined) return
+    setConectarExpanded(false)
+  }, [menuOpen])
 
   // Detecta admin — mostra "Enviar aviso" dentro de Conectar > Notificações.
   useEffect(() => {
@@ -343,17 +344,6 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0 }) {
       location.pathname.startsWith('/catecismo-breve')
     ) {
       setWestminsterExpanded(true)
-    }
-  }, [location.pathname])
-
-  useEffect(() => {
-    if (
-      location.pathname === '/chat' ||
-      location.pathname.startsWith('/configuracoes/notificacoes') ||
-      location.pathname.startsWith('/admin/notificar') ||
-      location.pathname.startsWith('/admin/usuarios')
-    ) {
-      setConectarExpanded(true)
     }
   }, [location.pathname])
 

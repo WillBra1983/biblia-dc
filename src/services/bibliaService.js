@@ -7,6 +7,20 @@ let SQL = null;
 
 let initPromise = null;
 
+const livroPorNomeCache = new Map()
+const intervaloVersiculosCache = new Map()
+const LIVRO_NOME_CACHE_MAX = 80
+const INTERVALO_VERSOS_CACHE_MAX = 200
+const capituloCache = new Map()
+const CAPITULO_CACHE_MAX = 24
+
+function gravarCacheLimitado(map, key, value, max) {
+  if (map.size >= max) {
+    map.delete(map.keys().next().value)
+  }
+  map.set(key, value)
+}
+
 export async function initDB() {
   if (db) return db;
   if (initPromise) return initPromise;
@@ -59,6 +73,10 @@ export const verificarBanco = async () => {
 
 export const bibliaService = {
   async buscarCapitulo(livro, capitulo) {
+    const cacheKey = `${livro}:${capitulo}`
+    if (capituloCache.has(cacheKey)) {
+      return capituloCache.get(cacheKey)
+    }
     const db = await initDB();
     
     const query = `
@@ -77,6 +95,7 @@ export const bibliaService = {
         result.push(stmt.getAsObject());
       }
       stmt.free();
+      gravarCacheLimitado(capituloCache, cacheKey, result, CAPITULO_CACHE_MAX)
       return result;
     } catch (error) {
       console.error('❌ Erro ao buscar capítulo:', error);
@@ -206,6 +225,10 @@ export const bibliaService = {
   },
 
   async buscarIntervaloVersiculos(livroId, capitulo, versiculoInicio, versiculoFim) {
+    const cacheKey = `${livroId}:${capitulo}:${versiculoInicio || 1}:${versiculoFim || 999}`
+    if (intervaloVersiculosCache.has(cacheKey)) {
+      return intervaloVersiculosCache.get(cacheKey)
+    }
     try {
       const db = await initDB()
       
@@ -258,7 +281,9 @@ export const bibliaService = {
       }
       stmt.free()
       
-      return { versiculos }
+      const payload = { versiculos }
+      gravarCacheLimitado(intervaloVersiculosCache, cacheKey, payload, INTERVALO_VERSOS_CACHE_MAX)
+      return payload
       
     } catch (error) {
       console.error('❌ Erro ao buscar versículos:', error)
@@ -397,6 +422,10 @@ export function obterVersiculosPorLivroSync(livroId) {
 }
 
 export async function buscarLivroPorNome(nome) {
+  const nomeChave = String(nome || '').trim().toLowerCase()
+  if (nomeChave && livroPorNomeCache.has(nomeChave)) {
+    return livroPorNomeCache.get(nomeChave)
+  }
   try {
     const db = await initDB()
     const nomeNormalizado = normalizarNomeLivro(nome)
@@ -441,10 +470,14 @@ export async function buscarLivroPorNome(nome) {
     stmt.free()
 
     if (!livro) return null
-    return {
+    const out = {
       id: livro.id,
       nome: livro.nome
     }
+    if (nomeChave) {
+      gravarCacheLimitado(livroPorNomeCache, nomeChave, out, LIVRO_NOME_CACHE_MAX)
+    }
+    return out
   } catch (error) {
     console.error('Erro ao buscar livro:', error)
     return null

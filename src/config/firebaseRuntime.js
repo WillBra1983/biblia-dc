@@ -9,7 +9,6 @@ import {
   initializeAuth,
   browserLocalPersistence,
   browserPopupRedirectResolver,
-  inMemoryPersistence,
 } from 'firebase/auth'
 import { getDatabase } from 'firebase/database'
 import { getStorage } from 'firebase/storage'
@@ -56,12 +55,11 @@ function criarAuthInstance(app) {
         persistence: capacitorLocalStoragePersistence,
       })
     } catch (e) {
-      console.warn('[auth] capacitorLocalStoragePersistence falhou, tentando inMemory:', e?.message || e)
-      try {
-        return initializeAuth(app, { persistence: inMemoryPersistence })
-      } catch {
+      if (e?.code === 'auth/already-initialized') {
         return getAuth(app)
       }
+      console.error('[auth] capacitorLocalStoragePersistence falhou:', e?.message || e)
+      throw e
     }
   }
 

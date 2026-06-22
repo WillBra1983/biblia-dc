@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, Fragment, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, startTransition } from 'react'
 import { createPortal } from 'react-dom'
 import { 
   Box, 
@@ -72,6 +72,11 @@ import { processarMedalhasAposRegistarLeitura } from '../utils/medalhasGamificac
 import { obterCorLivro } from '../utils/coresBiblia'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { livros as livrosData } from '../data/biblia'
+import {
+  gravarBibliaSessaoCache,
+  lerBibliaSessaoCache,
+  bibliaSessaoCacheCasa,
+} from '../utils/bibliaSessionCache'
 import { buildAppShareLink } from '../services/bibliaEstudosService'
 import {
   listarInstanciasQueContemCapitulo,
@@ -126,9 +131,9 @@ const BIBLIA_ESCALA_TITULO_PERICOPE = 1.55
 const BIBLIA_ESCALA_NOME_LIVRO_CABECALHO = 2.42
 /** Número do capítulo no cabeçalho: um pouco maior que o nome do livro. */
 const BIBLIA_ESCALA_CAPITULO_CABECALHO = 2.78
-const BIBLIA_RENDER_INICIAL = 40
-const BIBLIA_RENDER_POR_LOTE = 30
-const BIBLIA_PREFETCH_SCROLL_PX = 480
+const BIBLIA_RENDER_INICIAL = 80
+const BIBLIA_RENDER_POR_LOTE = 50
+const BIBLIA_PREFETCH_SCROLL_PX = 1600
 
 function Biblia({ ultimaLeitura: leituraInicial }) {
   const toRgba = (hex, alpha) => {
@@ -145,14 +150,21 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`
   }
 
-  const [resultados, setResultados] = useState([])
-  const [versiculosRenderizados, setVersiculosRenderizados] = useState(BIBLIA_RENDER_INICIAL)
-  const [pericopesCapitulo, setPericopesCapitulo] = useState([])
-  const [opcoesLivros, setOpcoesLivros] = useState([])
+  const [resultados, setResultados] = useState(() => lerBibliaSessaoCache()?.resultados ?? [])
+  const [versiculosRenderizados, setVersiculosRenderizados] = useState(() => {
+    const c = lerBibliaSessaoCache()
+    return c?.versiculosRenderizados ?? BIBLIA_RENDER_INICIAL
+  })
+  const [pericopesCapitulo, setPericopesCapitulo] = useState(
+    () => lerBibliaSessaoCache()?.pericopesCapitulo ?? []
+  )
+  const [opcoesLivros, setOpcoesLivros] = useState(() => lerBibliaSessaoCache()?.opcoesLivros ?? [])
   const [loading, setLoading] = useState(false)
-  const [carregandoInicial, setCarregandoInicial] = useState(true)
-  const [livroAtual, setLivroAtual] = useState(null)
-  const [capitulo, setCapitulo] = useState(1)
+  const [carregandoInicial, setCarregandoInicial] = useState(
+    () => !(lerBibliaSessaoCache()?.resultados?.length > 0)
+  )
+  const [livroAtual, setLivroAtual] = useState(() => lerBibliaSessaoCache()?.livroAtual ?? null)
+  const [capitulo, setCapitulo] = useState(() => lerBibliaSessaoCache()?.capitulo ?? 1)
   const [erro, setErro] = useState(null)
   const [dialogoBuscaAberto, setDialogoBuscaAberto] = useState(false)
   const [termoBusca, setTermoBusca] = useState('')
@@ -182,6 +194,8 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const elementoDestacadoRef = React.useRef(null)
   const scrollToTopOnChapterChangeRef = React.useRef(false)
   const bibliaProntaNotificadaRef = React.useRef(false)
+  const scrollRestaurarRef = React.useRef(null)
+  const sessaoSnapshotRef = React.useRef({})
   /** Evita que URL→estado puxe Gênesis enquanto a URL ainda não refletiu um salto vindo da busca/UI. */
   const navegacaoInternaRef = React.useRef(false)
   /** Livro/capítulo antes de abrir livros → capítulos → versículos (restaurado se cancelar). */
@@ -268,7 +282,9 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     [resultados, versiculosRenderizados]
   )
   const carregarMaisVersiculos = useCallback(() => {
-    setVersiculosRenderizados((prev) => Math.min(prev + BIBLIA_RENDER_POR_LOTE, resultados.length))
+    startTransition(() => {
+      setVersiculosRenderizados((prev) => Math.min(prev + BIBLIA_RENDER_POR_LOTE, resultados.length))
+    })
   }, [resultados.length])
   const onPinchLeitura = React.useCallback((v) => setZoomLeitura(v), [])
   usePinchNumeric(pinchLeituraRef, {
@@ -1115,6 +1131,37 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     }
   }, [modoImersivo])
 
+  sessaoSnapshotRef.current = {
+    livroId: livroAtual?.id,
+    capitulo,
+    livroAtual,
+    resultados,
+    opcoesLivros,
+    pericopesCapitulo,
+    versiculosRenderizados,
+    scrollTop: versiculoRefs.current.container?.scrollTop ?? 0,
+  }
+
+  useEffect(() => {
+    return () => {
+      const s = sessaoSnapshotRef.current
+      if (s.livroId && s.resultados?.length) {
+        gravarBibliaSessaoCache(s)
+      }
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    if (scrollRestaurarRef.current == null) return
+    const el = versiculoRefs.current.container
+    if (!el) return
+    const top = scrollRestaurarRef.current
+    scrollRestaurarRef.current = null
+    requestAnimationFrame(() => {
+      el.scrollTop = top
+    })
+  }, [carregandoInicial, resultados.length])
+
   useEffect(() => {
     const init = async () => {
       try {
@@ -1244,6 +1291,47 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         setLivroAtual(livroParaCarregar)
         setCapitulo(capituloParaCarregar)
 
+        if (bibliaSessaoCacheCasa(livroParaCarregar.id, capituloParaCarregar)) {
+          const cache = lerBibliaSessaoCache()
+          if (cache?.versiculosRenderizados) {
+            setVersiculosRenderizados(cache.versiculosRenderizados)
+          }
+          if (cache?.pericopesCapitulo?.length) {
+            setPericopesCapitulo(cache.pericopesCapitulo)
+          } else {
+            buscarPericopes(livroParaCarregar.id, capituloParaCarregar)
+              .then((p) => setPericopesCapitulo(p || []))
+              .catch(() => {})
+          }
+          scrollRestaurarRef.current = cache?.scrollTop ?? 0
+          setCarregandoInicial(false)
+          setLoading(false)
+
+          if (versiculoParaScrollData?.versiculoNum) {
+            setVersiculoParaScroll({
+              livroId: versiculoParaScrollData.livroId,
+              cap: versiculoParaScrollData.cap,
+              versiculoNum: versiculoParaScrollData.versiculoNum,
+            })
+            localStorage.removeItem('versiculoParaScroll')
+          } else if (versiculoQueryParaScroll) {
+            setVersiculoParaScroll({
+              livroId: livroParaCarregar.id,
+              cap: capituloParaCarregar,
+              versiculoNum: versiculoQueryParaScroll,
+            })
+          }
+
+          if (livroParaCarregar?.id && capituloParaCarregar) {
+            localStorage.setItem(
+              'ultimaLeitura',
+              JSON.stringify({ livroId: livroParaCarregar.id, capitulo: capituloParaCarregar })
+            )
+            window.dispatchEvent(new Event('localStorageChange'))
+          }
+          return
+        }
+
         // Reaproveita o capítulo palpitado se bateu com a escolha final
         const palpiteServiu =
           palpiteLivroId === livroParaCarregar.id &&
@@ -1342,6 +1430,17 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
       // Prioriza texto do capítulo no primeiro paint; perícopes podem chegar em seguida.
       const versiculos = await buscarCapitulo(livroId, cap)
       setResultados(versiculos)
+      const livroGravado = opcoesLivros.find((l) => l.id === livroId) || livroAtual
+      gravarBibliaSessaoCache({
+        livroId,
+        capitulo: cap,
+        livroAtual: livroGravado,
+        resultados: versiculos,
+        opcoesLivros,
+        pericopesCapitulo,
+        versiculosRenderizados,
+        scrollTop: versiculoRefs.current.container?.scrollTop ?? 0,
+      })
       buscarPericopes(livroId, cap)
         .then((pericopes) => setPericopesCapitulo(pericopes || []))
         .catch(() => {})

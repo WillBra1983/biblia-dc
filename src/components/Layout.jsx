@@ -73,7 +73,7 @@ function getPageTitleFromPathname(pathname) {
   if (path.startsWith('/mais-de-deus')) return 'Mais de Deus'
   if (path.startsWith('/youtube')) return 'YouTube'
   if (path.startsWith('/quiz-retiro')) return 'Quiz Bíblico'
-  if (path.startsWith('/biblioteca-estudos')) return 'Biblioteca de estudos'
+  if (path.startsWith('/biblioteca-estudos')) return 'Bíblia comentada'
   if (path === '/estudos-biblicos/gerir') return 'Gerenciar estudos'
   /** Mesmo título do hub de estudos — o detalhe da passagem/perícope fica no cabeçalho da página. */
   if (/^\/estudos-biblicos\/ia-(passagem|pericope)/.test(path)) return 'Estudos Compartilhados'
@@ -277,6 +277,7 @@ export default function Layout({ title, children }) {
   const menuPrincipal = (
     <MenuCards
       unreadChatCount={chatUnreadCount}
+      menuOpen={drawerOpen}
       onItemClick={() => setDrawerOpen(false)}
     />
   )
@@ -626,7 +627,8 @@ export default function Layout({ title, children }) {
             location.pathname === '/chat' ||
             location.pathname === '/' ||
             location.pathname === '/biblia' ||
-            location.pathname.startsWith('/estudo-strong')
+            location.pathname.startsWith('/estudo-strong') ||
+            location.pathname.startsWith('/estudos-biblicos')
           }
         >
           {children}

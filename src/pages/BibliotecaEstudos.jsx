@@ -261,7 +261,7 @@ export default function BibliotecaEstudos() {
           <Stack direction="row" spacing={0.75} alignItems="center" sx={{ minWidth: 0 }}>
             <LibraryBooksIcon fontSize="small" />
             <Typography variant="subtitle1" fontWeight={700} noWrap>
-              Biblioteca de estudos
+              Bíblia comentada
             </Typography>
           </Stack>
           <Typography variant="caption" color="text.secondary" noWrap>

@@ -15,7 +15,6 @@ import { getStorage } from 'firebase/storage'
 import { getFunctions } from 'firebase/functions'
 import { Capacitor } from '@capacitor/core'
 import { isFirebaseConfigured, readViteEnv } from './firebaseEnv'
-import { capacitorLocalStoragePersistence } from './capacitorAuthPersistence'
 
 const isNativeApp = () =>
   typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform?.() === true
@@ -49,13 +48,9 @@ export function getFirebaseApp() {
 
 function criarAuthInstance(app) {
   if (isNativeApp()) {
-    const persistence =
-      Capacitor.getPlatform() === 'android'
-        ? browserLocalPersistence
-        : capacitorLocalStoragePersistence
     try {
       return initializeAuth(app, {
-        persistence,
+        persistence: browserLocalPersistence,
       })
     } catch (e) {
       if (e?.code === 'auth/already-initialized') {

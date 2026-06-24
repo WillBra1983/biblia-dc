@@ -13,9 +13,9 @@
 
 import { Capacitor } from '@capacitor/core'
 import { App } from '@capacitor/app'
-import { Browser } from '@capacitor/browser'
 import { getFirebaseDatabase } from '../config/firebase'
 import { compararVersoes } from '../utils/semverCompare'
+import { abrirUrlExterna } from '../utils/abrirUrlExterna'
 
 const RTDB_PATH = 'appConfig/lojaVersao'
 const ANDROID_PACKAGE = 'com.bibliadc.app'
@@ -185,7 +185,7 @@ export async function abrirLojaAtualizacao(urlLoja, plataforma) {
 
   for (const url of urls) {
     try {
-      await Browser.open({ url })
+      await abrirUrlExterna(url)
       return
     } catch {
       /* tenta próximo */

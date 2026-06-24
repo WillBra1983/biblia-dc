@@ -291,6 +291,57 @@ Se a Apple (ou você no TestFlight) vê:
 
 ---
 
+## 13. Rejeição na App Store (2.1a login + 2.3.6 classificação etária)
+
+Build **1.5 (195)** ou similar rejeitada na **revisão da loja** (não só TestFlight).
+
+### 13.1 Guideline 2.1(a) — erro no login (`INTERNAL ASSERTION FAILED`)
+
+**Sintoma:** na tela **Entrar**, e-mail/senha, Google ou Apple mostram  
+`INTERNAL ASSERTION FAILED: Expected a class definition` (comum no iPad).
+
+**Causa:** persistência customizada do Firebase Auth no iOS não é aceita pelo SDK 12+ — só classes oficiais (`browserLocalPersistence`, etc.).
+
+**Correção no código:** `src/config/firebaseRuntime.js` usa `browserLocalPersistence` em **todos** os apps nativos (iOS e Android).
+
+**No App Store Connect (obrigatório):**
+
+1. Firebase → **Authentication** → usuário demo **verificado** (ex.: `prwilsonlucas+bibliadc@gmail.com`).
+2. **TestFlight** → **Informações de teste** → **Login necessário** + e-mail/senha.
+3. Na versão **1.5** → **Informações para a equipe de revisão** → mesma conta e instrução: usar **Entrar** com e-mail/senha (não só Apple/Google).
+
+**Responder à Apple (inglês):**
+
+`We fixed a Firebase Auth initialization bug on iPad that caused "INTERNAL ASSERTION FAILED: Expected a class definition" during sign-in. The app now uses the official browserLocalPersistence on iOS. Demo account for review: [email] / [password] — please use email and password on the login screen. Build [número novo]. Thank you.`
+
+**Depois:** workflow **iOS App Store** → nova build (196+) → na versão 1.5 trocar compilação → **Reenviar para revisão**.
+
+### 13.2 Guideline 2.3.6 — Acesso irrestrito à web
+
+**Sintoma:** revisor abriu YouTube no navegador **dentro** do app e navegou livremente.
+
+**No App Store Connect (obrigatório nesta submissão):**
+
+1. **App Store Connect** → app → **Informações do app** → **Classificação etária** → **Editar**.
+2. Em **Acesso irrestrito à web** / **Unrestricted Web Access** → **Sim** / **Yes**.
+3. Salvar (a faixa etária pode subir, ex. 17+ — é esperado).
+
+**Correção no código (complementar):** links externos (YouTube, loja) passam a abrir no **Safari** (`App.openUrl`), não no Browser in-app.
+
+**Responder à Apple (inglês, opcional na mesma resposta):**
+
+`We updated the Age Rating to reflect Unrestricted Web Access as requested. External links (YouTube channel, store updates) now open in the system browser (Safari) instead of an in-app browser.`
+
+### 13.3 Checklist antes de reenviar
+
+- [ ] Nova build iOS com o fix de auth instalada no iPad (TestFlight).
+- [ ] Login e-mail/senha, Google e Apple testados no iPad.
+- [ ] Classificação etária com **Acesso irrestrito à web = Sim**.
+- [ ] Conta demo nas notas de revisão + TestFlight.
+- [ ] Compilação nova selecionada na versão 1.5.
+
+---
+
 ## 11. Só compilar (sem TestFlight)
 
 Run workflow com **upload_testflight** desmarcado → baixa o IPA em **Artifacts**.

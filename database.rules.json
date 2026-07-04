@@ -227,6 +227,77 @@
         ".validate": "!newData.exists() || (newData.child('displayName').isString() && newData.child('displayName').val().length <= 80 && newData.child('pontos').isNumber() && newData.child('pontos').val() >= 0 && newData.child('acertos').isNumber() && newData.child('acertos').val() >= 0 && newData.child('totalPerguntas').isNumber() && newData.child('totalPerguntas').val() >= 1 && newData.child('updatedAt').isNumber() && (!newData.child('perguntasRespondidas').exists() || (newData.child('perguntasRespondidas').isNumber() && newData.child('perguntasRespondidas').val() >= 0)) && (!newData.child('photoURL').exists() || (newData.child('photoURL').isString() && newData.child('photoURL').val().length <= 600)) && (!newData.child('handle').exists() || (newData.child('handle').isString() && newData.child('handle').val().length <= 30)))"
       }
     },
+    "quizRetiroBoards": {
+      ".read": "auth != null",
+      "$boardKey": {
+        "$uid": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+          ".validate": "!newData.exists() || (newData.child('displayName').isString() && newData.child('displayName').val().length <= 80 && newData.child('pontos').isNumber() && newData.child('pontos').val() >= 0 && newData.child('acertos').isNumber() && newData.child('acertos').val() >= 0 && newData.child('totalPerguntas').isNumber() && newData.child('totalPerguntas').val() >= 1 && newData.child('updatedAt').isNumber())"
+        }
+      }
+    },
+    "quizRetiroTorneios": {
+      ".read": "auth != null",
+      "$torneioId": {
+        "meta": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.token.email_verified == true"
+        },
+        "config": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.token.email_verified == true"
+        },
+        "participantes": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && (auth.uid === $uid || auth.token.email_verified == true)"
+          }
+        },
+        "reentradas": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.token.email_verified == true"
+          }
+        },
+        "jogadores": {
+          ".read": "auth != null",
+          "$teamId": {
+            "$uid": {
+              ".write": "auth != null && (auth.uid === $uid || auth.token.email_verified == true)"
+            }
+          }
+        },
+        "timesBloqueados": {
+          ".read": "auth != null",
+          "$teamId": {
+            ".write": "auth != null && auth.token.email_verified == true"
+          }
+        },
+        "progresso": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true"
+          }
+        },
+        "detalhes": {
+          "$uid": {
+            ".read": "auth != null",
+            ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+            ".validate": "!newData.exists() || (newData.child('displayName').isString() && newData.child('displayName').val().length <= 80 && newData.child('pontos').isNumber() && newData.child('pontos').val() >= 0 && newData.child('acertos').isNumber() && newData.child('acertos').val() >= 0 && newData.child('totalPerguntas').isNumber() && newData.child('totalPerguntas').val() >= 1 && newData.child('updatedAt').isNumber())"
+          }
+        },
+        "boards": {
+          "$boardKey": {
+            "$uid": {
+              ".read": "auth != null",
+              ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+              ".validate": "!newData.exists() || (newData.child('displayName').isString() && newData.child('displayName').val().length <= 80 && newData.child('pontos').isNumber() && newData.child('pontos').val() >= 0 && newData.child('acertos').isNumber() && newData.child('acertos').val() >= 0 && newData.child('totalPerguntas').isNumber() && newData.child('totalPerguntas').val() >= 1 && newData.child('updatedAt').isNumber())"
+            }
+          }
+        }
+      }
+    },
     "bibliaEstudos": {
       ".read": "auth != null",
       ".indexOn": ["publico"],

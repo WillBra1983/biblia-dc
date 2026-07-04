@@ -8,6 +8,7 @@ import {
   Typography,
   Box
 } from '@mui/material'
+import { sxSafeAreaBottom, sxSafeAreaTop } from '../utils/viewportHeight'
 
 export default function CatecismoPerguntaPopup({ open, onClose, dados }) {
   if (!dados) return null
@@ -16,8 +17,8 @@ export default function CatecismoPerguntaPopup({ open, onClose, dados }) {
   const titulo = tipo === 'CMW' ? 'Catecismo Maior de Westminster' : 'Breve Catecismo de Westminster'
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" scroll="paper">
-      <DialogTitle>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" scroll="paper" sx={{ zIndex: 1400 }}>
+      <DialogTitle sx={sxSafeAreaTop('8px')}>
         {titulo} — Pergunta {numero}
       </DialogTitle>
       <DialogContent dividers>
@@ -46,7 +47,7 @@ export default function CatecismoPerguntaPopup({ open, onClose, dados }) {
           </Box>
         )}
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={sxSafeAreaBottom('8px')}>
         <Button onClick={onClose}>Fechar</Button>
       </DialogActions>
     </Dialog>

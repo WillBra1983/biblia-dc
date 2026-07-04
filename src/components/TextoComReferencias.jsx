@@ -533,70 +533,102 @@ function TextoComReferencias({
     }
   }, [])
 
+  const abrirReferenciaConfessional = useCallback((parte) => {
+    const sigla = String(parte.confSiglaRaw || '').toUpperCase()
+    if (sigla.startsWith('CFW') || sigla.startsWith('CONFISSÃO')) {
+      if (!parte.confA) return
+      carregarConfissaoReferenciasCompleto()
+        .then((mod) => {
+          const d = mod.buscarParagrafoConfissaoOuInicioCapitulo(parte.confA, parte.confB)
+          if (d) setCfwParagrafo(d)
+        })
+        .catch((err) => {
+          console.error('[CFW] Falha ao carregar parágrafo:', err)
+        })
+      return
+    }
+    if (sigla.startsWith('CMW') || sigla.includes('CATECISMO MAIOR')) {
+      carregarConfissaoReferenciasCompleto()
+        .then((mod) => {
+          const d = mod.buscarPerguntaCatecismo('CMW', parte.confA)
+          if (d) setCatecismoPergunta(d)
+        })
+        .catch((err) => {
+          console.error('[CMW] Falha ao carregar pergunta:', err)
+        })
+      return
+    }
+    if (sigla.startsWith('CBW') || sigla.includes('BREVE CATECISMO')) {
+      carregarConfissaoReferenciasCompleto()
+        .then((mod) => {
+          const d = mod.buscarPerguntaCatecismo('CBW', parte.confA)
+          if (d) setCatecismoPergunta(d)
+        })
+        .catch((err) => {
+          console.error('[CBW] Falha ao carregar pergunta:', err)
+        })
+    }
+  }, [])
+
+  const handleReferenciaClick = useCallback(
+    (event, parte) => {
+      event.preventDefault()
+      event.stopPropagation()
+      if (parte.tipoRef === 'confessional') {
+        abrirReferenciaConfessional(parte)
+        return
+      }
+      handleClick(parte.ref)
+    },
+    [abrirReferenciaConfessional, handleClick]
+  )
+
+  const sxLinkReferencia = useMemo(
+    () => ({
+      color: isDark ? theme.palette.primary.light : 'primary.main',
+      cursor: 'pointer',
+      textDecoration: 'underline',
+      position: 'relative',
+      zIndex: 1,
+      pointerEvents: 'auto',
+      touchAction: 'manipulation',
+      WebkitTapHighlightColor: 'rgba(0,0,0,0.12)',
+      fontWeight: isDark ? 600 : 400,
+      '&:hover': {
+        textDecoration: 'underline',
+        opacity: 0.88,
+      },
+    }),
+    [isDark, theme.palette.primary.light]
+  )
+
   const renderContent = useMemo(() => {
     if (!partes) return texto
 
-    return partes.map(parte => {
+    return partes.map((parte) => {
       if (parte.isRef) {
         return (
-        <Link
-          key={parte.key}
+          <Link
+            key={parte.key}
             component="span"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (parte.tipoRef === 'confessional') {
-                const sigla = String(parte.confSiglaRaw || '').toUpperCase()
-                if (sigla.startsWith('CFW') || sigla.startsWith('CONFISSÃO')) {
-                  // Aceita CFW VIII; CFW VIII.2; CFW 8.2; parágrafo opcional → 1º do capítulo
-                  if (parte.confA) {
-                    carregarConfissaoReferenciasCompleto().then((mod) => {
-                      const d = mod.buscarParagrafoConfissaoOuInicioCapitulo(parte.confA, parte.confB)
-                      if (d) setCfwParagrafo(d)
-                    }).catch(() => {})
-                  }
-                  return
-                }
-                if (sigla.startsWith('CMW') || sigla.includes('CATECISMO MAIOR')) {
-                  carregarConfissaoReferenciasCompleto().then((mod) => {
-                    const d = mod.buscarPerguntaCatecismo('CMW', parte.confA)
-                    if (d) setCatecismoPergunta(d)
-                  }).catch(() => {})
-                  return
-                }
-                if (sigla.startsWith('CBW') || sigla.includes('BREVE CATECISMO')) {
-                  carregarConfissaoReferenciasCompleto().then((mod) => {
-                    const d = mod.buscarPerguntaCatecismo('CBW', parte.confA)
-                    if (d) setCatecismoPergunta(d)
-                  }).catch(() => {})
-                  return
-                }
-                return
-              }
-              handleClick(parte.ref);
-            }}
-            sx={{
-              color: isDark ? theme.palette.primary.light : 'primary.main',
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              position: 'relative',
-              zIndex: 1,
-              pointerEvents: 'auto',
-              fontWeight: isDark ? 600 : 400,
-              '&:hover': {
-                textDecoration: 'underline',
-                opacity: 0.88
+            role="button"
+            tabIndex={0}
+            onClick={(e) => handleReferenciaClick(e, parte)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                handleReferenciaClick(e, parte)
               }
             }}
-        >
-          {parte.conteudo}
-        </Link>
-        );
-      } else {
-        return <span key={parte.key}>{parte.conteudo}</span>;
+            sx={sxLinkReferencia}
+          >
+            {parte.conteudo}
+          </Link>
+        )
       }
+      return <span key={parte.key}>{parte.conteudo}</span>
     })
-  }, [partes, handleClick, texto, isDark, theme.palette.primary.light])
+  }, [partes, handleReferenciaClick, sxLinkReferencia, texto])
 
   return (
     <>

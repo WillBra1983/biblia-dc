@@ -9,6 +9,12 @@ import {
   Slider
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
+import {
+  sxFullscreenFlexColumn,
+  sxFullscreenScrollBody,
+  sxSafeAreaBottom,
+  sxSafeAreaTop,
+} from '../utils/viewportHeight'
 
 export default function VersiculoPopup({ versiculos, onClose }) {
   const [zoom, setZoom] = useState(100)
@@ -94,47 +100,49 @@ export default function VersiculoPopup({ versiculos, onClose }) {
       fullWidth
       fullScreen
       PaperProps={{
-        sx: { 
-          height: '100vh',
-          maxHeight: '100vh',
-          '@supports (height: 100dvh)': {
-            height: '100dvh',
-            maxHeight: '100dvh'
-          },
-          display: 'flex',
-          flexDirection: 'column',
-          pb: 'env(safe-area-inset-bottom, 0px)',
-          boxSizing: 'border-box'
-        }
+        sx: sxFullscreenFlexColumn({ boxSizing: 'border-box' }),
       }}
     >
-      {/* Cabeçalho */}
-      <DialogTitle sx={{ 
-        m: 0, 
-        p: 2,
-        bgcolor: 'grey.900',
-        color: 'white',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        <Typography>{formatarTitulo()}</Typography>
-        <IconButton 
+      <DialogTitle
+        sx={{
+          m: 0,
+          flexShrink: 0,
+          ...sxSafeAreaTop('8px'),
+          px: 2,
+          pl: 'calc(16px + env(safe-area-inset-left, 0px))',
+          pr: 'calc(8px + env(safe-area-inset-right, 0px))',
+          pb: 1.5,
+          bgcolor: 'grey.900',
+          color: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 1,
+        }}
+      >
+        <Typography sx={{ flex: 1, minWidth: 0, pr: 1 }}>{formatarTitulo()}</Typography>
+        <IconButton
           onClick={onClose}
-          sx={{ color: 'white' }}
+          aria-label="Fechar leitura"
+          sx={{
+            color: 'white',
+            flexShrink: 0,
+            width: 44,
+            height: 44,
+          }}
         >
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
-      {/* Conteúdo */}
-      <DialogContent sx={{ 
-        flex: 1,
-        p: 3,
-        '&.MuiDialogContent-root': {
-          padding: 3
-        }
-      }}>
+      <DialogContent
+        sx={sxFullscreenScrollBody({
+          p: 3,
+          pl: 'calc(24px + env(safe-area-inset-left, 0px))',
+          pr: 'calc(24px + env(safe-area-inset-right, 0px))',
+          '&.MuiDialogContent-root': { padding: 3 },
+        })}
+      >
         {versiculos.map((versiculo) => (
           <Typography 
             key={`${versiculo.capitulo ?? 0}:${versiculo.numero ?? versiculo.versiculo ?? 0}`}
@@ -149,17 +157,22 @@ export default function VersiculoPopup({ versiculos, onClose }) {
         ))}
       </DialogContent>
 
-      {/* Controles de zoom */}
-      <Box sx={{ 
-        bgcolor: 'grey.900',
-        color: 'white',
-        px: 3,
-        py: 1.5,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 2,
-        justifyContent: 'center'
-      }}>
+      <Box
+        sx={{
+          flexShrink: 0,
+          bgcolor: 'grey.900',
+          color: 'white',
+          px: 3,
+          pl: 'calc(24px + env(safe-area-inset-left, 0px))',
+          pr: 'calc(24px + env(safe-area-inset-right, 0px))',
+          py: 1.5,
+          ...sxSafeAreaBottom('0px'),
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          justifyContent: 'center',
+        }}
+      >
         <Slider
           value={zoom}
           min={100}

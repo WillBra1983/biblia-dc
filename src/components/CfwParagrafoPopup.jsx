@@ -9,6 +9,7 @@ import {
   Box
 } from '@mui/material'
 import TextoComReferencias from './TextoComReferencias'
+import { sxSafeAreaBottom, sxSafeAreaTop } from '../utils/viewportHeight'
 
 /**
  * Popup com o texto integral do parágrafo da Confissão de Fé de Westminster.
@@ -18,8 +19,15 @@ export default function CfwParagrafoPopup({ open, onClose, dados }) {
   const { capitulo, tituloCapitulo, numero, texto } = dados
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" scroll="paper">
-      <DialogTitle>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      scroll="paper"
+      sx={{ zIndex: 1400 }}
+    >
+      <DialogTitle sx={sxSafeAreaTop('8px')}>
         Confissão de Fé — Cap. {capitulo}
         {tituloCapitulo ? `: ${tituloCapitulo}` : ''}
       </DialogTitle>
@@ -31,7 +39,7 @@ export default function CfwParagrafoPopup({ open, onClose, dados }) {
           <TextoComReferencias texto={texto} />
         </Box>
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={sxSafeAreaBottom('8px')}>
         <Button onClick={onClose}>Fechar</Button>
       </DialogActions>
     </Dialog>

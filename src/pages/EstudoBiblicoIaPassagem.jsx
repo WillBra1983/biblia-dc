@@ -17,12 +17,14 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  TextField
 } from '@mui/material'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import AutoAwesome from '@mui/icons-material/AutoAwesome'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import EditNote from '@mui/icons-material/EditNote'
+import Edit from '@mui/icons-material/Edit'
 import IosShareIcon from '@mui/icons-material/IosShareOutlined'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks'
@@ -79,6 +81,11 @@ import VersiculoPopup from '../components/VersiculoPopup'
 import { openNativeShareSheet } from '../utils/nativeShare'
 import { useEhAdmin } from '../hooks/useEhAdmin'
 import { normalizarTom, TONS_IDS, TOM_PADRAO } from '../utils/iaTonalidade'
+import {
+  confirmarAsync,
+  copiarParaAreaTransferencia,
+  mostrarSnackbar
+} from '../utils/uiDialogs'
 
 /** Ordem ao carregar conteúdo existente (oficial/candidato/cache): preferir chave canônica. */
 const ORDEM_CARGA_TONS = [TOM_PADRAO, ...TONS_IDS.filter((t) => t !== TOM_PADRAO)]
@@ -169,7 +176,7 @@ export default function EstudoBiblicoIaPassagem() {
   const [searchParams] = useSearchParams()
   const { user } = useFirebaseAuth()
   const { fontSize, fontFamily, lineHeight } = useApp()
-  const { ehAdmin } = useEhAdmin(user?.uid || null)
+  const { ehAdmin, carregando: adminCarregando } = useEhAdmin(user?.uid || null)
 
   const returnToParam = searchParams.get('returnTo') || '/'
   const livroQ = Number(searchParams.get('livro'))
@@ -196,6 +203,9 @@ export default function EstudoBiblicoIaPassagem() {
   const [salvandoAcao, setSalvandoAcao] = useState(false)
   const [dialogSaidaAberto, setDialogSaidaAberto] = useState(false)
   const [popupVersiculos, setPopupVersiculos] = useState(null)
+  const [editandoAdmin, setEditandoAdmin] = useState(false)
+  const [rascunhoAdmin, setRascunhoAdmin] = useState('')
+  const [adminSaveErro, setAdminSaveErro] = useState('')
 
   /** Tom da chave RTDB/cache do texto exibido (votação/admin usam esta chave). */
   const [tomCarregado, setTomCarregado] = useState(TOM_PADRAO)
@@ -694,7 +704,12 @@ export default function EstudoBiblicoIaPassagem() {
     try {
       const r = await removerEstudoCurado(livroQ, capQ, versQ, tomCarregado)
       if (r.ok) {
-        setOrigem('candidato')
+        const carregou = await carregarTextoDoTom(tomCarregado)
+        if (!carregou) {
+          setTextoGerado('')
+          setOrigem('novo')
+          setMeuVoto(null)
+        }
         mostrarSnackbar({ mensagem: 'Removido da seleção oficial.', severidade: 'info' })
       } else {
         mostrarSnackbar({
@@ -705,25 +720,96 @@ export default function EstudoBiblicoIaPassagem() {
     } finally {
       setSalvandoAcao(false)
     }
-  }, [ehAdmin, livroQ, capQ, versQ, tomCarregado])
+  }, [ehAdmin, livroQ, capQ, versQ, tomCarregado, carregarTextoDoTom])
+
+  const iniciarEdicaoAdmin = useCallback(() => {
+    setAdminSaveErro('')
+    setRascunhoAdmin(textoGerado || '')
+    setEditandoAdmin(true)
+  }, [textoGerado])
+
+  const salvarEdicaoAdmin = useCallback(async () => {
+    if (!ehAdmin || !user?.uid) return
+    setAdminSaveErro('')
+    const limpo = String(rascunhoAdmin || '').trim()
+    if (!limpo) {
+      setAdminSaveErro('O texto não pode ficar vazio.')
+      return
+    }
+    setSalvandoAcao(true)
+    try {
+      let pericopeMeta = metaLocal?.pericope || null
+      if (!pericopeMeta) {
+        const pass = await montarPassagemLida(livroQ, capQ, versQ)
+        if (pass.ok && pass.pericope) {
+          pericopeMeta = {
+            inicio: pass.pericope.inicio,
+            fim: pass.pericope.fim,
+            titulo: pass.pericope.titulo,
+            referencia: pass.pericope.referencia
+          }
+        }
+      }
+      const pericopeKey = pericopeMeta
+        ? chavePericopeCurada(livroQ, capQ, pericopeMeta.inicio, pericopeMeta.fim)
+        : null
+      const r = await salvarEstudoCurado({
+        livroId: livroQ,
+        capitulo: capQ,
+        versArr: versQ,
+        texto: limpo,
+        referenciaCompacta: referencia,
+        pericopeKey,
+        uidAutor: user.uid,
+        tom: tomCarregado
+      })
+      if (!r.ok) {
+        setAdminSaveErro(r.error || 'Não foi possível salvar a edição.')
+        return
+      }
+      setTextoGerado(limpo)
+      setOrigem('oficial')
+      gravarCacheIaPassagem(livroQ, capQ, versQ, {
+        texto: limpo,
+        meta: metaLocal,
+        tom: tomCarregado
+      })
+      setEditandoAdmin(false)
+      setRascunhoAdmin('')
+      mostrarSnackbar({ mensagem: 'Texto corrigido e publicado como oficial.', severidade: 'success' })
+    } finally {
+      setSalvandoAcao(false)
+    }
+  }, [
+    ehAdmin,
+    user?.uid,
+    rascunhoAdmin,
+    metaLocal,
+    livroQ,
+    capQ,
+    versQ,
+    referencia,
+    tomCarregado
+  ])
 
   /**
-   * Remove o candidato da comunidade e zera a votação (admin). Em seguida
-   * gera nova versão pela IA. Cooldown 24h não se aplica a admin.
+   * Remove oficial/candidato/cache e gera nova versão (admin).
    */
-  const descartarCandidatoAdmin = useCallback(async () => {
-    if (!ehAdmin || origem !== 'candidato') return
+  const descartarERegerarAdmin = useCallback(async () => {
+    if (!ehAdmin || !textoGerado) return
     const ok = await confirmarAsync({
-      titulo: 'Descartar este candidato?',
+      titulo: 'Apagar este texto e regerar?',
       mensagem:
-        'O texto sai da biblioteca comunitária e a votação é zerada. ' +
-        'Em seguida será gerada uma nova versão (usa cota da IA).',
-      textoConfirmar: 'Descartar e regerar',
+        'Remove a versão oficial e o candidato (se existirem), zera votos e gera um estudo novo pela IA.',
+      textoConfirmar: 'Apagar e regerar',
       textoCancelar: 'Cancelar'
     })
     if (!ok) return
     setSalvandoAcao(true)
     try {
+      if (origem === 'oficial') {
+        await removerEstudoCurado(livroQ, capQ, versQ, tomCarregado)
+      }
       const r = await descartarEstudoCandidato({
         livroId: livroQ,
         capitulo: capQ,
@@ -741,12 +827,14 @@ export default function EstudoBiblicoIaPassagem() {
       setMeuVoto(null)
       setOrigem('novo')
       setTextoGerado('')
+      setEditandoAdmin(false)
+      setRascunhoAdmin('')
       setFase('loading')
       await gerar()
     } finally {
       setSalvandoAcao(false)
     }
-  }, [ehAdmin, origem, livroQ, capQ, versQ, tomCarregado, gerar])
+  }, [ehAdmin, textoGerado, origem, livroQ, capQ, versQ, tomCarregado, gerar])
 
   /* ============================================================
    * SHARE OVERRIDE
@@ -878,7 +966,7 @@ export default function EstudoBiblicoIaPassagem() {
         </Box>
         {fase === 'ready' && (
           <Stack direction="row" spacing={0.25} alignItems="center" flexWrap="wrap" justifyContent="flex-end">
-            {ehAdmin && (
+            {ehAdmin && !adminCarregando && (
               <>
                 <Tooltip
                   title={
@@ -896,7 +984,7 @@ export default function EstudoBiblicoIaPassagem() {
                       onClick={() =>
                         origem === 'oficial' ? void removerCuradoria() : void aprovarComoOficial()
                       }
-                      disabled={salvandoAcao || !textoGerado}
+                      disabled={salvandoAcao || !textoGerado || editandoAdmin}
                       sx={{
                         color: origem === 'oficial' ? 'primary.main' : 'text.secondary'
                       }}
@@ -905,17 +993,29 @@ export default function EstudoBiblicoIaPassagem() {
                     </IconButton>
                   </span>
                 </Tooltip>
-                {origem === 'candidato' && (
-                  <Tooltip title="Descartar candidato e regerar (zera votos no servidor)">
+                <Tooltip title="Apagar texto (oficial/candidato) e regerar pela IA">
+                  <span>
+                    <IconButton
+                      size="small"
+                      aria-label="Apagar e regerar estudo"
+                      onClick={() => void descartarERegerarAdmin()}
+                      disabled={salvandoAcao || !textoGerado || editandoAdmin}
+                      color="warning"
+                    >
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+                {!editandoAdmin && (
+                  <Tooltip title="Corrigir o texto aqui e publicar como oficial">
                     <span>
                       <IconButton
                         size="small"
-                        aria-label="Descartar candidato da comunidade"
-                        onClick={() => void descartarCandidatoAdmin()}
+                        aria-label="Corrigir texto admin"
+                        onClick={iniciarEdicaoAdmin}
                         disabled={salvandoAcao || !textoGerado}
-                        color="warning"
                       >
-                        <DeleteOutlineIcon fontSize="small" />
+                        <Edit fontSize="small" />
                       </IconButton>
                     </span>
                   </Tooltip>
@@ -926,7 +1026,9 @@ export default function EstudoBiblicoIaPassagem() {
               title={
                 acoesDesabilitadas
                   ? 'Avalie antes para usar esta opção'
-                  : 'Editar e salvar como seu estudo'
+                  : ehAdmin && (origem === 'oficial' || origem === 'candidato')
+                    ? 'Corrigir texto aqui (admin) ou use o ícone de lápis'
+                    : 'Editar e salvar como seu estudo pessoal'
               }
             >
               <span>
@@ -935,10 +1037,18 @@ export default function EstudoBiblicoIaPassagem() {
                   variant="contained"
                   color="primary"
                   startIcon={<EditNote fontSize="small" />}
-                  onClick={() => acaoComAvaliacaoPrevia(abrirNoEditor)}
-                  disabled={!textoGerado}
+                  onClick={() => {
+                    if (ehAdmin && (origem === 'oficial' || origem === 'candidato')) {
+                      iniciarEdicaoAdmin()
+                      return
+                    }
+                    acaoComAvaliacaoPrevia(abrirNoEditor)
+                  }}
+                  disabled={!textoGerado || editandoAdmin}
                 >
-                  Editar e salvar
+                  {ehAdmin && (origem === 'oficial' || origem === 'candidato')
+                    ? 'Corrigir texto'
+                    : 'Editar e salvar'}
                 </Button>
               </span>
             </Tooltip>
@@ -1075,7 +1185,50 @@ export default function EstudoBiblicoIaPassagem() {
             )}
 
             <Paper variant="outlined" sx={{ p: 2, bgcolor: 'background.paper' }}>
-              {renderLinhasEstudo(textoGerado, lineHeightCss)}
+              {editandoAdmin ? (
+                <>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                    Edição administrativa
+                  </Typography>
+                  <TextField
+                    multiline
+                    fullWidth
+                    minRows={14}
+                    maxRows={28}
+                    value={rascunhoAdmin}
+                    onChange={(e) => setRascunhoAdmin(e.target.value)}
+                    disabled={salvandoAcao}
+                    sx={{ mb: 1.5, ...sxLeitura }}
+                  />
+                  {adminSaveErro ? (
+                    <Alert severity="error" sx={{ mb: 1.5 }}>
+                      {adminSaveErro}
+                    </Alert>
+                  ) : null}
+                  <Stack direction="row" spacing={1} flexWrap="wrap">
+                    <Button
+                      variant="contained"
+                      onClick={() => void salvarEdicaoAdmin()}
+                      disabled={salvandoAcao}
+                    >
+                      {salvandoAcao ? 'Salvando…' : 'Salvar correção'}
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        setEditandoAdmin(false)
+                        setRascunhoAdmin('')
+                        setAdminSaveErro('')
+                      }}
+                      disabled={salvandoAcao}
+                    >
+                      Cancelar
+                    </Button>
+                  </Stack>
+                </>
+              ) : (
+                renderLinhasEstudo(textoGerado, lineHeightCss)
+              )}
             </Paper>
 
             {linkEstudoPericope && (

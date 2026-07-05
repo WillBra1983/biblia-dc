@@ -7,12 +7,11 @@ android {
         applicationId "com.bibliadc.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 18
+        versionCode 19
         versionName "1.0.2"
-        // Android App Links: mesmo host do VITE_PUBLIC_APP_URL / site (sem https://). Ajuste se o domínio mudar.
+        // Android App Links: host canônico do site (sem www — www redireciona e não passa na verificação).
         manifestPlaceholders = [
             appLinkHost: "foundcine.com",
-            appLinkHostWww: "www.foundcine.com",
             appLinkPathPrefix: "/biblia"
         ]
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

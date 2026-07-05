@@ -18,23 +18,12 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Android App Links: abre o APK em vez do browser para URLs do site (requer assetlinks.json no domínio). -->
+            <!-- Android App Links: foundcine.com/biblia (canônico; www redireciona para este host). -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="${appLinkHost}" android:pathPrefix="${appLinkPathPrefix}" />
-            </intent-filter>
-            <!-- Mesmo esquema para www — verificação Digital Asset Links deve resolver em ambos os hosts (DNS → mesmo servidor). -->
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="https"
-                    android:host="${appLinkHostWww}"
-                    android:pathPrefix="${appLinkPathPrefix}"
-                />
             </intent-filter>
             <!-- Deep link nativo (mesmo packageId que o login Google nativo): abre o APK sem passar pelo browser. -->
             <intent-filter>

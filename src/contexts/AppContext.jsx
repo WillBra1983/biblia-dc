@@ -351,7 +351,7 @@ export function AppProvider({ children }) {
     }
 
     const currentVersion = loadFromStorage('app_version')
-    const packageVersion = '0.0.1'
+    const packageVersion = typeof __PACKAGE_VERSION__ !== 'undefined' ? __PACKAGE_VERSION__ : '1.2.0'
 
     if (currentVersion !== packageVersion) {
       handleAppUpdate()

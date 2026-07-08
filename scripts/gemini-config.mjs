@@ -51,8 +51,14 @@ if (legado.length >= 8) {
 if (explicitas === 3) {
   console.log('\nPronto: web, Android e iOS usam chaves restritas no Google Cloud.')
   console.log(
-    'Android (Capacitor): cadastre SHA-1 da Play App Signing + upload/debug na chave _ANDROID.\n'
+    'Android (Capacitor): cadastre SHA-1 da Play App Signing + upload/debug na chave _ANDROID.'
   )
+  console.log(
+    '\nProdução (proxy): configure o secret GEMINI_API_KEY nas Cloud Functions e faça deploy:'
+  )
+  console.log('  npx firebase-tools functions:secrets:set GEMINI_API_KEY')
+  console.log('  npm run deploy:functions')
+  console.log('Builds PROD usam o proxy por padrão (VITE_GEMINI_USE_PROXY=1 implícito).\n')
   process.exit(0)
 }
 if (explicitas >= 1 || legado.length >= 8) {

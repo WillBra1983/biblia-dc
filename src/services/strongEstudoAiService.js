@@ -5,6 +5,7 @@ import {
   mensagemErroChaveGeminiAusente,
   obterChaveGeminiApi
 } from '../utils/geminiApiKey'
+import { chamarGeminiViaProxy, geminiProxyAtivo } from './geminiProxyService'
 import { obterCabecalhosGeminiApi } from '../utils/geminiFetchHeaders'
 import { buscarBdbHebraico, buscarOcorrenciasStrongHebraico, contarOcorrenciasStrongHebraico } from './otStrongService'
 import { buscarLexiconPtBr } from './lexiconPtBrService'
@@ -521,41 +522,34 @@ async function executarGeminiResumo({ montarTentativas, maxChars = MAX_CHARS_RES
       code: 'NO_KEY',
     }
   }
-  const apiKey = obterChaveGeminiApi()
   const modelos = obterListaModelosTentativa()
   let lastError = ''
 
   for (const model of modelos) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-      model
-    )}:generateContent?key=${encodeURIComponent(apiKey)}`
     const tentativas = montarTentativas()
-    const cabecalhosGemini = await obterCabecalhosGeminiApi()
 
     for (const { body, label } of tentativas) {
-      let res
+      let invocacao
       try {
-        res = await fetch(url, {
-          method: 'POST',
-          headers: cabecalhosGemini,
-          body: JSON.stringify(body),
-        })
+        invocacao = await invocarGeminiApi(model, body)
       } catch (e) {
         return { ok: false, error: e?.message || 'Falha de rede ao chamar a IA.', code: 'NETWORK' }
       }
 
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) {
-        const msg = data?.error?.message || res.statusText || 'Erro da API Gemini'
+      if (!invocacao.ok) {
+        const msg = invocacao.msg || 'Erro da API Gemini'
         lastError = msg
-        const tipo = classificarErroIa(res.status, msg)
-        if (tipo) {
-          return { ok: false, error: msg, code: tipo, status: res.status }
+        const tipo = classificarErroIa(invocacao.status, msg) || invocacao.code
+        if (tipo && tipo !== 'API') {
+          return { ok: false, error: msg, code: tipo, status: invocacao.status }
         }
         const isModelNotFound =
           /not found|is not supported|unsupported|unknown model/i.test(msg || '')
         if (isModelNotFound) break
         if (label === 'web' && erroIndicaToolIncompativel(msg)) continue
+        if (invocacao.code === 'AUTH' || invocacao.code === 'QUOTA') {
+          return { ok: false, error: msg, code: invocacao.code, status: invocacao.status }
+        }
         return {
           ok: false,
           error: `${msg}. Verifique o modelo (VITE_GEMINI_MODEL) e a chave.`,
@@ -563,12 +557,9 @@ async function executarGeminiResumo({ montarTentativas, maxChars = MAX_CHARS_RES
         }
       }
 
-      const partsBrutos = data?.candidates?.[0]?.content?.parts || []
-      const text = partsBrutos
-        .map((p) => (typeof p?.text === 'string' ? p.text : ''))
-        .filter((t) => t && !/^\s*tool_code\b/i.test(t) && !/^\s*thought\s*$/im.test(t))
-        .join('\n')
-      const block = data?.candidates?.[0]?.finishReason
+      const data = invocacao.data
+      const text = extrairTextoRespostaGemini(data)
+      const block = extrairFinishReasonGemini(data)
       if (!text.trim()) {
         if (label === 'web') continue
         return {
@@ -687,21 +678,78 @@ export async function gerarResumoStrongGemini({ detalhe }) {
 const PROMPT_CONTINUACAO_ESTUDO =
   'Continue o texto exatamente de onde parou. Não repita parágrafos já escritos. Complete seções e itens que ficaram incompletos (incluindo perguntas para reflexão em grupo, se faltarem).'
 
-async function chamarGeminiGenerateContent(url, body) {
-  const headers = await obterCabecalhosGeminiApi()
-  const res = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(body)
-  })
-  const data = await res.json().catch(() => ({}))
-  if (!res.ok) {
-    const msg = data?.error?.message || res.statusText || 'Erro da API Gemini'
-    return { ok: false, status: res.status, msg }
+function extrairTextoRespostaGemini(data) {
+  const partsBrutos = data?.candidates?.[0]?.content?.parts || []
+  return partsBrutos
+    .map((p) => (typeof p?.text === 'string' ? p.text : ''))
+    .filter((t) => t && !/^\s*tool_code\b/i.test(t) && !/^\s*thought\s*$/im.test(t))
+    .join('\n')
+}
+
+function extrairFinishReasonGemini(data) {
+  return data?.candidates?.[0]?.finishReason || null
+}
+
+/**
+ * @returns {Promise<{ ok: boolean, data?: object, status?: number, msg?: string, code?: string }>}
+ */
+async function invocarGeminiApi(model, body) {
+  if (geminiProxyAtivo()) {
+    const proxy = await chamarGeminiViaProxy(model, body)
+    if (!proxy.ok) {
+      return {
+        ok: false,
+        status: proxy.status || 500,
+        msg: proxy.error || 'Falha no proxy de IA.',
+        code: proxy.code || 'PROXY'
+      }
+    }
+    return { ok: true, status: proxy.status || 200, data: proxy.data }
   }
-  const text =
-    data?.candidates?.[0]?.content?.parts?.map((p) => p.text).filter(Boolean).join('\n') || ''
-  const finishReason = data?.candidates?.[0]?.finishReason || null
+
+  const apiKey = obterChaveGeminiApi()
+  if (!apiKey) {
+    return {
+      ok: false,
+      status: 0,
+      msg: mensagemErroChaveGeminiAusente(),
+      code: 'NO_KEY'
+    }
+  }
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+    model
+  )}:generateContent?key=${encodeURIComponent(apiKey)}`
+  const headers = await obterCabecalhosGeminiApi()
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body)
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      return {
+        ok: false,
+        status: res.status,
+        msg: data?.error?.message || res.statusText || 'Erro da API Gemini',
+        data
+      }
+    }
+    return { ok: true, status: res.status, data }
+  } catch (e) {
+    return { ok: false, status: 0, msg: e?.message || 'Falha de rede ao chamar a IA.', code: 'NETWORK' }
+  }
+}
+
+async function chamarGeminiGenerateContent(model, body) {
+  const resultado = await invocarGeminiApi(model, body)
+  if (!resultado.ok) {
+    return { ok: false, status: resultado.status, msg: resultado.msg, code: resultado.code }
+  }
+  const text = extrairTextoRespostaGemini(resultado.data)
+  const finishReason = extrairFinishReasonGemini(resultado.data)
   return { ok: true, text, finishReason }
 }
 
@@ -722,14 +770,9 @@ export async function gerarConteudoGemini(body, options = {}) {
     }
   }
   const maxContinuacoes = Math.max(0, Math.min(3, Number(options.maxContinuacoes) || 0))
-  const apiKey = obterChaveGeminiApi()
   const modelos = obterListaModelosTentativa()
   let lastError = ''
   for (const model of modelos) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-      model
-    )}:generateContent?key=${encodeURIComponent(apiKey)}`
-
     let corpo = body
     let textoCompleto = ''
     let finishReason = null
@@ -737,7 +780,7 @@ export async function gerarConteudoGemini(body, options = {}) {
     for (let parte = 0; parte <= maxContinuacoes; parte++) {
       let resultado
       try {
-        resultado = await chamarGeminiGenerateContent(url, corpo)
+        resultado = await chamarGeminiGenerateContent(model, corpo)
       } catch (e) {
         return { ok: false, error: e?.message || 'Falha de rede ao chamar a IA.', code: 'NETWORK' }
       }
@@ -745,8 +788,8 @@ export async function gerarConteudoGemini(body, options = {}) {
       if (!resultado.ok) {
         const msg = resultado.msg
         lastError = msg
-        const tipo = classificarErroIa(resultado.status, msg)
-        if (tipo) {
+        const tipo = classificarErroIa(resultado.status, msg) || resultado.code
+        if (tipo && tipo !== 'API') {
           return { ok: false, error: msg, code: tipo, status: resultado.status }
         }
         break

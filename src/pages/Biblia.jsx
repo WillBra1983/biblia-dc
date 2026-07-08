@@ -276,12 +276,16 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   })
   const [strongBadgeErro, setStrongBadgeErro] = useState(false)
   const [modoImersivo, setModoImersivo] = useState(false)
+  const modoImersivoRef = React.useRef(false)
   const scrollUltimoYRef = React.useRef(0)
   // Acumuladores direcionais para o auto-hide do cabeçalho: rolagens lentas
   // somam alguns pixels até atingir o limiar e disparar a transição,
   // garantindo que o cabeçalho volte mesmo em scroll devagar para cima.
   const scrollAcumDownRef = React.useRef(0)
   const scrollAcumUpRef = React.useRef(0)
+  const scrollRafRef = React.useRef(null)
+  const LIMITE_ESCONDER_IMERSIVO = 96
+  const LIMITE_MOSTRAR_IMERSIVO = 72
   const pinchLeituraRef = React.useRef(null)
   // Multiplicador local do zoom da leitura aplicado pelo pinch de dedo.
   // É temporário (não persiste): o zoom permanente vive em `fontSize` (via
@@ -321,6 +325,50 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
       setVersiculosRenderizados((prev) => Math.min(prev + BIBLIA_RENDER_POR_LOTE, resultados.length))
     })
   }, [resultados.length])
+
+  const aplicarModoImersivo = useCallback((proximo) => {
+    if (modoImersivoRef.current === proximo) return
+    modoImersivoRef.current = proximo
+    setModoImersivo(proximo)
+  }, [])
+
+  const processarScrollImersivo = useCallback(() => {
+    const target = versiculoRefs.current.container
+    if (!target) return
+
+    const atual = target.scrollTop
+    const ultimo = scrollUltimoYRef.current
+    const diff = atual - ultimo
+
+    let acumDown = scrollAcumDownRef.current
+    let acumUp = scrollAcumUpRef.current
+
+    if (diff > 0) {
+      acumDown += diff
+      acumUp = 0
+    } else if (diff < 0) {
+      acumUp += -diff
+      acumDown = 0
+    }
+
+    const imersivo = modoImersivoRef.current
+
+    if (atual <= 8 && imersivo) {
+      aplicarModoImersivo(false)
+      acumDown = 0
+      acumUp = 0
+    } else if (acumDown >= LIMITE_ESCONDER_IMERSIVO && !imersivo) {
+      aplicarModoImersivo(true)
+      acumDown = 0
+    } else if (acumUp >= LIMITE_MOSTRAR_IMERSIVO && imersivo) {
+      aplicarModoImersivo(false)
+      acumUp = 0
+    }
+
+    scrollUltimoYRef.current = atual
+    scrollAcumDownRef.current = acumDown
+    scrollAcumUpRef.current = acumUp
+  }, [aplicarModoImersivo])
   const onPinchLeitura = React.useCallback((v) => setZoomLeitura(v), [])
   usePinchNumeric(pinchLeituraRef, {
     enabled: true,
@@ -1184,12 +1232,17 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   // Splash interno removido — splash global do AppShell é suficiente.
 
   useEffect(() => {
+    modoImersivoRef.current = modoImersivo
     window.dispatchEvent(
       new CustomEvent('biblia-imersiva-toggle', {
         detail: { hide: modoImersivo },
       })
     )
     return () => {
+      if (scrollRafRef.current != null) {
+        cancelAnimationFrame(scrollRafRef.current)
+        scrollRafRef.current = null
+      }
       window.dispatchEvent(
         new CustomEvent('biblia-imersiva-toggle', {
           detail: { hide: false },
@@ -1993,7 +2046,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
 
   return (
     <>
-      {!modoImersivo && bibliaToolbarLeftSlot
+      {bibliaToolbarLeftSlot
         ? createPortal(
           <Box sx={{
             display: 'flex',
@@ -2328,43 +2381,13 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         }}
         onScroll={(event) => {
           const target = event.currentTarget
-          const atual = target.scrollTop
-          const ultimo = scrollUltimoYRef.current
-          const diff = atual - ultimo
 
-          // Acumulador direcional: pequenos deltas no mesmo sentido somam
-          // até atingirem o limiar; uma mudança de direção zera o acumulado
-          // do sentido oposto. Isso garante reação tanto a rolagem rápida
-          // quanto a rolagem lenta (cada "click" do scroll soma alguns px).
-          const limiteMudanca = 36
-          let acumDown = scrollAcumDownRef.current
-          let acumUp = scrollAcumUpRef.current
-
-          if (diff > 0) {
-            acumDown += diff
-            acumUp = 0
-          } else if (diff < 0) {
-            acumUp += -diff
-            acumDown = 0
+          if (scrollRafRef.current == null) {
+            scrollRafRef.current = requestAnimationFrame(() => {
+              scrollRafRef.current = null
+              processarScrollImersivo()
+            })
           }
-
-          // Sempre que voltar ao topo, força o cabeçalho visível — evita
-          // ficar preso em modo imersivo se o usuário voltar para o início.
-          if (atual <= 8 && modoImersivo) {
-            setModoImersivo(false)
-            acumDown = 0
-            acumUp = 0
-          } else if (acumDown >= limiteMudanca && !modoImersivo) {
-            setModoImersivo(true)
-            acumDown = 0
-          } else if (acumUp >= limiteMudanca && modoImersivo) {
-            setModoImersivo(false)
-            acumUp = 0
-          }
-
-          scrollUltimoYRef.current = atual
-          scrollAcumDownRef.current = acumDown
-          scrollAcumUpRef.current = acumUp
 
           const restante = target.scrollHeight - (target.scrollTop + target.clientHeight)
           if (restante < BIBLIA_PREFETCH_SCROLL_PX && versiculosRenderizados < resultados.length) {

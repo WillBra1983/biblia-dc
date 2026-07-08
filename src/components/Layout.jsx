@@ -282,6 +282,8 @@ export default function Layout({ title, children }) {
     />
   )
 
+  const appBarEscondidaVisual = appBarOculta && !apresentacaoTelaCheia
+
   return (
     <Box sx={{ display: 'flex', ...sxFullViewportHeight() }}>
       <AppBar 
@@ -289,7 +291,14 @@ export default function Layout({ title, children }) {
         color="inherit"
         elevation={0}
         sx={{
-          display: appBarOculta || apresentacaoTelaCheia ? 'none' : 'flex',
+          display: apresentacaoTelaCheia ? 'none' : 'flex',
+          transform: appBarEscondidaVisual
+            ? 'translate3d(0, calc(-100% - env(safe-area-inset-top, 0px)), 0)'
+            : 'translate3d(0, 0, 0)',
+          opacity: appBarEscondidaVisual ? 0 : 1,
+          pointerEvents: appBarEscondidaVisual ? 'none' : 'auto',
+          transition: 'transform 180ms ease, opacity 140ms ease',
+          willChange: 'transform',
           /**
            * Na Bíblia (`/` e `/biblia`) o AppBar não seguia bem o tema claro:
            * os controles portados (Livro, Cap., Strong…) foram desenhados
@@ -585,9 +594,7 @@ export default function Layout({ title, children }) {
           minHeight: 0,
           minWidth: 0,
           pt: needsMainToolbarPadding
-            ? appBarOculta
-              ? 0
-              : {
+            ? {
                 xs: 'calc(56px + env(safe-area-inset-top, 0px))',
                 sm: 'calc(64px + env(safe-area-inset-top, 0px))'
               }

@@ -1,4 +1,6 @@
 import { Capacitor } from '@capacitor/core'
+import { geminiProxyAtivo, geminiProxyConfigurado } from '../services/geminiProxyService'
+import { isFirebaseConfigured } from '../config/firebaseEnv'
 
 function trimKey(valor) {
   const s = typeof valor === 'string' ? valor.trim() : ''
@@ -32,6 +34,7 @@ export function obterChaveGeminiApi() {
 }
 
 export function iaGeminiChaveConfigurada() {
+  if (geminiProxyAtivo()) return geminiProxyConfigurado()
   return obterChaveGeminiApi().length >= 8
 }
 
@@ -41,6 +44,10 @@ export function nomeEnvChaveGeminiPreferida() {
 }
 
 export function mensagemErroChaveGeminiAusente() {
+  if (geminiProxyAtivo()) {
+    if (!isFirebaseConfigured()) return 'Firebase não configurado para o proxy de IA.'
+    return 'Inicie sessão para usar recursos de IA.'
+  }
   const nome = nomeEnvChaveGeminiPreferida()
   return `Defina ${nome} (ou VITE_GEMINI_API_KEY) no .env e gere o build de novo.`
 }

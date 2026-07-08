@@ -2,8 +2,11 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { resolve } from 'path'
+import { readFileSync } from 'fs'
 import { salvationBeastiesPlugin } from './vite-plugin-beasties.js'
 import { stripBiblicalAudioFromDist } from './vite-plugin-strip-biblical-audio.js'
+
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
 // Versão de build (timestamp em base 36). Injetada como `__APP_VERSION__` no
 // código; o `appVersionGuard` usa esse valor para detectar deploy novo e
@@ -19,7 +22,8 @@ export default defineConfig({
     dedupe: ['react', 'react-dom'],
   },
   define: {
-    __APP_VERSION__: JSON.stringify(APP_BUILD_VERSION)
+    __APP_VERSION__: JSON.stringify(APP_BUILD_VERSION),
+    __PACKAGE_VERSION__: JSON.stringify(pkg.version || '0.0.0')
   },
   plugins: [
     stripBiblicalAudioFromDist(),

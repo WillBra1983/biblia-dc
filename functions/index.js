@@ -71,3 +71,6 @@ exports.sincronizarVersaoPlayStoreAdmin =
   require('./src/sincronizarVersaoPlayStoreAdmin').sincronizarVersaoPlayStoreAdmin
 exports.sincronizarVersaoPlayStoreCron =
   require('./src/sincronizarVersaoPlayStoreCron').sincronizarVersaoPlayStoreCron
+
+// Proxy Gemini (chave no servidor; auth + cota por usuário)
+exports.geminiGenerateContent = require('./src/geminiProxy').geminiGenerateContent

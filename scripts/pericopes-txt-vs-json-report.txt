@@ -1,4 +1,4 @@
-Gerado: 2026-04-20T05:27:06.055Z
+Gerado: 2026-07-08T18:18:16.000Z
 TXT: C:\Salvation\Portugues-ARA-NVI-All-Bible.txt
 JSON: C:\Salvation\public\pericopes_ara.backup.json
 
@@ -6,9 +6,9 @@ NOTA: «Falta no JSON» lista só títulos que o TXT tem e o backup NÃO tem.
 Títulos já presentes no JSON (ex.: «Do homicídio», «Do adultério», «Dos juramentos»)
 não aparecem aí — estão na extração completa abaixo e no ficheiro TSV.
 
-Extraídas do TXT: 2602
-No TXT mas não no JSON: 235
-No JSON mas não encontradas no TXT: 469
+Extraídas do TXT: 2872
+No TXT mas não no JSON: 274
+No JSON mas não encontradas no TXT: 243
 
 === Extração completa: Mateus 5 (ordem do TXT) ===
 v1	linha 280136	O sermão do monte
@@ -25,15 +25,23 @@ v43	linha 280621	Do amor ao próximo	«Lucas 6.32-36                            
 
 === Falta no JSON ===
 1CH	16	7	linha-133072	Salmos 96;  105;  106
+1CO	15	1	linha-342840	A ressurreição de Cristo, penhor da nossa
+1JN	1	5	linha-365091	Deus é luz. O pecado, a confissão, o perdão, a
+1KI	12	2	linha-112412	Tendo   ouvido   todo   o   Israel   que   Jeroboão   tinha
 1KI	16	29	linha-114175	Jezabel
+1PE	3	13	linha-363623	A prática do bem. A longanimidade segundo o
 1SA	9	1	linha-89129	Samuel
+1TH	5	2	linha-353945	Segunda epístola de Paulo aos
 1TI	2	1	linha-354794	Mediador
 2CO	8	1	linha-345367	Judeia
+2CO	13	12	linha-347007	Quanto   ao   mais,   irmãos,   adeus!   Aperfeiçoai-vos,
 2KI	23	2	linha-125871	Josias renova a aliança ante o Senhor
 2TH	3	18	linha-354498	A saudação é de próprio punho: Paulo. Este é o sinal
 2TI	2	1	linha-356145	Cristo
+ACT	5	41	linha-323806	Chamando          os     apóstolos,       açoitaram-nos          e,
 ACT	15	36	linha-328223	Paulo e Barnabé
 COL	2	8	linha-352093	Cristo e a sua obra redentora
+COL	4	1	linha-352854	Primeira epístola de Paulo aos
 DAN	12	1	linha-265032	Oseias
 DAN	12	1	linha-265042	Israel
 DAN	12	1	linha-265432	A longanimidade de Deus
@@ -42,6 +50,7 @@ DAN	12	1	linha-265762	Repreensão contra sacerdotes e príncipes
 DAN	12	1	linha-266072	Iniquidade dos reis e príncipes
 DAN	12	1	linha-266271	O castigo está próximo
 DAN	12	1	linha-266448	Israel já antes castigado
+DAN	12	1	linha-266678	Israel semeou malícia e segará destruição
 DAN	12	1	linha-266893	O amor de Deus Pai. A ingratidão de Israel
 DAN	12	1	linha-267052	Jacó, modelo para o povo de Israel
 DAN	12	1	linha-267201	Castigo definitivo
@@ -59,13 +68,27 @@ DEU	27	1	linha-67189	O Terceiro Discurso de Moisés
 DEU	29	1	linha-68349	O Quarto Discurso de Moisés
 DEU	31	1	linha-69015	As Últimas Disposições
 DEU	32	48	linha-70007	O Último Dia da Vida de Moisés
+EPH	1	3	linha-348805	As bênçãos de Deus em Cristo, autor da nossa
+EST	9	30	linha-160685	Então,  a  rainha  Ester,  filha  de  Abiail,  e  o  judeu
+EXO	34	10	linha-29278	Deus faz uma aliança e admoesta contra a
 GAL	2	11	linha-347472	Cristo Jesus
 GEN	4	1	linha-1482	Descendentes de Adão
 GEN	24	1	linha-6818	Isaque
+GEN	25	27	linha-7804	Depois,  nasceu  o  irmão;  segurava  com  a  mão  o
 HAG	2	20	linha-275292	A promessa do Senhor a Zorobabel
+HEB	1	11	linha-357856	Ainda:      No     princípio,       SENHOR,         lançaste       os
+HEB	9	1	linha-359524	Os ritos, ofertas e sacrifícios mosaicos eram
+HEB	12	1	linha-360830	Devemos imitar o exemplo de Cristo, que foi
+HEB	13	24	linha-361474	Notifico-vos   que  o  irmão  Timóteo  foi  posto  em
+ISA	7	12	linha-207806	Pede  ao  SENHOR,  teu  Deus,  um  sinal,  quer  seja
+JAS	5	12	linha-362680	Eis  que   temos   por  felizes  os  que   perseveraram
 JER	14	19	linha-227642	Jeremias
+JER	17	12	linha-228364	Jeremias clama a Deus que o socorra dos seus
+JER	21	1	linha-229340	Predita a destruição de Jerusalém por
 JER	21	1	linha-229344	Nabucodonosor
+JER	43	8	linha-236974	Jeremias profetiza a conquista do Egito por
 JER	43	8	linha-236976	Nabucodonosor
+JHN	11	32	linha-317526	Os  judeus  que  estavam  com  Maria  em  casa  e  a
 JON	4	1	linha-271351	Miqueias
 JON	4	1	linha-271359	Ameaças contra Israel e Judá
 JON	4	1	linha-271578	Ai dos opressores gananciosos
@@ -91,6 +114,8 @@ JOS	19	24	linha-76718	A herança de Aser
 JOS	19	32	linha-76815	A herança de Naftali
 JOS	19	40	linha-76881	A herança de Dã
 JOS	19	49	linha-76937	A herança de Josué
+LEV	4	1	linha-32844	O sacrifício pelos pecados por ignorância dos
+LEV	4	27	linha-33170	Os sacrifícios pelos pecados por ignorância de
 LEV	7	6	linha-34017	O  sacerdote  o  queimará  sobre  o  altar  em  oferta
 LEV	23	3	linha-40245	O Sábado
 LEV	23	4	linha-40261	A Páscoa
@@ -98,16 +123,14 @@ LEV	23	9	linha-40311	As Primícias
 LEV	23	15	linha-40414	O Pentecostes
 LEV	23	26	linha-40581	O Dia da Expiação
 LEV	23	33	linha-40643	A Festa dos Tabernáculos
+LUK	3	15	linha-300610	Também   soldados   lhe   perguntaram:   E   nós,   que
 LUK	13	31	linha-306814	Jerusalém
-MAT	5	1	linha-280138	As bem-aventuranças
-MAT	5	13	linha-280249	Os discípulos, o sal da terra
-MAT	5	14	linha-280263	Os discípulos, a luz do mundo
-MAT	5	17	linha-280297	Jesus não veio revogar a Lei, mas cumprir
-MAT	5	21	linha-280345	Jesus completa o que foi dito aos antigos
+MAT	4	23	linha-280092	Jesus prega por toda a Galileia e cura muitos
 MAT	6	1	linha-280671	A prática da justiça
 MAT	6	2	linha-280689	Como se deve dar esmolas
 MAT	6	5	linha-280756	Como se deve orar
 MAT	6	9	linha-280810	A oração dominical
+MAT	6	17	linha-280872	Quando  jejuardes,  não  vos  mostreis  contristados
 MAT	6	17	linha-280890	Como jejuar
 MAT	6	19	linha-280943	Os tesouros no céu
 MAT	6	22	linha-280967	A luz e as trevas
@@ -125,18 +148,25 @@ MAT	10	16	linha-282502	As admoestações
 MAT	10	24	linha-282613	Os estímulos
 MAT	10	34	linha-282703	As dificuldades
 MAT	10	40	linha-282776	As recompensas
+MAT	10	42	linha-282788	Quem  recebe  um  profeta,  no  caráter  de  profeta,
+MAT	12	22	linha-283369	A cura de um endemoninhado cego e mudo. A
 MAT	24	3	linha-288506	O princípio das dores
 MAT	24	15	linha-288643	A grande tribulação
 MAT	24	29	linha-288747	A vinda do Filho do Homem
+MAT	24	32	linha-288822	A parábola da figueira. Exortação à vigilância
 MAT	24	45	linha-288961	A parábola do bom servo e do mau
 MAT	25	1	linha-289019	A parábola das dez virgens
 MAT	25	14	linha-289142	A parábola dos talentos
 MAT	25	31	linha-289313	O grande julgamento
+MAT	28	1	linha-290999	A ressurreição de Jesus. Seu aparecimento às
 MRK	13	3	linha-297210	O princípio das dores
 MRK	13	14	linha-297339	A grande tribulação
 MRK	13	24	linha-297419	A vinda do Filho do Homem
+MRK	13	28	linha-297486	A parábola da figueira. Exortação à vigilância
+MRK	15	37	linha-298733	E  um  deles  correu  a  embeber  uma  esponja  em
 PHP	1	12	linha-350531	A situação do apóstolo contribui para o progresso do
 PSA	3	2	linha-170558	Salmo de Davi quando fugia de Absalão, seu filho
+PSA	5	1	linha-170739	Ao mestre de canto, para flautas. Salmo de Davi
 PSA	11	1	linha-171626	Ao mestre de canto. Salmo de Davi
 PSA	13	1	linha-171787	Ao mestre de canto. Salmo de  Davi
 PSA	14	1	linha-171882	Ao mestre de canto. Salmo de Davi
@@ -163,6 +193,7 @@ PSA	35	1	linha-175068	Salmo de Davi
 PSA	36	1	linha-175358	Ao mestre de canto. De Davi, servo do Senhor
 PSA	37	1	linha-175487	Salmo de Davi
 PSA	38	2	linha-175827	Salmo de Davi. Em memória
+PSA	39	1	linha-176038	Ao mestre de canto, Jedutum. Salmo de Davi
 PSA	40	1	linha-176203	Vs. 13-17: Salmo 70.1-5
 PSA	40	1	linha-176207	Ao mestre de canto. Salmo de Davi
 PSA	41	1	linha-176398	Ao mestre de canto. Salmo de Davi
@@ -172,21 +203,25 @@ PSA	47	1	linha-177300	Ao mestre de canto. Salmo dos filhos de Corá
 PSA	48	1	linha-177368	Cântico. Salmo dos filhos de Corá
 PSA	49	1	linha-177509	Ao mestre de canto. Salmo dos filhos de Corá
 PSA	50	1	linha-177682	Salmo de Asafe
+PSA	53	1	linha-178222	Ao mestre de canto. Salmo didático de Davi, para cítara
 PSA	57	1	linha-178755	Vs. 7-11: Salmo 108.1-5
 PSA	57	1	linha-178763	Davi, quando fugia de Saul, na caverna
 PSA	60	2	linha-179198	Vs. 5-12: Salmo 108.6-13
 PSA	60	2	linha-179206	Hino de Davi para ensinar. Quando lutou contra os siros da
+PSA	61	1	linha-179333	Ao mestre de canto. Com instrumentos de cordas. De Davi
 PSA	63	2	linha-179542	Salmo de Davi, quando no deserto de Judá
 PSA	64	1	linha-179665	Ao mestre de canto. Salmo de Davi
 PSA	65	1	linha-179749	Ao mestre de canto. De Davi. Cântico
 PSA	66	1	linha-179884	Ao mestre de canto. Cântico. Salmo
 PSA	68	1	linha-180150	Ao mestre de canto. Salmo de Davi. Cântico
+PSA	69	1	linha-180492	Ao mestre de canto. Segundo a melodia “Os lírios”. De Davi
 PSA	70	1	linha-180824	Ao mestre de canto. De Davi. Em memória
 PSA	72	1	linha-181124	Salmo de Salomão
 PSA	73	1	linha-181325	Salmo de Asafe
 PSA	74	1	linha-181573	Salmo didático de Asafe
 PSA	75	1	linha-181808	Asafe. Cântico
 PSA	76	1	linha-181915	Cântico
+PSA	77	1	linha-182007	Ao mestre de canto, Jedutum. Salmo de Asafe
 PSA	78	1	linha-182213	Salmo didático de Asafe
 PSA	79	1	linha-182794	Salmo de Asafe
 PSA	80	1	linha-182935	Asafe. Salmo
@@ -229,6 +264,9 @@ PSA	144	1	linha-193106	Salmo de Davi
 PSA	145	1	linha-193269	Louvores de Davi
 REV	12	7	linha-369684	Cristo e do seu povo
 REV	15	2	linha-370395	Cordeiro
+REV	20	1	linha-371604	A prisão de Satanás por mil anos. A primeira
+REV	22	202	linha-372448	Trata-se de iniciativa particular, no sentido de contribuir para a divulgação da Bíblia.
+ROM	15	29	linha-338461	Tendo,      pois,     concluído        isto    e    havendo-lhes
 SNG	1	2	linha-204620	Esposa
 SNG	1	5	linha-204668	Esposa
 SNG	1	8	linha-204714	Esposo
@@ -259,3 +297,4 @@ SNG	8	12	linha-206040	Esposa
 SNG	8	13	linha-206089	Esposo
 SNG	8	14	linha-206103	Esposa
 TIT	3	12	linha-357391	A bênção
+ZEC	1	18	linha-275617	A segunda visão: os quatro chifres e os quatro

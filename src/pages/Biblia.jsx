@@ -284,8 +284,16 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const scrollAcumDownRef = React.useRef(0)
   const scrollAcumUpRef = React.useRef(0)
   const scrollRafRef = React.useRef(null)
+  const prevModoImersivoScrollRef = React.useRef(false)
+  const toolbarPadPxRef = React.useRef(56)
+  const toolbarSpacerRef = React.useRef(null)
+  const ignorarScrollImersivoRef = React.useRef(false)
   const LIMITE_ESCONDER_IMERSIVO = 96
   const LIMITE_MOSTRAR_IMERSIVO = 72
+  const sxPadToolbarBiblia = {
+    xs: 'calc(56px + env(safe-area-inset-top, 0px))',
+    sm: 'calc(64px + env(safe-area-inset-top, 0px))',
+  }
   const pinchLeituraRef = React.useRef(null)
   // Multiplicador local do zoom da leitura aplicado pelo pinch de dedo.
   // É temporário (não persiste): o zoom permanente vive em `fontSize` (via
@@ -333,6 +341,8 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   }, [])
 
   const processarScrollImersivo = useCallback(() => {
+    if (ignorarScrollImersivoRef.current) return
+
     const target = versiculoRefs.current.container
     if (!target) return
 
@@ -1233,11 +1243,9 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
 
   useEffect(() => {
     modoImersivoRef.current = modoImersivo
-    window.dispatchEvent(
-      new CustomEvent('biblia-imersiva-toggle', {
-        detail: { hide: modoImersivo },
-      })
-    )
+  }, [modoImersivo])
+
+  useEffect(() => {
     return () => {
       if (scrollRafRef.current != null) {
         cancelAnimationFrame(scrollRafRef.current)
@@ -1248,6 +1256,53 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           detail: { hide: false },
         })
       )
+    }
+  }, [])
+
+  /** Barra + espaçador no mesmo frame: sem faixa branca e sem deslocar a linha de leitura. */
+  useLayoutEffect(() => {
+    modoImersivoRef.current = modoImersivo
+    window.dispatchEvent(
+      new CustomEvent('biblia-imersiva-toggle', {
+        detail: { hide: modoImersivo },
+      })
+    )
+
+    const el = versiculoRefs.current.container
+    const spacer = toolbarSpacerRef.current
+    if (!el) return
+
+    const wasImersivo = prevModoImersivoScrollRef.current
+
+    if (wasImersivo !== modoImersivo) {
+      if (scrollRafRef.current != null) {
+        cancelAnimationFrame(scrollRafRef.current)
+        scrollRafRef.current = null
+      }
+
+      const pad = toolbarPadPxRef.current
+      if (pad > 0) {
+        if (modoImersivo) {
+          // Espaçador some: conteúdo sobe no fluxo — reduz scroll para manter a mesma linha.
+          el.scrollTop = Math.max(0, el.scrollTop - pad)
+        } else {
+          const newPad = spacer?.offsetHeight || pad
+          toolbarPadPxRef.current = newPad
+          el.scrollTop += newPad
+        }
+      }
+      prevModoImersivoScrollRef.current = modoImersivo
+      scrollUltimoYRef.current = el.scrollTop
+      scrollAcumDownRef.current = 0
+      scrollAcumUpRef.current = 0
+      ignorarScrollImersivoRef.current = true
+      requestAnimationFrame(() => {
+        ignorarScrollImersivoRef.current = false
+        scrollUltimoYRef.current = el.scrollTop
+      })
+    } else if (!modoImersivo && spacer) {
+      const h = spacer.offsetHeight
+      if (h > 0) toolbarPadPxRef.current = h
     }
   }, [modoImersivo])
 
@@ -2404,7 +2459,6 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         // Texto até ao canto (sem padding lateral); justificado cola na borda direita — afasta ≥1 pt
         px: 0,
         ...(textAlign === 'justify' ? { pr: '5pt' } : {}),
-        py: 2,
         // Folga inferior generosa: respeita o safe-area (home indicator
         // do iOS, gestos do Android) e adiciona espaço para que o botão
         // "Marcar como lido" no rodapé seja totalmente alcançável mesmo
@@ -2412,6 +2466,16 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         pb: 'calc(env(safe-area-inset-bottom, 0px) + 56px)',
         }}
       >
+        <Box
+          ref={toolbarSpacerRef}
+          aria-hidden
+          sx={{
+            height: modoImersivo ? 0 : sxPadToolbarBiblia,
+            flexShrink: 0,
+            overflow: 'hidden',
+            pointerEvents: 'none',
+          }}
+        />
         <Box>
         {erro ? (
           <Typography color="error" align="center">

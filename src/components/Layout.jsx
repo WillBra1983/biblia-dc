@@ -11,7 +11,7 @@ import MenuCards from './MenuCards'
 import MenuIcon from '@mui/icons-material/Menu'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect } from 'react'
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
 import GlobalPinchZoom from './GlobalPinchZoom'
 import { useZoomReset } from '../contexts/ZoomResetContext'
@@ -233,7 +233,7 @@ export default function Layout({ title, children }) {
     void setAppIconBadgeCount(chatUnreadCount)
   }, [chatUnreadCount])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const onToggleBibliaImersiva = (ev) => {
       const hide = Boolean(ev?.detail?.hide)
       setAppBarOculta(hide)
@@ -283,6 +283,8 @@ export default function Layout({ title, children }) {
   )
 
   const appBarEscondidaVisual = appBarOculta && !apresentacaoTelaCheia
+  /** Bíblia: conteúdo sob o AppBar fixo — modo imersivo revela linhas sem faixa vazia no `main`. */
+  const bibliaToolbarOverlay = mostrarBotoesBiblia && !apresentacaoTelaCheia
 
   return (
     <Box sx={{ display: 'flex', ...sxFullViewportHeight() }}>
@@ -292,13 +294,13 @@ export default function Layout({ title, children }) {
         elevation={0}
         sx={{
           display: apresentacaoTelaCheia ? 'none' : 'flex',
+          zIndex: (theme) => theme.zIndex.appBar,
           transform: appBarEscondidaVisual
             ? 'translate3d(0, calc(-100% - env(safe-area-inset-top, 0px)), 0)'
             : 'translate3d(0, 0, 0)',
-          opacity: appBarEscondidaVisual ? 0 : 1,
           pointerEvents: appBarEscondidaVisual ? 'none' : 'auto',
-          transition: 'transform 180ms ease, opacity 140ms ease',
-          willChange: 'transform',
+          transition: bibliaToolbarOverlay ? 'none' : 'transform 180ms ease',
+          willChange: bibliaToolbarOverlay ? 'auto' : 'transform',
           /**
            * Na Bíblia (`/` e `/biblia`) o AppBar não seguia bem o tema claro:
            * os controles portados (Livro, Cap., Strong…) foram desenhados
@@ -594,10 +596,12 @@ export default function Layout({ title, children }) {
           minHeight: 0,
           minWidth: 0,
           pt: needsMainToolbarPadding
-            ? {
-                xs: 'calc(56px + env(safe-area-inset-top, 0px))',
-                sm: 'calc(64px + env(safe-area-inset-top, 0px))'
-              }
+            ? bibliaToolbarOverlay
+              ? 0
+              : {
+                  xs: 'calc(56px + env(safe-area-inset-top, 0px))',
+                  sm: 'calc(64px + env(safe-area-inset-top, 0px))'
+                }
             : 0,
           pb: 'env(safe-area-inset-bottom, 0px)', // evita que a barra de gestos/botões do celular corte o conteúdo
           // `100vh` em mobile inclui a área coberta pela barra do navegador,

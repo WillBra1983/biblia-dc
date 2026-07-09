@@ -1,0 +1,2932 @@
+[
+  {
+    "code": "GEN",
+    "chapter": "32",
+    "jsonVerse": 4,
+    "txtVerse": 3,
+    "title": "Jacó reconcilia-se com Esaú",
+    "txtLine": 10645,
+    "recommended": 3,
+    "source": "bibliaonline_ara"
+  },
+  {
+    "code": "EXO",
+    "chapter": "8",
+    "jsonVerse": 26,
+    "txtVerse": 1,
+    "title": "Segunda praga: rãs",
+    "txtLine": 19730,
+    "recommended": 1,
+    "source": "bibliaonline_ara"
+  },
+  {
+    "code": "EXO",
+    "chapter": "8",
+    "jsonVerse": 12,
+    "txtVerse": 16,
+    "title": "Terceira praga: piolhos",
+    "txtLine": 19897,
+    "recommended": 16,
+    "source": "bibliaonline_ara"
+  },
+  {
+    "code": "EXO",
+    "chapter": "8",
+    "jsonVerse": 16,
+    "txtVerse": 20,
+    "title": "Quarta praga: moscas",
+    "txtLine": 19964,
+    "recommended": 20,
+    "source": "bibliaonline_ara"
+  },
+  {
+    "code": "EXO",
+    "chapter": "22",
+    "jsonVerse": 37,
+    "txtVerse": 1,
+    "title": "Leis acerca da propriedade",
+    "txtLine": 24578,
+    "recommended": 1,
+    "source": "bibliaonline_ara"
+  },
+  {
+    "code": "EXO",
+    "chapter": "22",
+    "jsonVerse": 15,
+    "txtVerse": 16,
+    "title": "Leis civis e religiosas",
+    "txtLine": 24789,
+    "recommended": 16,
+    "source": "bibliaonline_ara"
+  },
+  {
+    "code": "LEV",
+    "chapter": "6",
+    "jsonVerse": 20,
+    "txtVerse": 1,
+    "title": "O sacrifício pelos pecados voluntários",
+    "txtLine": 33603,
+    "recommended": 30,
+    "source": "txt_ara"
+  },
+  {
+    "code": "LEV",
+    "chapter": "6",
+    "jsonVerse": 1,
+    "txtVerse": 8,
+    "title": "A lei do holocausto",
+    "txtLine": 33679,
+    "recommended": 12,
+    "source": "txt_ara"
+  },
+  {
+    "code": "LEV",
+    "chapter": "6",
+    "jsonVerse": 7,
+    "txtVerse": 14,
+    "title": "A lei da oferta de manjares",
+    "txtLine": 33766,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "LEV",
+    "chapter": "6",
+    "jsonVerse": 12,
+    "txtVerse": 19,
+    "title": "A oferta na consagração dos sacerdotes",
+    "txtLine": 33826,
+    "recommended": 8,
+    "source": "txt_ara"
+  },
+  {
+    "code": "NUM",
+    "chapter": "16",
+    "jsonVerse": 6,
+    "txtVerse": 41,
+    "title": "Novo tumulto e seu castigo",
+    "txtLine": 50190,
+    "recommended": 22,
+    "source": "txt_ara"
+  },
+  {
+    "code": "NUM",
+    "chapter": "17",
+    "jsonVerse": 16,
+    "txtVerse": 1,
+    "title": "O bordão de Arão floresce",
+    "txtLine": 50323,
+    "recommended": 2,
+    "source": "txt_ara"
+  },
+  {
+    "code": "NUM",
+    "chapter": "30",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Acerca de votos",
+    "txtLine": 55150,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "DEU",
+    "chapter": "13",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Contra os falsos profetas e os idólatras",
+    "txtLine": 62970,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "DEU",
+    "chapter": "23",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Pessoas excluídas das assembleias santas",
+    "txtLine": 66018,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "DEU",
+    "chapter": "23",
+    "jsonVerse": 10,
+    "txtVerse": 9,
+    "title": "Limpeza do acampamento",
+    "txtLine": 66125,
+    "recommended": 9,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "DEU",
+    "chapter": "23",
+    "jsonVerse": 16,
+    "txtVerse": 15,
+    "title": "\"Acerca de fugitivos, prostitutas e usura\"",
+    "txtLine": 66191,
+    "recommended": 6,
+    "source": "txt_ara"
+  },
+  {
+    "code": "DEU",
+    "chapter": "23",
+    "jsonVerse": 22,
+    "txtVerse": 21,
+    "title": "Acerca de votos",
+    "txtLine": 66247,
+    "recommended": 14,
+    "source": "txt_ara"
+  },
+  {
+    "code": "DEU",
+    "chapter": "29",
+    "jsonVerse": 69,
+    "txtVerse": 1,
+    "title": "Deus faz nova aliança com o povo",
+    "txtLine": 68351,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1SA",
+    "chapter": "18",
+    "jsonVerse": 6,
+    "txtVerse": 7,
+    "title": "O cântico das mulheres indigna a Saul",
+    "txtLine": 92960,
+    "recommended": 7,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1SA",
+    "chapter": "21",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Davi vai ter com o sacerdote Aimeleque",
+    "txtLine": 94113,
+    "recommended": 11,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1SA",
+    "chapter": "21",
+    "jsonVerse": 11,
+    "txtVerse": 10,
+    "title": "\"Davi foge para Aquis, rei de Gate\"",
+    "txtLine": 94239,
+    "recommended": 5,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1SA",
+    "chapter": "24",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Davi poupa a vida de Saul",
+    "txtLine": 95012,
+    "recommended": 20,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1SA",
+    "chapter": "31",
+    "jsonVerse": 8,
+    "txtVerse": 1,
+    "title": "A sepultura de Saul",
+    "txtLine": 97462,
+    "recommended": 4,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "5",
+    "jsonVerse": 6,
+    "txtVerse": 1,
+    "title": "Davi conquista Sião",
+    "txtLine": 99058,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "5",
+    "jsonVerse": 11,
+    "txtVerse": 1,
+    "title": "O reinado de Davi reconhecido por Hirão",
+    "txtLine": 99141,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2SA",
+    "chapter": "5",
+    "jsonVerse": 13,
+    "txtVerse": 1,
+    "title": "Os filhos de Davi que nasceram em Jerusalém",
+    "txtLine": 99173,
+    "recommended": 4,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "5",
+    "jsonVerse": 17,
+    "txtVerse": 1,
+    "title": "Davi derrota os filisteus",
+    "txtLine": 99203,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "6",
+    "jsonVerse": 12,
+    "txtVerse": 1,
+    "title": "A arca é levada para Jerusalém",
+    "txtLine": 99467,
+    "recommended": 21,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "7",
+    "jsonVerse": 18,
+    "txtVerse": 1,
+    "title": "Ações de graças de Davi",
+    "txtLine": 99843,
+    "recommended": 14,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "8",
+    "jsonVerse": 15,
+    "txtVerse": 2,
+    "title": "Oficiais de Davi",
+    "txtLine": 100185,
+    "recommended": 10,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "12",
+    "jsonVerse": 15,
+    "txtVerse": 16,
+    "title": "A morte do filho de Bate-Seba",
+    "txtLine": 101195,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "12",
+    "jsonVerse": 26,
+    "txtVerse": 1,
+    "title": "Davi conquista Rabá",
+    "txtLine": 101350,
+    "recommended": 20,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "19",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Joabe reprova a Davi",
+    "txtLine": 103974,
+    "recommended": 18,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "19",
+    "jsonVerse": 17,
+    "txtVerse": 16,
+    "title": "Simei encontra-se com Davi",
+    "txtLine": 104199,
+    "recommended": 5,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "19",
+    "jsonVerse": 25,
+    "txtVerse": 24,
+    "title": "Mefibosete encontra-se com Davi",
+    "txtLine": 104322,
+    "recommended": 9,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "19",
+    "jsonVerse": 32,
+    "txtVerse": 31,
+    "title": "Barzilai encontra-se com Davi",
+    "txtLine": 104404,
+    "recommended": 6,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "20",
+    "jsonVerse": 23,
+    "txtVerse": 2,
+    "title": "Oficiais de Davi",
+    "txtLine": 104915,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "21",
+    "jsonVerse": 15,
+    "txtVerse": 1,
+    "title": "Gigantes mortos pelos homens de Davi",
+    "txtLine": 105151,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2SA",
+    "chapter": "23",
+    "jsonVerse": 8,
+    "txtVerse": 1,
+    "title": "Os valentes de Davi",
+    "txtLine": 105771,
+    "recommended": 6,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "24",
+    "jsonVerse": 10,
+    "txtVerse": 1,
+    "title": "Davi escolhe o castigo",
+    "txtLine": 106207,
+    "recommended": 7,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2SA",
+    "chapter": "24",
+    "jsonVerse": 18,
+    "txtVerse": 1,
+    "title": "Davi erige um altar na eira de Araúna",
+    "txtLine": 106362,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1KI",
+    "chapter": "3",
+    "jsonVerse": 3,
+    "txtVerse": 2,
+    "title": "Salomão pede a Deus sabedoria",
+    "txtLine": 107773,
+    "recommended": 5,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "4",
+    "jsonVerse": 9,
+    "txtVerse": 29,
+    "title": "A sabedoria de Salomão",
+    "txtLine": 108415,
+    "recommended": 10,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "5",
+    "jsonVerse": 15,
+    "txtVerse": 2,
+    "title": "Salomão faz aliança com Hirão",
+    "txtLine": 108508,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1KI",
+    "chapter": "5",
+    "jsonVerse": 27,
+    "txtVerse": 2,
+    "title": "Os preparativos para edificar o templo",
+    "txtLine": 108683,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1KI",
+    "chapter": "6",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Salomão edifica o templo",
+    "txtLine": 108755,
+    "recommended": 2,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "6",
+    "jsonVerse": 23,
+    "txtVerse": 2,
+    "title": "Os dois querubins",
+    "txtLine": 109055,
+    "recommended": 20,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "7",
+    "jsonVerse": 15,
+    "txtVerse": 2,
+    "title": "As duas colunas do templo",
+    "txtLine": 109419,
+    "recommended": 2,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "7",
+    "jsonVerse": 23,
+    "txtVerse": 2,
+    "title": "O mar de fundição",
+    "txtLine": 109507,
+    "recommended": 2,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "7",
+    "jsonVerse": 27,
+    "txtVerse": 2,
+    "title": "Outros utensílios para o templo",
+    "txtLine": 109584,
+    "recommended": 26,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "7",
+    "jsonVerse": 51,
+    "txtVerse": 2,
+    "title": "As dádivas de Davi colocadas no templo",
+    "txtLine": 109908,
+    "recommended": 12,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "8",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Salomão traz para o templo a arca",
+    "txtLine": 109940,
+    "recommended": 15,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "8",
+    "jsonVerse": 12,
+    "txtVerse": 2,
+    "title": "Salomão fala ao povo",
+    "txtLine": 110103,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "8",
+    "jsonVerse": 22,
+    "txtVerse": 2,
+    "title": "Salomão ora a Deus",
+    "txtLine": 110213,
+    "recommended": 2,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "8",
+    "jsonVerse": 62,
+    "txtVerse": 2,
+    "title": "A conclusão da solenidade",
+    "txtLine": 110797,
+    "recommended": 6,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "9",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "A aliança do Senhor com Salomão",
+    "txtLine": 110863,
+    "recommended": 15,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "9",
+    "jsonVerse": 10,
+    "txtVerse": 2,
+    "title": "As demais atividades de Salomão",
+    "txtLine": 111000,
+    "recommended": 8,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "10",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "A rainha de Sabá visita a Salomão",
+    "txtLine": 111223,
+    "recommended": 14,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "10",
+    "jsonVerse": 14,
+    "txtVerse": 2,
+    "title": "As riquezas de Salomão",
+    "txtLine": 111388,
+    "recommended": 19,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "11",
+    "jsonVerse": 41,
+    "txtVerse": 2,
+    "title": "A morte de Salomão",
+    "txtLine": 112137,
+    "recommended": 9,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "12",
+    "jsonVerse": 16,
+    "txtVerse": 2,
+    "title": "Dez tribos seguem Jeroboão",
+    "txtLine": 112368,
+    "recommended": 8,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "14",
+    "jsonVerse": 21,
+    "txtVerse": 2,
+    "title": "\"O reinado de Roboão, de Judá\"",
+    "txtLine": 113314,
+    "recommended": 8,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "15",
+    "jsonVerse": 9,
+    "txtVerse": 2,
+    "title": "\"O reinado de Asa, de Judá\"",
+    "txtLine": 113529,
+    "recommended": 15,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "22",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "\"Aliança entre Josafá, de Judá, e Acabe\"",
+    "txtLine": 116435,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1KI",
+    "chapter": "22",
+    "jsonVerse": 5,
+    "txtVerse": 2,
+    "title": "As profecias dos falsos profetas",
+    "txtLine": 116477,
+    "recommended": 16,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "22",
+    "jsonVerse": 13,
+    "txtVerse": 2,
+    "title": "A profecia de Micaías",
+    "txtLine": 116575,
+    "recommended": 7,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "22",
+    "jsonVerse": 29,
+    "txtVerse": 2,
+    "title": "A morte de Acabe",
+    "txtLine": 116827,
+    "recommended": 8,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "22",
+    "jsonVerse": 41,
+    "txtVerse": 2,
+    "title": "O reinado e a morte de Josafá",
+    "txtLine": 116986,
+    "recommended": 19,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1KI",
+    "chapter": "22",
+    "jsonVerse": 53,
+    "txtVerse": 52,
+    "title": "\"O reinado de Acazias, de Israel\"",
+    "txtLine": 117094,
+    "recommended": 5,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "5",
+    "jsonVerse": 19,
+    "txtVerse": 20,
+    "title": "Geazi é atacado de lepra",
+    "txtLine": 118942,
+    "recommended": 20,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2KI",
+    "chapter": "8",
+    "jsonVerse": 16,
+    "txtVerse": 2,
+    "title": "O reinado de Jeorão",
+    "txtLine": 120063,
+    "recommended": 4,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "8",
+    "jsonVerse": 25,
+    "txtVerse": 2,
+    "title": "O reinado de Acazias",
+    "txtLine": 120149,
+    "recommended": 17,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "11",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Atalia usurpa o trono de Judá",
+    "txtLine": 121214,
+    "recommended": 3,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "11",
+    "jsonVerse": 4,
+    "txtVerse": 2,
+    "title": "Joás ungido rei de Judá",
+    "txtLine": 121252,
+    "recommended": 3,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "11",
+    "jsonVerse": 13,
+    "txtVerse": 2,
+    "title": "A morte de Atalia",
+    "txtLine": 121397,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2KI",
+    "chapter": "11",
+    "jsonVerse": 17,
+    "txtVerse": 2,
+    "title": "A aliança de Joiada",
+    "txtLine": 121441,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2KI",
+    "chapter": "12",
+    "jsonVerse": 21,
+    "txtVerse": 2,
+    "title": "A conspiração contra o rei Joás",
+    "txtLine": 121791,
+    "recommended": 3,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "14",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "\"O reinado de Amazias, de Judá\"",
+    "txtLine": 122157,
+    "recommended": 7,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "14",
+    "jsonVerse": 7,
+    "txtVerse": 2,
+    "title": "Amazias vence os edomitas",
+    "txtLine": 122260,
+    "recommended": 22,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "14",
+    "jsonVerse": 8,
+    "txtVerse": 2,
+    "title": "Amazias derrotado por Jeoás",
+    "txtLine": 122276,
+    "recommended": 26,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "14",
+    "jsonVerse": 17,
+    "txtVerse": 2,
+    "title": "\"A morte de Amazias, rei de Judá\"",
+    "txtLine": 122417,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2KI",
+    "chapter": "15",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "\"O reinado de Azarias, de Judá\"",
+    "txtLine": 122598,
+    "recommended": 11,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "15",
+    "jsonVerse": 5,
+    "txtVerse": 2,
+    "title": "Azarias é atacado de lepra",
+    "txtLine": 122642,
+    "recommended": 20,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "15",
+    "jsonVerse": 32,
+    "txtVerse": 2,
+    "title": "\"O reinado de Jotão, de Judá\"",
+    "txtLine": 122970,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "16",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "\"O reinado de Acaz, de Judá\"",
+    "txtLine": 123073,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "16",
+    "jsonVerse": 10,
+    "txtVerse": 2,
+    "title": "A idolatria de Acaz",
+    "txtLine": 123171,
+    "recommended": 4,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "16",
+    "jsonVerse": 19,
+    "txtVerse": 2,
+    "title": "A morte de Acaz",
+    "txtLine": 123324,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2KI",
+    "chapter": "18",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "\"O reinado de Ezequias, de Judá\"",
+    "txtLine": 123940,
+    "recommended": 4,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "18",
+    "jsonVerse": 13,
+    "txtVerse": 2,
+    "title": "Senaqueribe invade Judá",
+    "txtLine": 124093,
+    "recommended": 2,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "18",
+    "jsonVerse": 19,
+    "txtVerse": 2,
+    "title": "Rabsaqué afronta a Ezequias e ao SENHOR",
+    "txtLine": 124177,
+    "recommended": 15,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "19",
+    "jsonVerse": 35,
+    "txtVerse": 2,
+    "title": "A destruição do exército dos assírios",
+    "txtLine": 124932,
+    "recommended": 19,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "20",
+    "jsonVerse": 20,
+    "txtVerse": 2,
+    "title": "A morte de Ezequias",
+    "txtLine": 125203,
+    "recommended": 15,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "21",
+    "jsonVerse": 17,
+    "txtVerse": 2,
+    "title": "A morte de Manassés",
+    "txtLine": 125463,
+    "recommended": 4,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "21",
+    "jsonVerse": 19,
+    "txtVerse": 2,
+    "title": "\"O reinado de Amom, de Judá\"",
+    "txtLine": 125495,
+    "recommended": 6,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "22",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O reinado de Josias",
+    "txtLine": 125592,
+    "recommended": 19,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "22",
+    "jsonVerse": 3,
+    "txtVerse": 2,
+    "title": "O rei repara o templo",
+    "txtLine": 125622,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "22",
+    "jsonVerse": 8,
+    "txtVerse": 2,
+    "title": "Hilquias acha o Livro da Lei",
+    "txtLine": 125676,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "22",
+    "jsonVerse": 11,
+    "txtVerse": 2,
+    "title": "Josias manda consultar a profetisa Hulda",
+    "txtLine": 125714,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2KI",
+    "chapter": "23",
+    "jsonVerse": 4,
+    "txtVerse": 2,
+    "title": "A purificação do templo e do culto",
+    "txtLine": 125960,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2KI",
+    "chapter": "23",
+    "jsonVerse": 21,
+    "txtVerse": 2,
+    "title": "A celebração da Páscoa",
+    "txtLine": 126225,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "23",
+    "jsonVerse": 28,
+    "txtVerse": 2,
+    "title": "A morte de Josias",
+    "txtLine": 126350,
+    "recommended": 19,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "23",
+    "jsonVerse": 31,
+    "txtVerse": 2,
+    "title": "O reinado e deposição de Joacaz",
+    "txtLine": 126396,
+    "recommended": 27,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "23",
+    "jsonVerse": 36,
+    "txtVerse": 2,
+    "title": "O reinado de Jeoaquim",
+    "txtLine": 126499,
+    "recommended": 8,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "24",
+    "jsonVerse": 8,
+    "txtVerse": 2,
+    "title": "O reinado de Joaquim",
+    "txtLine": 126640,
+    "recommended": 14,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2KI",
+    "chapter": "24",
+    "jsonVerse": 18,
+    "txtVerse": 2,
+    "title": "O reinado de Zedequias",
+    "txtLine": 126784,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1CH",
+    "chapter": "3",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Filhos de Davi",
+    "txtLine": 128233,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1CH",
+    "chapter": "6",
+    "jsonVerse": 16,
+    "txtVerse": 31,
+    "title": "Cantores levitas",
+    "txtLine": 129445,
+    "recommended": 23,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "6",
+    "jsonVerse": 34,
+    "txtVerse": 49,
+    "title": "Descendentes de Arão",
+    "txtLine": 129594,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "6",
+    "jsonVerse": 39,
+    "txtVerse": 54,
+    "title": "As cidades dos levitas",
+    "txtLine": 129636,
+    "recommended": 5,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "10",
+    "jsonVerse": 8,
+    "txtVerse": 1,
+    "title": "A sepultura de Saul",
+    "txtLine": 131240,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1CH",
+    "chapter": "11",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Davi é ungido rei",
+    "txtLine": 131320,
+    "recommended": 3,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "11",
+    "jsonVerse": 4,
+    "txtVerse": 2,
+    "title": "Davi conquista a Sião",
+    "txtLine": 131354,
+    "recommended": 8,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "11",
+    "jsonVerse": 10,
+    "txtVerse": 2,
+    "title": "Os valentes de Davi",
+    "txtLine": 131451,
+    "recommended": 19,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "12",
+    "jsonVerse": 24,
+    "txtVerse": 23,
+    "title": "O exército que proclamou a Davi rei em Hebrom",
+    "txtLine": 132034,
+    "recommended": 10,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "13",
+    "jsonVerse": 5,
+    "txtVerse": 2,
+    "title": "Davi procura trazer a arca",
+    "txtLine": 132316,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1CH",
+    "chapter": "14",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O reinado de Davi reconhecido por Hirão",
+    "txtLine": 132449,
+    "recommended": 10,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "14",
+    "jsonVerse": 3,
+    "txtVerse": 2,
+    "title": "Os filhos de Davi que nasceram em Jerusalém",
+    "txtLine": 132471,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "14",
+    "jsonVerse": 8,
+    "txtVerse": 2,
+    "title": "Davi derrota os filisteus",
+    "txtLine": 132503,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1CH",
+    "chapter": "15",
+    "jsonVerse": 29,
+    "txtVerse": 2,
+    "title": "Mical despreza a Davi",
+    "txtLine": 132994,
+    "recommended": 18,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "17",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "A aliança do Senhor com Davi",
+    "txtLine": 133449,
+    "recommended": 10,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "17",
+    "jsonVerse": 16,
+    "txtVerse": 2,
+    "title": "Ações de graças de Davi",
+    "txtLine": 133624,
+    "recommended": 4,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "18",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Diversas vitórias de Davi",
+    "txtLine": 133789,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1CH",
+    "chapter": "18",
+    "jsonVerse": 14,
+    "txtVerse": 2,
+    "title": "Oficiais de Davi",
+    "txtLine": 133950,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1CH",
+    "chapter": "19",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Davi derrota os amonitas e os siros",
+    "txtLine": 133986,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1CH",
+    "chapter": "20",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Davi conquista a Rabá",
+    "txtLine": 134262,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1CH",
+    "chapter": "20",
+    "jsonVerse": 4,
+    "txtVerse": 2,
+    "title": "Gigantes mortos pelos homens de Davi",
+    "txtLine": 134300,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "1CH",
+    "chapter": "21",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O levantamento do censo",
+    "txtLine": 134350,
+    "recommended": 22,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "21",
+    "jsonVerse": 7,
+    "txtVerse": 2,
+    "title": "Davi escolhe o castigo",
+    "txtLine": 134449,
+    "recommended": 10,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "21",
+    "jsonVerse": 18,
+    "txtVerse": 2,
+    "title": "Davi erige um altar na eira de Ornã",
+    "txtLine": 134616,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "1CH",
+    "chapter": "29",
+    "jsonVerse": 22,
+    "txtVerse": 23,
+    "title": "Salomão proclamado rei",
+    "txtLine": 137449,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "1",
+    "jsonVerse": 7,
+    "txtVerse": 1,
+    "title": "Salomão pede a Deus sabedoria",
+    "txtLine": 137632,
+    "recommended": 14,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "2",
+    "jsonVerse": 18,
+    "txtVerse": 1,
+    "title": "Salomão faz aliança com Hirão",
+    "txtLine": 137837,
+    "recommended": 2,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "2",
+    "jsonVerse": 16,
+    "txtVerse": 1,
+    "title": "Os preparativos para edificar o templo",
+    "txtLine": 138076,
+    "recommended": 3,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "3",
+    "jsonVerse": 10,
+    "txtVerse": 1,
+    "title": "Os dois querubins",
+    "txtLine": 138237,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "3",
+    "jsonVerse": 15,
+    "txtVerse": 1,
+    "title": "As duas colunas",
+    "txtLine": 138328,
+    "recommended": 10,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "4",
+    "jsonVerse": 6,
+    "txtVerse": 1,
+    "title": "Outros utensílios para o templo",
+    "txtLine": 138449,
+    "recommended": 3,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "5",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Salomão traz para o templo a arca",
+    "txtLine": 138660,
+    "recommended": 4,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "6",
+    "jsonVerse": 12,
+    "txtVerse": 1,
+    "title": "Salomão ora a Deus",
+    "txtLine": 139000,
+    "recommended": 10,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "7",
+    "jsonVerse": 4,
+    "txtVerse": 1,
+    "title": "A conclusão da solenidade",
+    "txtLine": 139499,
+    "recommended": 17,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "7",
+    "jsonVerse": 11,
+    "txtVerse": 1,
+    "title": "A aliança do Senhor com Salomão",
+    "txtLine": 139589,
+    "recommended": 6,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "9",
+    "jsonVerse": 13,
+    "txtVerse": 1,
+    "title": "As riquezas de Salomão",
+    "txtLine": 140193,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "9",
+    "jsonVerse": 29,
+    "txtVerse": 1,
+    "title": "A morte de Salomão",
+    "txtLine": 140372,
+    "recommended": 5,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "10",
+    "jsonVerse": 16,
+    "txtVerse": 1,
+    "title": "Dez tribos seguem Jeroboão",
+    "txtLine": 140599,
+    "recommended": 6,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "12",
+    "jsonVerse": 13,
+    "txtVerse": 1,
+    "title": "O reinado de Roboão",
+    "txtLine": 141062,
+    "recommended": 10,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "14",
+    "jsonVerse": 23,
+    "txtVerse": 1,
+    "title": "O reinado de Asa",
+    "txtLine": 141420,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "14",
+    "jsonVerse": 8,
+    "txtVerse": 9,
+    "title": "\"Asa vence a Zerá, o etíope\"",
+    "txtLine": 141559,
+    "recommended": 11,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "16",
+    "jsonVerse": 11,
+    "txtVerse": 1,
+    "title": "A morte de Asa",
+    "txtLine": 142044,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "18",
+    "jsonVerse": 4,
+    "txtVerse": 1,
+    "title": "As promessas dos falsos profetas",
+    "txtLine": 142358,
+    "recommended": 17,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "18",
+    "jsonVerse": 12,
+    "txtVerse": 1,
+    "title": "A profecia de Micaías",
+    "txtLine": 142485,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "18",
+    "jsonVerse": 28,
+    "txtVerse": 1,
+    "title": "A morte de Acabe",
+    "txtLine": 142678,
+    "recommended": 11,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "20",
+    "jsonVerse": 31,
+    "txtVerse": 1,
+    "title": "O reinado e a morte de Josafá",
+    "txtLine": 143360,
+    "recommended": 10,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "21",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O reinado de Jeorão",
+    "txtLine": 143444,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "22",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O reinado de Acazias",
+    "txtLine": 143730,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "22",
+    "jsonVerse": 10,
+    "txtVerse": 2,
+    "title": "Atalia usurpa o trono",
+    "txtLine": 143883,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "23",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Joás ungido rei de Judá",
+    "txtLine": 143923,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "23",
+    "jsonVerse": 12,
+    "txtVerse": 2,
+    "title": "A morte de Atalia",
+    "txtLine": 144080,
+    "recommended": 17,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "23",
+    "jsonVerse": 16,
+    "txtVerse": 2,
+    "title": "A aliança de Joiada",
+    "txtLine": 144163,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "24",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O reinado de Joás",
+    "txtLine": 144247,
+    "recommended": 14,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "25",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O reinado de Amazias",
+    "txtLine": 144678,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "25",
+    "jsonVerse": 5,
+    "txtVerse": 2,
+    "title": "Amazias vence os edomitas",
+    "txtLine": 144728,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "25",
+    "jsonVerse": 17,
+    "txtVerse": 2,
+    "title": "Amazias derrotado por Jeoás",
+    "txtLine": 144923,
+    "recommended": 23,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "25",
+    "jsonVerse": 25,
+    "txtVerse": 2,
+    "title": "\"A morte de Amazias, de Judá\"",
+    "txtLine": 145078,
+    "recommended": 17,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "26",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O reinado de Uzias",
+    "txtLine": 145126,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "26",
+    "jsonVerse": 16,
+    "txtVerse": 2,
+    "title": "Uzias é atacado de lepra",
+    "txtLine": 145325,
+    "recommended": 22,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "27",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O reinado de Jotão",
+    "txtLine": 145492,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "28",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O reinado de Acaz",
+    "txtLine": 145637,
+    "recommended": 17,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "28",
+    "jsonVerse": 16,
+    "txtVerse": 2,
+    "title": "Acaz pede socorro aos assírios",
+    "txtLine": 145872,
+    "recommended": 22,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "28",
+    "jsonVerse": 22,
+    "txtVerse": 2,
+    "title": "A idolatria de Acaz",
+    "txtLine": 145963,
+    "recommended": 8,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "28",
+    "jsonVerse": 26,
+    "txtVerse": 2,
+    "title": "A morte de Acaz",
+    "txtLine": 146019,
+    "recommended": 17,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "29",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Ezequias manda abrir o templo",
+    "txtLine": 146063,
+    "recommended": 24,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "32",
+    "jsonVerse": 9,
+    "txtVerse": 2,
+    "title": "Senaqueribe afronta a Ezequias e ao Senhor",
+    "txtLine": 147461,
+    "recommended": 14,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "32",
+    "jsonVerse": 21,
+    "txtVerse": 2,
+    "title": "A destruição do exército dos assírios",
+    "txtLine": 147634,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "32",
+    "jsonVerse": 24,
+    "txtVerse": 2,
+    "title": "Doença de Ezequias",
+    "txtLine": 147707,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "32",
+    "jsonVerse": 32,
+    "txtVerse": 2,
+    "title": "A morte de Ezequias",
+    "txtLine": 147805,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "33",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O reinado de Manassés",
+    "txtLine": 147872,
+    "recommended": 11,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "33",
+    "jsonVerse": 18,
+    "txtVerse": 2,
+    "title": "A morte de Manassés",
+    "txtLine": 148111,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "33",
+    "jsonVerse": 21,
+    "txtVerse": 2,
+    "title": "O reinado de Amom",
+    "txtLine": 148157,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "34",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O reinado de Josias",
+    "txtLine": 148242,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "34",
+    "jsonVerse": 3,
+    "txtVerse": 2,
+    "title": "A purificação do templo e do culto",
+    "txtLine": 148260,
+    "recommended": 17,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "34",
+    "jsonVerse": 8,
+    "txtVerse": 2,
+    "title": "O rei repara o templo",
+    "txtLine": 148326,
+    "recommended": 2,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "34",
+    "jsonVerse": 14,
+    "txtVerse": 2,
+    "title": "Hilquias acha o Livro da Lei",
+    "txtLine": 148451,
+    "recommended": 24,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "34",
+    "jsonVerse": 19,
+    "txtVerse": 2,
+    "title": "Josias manda consultar a profetisa Hulda",
+    "txtLine": 148513,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "34",
+    "jsonVerse": 29,
+    "txtVerse": 2,
+    "title": "Josias renova a aliança ante o Senhor",
+    "txtLine": 148686,
+    "recommended": 17,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "35",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "A celebração da Páscoa",
+    "txtLine": 148797,
+    "recommended": 7,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "35",
+    "jsonVerse": 20,
+    "txtVerse": 2,
+    "title": "A morte de Josias no vale de Megido",
+    "txtLine": 149089,
+    "recommended": 24,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "36",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O reinado e deposição de Joacaz",
+    "txtLine": 149191,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "36",
+    "jsonVerse": 5,
+    "txtVerse": 2,
+    "title": "O reinado de Jeoaquim",
+    "txtLine": 149280,
+    "recommended": 15,
+    "source": "txt_ara"
+  },
+  {
+    "code": "2CH",
+    "chapter": "36",
+    "jsonVerse": 9,
+    "txtVerse": 2,
+    "title": "O reinado de Joaquim",
+    "txtLine": 149332,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "36",
+    "jsonVerse": 11,
+    "txtVerse": 2,
+    "title": "O reinado de Zedequias",
+    "txtLine": 149356,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "2CH",
+    "chapter": "36",
+    "jsonVerse": 17,
+    "txtVerse": 2,
+    "title": "O cativeiro de Judá",
+    "txtLine": 149453,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "NEH",
+    "chapter": "4",
+    "jsonVerse": 33,
+    "txtVerse": 1,
+    "title": "A defesa contra os adversários",
+    "txtLine": 154022,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "NEH",
+    "chapter": "7",
+    "jsonVerse": 69,
+    "txtVerse": 70,
+    "title": "Contribuições para o templo",
+    "txtLine": 155529,
+    "recommended": 33,
+    "source": "txt_ara"
+  },
+  {
+    "code": "NEH",
+    "chapter": "9",
+    "jsonVerse": 1,
+    "txtVerse": 38,
+    "title": "A aliança do povo sobre guardar a Lei",
+    "txtLine": 156420,
+    "recommended": 32,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "4",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "\"Confiança em Deus, na angústia\"",
+    "txtLine": 170626,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "5",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Proteção contra os ímpios",
+    "txtLine": 170733,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "10",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "A derrubada dos ímpios",
+    "txtLine": 171451,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "12",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Auxílio contra a falsidade",
+    "txtLine": 171711,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "15",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "O cidadão dos céus",
+    "txtLine": 171944,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "18",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Vitória e domínio",
+    "txtLine": 172276,
+    "recommended": 23,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "19",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "A excelência da criação e da palavra de Deus",
+    "txtLine": 172729,
+    "recommended": 6,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "20",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Oração a favor do rei",
+    "txtLine": 172872,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "21",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Ações de graças pela vitória",
+    "txtLine": 172983,
+    "recommended": 8,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "22",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Sofrimento e vitória do Messias",
+    "txtLine": 173106,
+    "recommended": 6,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "30",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Ações de graças pela libertação da morte",
+    "txtLine": 174203,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "31",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Lamentos e louvor",
+    "txtLine": 174305,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "34",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Provai que o Senhor é bom!",
+    "txtLine": 174879,
+    "recommended": 3,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "36",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Malícia humana e benignidade divina",
+    "txtLine": 175354,
+    "recommended": 12,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "39",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "A vaidade da vida",
+    "txtLine": 176032,
+    "recommended": 4,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "40",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Oração para livramento",
+    "txtLine": 176199,
+    "recommended": 14,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "41",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "A calúnia dos inimigos e o socorro de Deus",
+    "txtLine": 176394,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "42",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "A alma anela por Deus",
+    "txtLine": 176537,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "44",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Apelo por auxílio divino",
+    "txtLine": 176767,
+    "recommended": 11,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "45",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "O Ungido de Deus e a sua noiva",
+    "txtLine": 177004,
+    "recommended": 6,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "46",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Deus é o nosso refúgio e fortaleza",
+    "txtLine": 177179,
+    "recommended": 8,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "47",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "\"Deus, o Rei da terra\"",
+    "txtLine": 177296,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "48",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "A cidade de Deus",
+    "txtLine": 177364,
+    "recommended": 13,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "49",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "A vaidade do homem",
+    "txtLine": 177505,
+    "recommended": 12,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "51",
+    "jsonVerse": 3,
+    "txtVerse": 2,
+    "title": "Confissão e arrependimento",
+    "txtLine": 177912,
+    "recommended": 16,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "52",
+    "jsonVerse": 3,
+    "txtVerse": 1,
+    "title": "Condenação do ímpio",
+    "txtLine": 178095,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "53",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "A corrupção do pecador e sua redenção",
+    "txtLine": 178214,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "54",
+    "jsonVerse": 3,
+    "txtVerse": 1,
+    "title": "Apelo para o socorro divino",
+    "txtLine": 178292,
+    "recommended": 6,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "55",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Que os traidores sejam destruídos",
+    "txtLine": 178393,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "56",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Conforto na perseguição",
+    "txtLine": 178614,
+    "recommended": 3,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "57",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Louvor pela benignidade divina",
+    "txtLine": 178751,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "58",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "A sorte dos ímpios",
+    "txtLine": 178884,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "59",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Súplica em prol de libertação",
+    "txtLine": 178976,
+    "recommended": 15,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "60",
+    "jsonVerse": 3,
+    "txtVerse": 2,
+    "title": "Oração em tempos de guerra",
+    "txtLine": 179194,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "61",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Oração pelo rei",
+    "txtLine": 179294,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "62",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Exortação à confiança",
+    "txtLine": 179397,
+    "recommended": 3,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "65",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Ações de graças pelas bênçãos das searas",
+    "txtLine": 179743,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "67",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "As nações rendem graças",
+    "txtLine": 180053,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "68",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "A vitória de Deus sobre os seus inimigos",
+    "txtLine": 180144,
+    "recommended": 19,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "69",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "O lamento do Messias",
+    "txtLine": 180486,
+    "recommended": 17,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "70",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Petição por auxílio divino",
+    "txtLine": 180816,
+    "recommended": 4,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "76",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "A majestade e o poder de Deus",
+    "txtLine": 181909,
+    "recommended": 4,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "77",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "As grandes obras e a misericórdia de Deus",
+    "txtLine": 182001,
+    "recommended": 1,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "80",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Pedindo restaurações",
+    "txtLine": 182927,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "81",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Exortação a louvor e obediência",
+    "txtLine": 183104,
+    "recommended": 9,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "84",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Saudades do templo",
+    "txtLine": 183511,
+    "recommended": 5,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "85",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Pede-se o perdão de Deus",
+    "txtLine": 183642,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "88",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Lamentação de um atribulado",
+    "txtLine": 183986,
+    "recommended": 16,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "89",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Promessa do reino messiânico a Davi",
+    "txtLine": 184157,
+    "recommended": 14,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "92",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Hino de gratidão a Deus",
+    "txtLine": 184936,
+    "recommended": 6,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "102",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Arrependimento e esperança",
+    "txtLine": 186011,
+    "recommended": 17,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "108",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Deus concede vitória ao seu povo",
+    "txtLine": 187879,
+    "recommended": 8,
+    "source": "txt_ara"
+  },
+  {
+    "code": "PSA",
+    "chapter": "131",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Calma em Deus",
+    "txtLine": 191558,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "132",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Uma promessa antiga",
+    "txtLine": 191594,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "139",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Deus onisciente e onipotente",
+    "txtLine": 192391,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "140",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Contra inimigos e perfídias",
+    "txtLine": 192633,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PSA",
+    "chapter": "142",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Oração no meio de grande perigo",
+    "txtLine": 192864,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "PRO",
+    "chapter": "31",
+    "jsonVerse": 10,
+    "txtVerse": 11,
+    "title": "O louvor da mulher virtuosa",
+    "txtLine": 201605,
+    "recommended": 11,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ECC",
+    "chapter": "5",
+    "jsonVerse": 17,
+    "txtVerse": 1,
+    "title": "A loucura de votos precipitados",
+    "txtLine": 202782,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ECC",
+    "chapter": "5",
+    "jsonVerse": 7,
+    "txtVerse": 8,
+    "title": "A vaidade das riquezas",
+    "txtLine": 202901,
+    "recommended": 8,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ISA",
+    "chapter": "9",
+    "jsonVerse": 23,
+    "txtVerse": 1,
+    "title": "O nascimento e o reino do Príncipe da Paz",
+    "txtLine": 208244,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ISA",
+    "chapter": "9",
+    "jsonVerse": 7,
+    "txtVerse": 8,
+    "title": "Profecia contra o reino de Israel",
+    "txtLine": 208367,
+    "recommended": 8,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ISA",
+    "chapter": "24",
+    "jsonVerse": 16,
+    "txtVerse": 17,
+    "title": "A ruína dos transgressores",
+    "txtLine": 211765,
+    "recommended": 17,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ISA",
+    "chapter": "36",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Senaqueribe invade Judá",
+    "txtLine": 214586,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ISA",
+    "chapter": "36",
+    "jsonVerse": 4,
+    "txtVerse": 2,
+    "title": "Rabsaqué afronta a Ezequias e ao Senhor",
+    "txtLine": 214659,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ISA",
+    "chapter": "37",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Ezequias consulta a Isaías",
+    "txtLine": 214892,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ISA",
+    "chapter": "37",
+    "jsonVerse": 8,
+    "txtVerse": 2,
+    "title": "A carta do rei da Assíria",
+    "txtLine": 215013,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ISA",
+    "chapter": "37",
+    "jsonVerse": 14,
+    "txtVerse": 2,
+    "title": "A oração de Ezequias",
+    "txtLine": 215073,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ISA",
+    "chapter": "37",
+    "jsonVerse": 21,
+    "txtVerse": 2,
+    "title": "O profeta conforta a Ezequias",
+    "txtLine": 215160,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ISA",
+    "chapter": "37",
+    "jsonVerse": 36,
+    "txtVerse": 2,
+    "title": "A destruição do exército dos assírios",
+    "txtLine": 215345,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ISA",
+    "chapter": "38",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "A doença de Ezequias e a sua cura maravilhosa",
+    "txtLine": 215383,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ISA",
+    "chapter": "39",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "A embaixada da Babilônia",
+    "txtLine": 215651,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "JER",
+    "chapter": "9",
+    "jsonVerse": 6,
+    "txtVerse": 7,
+    "title": "Ameaças de ruína e exílio",
+    "txtLine": 225903,
+    "recommended": 7,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "JER",
+    "chapter": "9",
+    "jsonVerse": 22,
+    "txtVerse": 23,
+    "title": "Conhecer a Deus constitui a glória do homem",
+    "txtLine": 226090,
+    "recommended": 23,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "JER",
+    "chapter": "39",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Nabucodonosor toma Jerusalém",
+    "txtLine": 235769,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "JER",
+    "chapter": "52",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "A queda de Jerusalém e o cativeiro de Judá",
+    "txtLine": 240658,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "JER",
+    "chapter": "52",
+    "jsonVerse": 31,
+    "txtVerse": 2,
+    "title": "Libertado e honrado o rei Joaquim",
+    "txtLine": 241042,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "LAM",
+    "chapter": "1",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "Jerusalém destruída e desolada",
+    "txtLine": 241170,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "EZK",
+    "chapter": "20",
+    "jsonVerse": 1,
+    "txtVerse": 45,
+    "title": "A profecia contra o Sul",
+    "txtLine": 249170,
+    "recommended": 45,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "EZK",
+    "chapter": "21",
+    "jsonVerse": 6,
+    "txtVerse": 1,
+    "title": "A espada do Senhor",
+    "txtLine": 249218,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "DAN",
+    "chapter": "4",
+    "jsonVerse": 31,
+    "txtVerse": 1,
+    "title": "A loucura de Nabucodonosor",
+    "txtLine": 261444,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "DAN",
+    "chapter": "6",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "Daniel na cova dos leões",
+    "txtLine": 262436,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "JOL",
+    "chapter": "2",
+    "jsonVerse": 1,
+    "txtVerse": 28,
+    "title": "Promessa do derramamento do Espírito",
+    "txtLine": 268106,
+    "recommended": 28,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "JON",
+    "chapter": "2",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "A oração de Jonas no ventre do peixe",
+    "txtLine": 270944,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "NAM",
+    "chapter": "2",
+    "jsonVerse": 2,
+    "txtVerse": 1,
+    "title": "O cerco e a tomada de Nínive",
+    "txtLine": 272945,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "HAB",
+    "chapter": "1",
+    "jsonVerse": 12,
+    "txtVerse": 13,
+    "title": "A intercessão do profeta",
+    "txtLine": 273472,
+    "recommended": 13,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ZEC",
+    "chapter": "2",
+    "jsonVerse": 5,
+    "txtVerse": 1,
+    "title": "A terceira visão: Jerusalém é medida",
+    "txtLine": 275657,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ZEC",
+    "chapter": "2",
+    "jsonVerse": 10,
+    "txtVerse": 6,
+    "title": "Israel exortado a voltar para Sião",
+    "txtLine": 275730,
+    "recommended": 6,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "MAL",
+    "chapter": "4",
+    "jsonVerse": 19,
+    "txtVerse": 1,
+    "title": "O sol da justiça e seu precursor",
+    "txtLine": 279021,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "MAT",
+    "chapter": "1",
+    "jsonVerse": 18,
+    "txtVerse": 19,
+    "title": "O nascimento de Jesus Cristo",
+    "txtLine": 279305,
+    "recommended": 19,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "MAT",
+    "chapter": "5",
+    "jsonVerse": 3,
+    "txtVerse": 1,
+    "title": "As bem-aventuranças",
+    "txtLine": 280138,
+    "recommended": 1,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "MRK",
+    "chapter": "5",
+    "jsonVerse": 14,
+    "txtVerse": 15,
+    "title": "Os gerasenos rejeitam a Jesus",
+    "txtLine": 293189,
+    "recommended": 15,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "MRK",
+    "chapter": "5",
+    "jsonVerse": 24,
+    "txtVerse": 25,
+    "title": "A cura de uma mulher enferma",
+    "txtLine": 293297,
+    "recommended": 25,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "MRK",
+    "chapter": "16",
+    "jsonVerse": 9,
+    "txtVerse": 10,
+    "title": "Jesus aparece a Maria Madalena",
+    "txtLine": 298971,
+    "recommended": 10,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "LUK",
+    "chapter": "8",
+    "jsonVerse": 42,
+    "txtVerse": 43,
+    "title": "A cura de uma mulher enferma",
+    "txtLine": 303617,
+    "recommended": 43,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "LUK",
+    "chapter": "9",
+    "jsonVerse": 43,
+    "txtVerse": 44,
+    "title": "De novo prediz Jesus a sua morte",
+    "txtLine": 304335,
+    "recommended": 44,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "ACT",
+    "chapter": "8",
+    "jsonVerse": 1,
+    "txtVerse": 2,
+    "title": "A primeira perseguição à igreja",
+    "txtLine": 324699,
+    "recommended": 2,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "GAL",
+    "chapter": "6",
+    "jsonVerse": 11,
+    "txtVerse": 12,
+    "title": "Paulo gloria-se na cruz de Cristo",
+    "txtLine": 348639,
+    "recommended": 12,
+    "source": "tsv_extraido"
+  },
+  {
+    "code": "REV",
+    "chapter": "16",
+    "jsonVerse": 4,
+    "txtVerse": 3,
+    "title": "O terceiro flagelo",
+    "txtLine": 370505,
+    "recommended": 3,
+    "source": "tsv_extraido"
+  }
+]

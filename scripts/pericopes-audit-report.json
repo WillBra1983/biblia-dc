@@ -1,0 +1,3488 @@
+{
+  "generatedAt": "2026-07-08T21:41:11.896Z",
+  "mode": "apply",
+  "files": {
+    "json": "public\\pericopes_ara.backup.json",
+    "sqlite": "public\\ara.sqlite",
+    "txtExtraction": "scripts\\pericopes-extracted-from-txt-full.tsv"
+  },
+  "summary": {
+    "safeFixes": 63,
+    "invalid": 9,
+    "reviewNeeded": 315,
+    "applied": 72
+  },
+  "safeFixes": [
+    {
+      "code": "PSA",
+      "chapter": 3,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Confiança em Deus, na adversidade",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 4,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Confiança em Deus, na angústia",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 5,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Proteção contra os ímpios",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 6,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Davi recorre à misericórdia de Deus",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 7,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Deus defende o justo contra o ímpio",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 8,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "A glória divina e a dignidade do filho do homem",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 9,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Ações de graças",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 12,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Auxílio contra a falsidade",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 13,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Oração de fé",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 18,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Vitória e domínio",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 19,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "A excelência da criação e da palavra de Deus",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 20,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Oração a favor do rei",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 21,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Ações de graças pela vitória",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 22,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Sofrimento e vitória do Messias",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 30,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Ações de graças pela libertação da morte",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 31,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Lamentos e louvor",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 34,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Provai que o Senhor é bom!",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 36,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Malícia humana e benignidade divina",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 38,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Arrependimento do pecador",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 39,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "A vaidade da vida",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 40,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Oração para livramento",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 41,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "A calúnia dos inimigos e o socorro de Deus",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 42,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "A alma anela por Deus",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 44,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Apelo por auxílio divino",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 45,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "O Ungido de Deus e a sua noiva",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 46,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Deus é o nosso refúgio e fortaleza",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 47,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Deus, o Rei da terra",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 48,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "A cidade de Deus",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 49,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "A vaidade do homem",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 51,
+      "fromVerse": 3,
+      "toVerse": 1,
+      "title": "Confissão e arrependimento",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 52,
+      "fromVerse": 3,
+      "toVerse": 1,
+      "title": "Condenação do ímpio",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 53,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "A corrupção do pecador e sua redenção",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 54,
+      "fromVerse": 3,
+      "toVerse": 1,
+      "title": "Apelo para o socorro divino",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 55,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Que os traidores sejam destruídos",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 56,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Conforto na perseguição",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 57,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Louvor pela benignidade divina",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 58,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "A sorte dos ímpios",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 59,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Súplica em prol de libertação",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 60,
+      "fromVerse": 3,
+      "toVerse": 1,
+      "title": "Oração em tempos de guerra",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 61,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Oração pelo rei",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 62,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Exortação à confiança",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 63,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Buscando a Deus",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 64,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Proteção contra os inimigos",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 65,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Ações de graças pelas bênçãos das searas",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 67,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "As nações rendem graças",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 68,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "A vitória de Deus sobre os seus inimigos",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 69,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "O lamento do Messias",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 70,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Petição por auxílio divino",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 75,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Deus é juiz",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 76,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "A majestade e o poder de Deus",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 77,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "As grandes obras e a misericórdia de Deus",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 80,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Pedindo restaurações",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 81,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Exortação a louvor e obediência",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 83,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Julgamento de Deus contra as nações inimigas",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 84,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Saudades do templo",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 85,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Pede-se o perdão de Deus",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 88,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Lamentação de um atribulado",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 89,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Promessa do reino messiânico a Davi",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 92,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Hino de gratidão a Deus",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 102,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Arrependimento e esperança",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 108,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Deus concede vitória ao seu povo",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 140,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Contra inimigos e perfídias",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    },
+    {
+      "code": "PSA",
+      "chapter": 142,
+      "fromVerse": 2,
+      "toVerse": 1,
+      "title": "Oração no meio de grande perigo",
+      "reason": "Salmo com uma unica pericope; a Biblia local nao possui sobrescrito como versiculo separado"
+    }
+  ],
+  "invalid": [
+    {
+      "code": "EXO",
+      "chapter": 22,
+      "verse": 37,
+      "totalVerses": 31,
+      "title": "Leis acerca da propriedade",
+      "reason": "versiculo maior que o total do capitulo"
+    },
+    {
+      "code": "NUM",
+      "chapter": 17,
+      "verse": 16,
+      "totalVerses": 13,
+      "title": "O bordão de Arão floresce",
+      "reason": "versiculo maior que o total do capitulo"
+    },
+    {
+      "code": "DEU",
+      "chapter": 29,
+      "verse": 69,
+      "totalVerses": 29,
+      "title": "Deus faz nova aliança com o povo",
+      "reason": "versiculo maior que o total do capitulo"
+    },
+    {
+      "code": "1KI",
+      "chapter": 5,
+      "verse": 27,
+      "totalVerses": 18,
+      "title": "Os preparativos para edificar o templo",
+      "reason": "versiculo maior que o total do capitulo"
+    },
+    {
+      "code": "2CH",
+      "chapter": 14,
+      "verse": 23,
+      "totalVerses": 15,
+      "title": "O reinado de Asa",
+      "reason": "versiculo maior que o total do capitulo"
+    },
+    {
+      "code": "NEH",
+      "chapter": 4,
+      "verse": 33,
+      "totalVerses": 23,
+      "title": "A defesa contra os adversários",
+      "reason": "versiculo maior que o total do capitulo"
+    },
+    {
+      "code": "ISA",
+      "chapter": 9,
+      "verse": 23,
+      "totalVerses": 21,
+      "title": "O nascimento e o reino do Príncipe da Paz",
+      "reason": "versiculo maior que o total do capitulo"
+    },
+    {
+      "code": "HOS",
+      "chapter": 14,
+      "verse": 10,
+      "totalVerses": 9,
+      "title": "Apelo final",
+      "reason": "versiculo maior que o total do capitulo"
+    },
+    {
+      "code": "MAL",
+      "chapter": 4,
+      "verse": 19,
+      "totalVerses": 6,
+      "title": "O sol da justiça e seu precursor",
+      "reason": "versiculo maior que o total do capitulo"
+    }
+  ],
+  "invalidProposedFixes": [
+    {
+      "code": "EXO",
+      "chapter": 22,
+      "title": "Leis acerca da propriedade",
+      "toVerse": 1
+    },
+    {
+      "code": "NUM",
+      "chapter": 17,
+      "title": "O bordão de Arão floresce",
+      "toVerse": 1
+    },
+    {
+      "code": "DEU",
+      "chapter": 29,
+      "title": "Deus faz nova aliança com o povo",
+      "toVerse": 1
+    },
+    {
+      "code": "1KI",
+      "chapter": 5,
+      "title": "Os preparativos para edificar o templo",
+      "toVerse": 2
+    },
+    {
+      "code": "2CH",
+      "chapter": 14,
+      "title": "O reinado de Asa",
+      "toVerse": 1
+    },
+    {
+      "code": "NEH",
+      "chapter": 4,
+      "title": "A defesa contra os adversários",
+      "toVerse": 1
+    },
+    {
+      "code": "ISA",
+      "chapter": 9,
+      "title": "O nascimento e o reino do Príncipe da Paz",
+      "toVerse": 1
+    },
+    {
+      "code": "HOS",
+      "chapter": 14,
+      "title": "Apelo final",
+      "toVerse": 9
+    },
+    {
+      "code": "MAL",
+      "chapter": 4,
+      "title": "O sol da justiça e seu precursor",
+      "toVerse": 1
+    }
+  ],
+  "reviewNeeded": [
+    {
+      "code": "GEN",
+      "chapter": 11,
+      "jsonVerse": 10,
+      "txtVerse": 1,
+      "title": "Descendentes de Sem",
+      "txtLine": 3291,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "GEN",
+      "chapter": 25,
+      "jsonVerse": 12,
+      "txtVerse": 1,
+      "title": "Descendentes de Ismael",
+      "txtLine": 7682,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "GEN",
+      "chapter": 31,
+      "jsonVerse": 22,
+      "txtVerse": 24,
+      "title": "Labão segue no encalço de Jacó",
+      "txtLine": 10237,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "GEN",
+      "chapter": 32,
+      "jsonVerse": 4,
+      "txtVerse": 3,
+      "title": "Jacó reconcilia-se com Esaú",
+      "txtLine": 10645,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "GEN",
+      "chapter": 35,
+      "jsonVerse": 23,
+      "txtVerse": 1,
+      "title": "Descendentes de Jacó",
+      "txtLine": 11875,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "GEN",
+      "chapter": 36,
+      "jsonVerse": 20,
+      "txtVerse": 1,
+      "title": "Descendentes de Seir",
+      "txtLine": 12136,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "GEN",
+      "chapter": 36,
+      "jsonVerse": 31,
+      "txtVerse": 1,
+      "title": "Reis e príncipes de Edom",
+      "txtLine": 12253,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "GEN",
+      "chapter": 50,
+      "jsonVerse": 22,
+      "txtVerse": 23,
+      "title": "A morte de José",
+      "txtLine": 17569,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "EXO",
+      "chapter": 8,
+      "jsonVerse": 26,
+      "txtVerse": 1,
+      "title": "Segunda praga: rãs",
+      "txtLine": 19730,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "EXO",
+      "chapter": 8,
+      "jsonVerse": 12,
+      "txtVerse": 16,
+      "title": "Terceira praga: piolhos",
+      "txtLine": 19897,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "EXO",
+      "chapter": 8,
+      "jsonVerse": 16,
+      "txtVerse": 20,
+      "title": "Quarta praga: moscas",
+      "txtLine": 19964,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "EXO",
+      "chapter": 22,
+      "jsonVerse": 37,
+      "txtVerse": 1,
+      "title": "Leis acerca da propriedade",
+      "txtLine": 24578,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "EXO",
+      "chapter": 22,
+      "jsonVerse": 15,
+      "txtVerse": 16,
+      "title": "Leis civis e religiosas",
+      "txtLine": 24789,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "EXO",
+      "chapter": 28,
+      "jsonVerse": 3,
+      "txtVerse": 2,
+      "title": "As vestes sacerdotais",
+      "txtLine": 26767,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "LEV",
+      "chapter": 6,
+      "jsonVerse": 20,
+      "txtVerse": 1,
+      "title": "O sacrifício pelos pecados voluntários",
+      "txtLine": 33603,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "LEV",
+      "chapter": 6,
+      "jsonVerse": 1,
+      "txtVerse": 8,
+      "title": "A lei do holocausto",
+      "txtLine": 33679,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "LEV",
+      "chapter": 6,
+      "jsonVerse": 7,
+      "txtVerse": 14,
+      "title": "A lei da oferta de manjares",
+      "txtLine": 33766,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "LEV",
+      "chapter": 6,
+      "jsonVerse": 12,
+      "txtVerse": 19,
+      "title": "A oferta na consagração dos sacerdotes",
+      "txtLine": 33826,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "LEV",
+      "chapter": 6,
+      "jsonVerse": 17,
+      "txtVerse": 24,
+      "title": "A lei da oferta pelo pecado",
+      "txtLine": 33882,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "NUM",
+      "chapter": 16,
+      "jsonVerse": 6,
+      "txtVerse": 41,
+      "title": "Novo tumulto e seu castigo",
+      "txtLine": 50190,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "NUM",
+      "chapter": 17,
+      "jsonVerse": 16,
+      "txtVerse": 1,
+      "title": "O bordão de Arão floresce",
+      "txtLine": 50323,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "NUM",
+      "chapter": 30,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Acerca de votos",
+      "txtLine": 55150,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "DEU",
+      "chapter": 13,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Contra os falsos profetas e os idólatras",
+      "txtLine": 62970,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "DEU",
+      "chapter": 23,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Pessoas excluídas das assembleias santas",
+      "txtLine": 66018,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "DEU",
+      "chapter": 23,
+      "jsonVerse": 10,
+      "txtVerse": 9,
+      "title": "Limpeza do acampamento",
+      "txtLine": 66125,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "DEU",
+      "chapter": 23,
+      "jsonVerse": 16,
+      "txtVerse": 15,
+      "title": "Acerca de fugitivos, prostitutas e usura",
+      "txtLine": 66191,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "DEU",
+      "chapter": 23,
+      "jsonVerse": 22,
+      "txtVerse": 21,
+      "title": "Acerca de votos",
+      "txtLine": 66247,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "DEU",
+      "chapter": 29,
+      "jsonVerse": 69,
+      "txtVerse": 1,
+      "title": "Deus faz nova aliança com o povo",
+      "txtLine": 68351,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1SA",
+      "chapter": 18,
+      "jsonVerse": 6,
+      "txtVerse": 7,
+      "title": "O cântico das mulheres indigna a Saul",
+      "txtLine": 92960,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1SA",
+      "chapter": 21,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Davi vai ter com o sacerdote Aimeleque",
+      "txtLine": 94113,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1SA",
+      "chapter": 21,
+      "jsonVerse": 11,
+      "txtVerse": 10,
+      "title": "Davi foge para Aquis, rei de Gate",
+      "txtLine": 94239,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1SA",
+      "chapter": 24,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Davi poupa a vida de Saul",
+      "txtLine": 95012,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1SA",
+      "chapter": 31,
+      "jsonVerse": 8,
+      "txtVerse": 1,
+      "title": "A sepultura de Saul",
+      "txtLine": 97462,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 3,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "A família de Davi em Hebrom",
+      "txtLine": 98320,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 5,
+      "jsonVerse": 6,
+      "txtVerse": 1,
+      "title": "Davi conquista Sião",
+      "txtLine": 99058,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 5,
+      "jsonVerse": 11,
+      "txtVerse": 1,
+      "title": "O reinado de Davi reconhecido por Hirão",
+      "txtLine": 99141,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 5,
+      "jsonVerse": 13,
+      "txtVerse": 1,
+      "title": "Os filhos de Davi que nasceram em Jerusalém",
+      "txtLine": 99173,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 5,
+      "jsonVerse": 17,
+      "txtVerse": 1,
+      "title": "Davi derrota os filisteus",
+      "txtLine": 99203,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 6,
+      "jsonVerse": 12,
+      "txtVerse": 1,
+      "title": "A arca é levada para Jerusalém",
+      "txtLine": 99467,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 7,
+      "jsonVerse": 18,
+      "txtVerse": 1,
+      "title": "Ações de graças de Davi",
+      "txtLine": 99843,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 8,
+      "jsonVerse": 15,
+      "txtVerse": 2,
+      "title": "Oficiais de Davi",
+      "txtLine": 100185,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 12,
+      "jsonVerse": 15,
+      "txtVerse": 16,
+      "title": "A morte do filho de Bate-Seba",
+      "txtLine": 101195,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 12,
+      "jsonVerse": 26,
+      "txtVerse": 1,
+      "title": "Davi conquista Rabá",
+      "txtLine": 101350,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 19,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Joabe reprova a Davi",
+      "txtLine": 103974,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 19,
+      "jsonVerse": 12,
+      "txtVerse": 11,
+      "title": "Davi volta para Jerusalém",
+      "txtLine": 104139,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 19,
+      "jsonVerse": 17,
+      "txtVerse": 16,
+      "title": "Simei encontra-se com Davi",
+      "txtLine": 104199,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 19,
+      "jsonVerse": 25,
+      "txtVerse": 24,
+      "title": "Mefibosete encontra-se com Davi",
+      "txtLine": 104322,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 19,
+      "jsonVerse": 32,
+      "txtVerse": 31,
+      "title": "Barzilai encontra-se com Davi",
+      "txtLine": 104404,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 20,
+      "jsonVerse": 23,
+      "txtVerse": 2,
+      "title": "Oficiais de Davi",
+      "txtLine": 104915,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 21,
+      "jsonVerse": 15,
+      "txtVerse": 1,
+      "title": "Gigantes mortos pelos homens de Davi",
+      "txtLine": 105151,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 23,
+      "jsonVerse": 8,
+      "txtVerse": 1,
+      "title": "Os valentes de Davi",
+      "txtLine": 105771,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 24,
+      "jsonVerse": 10,
+      "txtVerse": 1,
+      "title": "Davi escolhe o castigo",
+      "txtLine": 106207,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2SA",
+      "chapter": 24,
+      "jsonVerse": 18,
+      "txtVerse": 1,
+      "title": "Davi erige um altar na eira de Araúna",
+      "txtLine": 106362,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 3,
+      "jsonVerse": 3,
+      "txtVerse": 2,
+      "title": "Salomão pede a Deus sabedoria",
+      "txtLine": 107773,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 4,
+      "jsonVerse": 9,
+      "txtVerse": 29,
+      "title": "A sabedoria de Salomão",
+      "txtLine": 108415,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 5,
+      "jsonVerse": 15,
+      "txtVerse": 2,
+      "title": "Salomão faz aliança com Hirão",
+      "txtLine": 108508,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 5,
+      "jsonVerse": 27,
+      "txtVerse": 2,
+      "title": "Os preparativos para edificar o templo",
+      "txtLine": 108683,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 6,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Salomão edifica o templo",
+      "txtLine": 108755,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 6,
+      "jsonVerse": 23,
+      "txtVerse": 2,
+      "title": "Os dois querubins",
+      "txtLine": 109055,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 7,
+      "jsonVerse": 15,
+      "txtVerse": 2,
+      "title": "As duas colunas do templo",
+      "txtLine": 109419,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 7,
+      "jsonVerse": 23,
+      "txtVerse": 2,
+      "title": "O mar de fundição",
+      "txtLine": 109507,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 7,
+      "jsonVerse": 27,
+      "txtVerse": 2,
+      "title": "Outros utensílios para o templo",
+      "txtLine": 109584,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 7,
+      "jsonVerse": 51,
+      "txtVerse": 2,
+      "title": "As dádivas de Davi colocadas no templo",
+      "txtLine": 109908,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 8,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Salomão traz para o templo a arca",
+      "txtLine": 109940,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 8,
+      "jsonVerse": 12,
+      "txtVerse": 2,
+      "title": "Salomão fala ao povo",
+      "txtLine": 110103,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 8,
+      "jsonVerse": 22,
+      "txtVerse": 2,
+      "title": "Salomão ora a Deus",
+      "txtLine": 110213,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 8,
+      "jsonVerse": 62,
+      "txtVerse": 2,
+      "title": "A conclusão da solenidade",
+      "txtLine": 110797,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 9,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "A aliança do Senhor com Salomão",
+      "txtLine": 110863,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 9,
+      "jsonVerse": 10,
+      "txtVerse": 2,
+      "title": "As demais atividades de Salomão",
+      "txtLine": 111000,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 10,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "A rainha de Sabá visita a Salomão",
+      "txtLine": 111223,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 10,
+      "jsonVerse": 14,
+      "txtVerse": 2,
+      "title": "As riquezas de Salomão",
+      "txtLine": 111388,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 11,
+      "jsonVerse": 41,
+      "txtVerse": 2,
+      "title": "A morte de Salomão",
+      "txtLine": 112137,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 12,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Roboão causa separação entre as tribos",
+      "txtLine": 112173,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 12,
+      "jsonVerse": 16,
+      "txtVerse": 2,
+      "title": "Dez tribos seguem Jeroboão",
+      "txtLine": 112368,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 14,
+      "jsonVerse": 21,
+      "txtVerse": 2,
+      "title": "O reinado de Roboão, de Judá",
+      "txtLine": 113314,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 15,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Abias, de Judá",
+      "txtLine": 113449,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 15,
+      "jsonVerse": 9,
+      "txtVerse": 2,
+      "title": "O reinado de Asa, de Judá",
+      "txtLine": 113529,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 22,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Aliança entre Josafá, de Judá, e Acabe",
+      "txtLine": 116435,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 22,
+      "jsonVerse": 5,
+      "txtVerse": 2,
+      "title": "As profecias dos falsos profetas",
+      "txtLine": 116477,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 22,
+      "jsonVerse": 13,
+      "txtVerse": 2,
+      "title": "A profecia de Micaías",
+      "txtLine": 116575,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 22,
+      "jsonVerse": 29,
+      "txtVerse": 2,
+      "title": "A morte de Acabe",
+      "txtLine": 116827,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 22,
+      "jsonVerse": 41,
+      "txtVerse": 2,
+      "title": "O reinado e a morte de Josafá",
+      "txtLine": 116986,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1KI",
+      "chapter": 22,
+      "jsonVerse": 53,
+      "txtVerse": 52,
+      "title": "O reinado de Acazias, de Israel",
+      "txtLine": 117094,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 5,
+      "jsonVerse": 19,
+      "txtVerse": 20,
+      "title": "Geazi é atacado de lepra",
+      "txtLine": 118942,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 8,
+      "jsonVerse": 16,
+      "txtVerse": 2,
+      "title": "O reinado de Jeorão",
+      "txtLine": 120063,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 8,
+      "jsonVerse": 25,
+      "txtVerse": 2,
+      "title": "O reinado de Acazias",
+      "txtLine": 120149,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 11,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Atalia usurpa o trono de Judá",
+      "txtLine": 121214,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 11,
+      "jsonVerse": 4,
+      "txtVerse": 2,
+      "title": "Joás ungido rei de Judá",
+      "txtLine": 121252,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 11,
+      "jsonVerse": 13,
+      "txtVerse": 2,
+      "title": "A morte de Atalia",
+      "txtLine": 121397,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 11,
+      "jsonVerse": 17,
+      "txtVerse": 2,
+      "title": "A aliança de Joiada",
+      "txtLine": 121441,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 12,
+      "jsonVerse": 21,
+      "txtVerse": 2,
+      "title": "A conspiração contra o rei Joás",
+      "txtLine": 121791,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 14,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Amazias, de Judá",
+      "txtLine": 122157,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 14,
+      "jsonVerse": 7,
+      "txtVerse": 2,
+      "title": "Amazias vence os edomitas",
+      "txtLine": 122260,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 14,
+      "jsonVerse": 8,
+      "txtVerse": 2,
+      "title": "Amazias derrotado por Jeoás",
+      "txtLine": 122276,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 14,
+      "jsonVerse": 17,
+      "txtVerse": 2,
+      "title": "A morte de Amazias, rei de Judá",
+      "txtLine": 122417,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 15,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Azarias, de Judá",
+      "txtLine": 122598,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 15,
+      "jsonVerse": 5,
+      "txtVerse": 2,
+      "title": "Azarias é atacado de lepra",
+      "txtLine": 122642,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 15,
+      "jsonVerse": 32,
+      "txtVerse": 2,
+      "title": "O reinado de Jotão, de Judá",
+      "txtLine": 122970,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 16,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Acaz, de Judá",
+      "txtLine": 123073,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 16,
+      "jsonVerse": 10,
+      "txtVerse": 2,
+      "title": "A idolatria de Acaz",
+      "txtLine": 123171,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 16,
+      "jsonVerse": 19,
+      "txtVerse": 2,
+      "title": "A morte de Acaz",
+      "txtLine": 123324,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 18,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Ezequias, de Judá",
+      "txtLine": 123940,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 18,
+      "jsonVerse": 13,
+      "txtVerse": 2,
+      "title": "Senaqueribe invade Judá",
+      "txtLine": 124093,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 18,
+      "jsonVerse": 19,
+      "txtVerse": 2,
+      "title": "Rabsaqué afronta a Ezequias e ao SENHOR",
+      "txtLine": 124177,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 19,
+      "jsonVerse": 35,
+      "txtVerse": 2,
+      "title": "A destruição do exército dos assírios",
+      "txtLine": 124932,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 20,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "A doença de Ezequias e a sua cura maravilhosa",
+      "txtLine": 124976,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 20,
+      "jsonVerse": 20,
+      "txtVerse": 2,
+      "title": "A morte de Ezequias",
+      "txtLine": 125203,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 21,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Manassés, de Judá",
+      "txtLine": 125272,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 21,
+      "jsonVerse": 17,
+      "txtVerse": 2,
+      "title": "A morte de Manassés",
+      "txtLine": 125463,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 21,
+      "jsonVerse": 19,
+      "txtVerse": 2,
+      "title": "O reinado de Amom, de Judá",
+      "txtLine": 125495,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 22,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Josias",
+      "txtLine": 125592,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 22,
+      "jsonVerse": 3,
+      "txtVerse": 2,
+      "title": "O rei repara o templo",
+      "txtLine": 125622,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 22,
+      "jsonVerse": 8,
+      "txtVerse": 2,
+      "title": "Hilquias acha o Livro da Lei",
+      "txtLine": 125676,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 22,
+      "jsonVerse": 11,
+      "txtVerse": 2,
+      "title": "Josias manda consultar a profetisa Hulda",
+      "txtLine": 125714,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 23,
+      "jsonVerse": 4,
+      "txtVerse": 2,
+      "title": "A purificação do templo e do culto",
+      "txtLine": 125960,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 23,
+      "jsonVerse": 21,
+      "txtVerse": 2,
+      "title": "A celebração da Páscoa",
+      "txtLine": 126225,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 23,
+      "jsonVerse": 28,
+      "txtVerse": 2,
+      "title": "A morte de Josias",
+      "txtLine": 126350,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 23,
+      "jsonVerse": 31,
+      "txtVerse": 2,
+      "title": "O reinado e deposição de Joacaz",
+      "txtLine": 126396,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 23,
+      "jsonVerse": 36,
+      "txtVerse": 2,
+      "title": "O reinado de Jeoaquim",
+      "txtLine": 126499,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 24,
+      "jsonVerse": 8,
+      "txtVerse": 2,
+      "title": "O reinado de Joaquim",
+      "txtLine": 126640,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 24,
+      "jsonVerse": 18,
+      "txtVerse": 2,
+      "title": "O reinado de Zedequias",
+      "txtLine": 126784,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2KI",
+      "chapter": 25,
+      "jsonVerse": 8,
+      "txtVerse": 2,
+      "title": "O cativeiro de Judá",
+      "txtLine": 126939,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 3,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Filhos de Davi",
+      "txtLine": 128233,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 6,
+      "jsonVerse": 27,
+      "txtVerse": 1,
+      "title": "Descendentes de Levi",
+      "txtLine": 129201,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 6,
+      "jsonVerse": 16,
+      "txtVerse": 31,
+      "title": "Cantores levitas",
+      "txtLine": 129445,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 6,
+      "jsonVerse": 34,
+      "txtVerse": 49,
+      "title": "Descendentes de Arão",
+      "txtLine": 129594,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 6,
+      "jsonVerse": 39,
+      "txtVerse": 54,
+      "title": "As cidades dos levitas",
+      "txtLine": 129636,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 10,
+      "jsonVerse": 8,
+      "txtVerse": 1,
+      "title": "A sepultura de Saul",
+      "txtLine": 131240,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 11,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Davi é ungido rei",
+      "txtLine": 131320,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 11,
+      "jsonVerse": 4,
+      "txtVerse": 2,
+      "title": "Davi conquista a Sião",
+      "txtLine": 131354,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 11,
+      "jsonVerse": 10,
+      "txtVerse": 2,
+      "title": "Os valentes de Davi",
+      "txtLine": 131451,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 12,
+      "jsonVerse": 24,
+      "txtVerse": 23,
+      "title": "O exército que proclamou a Davi rei em Hebrom",
+      "txtLine": 132034,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 13,
+      "jsonVerse": 5,
+      "txtVerse": 2,
+      "title": "Davi procura trazer a arca",
+      "txtLine": 132316,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 14,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Davi reconhecido por Hirão",
+      "txtLine": 132449,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 14,
+      "jsonVerse": 3,
+      "txtVerse": 2,
+      "title": "Os filhos de Davi que nasceram em Jerusalém",
+      "txtLine": 132471,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 14,
+      "jsonVerse": 8,
+      "txtVerse": 2,
+      "title": "Davi derrota os filisteus",
+      "txtLine": 132503,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 15,
+      "jsonVerse": 29,
+      "txtVerse": 2,
+      "title": "Mical despreza a Davi",
+      "txtLine": 132994,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 17,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "A aliança do Senhor com Davi",
+      "txtLine": 133449,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 17,
+      "jsonVerse": 16,
+      "txtVerse": 2,
+      "title": "Ações de graças de Davi",
+      "txtLine": 133624,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 18,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Diversas vitórias de Davi",
+      "txtLine": 133789,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 18,
+      "jsonVerse": 14,
+      "txtVerse": 2,
+      "title": "Oficiais de Davi",
+      "txtLine": 133950,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 19,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Davi derrota os amonitas e os siros",
+      "txtLine": 133986,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 20,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Davi conquista a Rabá",
+      "txtLine": 134262,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 20,
+      "jsonVerse": 4,
+      "txtVerse": 2,
+      "title": "Gigantes mortos pelos homens de Davi",
+      "txtLine": 134300,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 21,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O levantamento do censo",
+      "txtLine": 134350,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 21,
+      "jsonVerse": 7,
+      "txtVerse": 2,
+      "title": "Davi escolhe o castigo",
+      "txtLine": 134449,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 21,
+      "jsonVerse": 18,
+      "txtVerse": 2,
+      "title": "Davi erige um altar na eira de Ornã",
+      "txtLine": 134616,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "1CH",
+      "chapter": 29,
+      "jsonVerse": 22,
+      "txtVerse": 23,
+      "title": "Salomão proclamado rei",
+      "txtLine": 137449,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 1,
+      "jsonVerse": 7,
+      "txtVerse": 1,
+      "title": "Salomão pede a Deus sabedoria",
+      "txtLine": 137632,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 1,
+      "jsonVerse": 14,
+      "txtVerse": 1,
+      "title": "As riquezas de Salomão",
+      "txtLine": 137769,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 2,
+      "jsonVerse": 18,
+      "txtVerse": 1,
+      "title": "Salomão faz aliança com Hirão",
+      "txtLine": 137837,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 2,
+      "jsonVerse": 16,
+      "txtVerse": 1,
+      "title": "Os preparativos para edificar o templo",
+      "txtLine": 138076,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 3,
+      "jsonVerse": 10,
+      "txtVerse": 1,
+      "title": "Os dois querubins",
+      "txtLine": 138237,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 3,
+      "jsonVerse": 15,
+      "txtVerse": 1,
+      "title": "As duas colunas",
+      "txtLine": 138328,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 4,
+      "jsonVerse": 6,
+      "txtVerse": 1,
+      "title": "Outros utensílios para o templo",
+      "txtLine": 138449,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 5,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Salomão traz para o templo a arca",
+      "txtLine": 138660,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 6,
+      "jsonVerse": 12,
+      "txtVerse": 1,
+      "title": "Salomão ora a Deus",
+      "txtLine": 139000,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 7,
+      "jsonVerse": 4,
+      "txtVerse": 1,
+      "title": "A conclusão da solenidade",
+      "txtLine": 139499,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 7,
+      "jsonVerse": 11,
+      "txtVerse": 1,
+      "title": "A aliança do Senhor com Salomão",
+      "txtLine": 139589,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 9,
+      "jsonVerse": 13,
+      "txtVerse": 1,
+      "title": "As riquezas de Salomão",
+      "txtLine": 140193,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 9,
+      "jsonVerse": 29,
+      "txtVerse": 1,
+      "title": "A morte de Salomão",
+      "txtLine": 140372,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 10,
+      "jsonVerse": 16,
+      "txtVerse": 1,
+      "title": "Dez tribos seguem Jeroboão",
+      "txtLine": 140599,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 12,
+      "jsonVerse": 13,
+      "txtVerse": 1,
+      "title": "O reinado de Roboão",
+      "txtLine": 141062,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 14,
+      "jsonVerse": 23,
+      "txtVerse": 1,
+      "title": "O reinado de Asa",
+      "txtLine": 141420,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 14,
+      "jsonVerse": 8,
+      "txtVerse": 9,
+      "title": "Asa vence a Zerá, o etíope",
+      "txtLine": 141559,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 16,
+      "jsonVerse": 11,
+      "txtVerse": 1,
+      "title": "A morte de Asa",
+      "txtLine": 142044,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 18,
+      "jsonVerse": 4,
+      "txtVerse": 1,
+      "title": "As promessas dos falsos profetas",
+      "txtLine": 142358,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 18,
+      "jsonVerse": 12,
+      "txtVerse": 1,
+      "title": "A profecia de Micaías",
+      "txtLine": 142485,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 18,
+      "jsonVerse": 28,
+      "txtVerse": 1,
+      "title": "A morte de Acabe",
+      "txtLine": 142678,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 20,
+      "jsonVerse": 31,
+      "txtVerse": 1,
+      "title": "O reinado e a morte de Josafá",
+      "txtLine": 143360,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 21,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Jeorão",
+      "txtLine": 143444,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 22,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Acazias",
+      "txtLine": 143730,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 22,
+      "jsonVerse": 10,
+      "txtVerse": 2,
+      "title": "Atalia usurpa o trono",
+      "txtLine": 143883,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 23,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Joás ungido rei de Judá",
+      "txtLine": 143923,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 23,
+      "jsonVerse": 12,
+      "txtVerse": 2,
+      "title": "A morte de Atalia",
+      "txtLine": 144080,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 23,
+      "jsonVerse": 16,
+      "txtVerse": 2,
+      "title": "A aliança de Joiada",
+      "txtLine": 144163,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 24,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Joás",
+      "txtLine": 144247,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 24,
+      "jsonVerse": 25,
+      "txtVerse": 2,
+      "title": "A conspiração contra o rei Joás",
+      "txtLine": 144601,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 25,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Amazias",
+      "txtLine": 144678,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 25,
+      "jsonVerse": 5,
+      "txtVerse": 2,
+      "title": "Amazias vence os edomitas",
+      "txtLine": 144728,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 25,
+      "jsonVerse": 17,
+      "txtVerse": 2,
+      "title": "Amazias derrotado por Jeoás",
+      "txtLine": 144923,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 25,
+      "jsonVerse": 25,
+      "txtVerse": 2,
+      "title": "A morte de Amazias, de Judá",
+      "txtLine": 145078,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 26,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Uzias",
+      "txtLine": 145126,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 26,
+      "jsonVerse": 16,
+      "txtVerse": 2,
+      "title": "Uzias é atacado de lepra",
+      "txtLine": 145325,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 27,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Jotão",
+      "txtLine": 145492,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 28,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Acaz",
+      "txtLine": 145637,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 28,
+      "jsonVerse": 16,
+      "txtVerse": 2,
+      "title": "Acaz pede socorro aos assírios",
+      "txtLine": 145872,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 28,
+      "jsonVerse": 22,
+      "txtVerse": 2,
+      "title": "A idolatria de Acaz",
+      "txtLine": 145963,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 28,
+      "jsonVerse": 26,
+      "txtVerse": 2,
+      "title": "A morte de Acaz",
+      "txtLine": 146019,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 29,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Ezequias manda abrir o templo",
+      "txtLine": 146063,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 32,
+      "jsonVerse": 9,
+      "txtVerse": 2,
+      "title": "Senaqueribe afronta a Ezequias e ao Senhor",
+      "txtLine": 147461,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 32,
+      "jsonVerse": 21,
+      "txtVerse": 2,
+      "title": "A destruição do exército dos assírios",
+      "txtLine": 147634,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 32,
+      "jsonVerse": 24,
+      "txtVerse": 2,
+      "title": "Doença de Ezequias",
+      "txtLine": 147707,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 32,
+      "jsonVerse": 32,
+      "txtVerse": 2,
+      "title": "A morte de Ezequias",
+      "txtLine": 147805,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 33,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Manassés",
+      "txtLine": 147872,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 33,
+      "jsonVerse": 18,
+      "txtVerse": 2,
+      "title": "A morte de Manassés",
+      "txtLine": 148111,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 33,
+      "jsonVerse": 21,
+      "txtVerse": 2,
+      "title": "O reinado de Amom",
+      "txtLine": 148157,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 34,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado de Josias",
+      "txtLine": 148242,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 34,
+      "jsonVerse": 3,
+      "txtVerse": 2,
+      "title": "A purificação do templo e do culto",
+      "txtLine": 148260,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 34,
+      "jsonVerse": 8,
+      "txtVerse": 2,
+      "title": "O rei repara o templo",
+      "txtLine": 148326,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 34,
+      "jsonVerse": 14,
+      "txtVerse": 2,
+      "title": "Hilquias acha o Livro da Lei",
+      "txtLine": 148451,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 34,
+      "jsonVerse": 19,
+      "txtVerse": 2,
+      "title": "Josias manda consultar a profetisa Hulda",
+      "txtLine": 148513,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 34,
+      "jsonVerse": 29,
+      "txtVerse": 2,
+      "title": "Josias renova a aliança ante o Senhor",
+      "txtLine": 148686,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 35,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "A celebração da Páscoa",
+      "txtLine": 148797,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 35,
+      "jsonVerse": 20,
+      "txtVerse": 2,
+      "title": "A morte de Josias no vale de Megido",
+      "txtLine": 149089,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 36,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O reinado e deposição de Joacaz",
+      "txtLine": 149191,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 36,
+      "jsonVerse": 5,
+      "txtVerse": 2,
+      "title": "O reinado de Jeoaquim",
+      "txtLine": 149280,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 36,
+      "jsonVerse": 9,
+      "txtVerse": 2,
+      "title": "O reinado de Joaquim",
+      "txtLine": 149332,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 36,
+      "jsonVerse": 11,
+      "txtVerse": 2,
+      "title": "O reinado de Zedequias",
+      "txtLine": 149356,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "2CH",
+      "chapter": 36,
+      "jsonVerse": 17,
+      "txtVerse": 2,
+      "title": "O cativeiro de Judá",
+      "txtLine": 149453,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "NEH",
+      "chapter": 4,
+      "jsonVerse": 33,
+      "txtVerse": 1,
+      "title": "A defesa contra os adversários",
+      "txtLine": 154022,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "NEH",
+      "chapter": 7,
+      "jsonVerse": 69,
+      "txtVerse": 70,
+      "title": "Contribuições para o templo",
+      "txtLine": 155529,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "NEH",
+      "chapter": 9,
+      "jsonVerse": 1,
+      "txtVerse": 38,
+      "title": "A aliança do povo sobre guardar a Lei",
+      "txtLine": 156420,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 4,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Confiança em Deus, na angústia",
+      "txtLine": 170626,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 5,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Proteção contra os ímpios",
+      "txtLine": 170733,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 10,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "A derrubada dos ímpios",
+      "txtLine": 171451,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 12,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Auxílio contra a falsidade",
+      "txtLine": 171711,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 13,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Oração de fé",
+      "txtLine": 171783,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 15,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "O cidadão dos céus",
+      "txtLine": 171944,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 18,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Vitória e domínio",
+      "txtLine": 172276,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 19,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "A excelência da criação e da palavra de Deus",
+      "txtLine": 172729,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 20,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Oração a favor do rei",
+      "txtLine": 172872,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 21,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Ações de graças pela vitória",
+      "txtLine": 172983,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 22,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Sofrimento e vitória do Messias",
+      "txtLine": 173106,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 30,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Ações de graças pela libertação da morte",
+      "txtLine": 174203,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 31,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Lamentos e louvor",
+      "txtLine": 174305,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 34,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Provai que o Senhor é bom!",
+      "txtLine": 174879,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 36,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Malícia humana e benignidade divina",
+      "txtLine": 175354,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 39,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "A vaidade da vida",
+      "txtLine": 176032,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 40,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Oração para livramento",
+      "txtLine": 176199,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 41,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "A calúnia dos inimigos e o socorro de Deus",
+      "txtLine": 176394,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 42,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "A alma anela por Deus",
+      "txtLine": 176537,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 44,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Apelo por auxílio divino",
+      "txtLine": 176767,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 45,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "O Ungido de Deus e a sua noiva",
+      "txtLine": 177004,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 46,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Deus é o nosso refúgio e fortaleza",
+      "txtLine": 177179,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 47,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Deus, o Rei da terra",
+      "txtLine": 177296,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 48,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "A cidade de Deus",
+      "txtLine": 177364,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 49,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "A vaidade do homem",
+      "txtLine": 177505,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 51,
+      "jsonVerse": 3,
+      "txtVerse": 2,
+      "title": "Confissão e arrependimento",
+      "txtLine": 177912,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 52,
+      "jsonVerse": 3,
+      "txtVerse": 1,
+      "title": "Condenação do ímpio",
+      "txtLine": 178095,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 53,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "A corrupção do pecador e sua redenção",
+      "txtLine": 178214,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 54,
+      "jsonVerse": 3,
+      "txtVerse": 1,
+      "title": "Apelo para o socorro divino",
+      "txtLine": 178292,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 55,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Que os traidores sejam destruídos",
+      "txtLine": 178393,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 56,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Conforto na perseguição",
+      "txtLine": 178614,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 57,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Louvor pela benignidade divina",
+      "txtLine": 178751,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 58,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "A sorte dos ímpios",
+      "txtLine": 178884,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 59,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Súplica em prol de libertação",
+      "txtLine": 178976,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 60,
+      "jsonVerse": 3,
+      "txtVerse": 2,
+      "title": "Oração em tempos de guerra",
+      "txtLine": 179194,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 61,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Oração pelo rei",
+      "txtLine": 179294,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 62,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Exortação à confiança",
+      "txtLine": 179397,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 64,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Proteção contra os inimigos",
+      "txtLine": 179661,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 65,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Ações de graças pelas bênçãos das searas",
+      "txtLine": 179743,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 67,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "As nações rendem graças",
+      "txtLine": 180053,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 68,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "A vitória de Deus sobre os seus inimigos",
+      "txtLine": 180144,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 69,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "O lamento do Messias",
+      "txtLine": 180486,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 70,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Petição por auxílio divino",
+      "txtLine": 180816,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 75,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Deus é juiz",
+      "txtLine": 181800,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 76,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "A majestade e o poder de Deus",
+      "txtLine": 181909,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 77,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "As grandes obras e a misericórdia de Deus",
+      "txtLine": 182001,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 80,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Pedindo restaurações",
+      "txtLine": 182927,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 81,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Exortação a louvor e obediência",
+      "txtLine": 183104,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 84,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Saudades do templo",
+      "txtLine": 183511,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 85,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Pede-se o perdão de Deus",
+      "txtLine": 183642,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 88,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Lamentação de um atribulado",
+      "txtLine": 183986,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 89,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Promessa do reino messiânico a Davi",
+      "txtLine": 184157,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 92,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Hino de gratidão a Deus",
+      "txtLine": 184936,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 102,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Arrependimento e esperança",
+      "txtLine": 186011,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 108,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Deus concede vitória ao seu povo",
+      "txtLine": 187879,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 131,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Calma em Deus",
+      "txtLine": 191558,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 132,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Uma promessa antiga",
+      "txtLine": 191594,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 139,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Deus onisciente e onipotente",
+      "txtLine": 192391,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 140,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Contra inimigos e perfídias",
+      "txtLine": 192633,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PSA",
+      "chapter": 142,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Oração no meio de grande perigo",
+      "txtLine": 192864,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "PRO",
+      "chapter": 31,
+      "jsonVerse": 10,
+      "txtVerse": 11,
+      "title": "O louvor da mulher virtuosa",
+      "txtLine": 201605,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ECC",
+      "chapter": 5,
+      "jsonVerse": 17,
+      "txtVerse": 1,
+      "title": "A loucura de votos precipitados",
+      "txtLine": 202782,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ECC",
+      "chapter": 5,
+      "jsonVerse": 7,
+      "txtVerse": 8,
+      "title": "A vaidade das riquezas",
+      "txtLine": 202901,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ISA",
+      "chapter": 9,
+      "jsonVerse": 23,
+      "txtVerse": 1,
+      "title": "O nascimento e o reino do Príncipe da Paz",
+      "txtLine": 208244,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ISA",
+      "chapter": 9,
+      "jsonVerse": 7,
+      "txtVerse": 8,
+      "title": "Profecia contra o reino de Israel",
+      "txtLine": 208367,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ISA",
+      "chapter": 24,
+      "jsonVerse": 16,
+      "txtVerse": 17,
+      "title": "A ruína dos transgressores",
+      "txtLine": 211765,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ISA",
+      "chapter": 36,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Senaqueribe invade Judá",
+      "txtLine": 214586,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ISA",
+      "chapter": 36,
+      "jsonVerse": 4,
+      "txtVerse": 2,
+      "title": "Rabsaqué afronta a Ezequias e ao Senhor",
+      "txtLine": 214659,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ISA",
+      "chapter": 37,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Ezequias consulta a Isaías",
+      "txtLine": 214892,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ISA",
+      "chapter": 37,
+      "jsonVerse": 8,
+      "txtVerse": 2,
+      "title": "A carta do rei da Assíria",
+      "txtLine": 215013,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ISA",
+      "chapter": 37,
+      "jsonVerse": 14,
+      "txtVerse": 2,
+      "title": "A oração de Ezequias",
+      "txtLine": 215073,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ISA",
+      "chapter": 37,
+      "jsonVerse": 21,
+      "txtVerse": 2,
+      "title": "O profeta conforta a Ezequias",
+      "txtLine": 215160,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ISA",
+      "chapter": 37,
+      "jsonVerse": 36,
+      "txtVerse": 2,
+      "title": "A destruição do exército dos assírios",
+      "txtLine": 215345,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ISA",
+      "chapter": 38,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "A doença de Ezequias e a sua cura maravilhosa",
+      "txtLine": 215383,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ISA",
+      "chapter": 39,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "A embaixada da Babilônia",
+      "txtLine": 215651,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "JER",
+      "chapter": 9,
+      "jsonVerse": 6,
+      "txtVerse": 7,
+      "title": "Ameaças de ruína e exílio",
+      "txtLine": 225903,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "JER",
+      "chapter": 9,
+      "jsonVerse": 22,
+      "txtVerse": 23,
+      "title": "Conhecer a Deus constitui a glória do homem",
+      "txtLine": 226090,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "JER",
+      "chapter": 39,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Nabucodonosor toma Jerusalém",
+      "txtLine": 235769,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "JER",
+      "chapter": 52,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "A queda de Jerusalém e o cativeiro de Judá",
+      "txtLine": 240658,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "JER",
+      "chapter": 52,
+      "jsonVerse": 31,
+      "txtVerse": 2,
+      "title": "Libertado e honrado o rei Joaquim",
+      "txtLine": 241042,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "LAM",
+      "chapter": 1,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "Jerusalém destruída e desolada",
+      "txtLine": 241170,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "EZK",
+      "chapter": 20,
+      "jsonVerse": 1,
+      "txtVerse": 45,
+      "title": "A profecia contra o Sul",
+      "txtLine": 249170,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "EZK",
+      "chapter": 21,
+      "jsonVerse": 6,
+      "txtVerse": 1,
+      "title": "A espada do Senhor",
+      "txtLine": 249218,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "DAN",
+      "chapter": 4,
+      "jsonVerse": 31,
+      "txtVerse": 1,
+      "title": "A loucura de Nabucodonosor",
+      "txtLine": 261444,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "DAN",
+      "chapter": 6,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "Daniel na cova dos leões",
+      "txtLine": 262436,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "JOL",
+      "chapter": 2,
+      "jsonVerse": 1,
+      "txtVerse": 28,
+      "title": "Promessa do derramamento do Espírito",
+      "txtLine": 268106,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "JON",
+      "chapter": 2,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "A oração de Jonas no ventre do peixe",
+      "txtLine": 270944,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "NAM",
+      "chapter": 2,
+      "jsonVerse": 2,
+      "txtVerse": 1,
+      "title": "O cerco e a tomada de Nínive",
+      "txtLine": 272945,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "HAB",
+      "chapter": 1,
+      "jsonVerse": 12,
+      "txtVerse": 13,
+      "title": "A intercessão do profeta",
+      "txtLine": 273472,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ZEC",
+      "chapter": 2,
+      "jsonVerse": 5,
+      "txtVerse": 1,
+      "title": "A terceira visão: Jerusalém é medida",
+      "txtLine": 275657,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ZEC",
+      "chapter": 2,
+      "jsonVerse": 10,
+      "txtVerse": 6,
+      "title": "Israel exortado a voltar para Sião",
+      "txtLine": 275730,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "MAL",
+      "chapter": 4,
+      "jsonVerse": 19,
+      "txtVerse": 1,
+      "title": "O sol da justiça e seu precursor",
+      "txtLine": 279021,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "MAT",
+      "chapter": 1,
+      "jsonVerse": 18,
+      "txtVerse": 19,
+      "title": "O nascimento de Jesus Cristo",
+      "txtLine": 279305,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "MAT",
+      "chapter": 5,
+      "jsonVerse": 3,
+      "txtVerse": 1,
+      "title": "As bem-aventuranças",
+      "txtLine": 280138,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "MRK",
+      "chapter": 5,
+      "jsonVerse": 14,
+      "txtVerse": 15,
+      "title": "Os gerasenos rejeitam a Jesus",
+      "txtLine": 293189,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "MRK",
+      "chapter": 5,
+      "jsonVerse": 24,
+      "txtVerse": 25,
+      "title": "A cura de uma mulher enferma",
+      "txtLine": 293297,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "MRK",
+      "chapter": 16,
+      "jsonVerse": 9,
+      "txtVerse": 10,
+      "title": "Jesus aparece a Maria Madalena",
+      "txtLine": 298971,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "LUK",
+      "chapter": 8,
+      "jsonVerse": 42,
+      "txtVerse": 43,
+      "title": "A cura de uma mulher enferma",
+      "txtLine": 303617,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "LUK",
+      "chapter": 9,
+      "jsonVerse": 43,
+      "txtVerse": 44,
+      "title": "De novo prediz Jesus a sua morte",
+      "txtLine": 304335,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "ACT",
+      "chapter": 8,
+      "jsonVerse": 1,
+      "txtVerse": 2,
+      "title": "A primeira perseguição à igreja",
+      "txtLine": 324699,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "GAL",
+      "chapter": 6,
+      "jsonVerse": 11,
+      "txtVerse": 12,
+      "title": "Paulo gloria-se na cruz de Cristo",
+      "txtLine": 348639,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    },
+    {
+      "code": "REV",
+      "chapter": 16,
+      "jsonVerse": 4,
+      "txtVerse": 3,
+      "title": "O terceiro flagelo",
+      "txtLine": 370505,
+      "reason": "titulo igual no mesmo capitulo, mas versiculo diferente no TXT extraido"
+    }
+  ]
+}

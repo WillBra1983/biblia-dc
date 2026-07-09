@@ -1,0 +1,316 @@
+code,chapter,title,jsonVerse,txtVerse,araVerse,recommendedVerse,verdict,source,url
+GEN,11,"Descendentes de Sem",10,1,13,10,json_ok,confirmado_utilizador,https://www.bibliaonline.com.br/ara/gn/11
+GEN,25,"Descendentes de Ismael",12,1,1,12,json_ok,confirmado_utilizador,https://www.bibliaonline.com.br/ara/gn/25
+GEN,31,"Labão segue no encalço de Jacó",22,24,31,22,json_ok,bibliaonline_ara,https://www.bibliaonline.com.br/ara/gn/31
+GEN,32,"Jacó reconcilia-se com Esaú",4,3,1,3,fix_needed,bibliaonline_ara,https://www.bibliaonline.com.br/ara/gn/32
+GEN,35,"Descendentes de Jacó",23,1,7,23,json_ok,confirmado_utilizador,https://www.bibliaonline.com.br/ara/gn/35
+GEN,36,"Descendentes de Seir",20,1,22,20,json_ok,confirmado_utilizador,https://www.bibliaonline.com.br/ara/gn/36
+GEN,36,"Reis e príncipes de Edom",31,1,19,31,json_ok,confirmado_utilizador,https://www.bibliaonline.com.br/ara/gn/36
+GEN,50,"A morte de José",22,23,9,22,json_ok,bibliaonline_ara,https://www.bibliaonline.com.br/ara/gn/50
+EXO,8,"Segunda praga: rãs",26,1,28,1,fix_needed,bibliaonline_ara,https://www.bibliaonline.com.br/ara/ex/8
+EXO,8,"Terceira praga: piolhos",12,16,24,16,fix_needed,bibliaonline_ara,https://www.bibliaonline.com.br/ara/ex/8
+EXO,8,"Quarta praga: moscas",16,20,37,20,fix_needed,bibliaonline_ara,https://www.bibliaonline.com.br/ara/ex/8
+EXO,22,"Leis acerca da propriedade",37,1,1,1,fix_needed,bibliaonline_ara,https://www.bibliaonline.com.br/ara/ex/22
+EXO,22,"Leis civis e religiosas",15,16,9,16,fix_needed,bibliaonline_ara,https://www.bibliaonline.com.br/ara/ex/22
+EXO,28,"As vestes sacerdotais",3,2,8,3,json_ok,bibliaonline_ara,https://www.bibliaonline.com.br/ara/ex/28
+LEV,6,"O sacrifício pelos pecados voluntários",20,1,30,30,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/lv/6
+LEV,6,"A lei do holocausto",1,8,12,12,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/lv/6
+LEV,6,"A lei da oferta de manjares",7,14,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/lv/6
+LEV,6,"A oferta na consagração dos sacerdotes",12,19,8,8,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/lv/6
+LEV,6,"A lei da oferta pelo pecado",17,24,17,17,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/lv/6
+NUM,16,"Novo tumulto e seu castigo",6,41,22,22,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/nm/16
+NUM,17,"O bordão de Arão floresce",16,1,2,2,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/nm/17
+NUM,30,"Acerca de votos",2,1,21,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/nm/30
+DEU,13,"Contra os falsos profetas e os idólatras",2,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/dt/13
+DEU,23,"Pessoas excluídas das assembleias santas",2,1,58,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/dt/23
+DEU,23,"Limpeza do acampamento",10,9,77,9,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/dt/23
+DEU,23,"""Acerca de fugitivos, prostitutas e usura""",16,15,6,6,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/dt/23
+DEU,23,"Acerca de votos",22,21,14,14,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/dt/23
+DEU,29,"Deus faz nova aliança com o povo",69,1,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/dt/29
+1SA,18,"O cântico das mulheres indigna a Saul",6,7,48,7,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1sa/18
+1SA,21,"Davi vai ter com o sacerdote Aimeleque",2,1,11,11,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1sa/21
+1SA,21,"""Davi foge para Aquis, rei de Gate""",11,10,5,5,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1sa/21
+1SA,24,"Davi poupa a vida de Saul",2,1,20,20,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1sa/24
+1SA,31,"A sepultura de Saul",8,1,4,4,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1sa/31
+2SA,3,"A família de Davi em Hebrom",2,1,2,2,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/2sa/3
+2SA,5,"Davi conquista Sião",6,1,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/5
+2SA,5,"O reinado de Davi reconhecido por Hirão",11,1,35,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2sa/5
+2SA,5,"Os filhos de Davi que nasceram em Jerusalém",13,1,4,4,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/5
+2SA,5,"Davi derrota os filisteus",17,1,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/5
+2SA,6,"A arca é levada para Jerusalém",12,1,21,21,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/6
+2SA,7,"Ações de graças de Davi",18,1,14,14,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/7
+2SA,8,"Oficiais de Davi",15,2,10,10,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/8
+2SA,12,"A morte do filho de Bate-Seba",15,16,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/12
+2SA,12,"Davi conquista Rabá",26,1,20,20,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/12
+2SA,19,"Joabe reprova a Davi",2,1,18,18,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/19
+2SA,19,"Davi volta para Jerusalém",12,11,12,12,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/2sa/19
+2SA,19,"Simei encontra-se com Davi",17,16,5,5,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/19
+2SA,19,"Mefibosete encontra-se com Davi",25,24,9,9,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/19
+2SA,19,"Barzilai encontra-se com Davi",32,31,6,6,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/19
+2SA,20,"Oficiais de Davi",23,2,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/20
+2SA,21,"Gigantes mortos pelos homens de Davi",15,1,30,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2sa/21
+2SA,23,"Os valentes de Davi",8,1,6,6,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/23
+2SA,24,"Davi escolhe o castigo",10,1,7,7,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2sa/24
+2SA,24,"Davi erige um altar na eira de Araúna",18,1,30,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2sa/24
+1KI,3,"Salomão pede a Deus sabedoria",3,2,5,5,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/3
+1KI,4,"A sabedoria de Salomão",9,29,10,10,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/4
+1KI,5,"Salomão faz aliança com Hirão",15,2,22,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1ki/5
+1KI,5,"Os preparativos para edificar o templo",27,2,24,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1ki/5
+1KI,6,"Salomão edifica o templo",1,2,2,2,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/6
+1KI,6,"Os dois querubins",23,2,20,20,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/6
+1KI,7,"As duas colunas do templo",15,2,2,2,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/7
+1KI,7,"O mar de fundição",23,2,2,2,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/7
+1KI,7,"Outros utensílios para o templo",27,2,26,26,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/7
+1KI,7,"As dádivas de Davi colocadas no templo",51,2,12,12,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/7
+1KI,8,"Salomão traz para o templo a arca",1,2,15,15,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/8
+1KI,8,"Salomão fala ao povo",12,2,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/8
+1KI,8,"Salomão ora a Deus",22,2,2,2,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/8
+1KI,8,"A conclusão da solenidade",62,2,6,6,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/8
+1KI,9,"A aliança do Senhor com Salomão",1,2,15,15,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/9
+1KI,9,"As demais atividades de Salomão",10,2,8,8,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/9
+1KI,10,"A rainha de Sabá visita a Salomão",1,2,14,14,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/10
+1KI,10,"As riquezas de Salomão",14,2,19,19,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/10
+1KI,11,"A morte de Salomão",41,2,9,9,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/11
+1KI,12,"Roboão causa separação entre as tribos",1,2,1,1,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/1ki/12
+1KI,12,"Dez tribos seguem Jeroboão",16,2,8,8,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/12
+1KI,14,"""O reinado de Roboão, de Judá""",21,2,8,8,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/14
+1KI,15,"""O reinado de Abias, de Judá""",1,2,1,1,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/1ki/15
+1KI,15,"""O reinado de Asa, de Judá""",9,2,15,15,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/15
+1KI,22,"""Aliança entre Josafá, de Judá, e Acabe""",1,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1ki/22
+1KI,22,"As profecias dos falsos profetas",5,2,16,16,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/22
+1KI,22,"A profecia de Micaías",13,2,7,7,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/22
+1KI,22,"A morte de Acabe",29,2,8,8,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/22
+1KI,22,"O reinado e a morte de Josafá",41,2,19,19,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/22
+1KI,22,"""O reinado de Acazias, de Israel""",53,52,5,5,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ki/22
+2KI,5,"Geazi é atacado de lepra",19,20,40,20,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ki/5
+2KI,8,"O reinado de Jeorão",16,2,4,4,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/8
+2KI,8,"O reinado de Acazias",25,2,17,17,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/8
+2KI,11,"Atalia usurpa o trono de Judá",1,2,3,3,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/11
+2KI,11,"Joás ungido rei de Judá",4,2,3,3,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/11
+2KI,11,"A morte de Atalia",13,2,28,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ki/11
+2KI,11,"A aliança de Joiada",17,2,36,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ki/11
+2KI,12,"A conspiração contra o rei Joás",21,2,3,3,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/12
+2KI,14,"""O reinado de Amazias, de Judá""",1,2,7,7,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/14
+2KI,14,"Amazias vence os edomitas",7,2,22,22,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/14
+2KI,14,"Amazias derrotado por Jeoás",8,2,26,26,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/14
+2KI,14,"""A morte de Amazias, rei de Judá""",17,2,47,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ki/14
+2KI,15,"""O reinado de Azarias, de Judá""",1,2,11,11,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/15
+2KI,15,"Azarias é atacado de lepra",5,2,20,20,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/15
+2KI,15,"""O reinado de Jotão, de Judá""",32,2,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/15
+2KI,16,"""O reinado de Acaz, de Judá""",1,2,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/16
+2KI,16,"A idolatria de Acaz",10,2,4,4,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/16
+2KI,16,"A morte de Acaz",19,2,43,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ki/16
+2KI,18,"""O reinado de Ezequias, de Judá""",1,2,4,4,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/18
+2KI,18,"Senaqueribe invade Judá",13,2,2,2,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/18
+2KI,18,"Rabsaqué afronta a Ezequias e ao SENHOR",19,2,15,15,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/18
+2KI,19,"A destruição do exército dos assírios",35,2,19,19,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/19
+2KI,20,"A doença de Ezequias e a sua cura maravilhosa",1,2,1,1,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/2ki/20
+2KI,20,"A morte de Ezequias",20,2,15,15,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/20
+2KI,21,"""O reinado de Manassés, de Judá""",1,2,1,1,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/2ki/21
+2KI,21,"A morte de Manassés",17,2,4,4,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/21
+2KI,21,"""O reinado de Amom, de Judá""",19,2,6,6,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/21
+2KI,22,"O reinado de Josias",1,2,19,19,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/22
+2KI,22,"O rei repara o templo",3,2,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/22
+2KI,22,"Hilquias acha o Livro da Lei",8,2,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/22
+2KI,22,"Josias manda consultar a profetisa Hulda",11,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ki/22
+2KI,23,"A purificação do templo e do culto",4,2,46,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ki/23
+2KI,23,"A celebração da Páscoa",21,2,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/23
+2KI,23,"A morte de Josias",28,2,19,19,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/23
+2KI,23,"O reinado e deposição de Joacaz",31,2,27,27,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/23
+2KI,23,"O reinado de Jeoaquim",36,2,8,8,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/23
+2KI,24,"O reinado de Joaquim",8,2,14,14,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ki/24
+2KI,24,"O reinado de Zedequias",18,2,32,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ki/24
+2KI,25,"O cativeiro de Judá",8,2,8,8,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/2ki/25
+1CH,3,"Filhos de Davi",1,2,36,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1ch/3
+1CH,6,"Descendentes de Levi",27,1,19,27,json_ok,genealogia_meio_capitulo,https://www.bibliaonline.com.br/ara/1ch/6
+1CH,6,"Cantores levitas",16,31,23,23,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/6
+1CH,6,"Descendentes de Arão",34,49,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/6
+1CH,6,"As cidades dos levitas",39,54,5,5,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/6
+1CH,10,"A sepultura de Saul",8,1,19,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1ch/10
+1CH,11,"Davi é ungido rei",1,2,3,3,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/11
+1CH,11,"Davi conquista a Sião",4,2,8,8,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/11
+1CH,11,"Os valentes de Davi",10,2,19,19,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/11
+1CH,12,"O exército que proclamou a Davi rei em Hebrom",24,23,10,10,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/12
+1CH,13,"Davi procura trazer a arca",5,2,23,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1ch/13
+1CH,14,"O reinado de Davi reconhecido por Hirão",1,2,10,10,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/14
+1CH,14,"Os filhos de Davi que nasceram em Jerusalém",3,2,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/14
+1CH,14,"Davi derrota os filisteus",8,2,18,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1ch/14
+1CH,15,"Mical despreza a Davi",29,2,18,18,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/15
+1CH,17,"A aliança do Senhor com Davi",1,2,10,10,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/17
+1CH,17,"Ações de graças de Davi",16,2,4,4,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/17
+1CH,18,"Diversas vitórias de Davi",1,2,25,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1ch/18
+1CH,18,"Oficiais de Davi",14,2,20,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1ch/18
+1CH,19,"Davi derrota os amonitas e os siros",1,2,25,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1ch/19
+1CH,20,"Davi conquista a Rabá",1,2,11,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1ch/20
+1CH,20,"Gigantes mortos pelos homens de Davi",4,2,14,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/1ch/20
+1CH,21,"O levantamento do censo",1,2,22,22,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/21
+1CH,21,"Davi escolhe o castigo",7,2,10,10,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/21
+1CH,21,"Davi erige um altar na eira de Ornã",18,2,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/21
+1CH,29,"Salomão proclamado rei",22,23,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/1ch/29
+2CH,1,"Salomão pede a Deus sabedoria",7,1,14,14,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/1
+2CH,1,"As riquezas de Salomão",14,1,14,14,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/2ch/1
+2CH,2,"Salomão faz aliança com Hirão",18,1,2,2,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/2
+2CH,2,"Os preparativos para edificar o templo",16,1,3,3,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/2
+2CH,3,"Os dois querubins",10,1,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/3
+2CH,3,"As duas colunas",15,1,10,10,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/3
+2CH,4,"Outros utensílios para o templo",6,1,3,3,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/4
+2CH,5,"Salomão traz para o templo a arca",2,1,4,4,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/5
+2CH,6,"Salomão ora a Deus",12,1,10,10,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/6
+2CH,7,"A conclusão da solenidade",4,1,17,17,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/7
+2CH,7,"A aliança do Senhor com Salomão",11,1,6,6,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/7
+2CH,9,"As riquezas de Salomão",13,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/9
+2CH,9,"A morte de Salomão",29,1,5,5,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/9
+2CH,10,"Dez tribos seguem Jeroboão",16,1,6,6,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/10
+2CH,12,"O reinado de Roboão",13,1,10,10,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/12
+2CH,14,"O reinado de Asa",23,1,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/14
+2CH,14,"""Asa vence a Zerá, o etíope""",8,9,11,11,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/14
+2CH,16,"A morte de Asa",11,1,17,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/16
+2CH,18,"As promessas dos falsos profetas",4,1,17,17,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/18
+2CH,18,"A profecia de Micaías",12,1,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/18
+2CH,18,"A morte de Acabe",28,1,11,11,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/18
+2CH,20,"O reinado e a morte de Josafá",31,1,10,10,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/20
+2CH,21,"O reinado de Jeorão",1,2,24,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/21
+2CH,22,"O reinado de Acazias",1,2,36,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/22
+2CH,22,"Atalia usurpa o trono",10,2,23,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/22
+2CH,23,"Joás ungido rei de Judá",1,2,31,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/23
+2CH,23,"A morte de Atalia",12,2,17,17,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/23
+2CH,23,"A aliança de Joiada",16,2,28,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/23
+2CH,24,"O reinado de Joás",1,2,14,14,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/24
+2CH,24,"A conspiração contra o rei Joás",25,2,25,25,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/2ch/24
+2CH,25,"O reinado de Amazias",1,2,36,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/25
+2CH,25,"Amazias vence os edomitas",5,2,47,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/25
+2CH,25,"Amazias derrotado por Jeoás",17,2,23,23,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/25
+2CH,25,"""A morte de Amazias, de Judá""",25,2,17,17,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/25
+2CH,26,"O reinado de Uzias",1,2,28,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/26
+2CH,26,"Uzias é atacado de lepra",16,2,22,22,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/26
+2CH,27,"O reinado de Jotão",1,2,22,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/27
+2CH,28,"O reinado de Acaz",1,2,17,17,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/28
+2CH,28,"Acaz pede socorro aos assírios",16,2,22,22,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/28
+2CH,28,"A idolatria de Acaz",22,2,8,8,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/28
+2CH,28,"A morte de Acaz",26,2,17,17,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/28
+2CH,29,"Ezequias manda abrir o templo",1,2,24,24,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/29
+2CH,32,"Senaqueribe afronta a Ezequias e ao Senhor",9,2,14,14,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/32
+2CH,32,"A destruição do exército dos assírios",21,2,45,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/32
+2CH,32,"Doença de Ezequias",24,2,56,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/32
+2CH,32,"A morte de Ezequias",32,2,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/32
+2CH,33,"O reinado de Manassés",1,2,11,11,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/33
+2CH,33,"A morte de Manassés",18,2,57,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/33
+2CH,33,"O reinado de Amom",21,2,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/33
+2CH,34,"O reinado de Josias",1,2,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/34
+2CH,34,"A purificação do templo e do culto",3,2,17,17,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/34
+2CH,34,"O rei repara o templo",8,2,2,2,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/34
+2CH,34,"Hilquias acha o Livro da Lei",14,2,24,24,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/34
+2CH,34,"Josias manda consultar a profetisa Hulda",19,2,35,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/34
+2CH,34,"Josias renova a aliança ante o Senhor",29,2,17,17,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/34
+2CH,35,"A celebração da Páscoa",1,2,7,7,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/35
+2CH,35,"A morte de Josias no vale de Megido",20,2,24,24,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/35
+2CH,36,"O reinado e deposição de Joacaz",1,2,40,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/36
+2CH,36,"O reinado de Jeoaquim",5,2,15,15,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/36
+2CH,36,"O reinado de Joaquim",9,2,25,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/36
+2CH,36,"O reinado de Zedequias",11,2,26,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/2ch/36
+2CH,36,"O cativeiro de Judá",17,2,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/2ch/36
+NEH,4,"A defesa contra os adversários",33,1,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/neh/4
+NEH,7,"Contribuições para o templo",69,70,33,33,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/neh/7
+NEH,9,"A aliança do povo sobre guardar a Lei",1,38,32,32,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/neh/9
+PSA,4,"""Confiança em Deus, na angústia""",2,1,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/4
+PSA,5,"Proteção contra os ímpios",2,1,18,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/5
+PSA,10,"A derrubada dos ímpios",1,2,33,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/10
+PSA,12,"Auxílio contra a falsidade",2,1,25,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/12
+PSA,13,"Oração de fé",2,1,2,2,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/sl/13
+PSA,15,"O cidadão dos céus",1,2,6,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/15
+PSA,18,"Vitória e domínio",2,1,23,23,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/18
+PSA,19,"A excelência da criação e da palavra de Deus",2,1,6,6,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/19
+PSA,20,"Oração a favor do rei",2,1,11,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/20
+PSA,21,"Ações de graças pela vitória",2,1,8,8,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/21
+PSA,22,"Sofrimento e vitória do Messias",2,1,6,6,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/22
+PSA,30,"Ações de graças pela libertação da morte",2,1,27,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/30
+PSA,31,"Lamentos e louvor",2,1,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/31
+PSA,34,"Provai que o Senhor é bom!",2,1,3,3,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/34
+PSA,36,"Malícia humana e benignidade divina",2,1,12,12,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/36
+PSA,39,"A vaidade da vida",2,1,4,4,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/39
+PSA,40,"Oração para livramento",2,1,14,14,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/40
+PSA,41,"A calúnia dos inimigos e o socorro de Deus",2,1,24,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/41
+PSA,42,"A alma anela por Deus",2,1,14,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/42
+PSA,44,"Apelo por auxílio divino",2,1,11,11,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/44
+PSA,45,"O Ungido de Deus e a sua noiva",2,1,6,6,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/45
+PSA,46,"Deus é o nosso refúgio e fortaleza",2,1,8,8,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/46
+PSA,47,"""Deus, o Rei da terra""",2,1,28,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/47
+PSA,48,"A cidade de Deus",2,1,13,13,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/48
+PSA,49,"A vaidade do homem",2,1,12,12,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/49
+PSA,51,"Confissão e arrependimento",3,2,16,16,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/51
+PSA,52,"Condenação do ímpio",3,1,28,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/52
+PSA,53,"A corrupção do pecador e sua redenção",2,1,23,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/53
+PSA,54,"Apelo para o socorro divino",3,1,6,6,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/54
+PSA,55,"Que os traidores sejam destruídos",2,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/55
+PSA,56,"Conforto na perseguição",2,1,3,3,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/56
+PSA,57,"Louvor pela benignidade divina",2,1,30,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/57
+PSA,58,"A sorte dos ímpios",2,1,21,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/58
+PSA,59,"Súplica em prol de libertação",2,1,15,15,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/59
+PSA,60,"Oração em tempos de guerra",3,2,27,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/60
+PSA,61,"Oração pelo rei",2,1,13,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/61
+PSA,62,"Exortação à confiança",2,1,3,3,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/62
+PSA,64,"Proteção contra os inimigos",2,1,2,2,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/sl/64
+PSA,65,"Ações de graças pelas bênçãos das searas",2,1,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/65
+PSA,67,"As nações rendem graças",2,1,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/67
+PSA,68,"A vitória de Deus sobre os seus inimigos",2,1,19,19,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/68
+PSA,69,"O lamento do Messias",2,1,17,17,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/69
+PSA,70,"Petição por auxílio divino",2,1,4,4,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/70
+PSA,75,"Deus é juiz",2,1,2,2,json_ok,txt_ara,https://www.bibliaonline.com.br/ara/sl/75
+PSA,76,"A majestade e o poder de Deus",2,1,4,4,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/76
+PSA,77,"As grandes obras e a misericórdia de Deus",2,1,1,1,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/77
+PSA,80,"Pedindo restaurações",2,1,26,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/80
+PSA,81,"Exortação a louvor e obediência",2,1,9,9,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/81
+PSA,84,"Saudades do templo",2,1,5,5,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/84
+PSA,85,"Pede-se o perdão de Deus",2,1,31,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/85
+PSA,88,"Lamentação de um atribulado",2,1,16,16,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/88
+PSA,89,"Promessa do reino messiânico a Davi",2,1,14,14,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/89
+PSA,92,"Hino de gratidão a Deus",2,1,6,6,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/92
+PSA,102,"Arrependimento e esperança",2,1,17,17,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/102
+PSA,108,"Deus concede vitória ao seu povo",2,1,8,8,fix_needed,txt_ara,https://www.bibliaonline.com.br/ara/sl/108
+PSA,131,"Calma em Deus",1,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/131
+PSA,132,"Uma promessa antiga",1,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/132
+PSA,139,"Deus onisciente e onipotente",1,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/139
+PSA,140,"Contra inimigos e perfídias",2,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/140
+PSA,142,"Oração no meio de grande perigo",2,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/sl/142
+PRO,31,"O louvor da mulher virtuosa",10,11,,11,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/pro/31
+ECC,5,"A loucura de votos precipitados",17,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/ecc/5
+ECC,5,"A vaidade das riquezas",7,8,,8,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/ecc/5
+ISA,9,"O nascimento e o reino do Príncipe da Paz",23,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/isa/9
+ISA,9,"Profecia contra o reino de Israel",7,8,,8,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/isa/9
+ISA,24,"A ruína dos transgressores",16,17,,17,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/isa/24
+ISA,36,"Senaqueribe invade Judá",1,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/isa/36
+ISA,36,"Rabsaqué afronta a Ezequias e ao Senhor",4,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/isa/36
+ISA,37,"Ezequias consulta a Isaías",1,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/isa/37
+ISA,37,"A carta do rei da Assíria",8,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/isa/37
+ISA,37,"A oração de Ezequias",14,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/isa/37
+ISA,37,"O profeta conforta a Ezequias",21,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/isa/37
+ISA,37,"A destruição do exército dos assírios",36,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/isa/37
+ISA,38,"A doença de Ezequias e a sua cura maravilhosa",1,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/isa/38
+ISA,39,"A embaixada da Babilônia",1,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/isa/39
+JER,9,"Ameaças de ruína e exílio",6,7,,7,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/jer/9
+JER,9,"Conhecer a Deus constitui a glória do homem",22,23,,23,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/jer/9
+JER,39,"Nabucodonosor toma Jerusalém",1,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/jer/39
+JER,52,"A queda de Jerusalém e o cativeiro de Judá",1,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/jer/52
+JER,52,"Libertado e honrado o rei Joaquim",31,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/jer/52
+LAM,1,"Jerusalém destruída e desolada",1,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/lam/1
+EZK,20,"A profecia contra o Sul",1,45,,45,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/ezk/20
+EZK,21,"A espada do Senhor",6,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/ezk/21
+DAN,4,"A loucura de Nabucodonosor",31,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/dan/4
+DAN,6,"Daniel na cova dos leões",2,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/dan/6
+JOL,2,"Promessa do derramamento do Espírito",1,28,,28,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/jol/2
+JON,2,"A oração de Jonas no ventre do peixe",2,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/jon/2
+NAM,2,"O cerco e a tomada de Nínive",2,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/nam/2
+HAB,1,"A intercessão do profeta",12,13,,13,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/hab/1
+ZEC,2,"A terceira visão: Jerusalém é medida",5,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/zec/2
+ZEC,2,"Israel exortado a voltar para Sião",10,6,,6,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/zec/2
+MAL,4,"O sol da justiça e seu precursor",19,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/mal/4
+MAT,1,"O nascimento de Jesus Cristo",18,19,,19,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/mt/1
+MAT,5,"As bem-aventuranças",3,1,,1,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/mt/5
+MRK,5,"Os gerasenos rejeitam a Jesus",14,15,,15,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/mrk/5
+MRK,5,"A cura de uma mulher enferma",24,25,,25,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/mrk/5
+MRK,16,"Jesus aparece a Maria Madalena",9,10,,10,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/mrk/16
+LUK,8,"A cura de uma mulher enferma",42,43,,43,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/luk/8
+LUK,9,"De novo prediz Jesus a sua morte",43,44,,44,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/luk/9
+ACT,8,"A primeira perseguição à igreja",1,2,,2,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/act/8
+GAL,6,"Paulo gloria-se na cruz de Cristo",11,12,,12,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/gal/6
+REV,16,"O terceiro flagelo",4,3,,3,fix_needed,tsv_extraido,https://www.bibliaonline.com.br/ara/rev/16

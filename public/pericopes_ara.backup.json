@@ -349,7 +349,7 @@
     "32": [
       {
         "pericope": "Jacó reconcilia-se com Esaú",
-        "versiculo": "4"
+        "versiculo": "3"
       },
       {
         "pericope": "Jacó luta com Deus e transpõe o vau de Jaboque",
@@ -615,15 +615,15 @@
     "8": [
       {
         "pericope": "Segunda praga: rãs",
-        "versiculo": "26"
+        "versiculo": "1"
       },
       {
         "pericope": "Terceira praga: piolhos",
-        "versiculo": "12"
+        "versiculo": "16"
       },
       {
         "pericope": "Quarta praga: moscas",
-        "versiculo": "16"
+        "versiculo": "20"
       }
     ],
     "9": [
@@ -778,11 +778,11 @@
     "22": [
       {
         "pericope": "Leis acerca da propriedade",
-        "versiculo": "37"
+        "versiculo": "1"
       },
       {
         "pericope": "Leis civis e religiosas",
-        "versiculo": "15"
+        "versiculo": "16"
       }
     ],
     "23": [
@@ -1179,23 +1179,23 @@
     "6": [
       {
         "pericope": "O sacrifício pelos pecados voluntários",
-        "versiculo": "20"
-      },
-      {
-        "pericope": "A lei do holocausto",
         "versiculo": "1"
       },
       {
+        "pericope": "A lei do holocausto",
+        "versiculo": "8"
+      },
+      {
         "pericope": "A lei da oferta de manjares",
-        "versiculo": "7"
+        "versiculo": "14"
       },
       {
         "pericope": "A oferta na consagração dos sacerdotes",
-        "versiculo": "12"
+        "versiculo": "19"
       },
       {
         "pericope": "A lei da oferta pelo pecado",
-        "versiculo": "17"
+        "versiculo": "24"
       }
     ],
     "7": [
@@ -1627,13 +1627,13 @@
       },
       {
         "pericope": "Novo tumulto e seu castigo",
-        "versiculo": "6"
+        "versiculo": "41"
       }
     ],
     "17": [
       {
         "pericope": "O bordão de Arão floresce",
-        "versiculo": "16"
+        "versiculo": "1"
       }
     ],
     "18": [
@@ -2257,7 +2257,7 @@
     "29": [
       {
         "pericope": "Deus faz nova aliança com o povo",
-        "versiculo": "69"
+        "versiculo": "1"
       }
     ],
     "30": [
@@ -2974,7 +2974,7 @@
       },
       {
         "pericope": "O cântico das mulheres indigna a Saul",
-        "versiculo": "6"
+        "versiculo": "7"
       },
       {
         "pericope": "Saul intenta matar a Davi pela astúcia",
@@ -3294,7 +3294,7 @@
       },
       {
         "pericope": "A morte do filho de Bate-Seba",
-        "versiculo": "15"
+        "versiculo": "16"
       },
       {
         "pericope": "Davi conquista Rabá",
@@ -3529,23 +3529,23 @@
       },
       {
         "pericope": "A sabedoria de Salomão",
-        "versiculo": "9"
+        "versiculo": "29"
       }
     ],
     "5": [
       {
         "pericope": "Salomão faz aliança com Hirão",
-        "versiculo": "15"
+        "versiculo": "2"
       },
       {
         "pericope": "Os preparativos para edificar o templo",
-        "versiculo": "27"
+        "versiculo": "2"
       }
     ],
     "6": [
       {
         "pericope": "Salomão edifica o templo",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "O Santo dos Santos",
@@ -3585,7 +3585,7 @@
     "8": [
       {
         "pericope": "Salomão traz para o templo a arca",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Salomão fala ao povo",
@@ -3607,7 +3607,7 @@
     "9": [
       {
         "pericope": "A aliança do Senhor com Salomão",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "As demais atividades de Salomão",
@@ -3617,7 +3617,7 @@
     "10": [
       {
         "pericope": "A rainha de Sabá visita a Salomão",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "As riquezas de Salomão",
@@ -3649,7 +3649,7 @@
     "12": [
       {
         "pericope": "Roboão causa separação entre as tribos",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Dez tribos seguem Jeroboão",
@@ -3691,7 +3691,7 @@
     "15": [
       {
         "pericope": "O reinado de Abias, de Judá",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "O reinado de Asa, de Judá",
@@ -3785,7 +3785,7 @@
     "22": [
       {
         "pericope": "Aliança entre Josafá, de Judá, e Acabe",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "As profecias dos falsos profetas",
@@ -3885,7 +3885,7 @@
       },
       {
         "pericope": "Geazi é atacado de lepra",
-        "versiculo": "19"
+        "versiculo": "20"
       }
     ],
     "6": [
@@ -3969,7 +3969,7 @@
     "11": [
       {
         "pericope": "Atalia usurpa o trono de Judá",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Joás ungido rei de Judá",
@@ -4011,7 +4011,7 @@
     "14": [
       {
         "pericope": "O reinado de Amazias, de Judá",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Amazias vence os edomitas",
@@ -4037,7 +4037,7 @@
     "15": [
       {
         "pericope": "O reinado de Azarias, de Judá",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Azarias é atacado de lepra",
@@ -4071,7 +4071,7 @@
     "16": [
       {
         "pericope": "O reinado de Acaz, de Judá",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Acaz pede socorro aos assírios",
@@ -4111,7 +4111,7 @@
     "18": [
       {
         "pericope": "O reinado de Ezequias, de Judá",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Senaqueribe invade Judá",
@@ -4151,7 +4151,7 @@
     "20": [
       {
         "pericope": "A doença de Ezequias e a sua cura maravilhosa",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "A embaixada da Babilônia",
@@ -4166,7 +4166,7 @@
     "21": [
       {
         "pericope": "O reinado de Manassés, de Judá",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "O juízo a respeito de Judá",
@@ -4184,7 +4184,7 @@
     "22": [
       {
         "pericope": "O reinado de Josias",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "O rei repara o templo",
@@ -4325,7 +4325,7 @@
     "3": [
       {
         "pericope": "Filhos de Davi",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Descendentes de Salomão",
@@ -4359,19 +4359,19 @@
     "6": [
       {
         "pericope": "Descendentes de Levi",
-        "versiculo": "27"
+        "versiculo": "1"
       },
       {
         "pericope": "Cantores levitas",
-        "versiculo": "16"
+        "versiculo": "31"
       },
       {
         "pericope": "Descendentes de Arão",
-        "versiculo": "34"
+        "versiculo": "49"
       },
       {
         "pericope": "As cidades dos levitas",
-        "versiculo": "39"
+        "versiculo": "54"
       }
     ],
     "7": [
@@ -4421,7 +4421,7 @@
     "11": [
       {
         "pericope": "Davi é ungido rei",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Davi conquista a Sião",
@@ -4455,7 +4455,7 @@
     "14": [
       {
         "pericope": "O reinado de Davi reconhecido por Hirão",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Os filhos de Davi que nasceram em Jerusalém",
@@ -4501,7 +4501,7 @@
     "17": [
       {
         "pericope": "A aliança do Senhor com Davi",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Ações de graças de Davi",
@@ -4511,7 +4511,7 @@
     "18": [
       {
         "pericope": "Diversas vitórias de Davi",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Oficiais de Davi",
@@ -4521,13 +4521,13 @@
     "19": [
       {
         "pericope": "Davi derrota os amonitas e os siros",
-        "versiculo": "1"
+        "versiculo": "2"
       }
     ],
     "20": [
       {
         "pericope": "Davi conquista a Rabá",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Gigantes mortos pelos homens de Davi",
@@ -4537,7 +4537,7 @@
     "21": [
       {
         "pericope": "O levantamento do censo",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Davi escolhe o castigo",
@@ -4633,7 +4633,7 @@
       },
       {
         "pericope": "Salomão proclamado rei",
-        "versiculo": "22"
+        "versiculo": "23"
       },
       {
         "pericope": "A morte de Davi",
@@ -4659,11 +4659,11 @@
     "2": [
       {
         "pericope": "Salomão faz aliança com Hirão",
-        "versiculo": "18"
+        "versiculo": "1"
       },
       {
         "pericope": "Os preparativos para edificar o templo",
-        "versiculo": "16"
+        "versiculo": "1"
       }
     ],
     "3": [
@@ -4791,11 +4791,11 @@
     "14": [
       {
         "pericope": "O reinado de Asa",
-        "versiculo": "23"
+        "versiculo": "1"
       },
       {
         "pericope": "Asa vence a Zerá, o etíope",
-        "versiculo": "8"
+        "versiculo": "9"
       }
     ],
     "15": [
@@ -4865,13 +4865,13 @@
     "21": [
       {
         "pericope": "O reinado de Jeorão",
-        "versiculo": "1"
+        "versiculo": "2"
       }
     ],
     "22": [
       {
         "pericope": "O reinado de Acazias",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Jeú mata a Acazias",
@@ -4885,7 +4885,7 @@
     "23": [
       {
         "pericope": "Joás ungido rei de Judá",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "A morte de Atalia",
@@ -4899,7 +4899,7 @@
     "24": [
       {
         "pericope": "O reinado de Joás",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Zacarias morto pelo rei",
@@ -4917,7 +4917,7 @@
     "25": [
       {
         "pericope": "O reinado de Amazias",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Amazias vence os edomitas",
@@ -4939,7 +4939,7 @@
     "26": [
       {
         "pericope": "O reinado de Uzias",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Uzias é atacado de lepra",
@@ -4949,13 +4949,13 @@
     "27": [
       {
         "pericope": "O reinado de Jotão",
-        "versiculo": "1"
+        "versiculo": "2"
       }
     ],
     "28": [
       {
         "pericope": "O reinado de Acaz",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Acaz pede socorro aos assírios",
@@ -4973,7 +4973,7 @@
     "29": [
       {
         "pericope": "Ezequias manda abrir o templo",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Os levitas purificam o templo",
@@ -5021,7 +5021,7 @@
     "33": [
       {
         "pericope": "O reinado de Manassés",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "O cativeiro de Manassés e sua oração",
@@ -5039,7 +5039,7 @@
     "34": [
       {
         "pericope": "O reinado de Josias",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "A purificação do templo e do culto",
@@ -5065,7 +5065,7 @@
     "35": [
       {
         "pericope": "A celebração da Páscoa",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "A morte de Josias no vale de Megido",
@@ -5075,7 +5075,7 @@
     "36": [
       {
         "pericope": "O reinado e deposição de Joacaz",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "O reinado de Jeoaquim",
@@ -5224,7 +5224,7 @@
     "4": [
       {
         "pericope": "A defesa contra os adversários",
-        "versiculo": "33"
+        "versiculo": "1"
       }
     ],
     "5": [
@@ -5258,7 +5258,7 @@
       },
       {
         "pericope": "Contribuições para o templo",
-        "versiculo": "69"
+        "versiculo": "70"
       }
     ],
     "8": [
@@ -5278,7 +5278,7 @@
       },
       {
         "pericope": "A aliança do povo sobre guardar a Lei",
-        "versiculo": "1"
+        "versiculo": "38"
       }
     ],
     "11": [
@@ -5696,43 +5696,43 @@
     "3": [
       {
         "pericope": "Confiança em Deus, na adversidade",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "4": [
       {
         "pericope": "Confiança em Deus, na angústia",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "5": [
       {
         "pericope": "Proteção contra os ímpios",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "6": [
       {
         "pericope": "Davi recorre à misericórdia de Deus",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "7": [
       {
         "pericope": "Deus defende o justo contra o ímpio",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "8": [
       {
         "pericope": "A glória divina e a dignidade do filho do homem",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "9": [
       {
         "pericope": "Ações de graças",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "10": [
@@ -5750,13 +5750,13 @@
     "12": [
       {
         "pericope": "Auxílio contra a falsidade",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "13": [
       {
         "pericope": "Oração de fé",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "14": [
@@ -5786,31 +5786,31 @@
     "18": [
       {
         "pericope": "Vitória e domínio",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "19": [
       {
         "pericope": "A excelência da criação e da palavra de Deus",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "20": [
       {
         "pericope": "Oração a favor do rei",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "21": [
       {
         "pericope": "Ações de graças pela vitória",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "22": [
       {
         "pericope": "Sofrimento e vitória do Messias",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "23": [
@@ -5858,13 +5858,13 @@
     "30": [
       {
         "pericope": "Ações de graças pela libertação da morte",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "31": [
       {
         "pericope": "Lamentos e louvor",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "32": [
@@ -5882,7 +5882,7 @@
     "34": [
       {
         "pericope": "Provai que o Senhor é bom!",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "35": [
@@ -5894,7 +5894,7 @@
     "36": [
       {
         "pericope": "Malícia humana e benignidade divina",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "37": [
@@ -5906,31 +5906,31 @@
     "38": [
       {
         "pericope": "Arrependimento do pecador",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "39": [
       {
         "pericope": "A vaidade da vida",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "40": [
       {
         "pericope": "Oração para livramento",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "41": [
       {
         "pericope": "A calúnia dos inimigos e o socorro de Deus",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "42": [
       {
         "pericope": "A alma anela por Deus",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "43": [
@@ -5942,37 +5942,37 @@
     "44": [
       {
         "pericope": "Apelo por auxílio divino",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "45": [
       {
         "pericope": "O Ungido de Deus e a sua noiva",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "46": [
       {
         "pericope": "Deus é o nosso refúgio e fortaleza",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "47": [
       {
         "pericope": "Deus, o Rei da terra",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "48": [
       {
         "pericope": "A cidade de Deus",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "49": [
       {
         "pericope": "A vaidade do homem",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "50": [
@@ -5984,91 +5984,91 @@
     "51": [
       {
         "pericope": "Confissão e arrependimento",
-        "versiculo": "3"
+        "versiculo": "1"
       }
     ],
     "52": [
       {
         "pericope": "Condenação do ímpio",
-        "versiculo": "3"
+        "versiculo": "1"
       }
     ],
     "53": [
       {
         "pericope": "A corrupção do pecador e sua redenção",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "54": [
       {
         "pericope": "Apelo para o socorro divino",
-        "versiculo": "3"
+        "versiculo": "1"
       }
     ],
     "55": [
       {
         "pericope": "Que os traidores sejam destruídos",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "56": [
       {
         "pericope": "Conforto na perseguição",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "57": [
       {
         "pericope": "Louvor pela benignidade divina",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "58": [
       {
         "pericope": "A sorte dos ímpios",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "59": [
       {
         "pericope": "Súplica em prol de libertação",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "60": [
       {
         "pericope": "Oração em tempos de guerra",
-        "versiculo": "3"
+        "versiculo": "1"
       }
     ],
     "61": [
       {
         "pericope": "Oração pelo rei",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "62": [
       {
         "pericope": "Exortação à confiança",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "63": [
       {
         "pericope": "Buscando a Deus",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "64": [
       {
         "pericope": "Proteção contra os inimigos",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "65": [
       {
         "pericope": "Ações de graças pelas bênçãos das searas",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "66": [
@@ -6080,25 +6080,25 @@
     "67": [
       {
         "pericope": "As nações rendem graças",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "68": [
       {
         "pericope": "A vitória de Deus sobre os seus inimigos",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "69": [
       {
         "pericope": "O lamento do Messias",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "70": [
       {
         "pericope": "Petição por auxílio divino",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "71": [
@@ -6128,19 +6128,19 @@
     "75": [
       {
         "pericope": "Deus é juiz",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "76": [
       {
         "pericope": "A majestade e o poder de Deus",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "77": [
       {
         "pericope": "As grandes obras e a misericórdia de Deus",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "78": [
@@ -6158,13 +6158,13 @@
     "80": [
       {
         "pericope": "Pedindo restaurações",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "81": [
       {
         "pericope": "Exortação a louvor e obediência",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "82": [
@@ -6176,19 +6176,19 @@
     "83": [
       {
         "pericope": "Julgamento de Deus contra as nações inimigas",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "84": [
       {
         "pericope": "Saudades do templo",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "85": [
       {
         "pericope": "Pede-se o perdão de Deus",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "86": [
@@ -6206,13 +6206,13 @@
     "88": [
       {
         "pericope": "Lamentação de um atribulado",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "89": [
       {
         "pericope": "Promessa do reino messiânico a Davi",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "90": [
@@ -6230,7 +6230,7 @@
     "92": [
       {
         "pericope": "Hino de gratidão a Deus",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "93": [
@@ -6290,7 +6290,7 @@
     "102": [
       {
         "pericope": "Arrependimento e esperança",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "103": [
@@ -6326,7 +6326,7 @@
     "108": [
       {
         "pericope": "Deus concede vitória ao seu povo",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "109": [
@@ -6518,7 +6518,7 @@
     "140": [
       {
         "pericope": "Contra inimigos e perfídias",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "141": [
@@ -6530,7 +6530,7 @@
     "142": [
       {
         "pericope": "Oração no meio de grande perigo",
-        "versiculo": "2"
+        "versiculo": "1"
       }
     ],
     "143": [
@@ -6708,7 +6708,7 @@
       },
       {
         "pericope": "O louvor da mulher virtuosa",
-        "versiculo": "10"
+        "versiculo": "11"
       }
     ]
   },
@@ -6764,11 +6764,11 @@
     "5": [
       {
         "pericope": "A loucura de votos precipitados",
-        "versiculo": "17"
+        "versiculo": "1"
       },
       {
         "pericope": "A vaidade das riquezas",
-        "versiculo": "7"
+        "versiculo": "8"
       }
     ],
     "7": [
@@ -6963,11 +6963,11 @@
     "9": [
       {
         "pericope": "O nascimento e o reino do Príncipe da Paz",
-        "versiculo": "23"
+        "versiculo": "1"
       },
       {
         "pericope": "Profecia contra o reino de Israel",
-        "versiculo": "7"
+        "versiculo": "8"
       }
     ],
     "10": [
@@ -7079,7 +7079,7 @@
       },
       {
         "pericope": "A ruína dos transgressores",
-        "versiculo": "16"
+        "versiculo": "17"
       }
     ],
     "25": [
@@ -7179,7 +7179,7 @@
     "36": [
       {
         "pericope": "Senaqueribe invade Judá",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Rabsaqué afronta a Ezequias e ao Senhor",
@@ -7189,7 +7189,7 @@
     "37": [
       {
         "pericope": "Ezequias consulta a Isaías",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "A carta do rei da Assíria",
@@ -7211,7 +7211,7 @@
     "38": [
       {
         "pericope": "A doença de Ezequias e a sua cura maravilhosa",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Cântico de Ezequias",
@@ -7221,7 +7221,7 @@
     "39": [
       {
         "pericope": "A embaixada da Babilônia",
-        "versiculo": "1"
+        "versiculo": "2"
       }
     ],
     "40": [
@@ -7543,11 +7543,11 @@
     "9": [
       {
         "pericope": "Ameaças de ruína e exílio",
-        "versiculo": "6"
+        "versiculo": "7"
       },
       {
         "pericope": "Conhecer a Deus constitui a glória do homem",
-        "versiculo": "22"
+        "versiculo": "23"
       }
     ],
     "10": [
@@ -7852,7 +7852,7 @@
     "39": [
       {
         "pericope": "Nabucodonosor toma Jerusalém",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Nabucodonosor cuida de Jeremias",
@@ -7970,7 +7970,7 @@
     "52": [
       {
         "pericope": "A queda de Jerusalém e o cativeiro de Judá",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Libertado e honrado o rei Joaquim",
@@ -7982,7 +7982,7 @@
     "1": [
       {
         "pericope": "Jerusalém destruída e desolada",
-        "versiculo": "1"
+        "versiculo": "2"
       }
     ],
     "2": [
@@ -8176,7 +8176,7 @@
       },
       {
         "pericope": "A profecia contra o Sul",
-        "versiculo": "1"
+        "versiculo": "45"
       }
     ],
     "21": [
@@ -8610,7 +8610,7 @@
       },
       {
         "pericope": "Apelo final",
-        "versiculo": "10"
+        "versiculo": "9"
       }
     ]
   },
@@ -8628,7 +8628,7 @@
       },
       {
         "pericope": "Promessa do derramamento do Espírito",
-        "versiculo": "1"
+        "versiculo": "28"
       }
     ],
     "3": [
@@ -8861,7 +8861,7 @@
       },
       {
         "pericope": "A intercessão do profeta",
-        "versiculo": "12"
+        "versiculo": "13"
       }
     ],
     "2": [
@@ -9111,7 +9111,7 @@
     "4": [
       {
         "pericope": "O sol da justiça e seu precursor",
-        "versiculo": "19"
+        "versiculo": "1"
       }
     ]
   },
@@ -9124,7 +9124,7 @@
       },
       {
         "pericope": "O nascimento de Jesus Cristo",
-        "versiculo": "18"
+        "versiculo": "19"
       }
     ],
     "2": [
@@ -9981,7 +9981,7 @@
       },
       {
         "pericope": "Os gerasenos rejeitam a Jesus",
-        "versiculo": "14"
+        "versiculo": "15"
       },
       {
         "pericope": "O pedido de Jairo",
@@ -9990,7 +9990,7 @@
       },
       {
         "pericope": "A cura de uma mulher enferma",
-        "versiculo": "24"
+        "versiculo": "25"
       },
       {
         "pericope": "A ressurreição da filha de Jairo",
@@ -10333,7 +10333,7 @@
       },
       {
         "pericope": "Jesus aparece a Maria Madalena",
-        "versiculo": "9"
+        "versiculo": "10"
       },
       {
         "pericope": "Jesus aparece a dois de seus discípulos",
@@ -10647,7 +10647,7 @@
       },
       {
         "pericope": "A cura de uma mulher enferma",
-        "versiculo": "42"
+        "versiculo": "43"
       },
       {
         "pericope": "A ressurreição da filha de Jairo",
@@ -10692,7 +10692,7 @@
       },
       {
         "pericope": "De novo prediz Jesus a sua morte",
-        "versiculo": "43"
+        "versiculo": "44"
       },
       {
         "pericope": "O maior no reino dos céus",
@@ -11705,7 +11705,7 @@
     "8": [
       {
         "pericope": "A primeira perseguição à igreja",
-        "versiculo": "1"
+        "versiculo": "2"
       },
       {
         "pericope": "Filipe prega em Samaria",
@@ -12831,7 +12831,7 @@
       },
       {
         "pericope": "Paulo gloria-se na cruz de Cristo",
-        "versiculo": "11"
+        "versiculo": "12"
       },
       {
         "pericope": "A bênção",

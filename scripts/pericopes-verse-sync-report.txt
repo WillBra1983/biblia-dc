@@ -1,0 +1,252 @@
+Gerado: 2026-07-08T23:23:22.339Z
+Modo: APLICADO
+Alterações propostas: 87
+Ignoradas (regra PSA v1): 152
+
+Por regra:
+  ara_online_confirmed: 5
+  tsv_disordered_chapter: 17
+  tsv_unique_match: 65
+
+=== Alterações ===
+GEN	32	v4->v3	[ara_online_confirmed]	Jacó reconcilia-se com Esaú
+EXO	8	v26->v1	[ara_online_confirmed]	Segunda praga: rãs
+EXO	8	v12->v16	[ara_online_confirmed]	Terceira praga: piolhos
+EXO	8	v16->v20	[ara_online_confirmed]	Quarta praga: moscas
+EXO	22	v15->v16	[ara_online_confirmed]	Leis civis e religiosas
+LEV	6	v20->v1	[tsv_disordered_chapter]	O sacrifício pelos pecados voluntários
+LEV	6	v1->v8	[tsv_disordered_chapter]	A lei do holocausto
+LEV	6	v7->v14	[tsv_disordered_chapter]	A lei da oferta de manjares
+LEV	6	v12->v19	[tsv_disordered_chapter]	A oferta na consagração dos sacerdotes
+LEV	6	v17->v24	[tsv_disordered_chapter]	A lei da oferta pelo pecado
+NUM	16	v6->v41	[tsv_disordered_chapter]	Novo tumulto e seu castigo
+1SA	18	v6->v7	[tsv_unique_match]	O cântico das mulheres indigna a Saul
+2SA	12	v15->v16	[tsv_unique_match]	A morte do filho de Bate-Seba
+1KI	4	v9->v29	[tsv_disordered_chapter]	A sabedoria de Salomão
+1KI	5	v15->v2	[tsv_disordered_chapter]	Salomão faz aliança com Hirão
+1KI	6	v1->v2	[tsv_unique_match]	Salomão edifica o templo
+1KI	8	v1->v2	[tsv_unique_match]	Salomão traz para o templo a arca
+1KI	9	v1->v2	[tsv_unique_match]	A aliança do Senhor com Salomão
+1KI	10	v1->v2	[tsv_unique_match]	A rainha de Sabá visita a Salomão
+1KI	12	v1->v2	[tsv_unique_match]	Roboão causa separação entre as tribos
+1KI	15	v1->v2	[tsv_unique_match]	O reinado de Abias, de Judá
+1KI	22	v1->v2	[tsv_unique_match]	Aliança entre Josafá, de Judá, e Acabe
+2KI	5	v19->v20	[tsv_unique_match]	Geazi é atacado de lepra
+2KI	11	v1->v2	[tsv_unique_match]	Atalia usurpa o trono de Judá
+2KI	14	v1->v2	[tsv_unique_match]	O reinado de Amazias, de Judá
+2KI	15	v1->v2	[tsv_unique_match]	O reinado de Azarias, de Judá
+2KI	16	v1->v2	[tsv_unique_match]	O reinado de Acaz, de Judá
+2KI	18	v1->v2	[tsv_unique_match]	O reinado de Ezequias, de Judá
+2KI	20	v1->v2	[tsv_unique_match]	A doença de Ezequias e a sua cura maravilhosa
+2KI	21	v1->v2	[tsv_unique_match]	O reinado de Manassés, de Judá
+2KI	22	v1->v2	[tsv_unique_match]	O reinado de Josias
+1CH	3	v1->v2	[tsv_unique_match]	Filhos de Davi
+1CH	6	v27->v1	[tsv_disordered_chapter]	Descendentes de Levi
+1CH	6	v16->v31	[tsv_disordered_chapter]	Cantores levitas
+1CH	6	v34->v49	[tsv_disordered_chapter]	Descendentes de Arão
+1CH	6	v39->v54	[tsv_disordered_chapter]	As cidades dos levitas
+1CH	11	v1->v2	[tsv_unique_match]	Davi é ungido rei
+1CH	14	v1->v2	[tsv_unique_match]	O reinado de Davi reconhecido por Hirão
+1CH	17	v1->v2	[tsv_unique_match]	A aliança do Senhor com Davi
+1CH	18	v1->v2	[tsv_unique_match]	Diversas vitórias de Davi
+1CH	19	v1->v2	[tsv_unique_match]	Davi derrota os amonitas e os siros
+1CH	20	v1->v2	[tsv_unique_match]	Davi conquista a Rabá
+1CH	21	v1->v2	[tsv_unique_match]	O levantamento do censo
+1CH	29	v22->v23	[tsv_unique_match]	Salomão proclamado rei
+2CH	2	v18->v1	[tsv_disordered_chapter]	Salomão faz aliança com Hirão
+2CH	2	v16->v1	[tsv_disordered_chapter]	Os preparativos para edificar o templo
+2CH	14	v8->v9	[tsv_unique_match]	Asa vence a Zerá, o etíope
+2CH	21	v1->v2	[tsv_unique_match]	O reinado de Jeorão
+2CH	22	v1->v2	[tsv_unique_match]	O reinado de Acazias
+2CH	23	v1->v2	[tsv_unique_match]	Joás ungido rei de Judá
+2CH	24	v1->v2	[tsv_unique_match]	O reinado de Joás
+2CH	25	v1->v2	[tsv_unique_match]	O reinado de Amazias
+2CH	26	v1->v2	[tsv_unique_match]	O reinado de Uzias
+2CH	27	v1->v2	[tsv_unique_match]	O reinado de Jotão
+2CH	28	v1->v2	[tsv_unique_match]	O reinado de Acaz
+2CH	29	v1->v2	[tsv_unique_match]	Ezequias manda abrir o templo
+2CH	33	v1->v2	[tsv_unique_match]	O reinado de Manassés
+2CH	34	v1->v2	[tsv_unique_match]	O reinado de Josias
+2CH	35	v1->v2	[tsv_unique_match]	A celebração da Páscoa
+2CH	36	v1->v2	[tsv_unique_match]	O reinado e deposição de Joacaz
+NEH	7	v69->v70	[tsv_unique_match]	Contribuições para o templo
+NEH	9	v1->v38	[tsv_unique_match]	A aliança do povo sobre guardar a Lei
+PRO	31	v10->v11	[tsv_unique_match]	O louvor da mulher virtuosa
+ECC	5	v17->v1	[tsv_disordered_chapter]	A loucura de votos precipitados
+ECC	5	v7->v8	[tsv_disordered_chapter]	A vaidade das riquezas
+ISA	9	v7->v8	[tsv_unique_match]	Profecia contra o reino de Israel
+ISA	24	v16->v17	[tsv_unique_match]	A ruína dos transgressores
+ISA	36	v1->v2	[tsv_unique_match]	Senaqueribe invade Judá
+ISA	37	v1->v2	[tsv_unique_match]	Ezequias consulta a Isaías
+ISA	38	v1->v2	[tsv_unique_match]	A doença de Ezequias e a sua cura maravilhosa
+ISA	39	v1->v2	[tsv_unique_match]	A embaixada da Babilônia
+JER	9	v6->v7	[tsv_unique_match]	Ameaças de ruína e exílio
+JER	9	v22->v23	[tsv_unique_match]	Conhecer a Deus constitui a glória do homem
+JER	39	v1->v2	[tsv_unique_match]	Nabucodonosor toma Jerusalém
+JER	52	v1->v2	[tsv_unique_match]	A queda de Jerusalém e o cativeiro de Judá
+LAM	1	v1->v2	[tsv_unique_match]	Jerusalém destruída e desolada
+EZK	20	v1->v45	[tsv_unique_match]	A profecia contra o Sul
+JOL	2	v1->v28	[tsv_disordered_chapter]	Promessa do derramamento do Espírito
+HAB	1	v12->v13	[tsv_unique_match]	A intercessão do profeta
+MAT	1	v18->v19	[tsv_unique_match]	O nascimento de Jesus Cristo
+MRK	5	v14->v15	[tsv_unique_match]	Os gerasenos rejeitam a Jesus
+MRK	5	v24->v25	[tsv_unique_match]	A cura de uma mulher enferma
+MRK	16	v9->v10	[tsv_unique_match]	Jesus aparece a Maria Madalena
+LUK	8	v42->v43	[tsv_unique_match]	A cura de uma mulher enferma
+LUK	9	v43->v44	[tsv_unique_match]	De novo prediz Jesus a sua morte
+ACT	8	v1->v2	[tsv_unique_match]	A primeira perseguição à igreja
+GAL	6	v11->v12	[tsv_unique_match]	Paulo gloria-se na cruz de Cristo
+
+=== Ignoradas ===
+NUM	30	json v2 / tsv v1	tsv_earlier_than_json_skipped	Acerca de votos
+DEU	13	json v2 / tsv v1	tsv_earlier_than_json_skipped	Contra os falsos profetas e os idólatras
+DEU	23	json v2 / tsv v1	tsv_earlier_than_json_skipped	Pessoas excluídas das assembleias santas
+DEU	23	json v10 / tsv v9	tsv_earlier_than_json_skipped	Limpeza do acampamento
+DEU	23	json v16 / tsv v15	tsv_earlier_than_json_skipped	Acerca de fugitivos, prostitutas e usura
+DEU	23	json v22 / tsv v21	tsv_earlier_than_json_skipped	Acerca de votos
+1SA	21	json v2 / tsv v1	tsv_earlier_than_json_skipped	Davi vai ter com o sacerdote Aimeleque
+1SA	21	json v11 / tsv v10	tsv_earlier_than_json_skipped	Davi foge para Aquis, rei de Gate
+1SA	24	json v2 / tsv v1	tsv_earlier_than_json_skipped	Davi poupa a vida de Saul
+1SA	31	json v8 / tsv v1	tsv_earlier_than_json_skipped	A sepultura de Saul
+2SA	3	json v2 / tsv v1	tsv_earlier_than_json_skipped	A família de Davi em Hebrom
+2SA	5	json v6 / tsv v1	tsv_earlier_than_json_skipped	Davi conquista Sião
+2SA	5	json v11 / tsv v1	tsv_earlier_than_json_skipped	O reinado de Davi reconhecido por Hirão
+2SA	5	json v13 / tsv v1	tsv_earlier_than_json_skipped	Os filhos de Davi que nasceram em Jerusalém
+2SA	5	json v17 / tsv v1	tsv_earlier_than_json_skipped	Davi derrota os filisteus
+2SA	6	json v12 / tsv v1	tsv_earlier_than_json_skipped	A arca é levada para Jerusalém
+2SA	7	json v18 / tsv v1	tsv_earlier_than_json_skipped	Ações de graças de Davi
+2SA	8	json v15 / tsv v2	tsv_earlier_than_json_skipped	Oficiais de Davi
+2SA	12	json v26 / tsv v1	tsv_earlier_than_json_skipped	Davi conquista Rabá
+2SA	19	json v2 / tsv v1	tsv_earlier_than_json_skipped	Joabe reprova a Davi
+2SA	19	json v12 / tsv v11	tsv_earlier_than_json_skipped	Davi volta para Jerusalém
+2SA	19	json v17 / tsv v16	tsv_earlier_than_json_skipped	Simei encontra-se com Davi
+2SA	19	json v25 / tsv v24	tsv_earlier_than_json_skipped	Mefibosete encontra-se com Davi
+2SA	19	json v32 / tsv v31	tsv_earlier_than_json_skipped	Barzilai encontra-se com Davi
+2SA	20	json v23 / tsv v2	tsv_earlier_than_json_skipped	Oficiais de Davi
+2SA	21	json v15 / tsv v1	tsv_earlier_than_json_skipped	Gigantes mortos pelos homens de Davi
+2SA	23	json v8 / tsv v1	tsv_earlier_than_json_skipped	Os valentes de Davi
+2SA	24	json v10 / tsv v1	tsv_earlier_than_json_skipped	Davi escolhe o castigo
+2SA	24	json v18 / tsv v1	tsv_earlier_than_json_skipped	Davi erige um altar na eira de Araúna
+1KI	3	json v3 / tsv v2	tsv_earlier_than_json_skipped	Salomão pede a Deus sabedoria
+1KI	6	json v23 / tsv v2	tsv_earlier_than_json_skipped	Os dois querubins
+1KI	7	json v15 / tsv v2	tsv_earlier_than_json_skipped	As duas colunas do templo
+1KI	7	json v23 / tsv v2	tsv_earlier_than_json_skipped	O mar de fundição
+1KI	7	json v27 / tsv v2	tsv_earlier_than_json_skipped	Outros utensílios para o templo
+1KI	7	json v51 / tsv v2	tsv_earlier_than_json_skipped	As dádivas de Davi colocadas no templo
+1KI	8	json v12 / tsv v2	tsv_earlier_than_json_skipped	Salomão fala ao povo
+1KI	8	json v22 / tsv v2	tsv_earlier_than_json_skipped	Salomão ora a Deus
+1KI	8	json v62 / tsv v2	tsv_earlier_than_json_skipped	A conclusão da solenidade
+1KI	9	json v10 / tsv v2	tsv_earlier_than_json_skipped	As demais atividades de Salomão
+1KI	10	json v14 / tsv v2	tsv_earlier_than_json_skipped	As riquezas de Salomão
+1KI	11	json v41 / tsv v2	tsv_earlier_than_json_skipped	A morte de Salomão
+1KI	12	json v16 / tsv v2	tsv_earlier_than_json_skipped	Dez tribos seguem Jeroboão
+1KI	14	json v21 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Roboão, de Judá
+1KI	15	json v9 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Asa, de Judá
+1KI	22	json v5 / tsv v2	tsv_earlier_than_json_skipped	As profecias dos falsos profetas
+1KI	22	json v13 / tsv v2	tsv_earlier_than_json_skipped	A profecia de Micaías
+1KI	22	json v29 / tsv v2	tsv_earlier_than_json_skipped	A morte de Acabe
+1KI	22	json v41 / tsv v2	tsv_earlier_than_json_skipped	O reinado e a morte de Josafá
+1KI	22	json v53 / tsv v52	tsv_earlier_than_json_skipped	O reinado de Acazias, de Israel
+2KI	8	json v16 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Jeorão
+2KI	8	json v25 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Acazias
+2KI	11	json v4 / tsv v2	tsv_earlier_than_json_skipped	Joás ungido rei de Judá
+2KI	11	json v13 / tsv v2	tsv_earlier_than_json_skipped	A morte de Atalia
+2KI	11	json v17 / tsv v2	tsv_earlier_than_json_skipped	A aliança de Joiada
+2KI	12	json v21 / tsv v2	tsv_earlier_than_json_skipped	A conspiração contra o rei Joás
+2KI	14	json v7 / tsv v2	tsv_earlier_than_json_skipped	Amazias vence os edomitas
+2KI	14	json v8 / tsv v2	tsv_earlier_than_json_skipped	Amazias derrotado por Jeoás
+2KI	14	json v17 / tsv v2	tsv_earlier_than_json_skipped	A morte de Amazias, rei de Judá
+2KI	15	json v5 / tsv v2	tsv_earlier_than_json_skipped	Azarias é atacado de lepra
+2KI	15	json v32 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Jotão, de Judá
+2KI	16	json v10 / tsv v2	tsv_earlier_than_json_skipped	A idolatria de Acaz
+2KI	16	json v19 / tsv v2	tsv_earlier_than_json_skipped	A morte de Acaz
+2KI	18	json v13 / tsv v2	tsv_earlier_than_json_skipped	Senaqueribe invade Judá
+2KI	18	json v19 / tsv v2	tsv_earlier_than_json_skipped	Rabsaqué afronta a Ezequias e ao SENHOR
+2KI	19	json v35 / tsv v2	tsv_earlier_than_json_skipped	A destruição do exército dos assírios
+2KI	20	json v20 / tsv v2	tsv_earlier_than_json_skipped	A morte de Ezequias
+2KI	21	json v17 / tsv v2	tsv_earlier_than_json_skipped	A morte de Manassés
+2KI	21	json v19 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Amom, de Judá
+2KI	22	json v3 / tsv v2	tsv_earlier_than_json_skipped	O rei repara o templo
+2KI	22	json v8 / tsv v2	tsv_earlier_than_json_skipped	Hilquias acha o Livro da Lei
+2KI	22	json v11 / tsv v2	tsv_earlier_than_json_skipped	Josias manda consultar a profetisa Hulda
+2KI	23	json v4 / tsv v2	tsv_earlier_than_json_skipped	A purificação do templo e do culto
+2KI	23	json v21 / tsv v2	tsv_earlier_than_json_skipped	A celebração da Páscoa
+2KI	23	json v28 / tsv v2	tsv_earlier_than_json_skipped	A morte de Josias
+2KI	23	json v31 / tsv v2	tsv_earlier_than_json_skipped	O reinado e deposição de Joacaz
+2KI	23	json v36 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Jeoaquim
+2KI	24	json v8 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Joaquim
+2KI	24	json v18 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Zedequias
+2KI	25	json v8 / tsv v2	tsv_earlier_than_json_skipped	O cativeiro de Judá
+1CH	10	json v8 / tsv v1	tsv_earlier_than_json_skipped	A sepultura de Saul
+1CH	11	json v4 / tsv v2	tsv_earlier_than_json_skipped	Davi conquista a Sião
+1CH	11	json v10 / tsv v2	tsv_earlier_than_json_skipped	Os valentes de Davi
+1CH	12	json v24 / tsv v23	tsv_earlier_than_json_skipped	O exército que proclamou a Davi rei em Hebrom
+1CH	13	json v5 / tsv v2	tsv_earlier_than_json_skipped	Davi procura trazer a arca
+1CH	14	json v3 / tsv v2	tsv_earlier_than_json_skipped	Os filhos de Davi que nasceram em Jerusalém
+1CH	14	json v8 / tsv v2	tsv_earlier_than_json_skipped	Davi derrota os filisteus
+1CH	15	json v29 / tsv v2	tsv_earlier_than_json_skipped	Mical despreza a Davi
+1CH	17	json v16 / tsv v2	tsv_earlier_than_json_skipped	Ações de graças de Davi
+1CH	18	json v14 / tsv v2	tsv_earlier_than_json_skipped	Oficiais de Davi
+1CH	20	json v4 / tsv v2	tsv_earlier_than_json_skipped	Gigantes mortos pelos homens de Davi
+1CH	21	json v7 / tsv v2	tsv_earlier_than_json_skipped	Davi escolhe o castigo
+1CH	21	json v18 / tsv v2	tsv_earlier_than_json_skipped	Davi erige um altar na eira de Ornã
+2CH	1	json v7 / tsv v1	tsv_earlier_than_json_skipped	Salomão pede a Deus sabedoria
+2CH	1	json v14 / tsv v1	tsv_earlier_than_json_skipped	As riquezas de Salomão
+2CH	3	json v10 / tsv v1	tsv_earlier_than_json_skipped	Os dois querubins
+2CH	3	json v15 / tsv v1	tsv_earlier_than_json_skipped	As duas colunas
+2CH	4	json v6 / tsv v1	tsv_earlier_than_json_skipped	Outros utensílios para o templo
+2CH	5	json v2 / tsv v1	tsv_earlier_than_json_skipped	Salomão traz para o templo a arca
+2CH	6	json v12 / tsv v1	tsv_earlier_than_json_skipped	Salomão ora a Deus
+2CH	7	json v4 / tsv v1	tsv_earlier_than_json_skipped	A conclusão da solenidade
+2CH	7	json v11 / tsv v1	tsv_earlier_than_json_skipped	A aliança do Senhor com Salomão
+2CH	9	json v13 / tsv v1	tsv_earlier_than_json_skipped	As riquezas de Salomão
+2CH	9	json v29 / tsv v1	tsv_earlier_than_json_skipped	A morte de Salomão
+2CH	10	json v16 / tsv v1	tsv_earlier_than_json_skipped	Dez tribos seguem Jeroboão
+2CH	12	json v13 / tsv v1	tsv_earlier_than_json_skipped	O reinado de Roboão
+2CH	16	json v11 / tsv v1	tsv_earlier_than_json_skipped	A morte de Asa
+2CH	18	json v4 / tsv v1	tsv_earlier_than_json_skipped	As promessas dos falsos profetas
+2CH	18	json v12 / tsv v1	tsv_earlier_than_json_skipped	A profecia de Micaías
+2CH	18	json v28 / tsv v1	tsv_earlier_than_json_skipped	A morte de Acabe
+2CH	20	json v31 / tsv v1	tsv_earlier_than_json_skipped	O reinado e a morte de Josafá
+2CH	22	json v10 / tsv v2	tsv_earlier_than_json_skipped	Atalia usurpa o trono
+2CH	23	json v12 / tsv v2	tsv_earlier_than_json_skipped	A morte de Atalia
+2CH	23	json v16 / tsv v2	tsv_earlier_than_json_skipped	A aliança de Joiada
+2CH	24	json v25 / tsv v2	tsv_earlier_than_json_skipped	A conspiração contra o rei Joás
+2CH	25	json v5 / tsv v2	tsv_earlier_than_json_skipped	Amazias vence os edomitas
+2CH	25	json v17 / tsv v2	tsv_earlier_than_json_skipped	Amazias derrotado por Jeoás
+2CH	25	json v25 / tsv v2	tsv_earlier_than_json_skipped	A morte de Amazias, de Judá
+2CH	26	json v16 / tsv v2	tsv_earlier_than_json_skipped	Uzias é atacado de lepra
+2CH	28	json v16 / tsv v2	tsv_earlier_than_json_skipped	Acaz pede socorro aos assírios
+2CH	28	json v22 / tsv v2	tsv_earlier_than_json_skipped	A idolatria de Acaz
+2CH	28	json v26 / tsv v2	tsv_earlier_than_json_skipped	A morte de Acaz
+2CH	32	json v9 / tsv v2	tsv_earlier_than_json_skipped	Senaqueribe afronta a Ezequias e ao Senhor
+2CH	32	json v21 / tsv v2	tsv_earlier_than_json_skipped	A destruição do exército dos assírios
+2CH	32	json v24 / tsv v2	tsv_earlier_than_json_skipped	Doença de Ezequias
+2CH	32	json v32 / tsv v2	tsv_earlier_than_json_skipped	A morte de Ezequias
+2CH	33	json v18 / tsv v2	tsv_earlier_than_json_skipped	A morte de Manassés
+2CH	33	json v21 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Amom
+2CH	34	json v3 / tsv v2	tsv_earlier_than_json_skipped	A purificação do templo e do culto
+2CH	34	json v8 / tsv v2	tsv_earlier_than_json_skipped	O rei repara o templo
+2CH	34	json v14 / tsv v2	tsv_earlier_than_json_skipped	Hilquias acha o Livro da Lei
+2CH	34	json v19 / tsv v2	tsv_earlier_than_json_skipped	Josias manda consultar a profetisa Hulda
+2CH	34	json v29 / tsv v2	tsv_earlier_than_json_skipped	Josias renova a aliança ante o Senhor
+2CH	35	json v20 / tsv v2	tsv_earlier_than_json_skipped	A morte de Josias no vale de Megido
+2CH	36	json v5 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Jeoaquim
+2CH	36	json v9 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Joaquim
+2CH	36	json v11 / tsv v2	tsv_earlier_than_json_skipped	O reinado de Zedequias
+2CH	36	json v17 / tsv v2	tsv_earlier_than_json_skipped	O cativeiro de Judá
+ISA	36	json v4 / tsv v2	tsv_earlier_than_json_skipped	Rabsaqué afronta a Ezequias e ao Senhor
+ISA	37	json v8 / tsv v2	tsv_earlier_than_json_skipped	A carta do rei da Assíria
+ISA	37	json v14 / tsv v2	tsv_earlier_than_json_skipped	A oração de Ezequias
+ISA	37	json v21 / tsv v2	tsv_earlier_than_json_skipped	O profeta conforta a Ezequias
+ISA	37	json v36 / tsv v2	tsv_earlier_than_json_skipped	A destruição do exército dos assírios
+JER	52	json v31 / tsv v2	tsv_earlier_than_json_skipped	Libertado e honrado o rei Joaquim
+EZK	21	json v6 / tsv v1	tsv_earlier_than_json_skipped	A espada do Senhor
+DAN	4	json v31 / tsv v1	tsv_earlier_than_json_skipped	A loucura de Nabucodonosor
+DAN	6	json v2 / tsv v1	tsv_earlier_than_json_skipped	Daniel na cova dos leões
+JON	2	json v2 / tsv v1	tsv_earlier_than_json_skipped	A oração de Jonas no ventre do peixe
+NAM	2	json v2 / tsv v1	tsv_earlier_than_json_skipped	O cerco e a tomada de Nínive
+ZEC	2	json v5 / tsv v1	tsv_earlier_than_json_skipped	A terceira visão: Jerusalém é medida
+ZEC	2	json v10 / tsv v6	tsv_earlier_than_json_skipped	Israel exortado a voltar para Sião
+MAT	5	json v3 / tsv v1	tsv_earlier_than_json_skipped	As bem-aventuranças
+REV	16	json v4 / tsv v3	tsv_earlier_than_json_skipped	O terceiro flagelo

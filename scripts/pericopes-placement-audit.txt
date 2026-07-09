@@ -1,0 +1,136 @@
+Gerado: 2026-07-08T18:30:34.047Z
+=== Resumo ===
+Salmos com título fora do v.1 (único título no capítulo): 63
+Versículo inexistente no SQLite: 9
+Capítulos com perícopes fora de ordem crescente: 12
+Título no JSON com versículo diferente do TSV: 315
+Títulos no JSON sem correspondência no TXT: 243
+=== Salmos (título deveria estar no v.1) ===
+Sl 3	v2	Confiança em Deus, na adversidade
+Sl 4	v2	Confiança em Deus, na angústia
+Sl 5	v2	Proteção contra os ímpios
+Sl 6	v2	Davi recorre à misericórdia de Deus
+Sl 7	v2	Deus defende o justo contra o ímpio
+Sl 8	v2	A glória divina e a dignidade do filho do homem
+Sl 9	v2	Ações de graças
+Sl 12	v2	Auxílio contra a falsidade
+Sl 13	v2	Oração de fé
+Sl 18	v2	Vitória e domínio
+Sl 19	v2	A excelência da criação e da palavra de Deus
+Sl 20	v2	Oração a favor do rei
+Sl 21	v2	Ações de graças pela vitória
+Sl 22	v2	Sofrimento e vitória do Messias
+Sl 30	v2	Ações de graças pela libertação da morte
+Sl 31	v2	Lamentos e louvor
+Sl 34	v2	Provai que o Senhor é bom!
+Sl 36	v2	Malícia humana e benignidade divina
+Sl 38	v2	Arrependimento do pecador
+Sl 39	v2	A vaidade da vida
+Sl 40	v2	Oração para livramento
+Sl 41	v2	A calúnia dos inimigos e o socorro de Deus
+Sl 42	v2	A alma anela por Deus
+Sl 44	v2	Apelo por auxílio divino
+Sl 45	v2	O Ungido de Deus e a sua noiva
+Sl 46	v2	Deus é o nosso refúgio e fortaleza
+Sl 47	v2	Deus, o Rei da terra
+Sl 48	v2	A cidade de Deus
+Sl 49	v2	A vaidade do homem
+Sl 51	v3	Confissão e arrependimento
+Sl 52	v3	Condenação do ímpio
+Sl 53	v2	A corrupção do pecador e sua redenção
+Sl 54	v3	Apelo para o socorro divino
+Sl 55	v2	Que os traidores sejam destruídos
+Sl 56	v2	Conforto na perseguição
+Sl 57	v2	Louvor pela benignidade divina
+Sl 58	v2	A sorte dos ímpios
+Sl 59	v2	Súplica em prol de libertação
+Sl 60	v3	Oração em tempos de guerra
+Sl 61	v2	Oração pelo rei
+Sl 62	v2	Exortação à confiança
+Sl 63	v2	Buscando a Deus
+Sl 64	v2	Proteção contra os inimigos
+Sl 65	v2	Ações de graças pelas bênçãos das searas
+Sl 67	v2	As nações rendem graças
+Sl 68	v2	A vitória de Deus sobre os seus inimigos
+Sl 69	v2	O lamento do Messias
+Sl 70	v2	Petição por auxílio divino
+Sl 75	v2	Deus é juiz
+Sl 76	v2	A majestade e o poder de Deus
+Sl 77	v2	As grandes obras e a misericórdia de Deus
+Sl 80	v2	Pedindo restaurações
+Sl 81	v2	Exortação a louvor e obediência
+Sl 83	v2	Julgamento de Deus contra as nações inimigas
+Sl 84	v2	Saudades do templo
+Sl 85	v2	Pede-se o perdão de Deus
+Sl 88	v2	Lamentação de um atribulado
+Sl 89	v2	Promessa do reino messiânico a Davi
+Sl 92	v2	Hino de gratidão a Deus
+Sl 102	v2	Arrependimento e esperança
+Sl 108	v2	Deus concede vitória ao seu povo
+Sl 140	v2	Contra inimigos e perfídias
+Sl 142	v2	Oração no meio de grande perigo
+=== Versículo inválido no SQLite ===
+EXO 22	v37	Leis acerca da propriedade
+NUM 17	v16	O bordão de Arão floresce
+DEU 29	v69	Deus faz nova aliança com o povo
+1KI 5	v27	Os preparativos para edificar o templo
+2CH 14	v23	O reinado de Asa
+NEH 4	v33	A defesa contra os adversários
+ISA 9	v23	O nascimento e o reino do Príncipe da Paz
+HOS 14	v10	Apelo final
+MAL 4	v19	O sol da justiça e seu precursor
+=== Capítulos desordenados ===
+EXO 8	26, 12, 16
+EXO 22	37, 15
+LEV 6	20, 1, 7, 12, 17
+NUM 16	1, 20, 6
+1KI 4	1, 20, 9
+1CH 6	27, 16, 34, 39
+2CH 2	18, 16
+2CH 14	23, 8
+ECC 5	17, 7
+ISA 9	23, 7
+JOL 2	12, 1
+ZEC 1	1, 7, 1
+=== JSON vs TSV (amostra de 40) ===
+GEN 11	json v10 / tsv v1	Descendentes de Sem
+GEN 25	json v12 / tsv v1	Descendentes de Ismael
+GEN 31	json v22 / tsv v24	Labão segue no encalço de Jacó
+GEN 32	json v4 / tsv v3	Jacó reconcilia-se com Esaú
+GEN 35	json v23 / tsv v1	Descendentes de Jacó
+GEN 36	json v20 / tsv v1	Descendentes de Seir
+GEN 36	json v31 / tsv v1	Reis e príncipes de Edom
+GEN 50	json v22 / tsv v23	A morte de José
+EXO 8	json v26 / tsv v1	Segunda praga: rãs
+EXO 8	json v12 / tsv v16	Terceira praga: piolhos
+EXO 8	json v16 / tsv v20	Quarta praga: moscas
+EXO 22	json v37 / tsv v1	Leis acerca da propriedade
+EXO 22	json v15 / tsv v16	Leis civis e religiosas
+EXO 28	json v3 / tsv v2	As vestes sacerdotais
+LEV 6	json v20 / tsv v1	O sacrifício pelos pecados voluntários
+LEV 6	json v1 / tsv v8	A lei do holocausto
+LEV 6	json v7 / tsv v14	A lei da oferta de manjares
+LEV 6	json v12 / tsv v19	A oferta na consagração dos sacerdotes
+LEV 6	json v17 / tsv v24	A lei da oferta pelo pecado
+NUM 16	json v6 / tsv v41	Novo tumulto e seu castigo
+NUM 17	json v16 / tsv v1	O bordão de Arão floresce
+NUM 30	json v2 / tsv v1	Acerca de votos
+DEU 13	json v2 / tsv v1	Contra os falsos profetas e os idólatras
+DEU 23	json v2 / tsv v1	Pessoas excluídas das assembleias santas
+DEU 23	json v10 / tsv v9	Limpeza do acampamento
+DEU 23	json v16 / tsv v15	Acerca de fugitivos, prostitutas e usura
+DEU 23	json v22 / tsv v21	Acerca de votos
+DEU 29	json v69 / tsv v1	Deus faz nova aliança com o povo
+1SA 18	json v6 / tsv v7	O cântico das mulheres indigna a Saul
+1SA 21	json v2 / tsv v1	Davi vai ter com o sacerdote Aimeleque
+1SA 21	json v11 / tsv v10	Davi foge para Aquis, rei de Gate
+1SA 24	json v2 / tsv v1	Davi poupa a vida de Saul
+1SA 31	json v8 / tsv v1	A sepultura de Saul
+2SA 3	json v2 / tsv v1	A família de Davi em Hebrom
+2SA 5	json v6 / tsv v1	Davi conquista Sião
+2SA 5	json v11 / tsv v1	O reinado de Davi reconhecido por Hirão
+2SA 5	json v13 / tsv v1	Os filhos de Davi que nasceram em Jerusalém
+2SA 5	json v17 / tsv v1	Davi derrota os filisteus
+2SA 6	json v12 / tsv v1	A arca é levada para Jerusalém
+2SA 7	json v18 / tsv v1	Ações de graças de Davi
+… e mais 275

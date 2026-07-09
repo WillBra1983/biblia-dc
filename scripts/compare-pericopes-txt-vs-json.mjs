@@ -141,8 +141,8 @@ function splitColumnsOrTitleLine(line) {
   if (two) return two;
   const lead = leadingSpaces(line);
   const t = line.trim();
-  /** Títulos ARA/NVI centrados nesta edição: indentação moderada (não fragmentos colados à margem com 70+ espaços). */
-  const centeredIndent = lead >= 14 && lead <= 42;
+  /** Alinhado a `isTitleCandidate` (lead >= 6): títulos com 13 espaços (ex. Sl 3) deixavam de ser extraídos. */
+  const centeredIndent = lead >= 6 && lead <= 42;
   if (
     centeredIndent &&
     t.length >= 6 &&

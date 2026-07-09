@@ -15,6 +15,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1CH	4	24	128692	Descendentes de Simeão	
 1CH	5	1	128875	Descendentes de Rúben	
 1CH	5	11	129012	Descendentes de Gade	
+1CH	5	18	129097	A história das tribos transjordânicas	
 1CH	6	1	129201	Descendentes de Levi	
 1CH	6	31	129445	Cantores levitas	
 1CH	6	49	129594	Descendentes de Arão	
@@ -25,6 +26,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1CH	7	20	130167	Descendentes de Efraim	
 1CH	7	30	130286	Descendentes de Aser	
 1CH	8	1	130354	Descendentes de Benjamim	
+1CH	9	1	130646	Habitantes de Jerusalém depois do cativeiro	
 1CH	10	1	131141	A derrota de Israel e a morte de Saul	
 1CH	10	1	131240	A sepultura de Saul	
 1CH	11	2	131320	Davi é ungido rei	
@@ -35,8 +37,10 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1CH	13	1	132276	Davi dispõe-se a trazer a arca para Jerusalém	
 1CH	13	2	132316	Davi procura trazer a arca	
 1CH	14	2	132449	O reinado de Davi reconhecido por Hirão	
+1CH	14	2	132471	Os filhos de Davi que nasceram em Jerusalém	
 1CH	14	2	132503	Davi derrota os filisteus	
 1CH	15	1	132648	Os levitas designados para levarem a arca	
+1CH	15	16	132809	Designados os músicos para o templo	
 1CH	15	25	132938	A arca é levada para Jerusalém	
 1CH	15	2	132994	Mical despreza a Davi	
 1CH	16	1	133014	Oferta de sacrifícios	
@@ -52,7 +56,9 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1CH	20	2	134300	Gigantes mortos pelos homens de Davi	
 1CH	21	2	134350	O levantamento do censo	
 1CH	21	2	134449	Davi escolhe o castigo	
+1CH	21	2	134616	Davi erige um altar na eira de Ornã	
 1CH	21	28	134716	O lugar do templo	
+1CH	22	1	134787	Davi faz preparativos para edificar o templo	
 1CH	22	6	134845	Ordens de Davi a Salomão	
 1CH	23	1	135058	Os turnos e funções dos levitas	
 1CH	24	1	135439	Os turnos dos sacerdotes	
@@ -65,6 +71,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1CH	27	25	136658	Os administradores das possessões de Davi	
 1CH	27	32	136755	Os conselheiros do rei	
 1CH	28	1	136785	Davi apresenta a Salomão como seu sucessor	
+1CH	28	11	136938	Davi dá a Salomão a planta do templo	
 1CH	29	1	137101	As ofertas de Davi e dos príncipes	
 1CH	29	10	137256	Oração de Davi	
 1CH	29	23	137449	Salomão proclamado rei	
@@ -78,10 +85,12 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1CO	2	1	339224	O caráter da pregação de Paulo	
 1CO	2	6	339262	A verdadeira sabedoria. O ensino do Espírito Santo	
 1CO	3	1	339409	As dissensões demonstram a falta de espiritualidade	
+1CO	3	10	339493	A responsabilidade dos que ensinam	
 1CO	3	18	339594	A sabedoria humana sem valor	
 1CO	4	1	339646	Os pregadores responsáveis a Deus	
 1CO	4	6	339727	Uma reprovação severa	
 1CO	4	14	339833	Paulo os admoesta como pai	
+1CO	6	1	340107	Paulo censura o litígio entre os irmãos	
 1CO	6	12	340232	A sensualidade é condenada	
 1CO	7	1	340345	Respostas a perguntas acerca do casamento	
 1CO	7	10	340419	A estabilidade da família	
@@ -94,7 +103,11 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1CO	12	1	341874	Acerca de dons espirituais	
 1CO	12	12	341997	A unidade orgânica da igreja	
 1CO	14	1	342373	O dom de profecia é superior ao de línguas	
+1CO	14	20	342605	Os dons em face dos visitantes na igreja	
 1CO	14	26	342689	A necessidade de ordem no culto	
+1CO	15	1	342840	A ressurreição de Cristo, penhor da nossa	
+1CO	15	20	343035	Cristo, as primícias dos que dormem	
+1CO	15	29	343150	A ressurreição em relação à vida prática	
 1CO	15	35	343204	Os ressuscitados terão corpo	
 1CO	15	50	343359	Os vivos serão transformados	
 1CO	16	5	343512	Os projetos de Paulo	
@@ -102,19 +115,23 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1CO	16	13	343609	As exortações finais	
 1CO	16	15	343623	Estéfanas, Fortunato e Acaico	
 1CO	16	19	343655	Saudações e a bênção	
+1JN	1	5	365091	Deus é luz. O pecado, a confissão, o perdão, a	
 1JN	2	12	365274	A vitória sobre o Maligno	
 1JN	2	15	365304	Não se deve amar o mundo	
 1JN	2	18	365363	Os anticristos	
 1JN	2	27	365451	A unção do Espírito Santo	
+1JN	3	7	365572	Os filhos de Deus e os filhos do Maligno	
 1JN	3	11	365634	O amor aos irmãos e o ódio ao mundo	
 1JN	4	1	365783	Os falsos profetas e os verdadeiros crentes	
 1JN	4	7	365884	Deus é amor	
 1JN	5	1	366025	A fé que vence o mundo	
 1JN	5	6	366067	O tríplice testemunho sobre Cristo	
 1JN	5	13	366127	O poder da intercessão	
+1JN	5	20	366234	Cristo é verdadeiro Deus e deve ser adorado	
 1KI	1	1	106526	A velhice de Davi	
 1KI	1	5	106570	Adonias usurpa o trono	
 1KI	1	32	106886	Salomão é constituído rei	
+1KI	1	41	106978	Adonias e seus adeptos alarmam-se	
 1KI	1	50	107109	Adonias pede indulto	
 1KI	2	1	107149	Davi dá instruções a Salomão e morre	
 1KI	2	13	107306	Morte de Adonias	
@@ -128,13 +145,16 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1KI	4	20	108292	A prosperidade do reino de Salomão	
 1KI	4	29	108415	A sabedoria de Salomão	
 1KI	5	2	108508	Salomão faz aliança com Hirão	
+1KI	5	2	108683	Os preparativos para edificar o templo	
 1KI	6	2	108755	Salomão edifica o templo	
 1KI	6	14	108934	O Santo dos Santos	
 1KI	6	2	109055	Os dois querubins	
+1KI	6	29	109111	Ornamentação das paredes e das portas	
 1KI	7	1	109232	Salomão edifica palácios reais	
 1KI	7	2	109419	As duas colunas do templo	
 1KI	7	2	109507	O mar de fundição	
 1KI	7	2	109584	Outros utensílios para o templo	
+1KI	7	2	109908	As dádivas de Davi colocadas no templo	
 1KI	8	2	109940	Salomão traz para o templo a arca	
 1KI	8	2	110103	Salomão fala ao povo	
 1KI	8	2	110213	Salomão ora a Deus	
@@ -150,8 +170,11 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1KI	11	2	112137	A morte de Salomão	
 1KI	12	2	112173	Roboão causa separação entre as tribos	
 1KI	12	2	112368	Dez tribos seguem Jeroboão	
+1KI	12	2	112412	Tendo   ouvido   todo   o   Israel   que   Jeroboão   tinha	
 1KI	12	25	112521	A idolatria de Jeroboão	
 1KI	13	1	112634	Um profeta prediz contra o altar	
+1KI	13	11	112734	A desobediência e o castigo do profeta	
+1KI	13	33	113010	A persistência de Jeroboão no pecado	
 1KI	14	1	113044	A profecia de Aías contra Jeroboão	
 1KI	14	2	113314	O reinado de Roboão, de Judá	
 1KI	15	2	113449	O reinado de Abias, de Judá	
@@ -166,6 +189,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1KI	17	1	114288	Elias prediz grande seca. Corvos o sustentam	
 1KI	17	8	114344	Elias e a viúva de Sarepta	
 1KI	18	1	114533	Elias apresenta-se diante de Acabe	
+1KI	18	20	114779	Elias e os profetas de Baal no monte Carmelo	
 1KI	18	41	115038	Elias ora para que chova	
 1KI	19	1	115127	Elias no monte Horebe	
 1KI	19	19	115346	A vocação de Eliseu	
@@ -185,11 +209,13 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1PE	1	22	363094	A santidade no amor	
 1PE	3	1	363454	A vida exemplar cristã: deveres dos casados	
 1PE	3	8	363567	A vida exemplar cristã: o amor fraternal	
+1PE	3	13	363623	A prática do bem. A longanimidade segundo o	
 1PE	4	1	363764	A morte para o pecado e a pureza de vida	
 1PE	4	12	363901	O sofrermos por Cristo é privilégio glorioso	
 1PE	5	1	364016	Os deveres do ministério	
 1SA	1	1	86791	Elcana e suas mulheres	
 1SA	1	9	86875	A oração e o voto de Ana	
+1SA	1	19	86990	Nasce Samuel e é consagrado a Deus	
 1SA	2	1	87125	O cântico de Ana	
 1SA	2	12	87231	Os crimes dos filhos de Eli	
 1SA	2	18	87330	A mocidade de Samuel	
@@ -198,6 +224,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1SA	3	1	87604	Deus fala com Samuel numa visão	
 1SA	3	15	87755	Samuel conta a visão a Eli	
 1SA	4	1	87813	Os filisteus vencem os israelitas	
+1SA	4	5	87914	A arca é tomada. Hofni e Fineias são mortos	
 1SA	4	12	87988	A morte de Eli	
 1SA	5	1	88127	A arca na casa de Dagom	
 1SA	6	1	88292	Os filisteus enviam a arca para fora da sua terra	
@@ -214,6 +241,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1SA	11	12	90030	Saul proclamado rei	
 1SA	12	1	90099	Samuel resigna o seu cargo	
 1SA	13	1	90429	Guerra entre os israelitas e os filisteus	
+1SA	14	1	90716	A vitória de Jônatas sobre os filisteus	
 1SA	14	24	91022	O voto de Saul	
 1SA	14	36	91185	Jônatas salvo pelo povo	
 1SA	15	1	91412	A desobediência de Saul e a sua rejeição	
@@ -222,9 +250,17 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1SA	16	14	92034	Davi tange sua harpa perante Saul	
 1SA	17	1	92173	O desafio de Golias	
 1SA	17	12	92298	Davi enviado a seus irmãos	
+1SA	17	24	92418	O gigante Golias insulta os israelitas	
+1SA	17	31	92535	Davi dispõe-se a pelejar contra o gigante	
+1SA	17	41	92656	Davi encontra-se com o gigante e mata-o	
 1SA	18	1	92875	A amizade de Jônatas para com Davi	
+1SA	18	7	92960	O cântico das mulheres indigna a Saul	
+1SA	18	17	93046	Saul intenta matar a Davi pela astúcia	
 1SA	18	20	93117	Mical ama a Davi e casa com ele	
 1SA	19	1	93225	Jônatas intercede por Davi	
+1SA	19	8	93324	Saul procura, de novo, matar a Davi	
+1SA	19	12	93374	Mical engana a seu pai e salva a Davi	
+1SA	19	18	93455	Saul e seus mensageiros profetizam	
 1SA	20	1	93533	A amizade entre Davi e Jônatas	
 1SA	20	12	93688	Jônatas faz aliança com Davi	
 1SA	20	30	93934	Saul irado contra Jônatas	
@@ -244,42 +280,53 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 1SA	25	36	95776	A morte de Nabal	
 1SA	25	39	95847	Davi casa com Abigail	
 1SA	26	1	95919	Davi, outra vez, poupa a vida de Saul	
+1SA	26	17	96147	Saul, outra vez, se reconcilia com Davi	
 1SA	27	1	96255	Davi, outra vez, com Aquis, rei de Gate	
 1SA	28	1	96430	Saul consulta a médium de En-Dor	
 1SA	29	1	96768	Os filisteus desconfiam de Davi	
 1SA	30	1	96935	Ziclague é saqueada pelos amalequitas	
 1SA	30	7	97038	Davi livra os cativos	
+1SA	30	21	97227	Davi estabelece a lei da divisão da presa	
 1SA	31	1	97364	A derrota de Israel e a morte de Saul	
 1SA	31	1	97462	A sepultura de Saul	
 1TH	1	1	352866	Prefácio e saudação	
 1TH	1	2	352880	Ação de graças	
 1TH	2	17	353240	O interesse de Paulo pelos tessalonicenses	
+1TH	3	11	353403	Oração de Paulo pelos tessalonicenses	
 1TH	4	1	353435	Exortação à prática da santidade	
+1TH	4	9	353542	Exortação à prática do amor fraternal	
 1TH	4	13	353576	A situação dos mortos em Cristo e a vinda do Senhor	
+1TH	5	1	353644	A vinda do Senhor é certa e repentina	
 1TH	5	4	353707	A necessidade de vigilância	
 1TH	5	12	353763	Diversos preceitos	
 1TH	5	23	353866	O voto do apóstolo	
 1TH	5	25	353884	A saudação final e a bênção	
+1TH	5	2	353945	Segunda epístola de Paulo aos	
 1TI	1	1	354559	Prefácio e saudação	
 1TI	1	8	354627	A lei e os seus objetivos	
 1TI	1	18	354754	O bom combate	
 1TI	2	1	354794	Mediador	
+1TI	2	8	354873	Proceder conveniente no culto público	
 1TI	3	1	354935	As qualificações dos bispos e dos diáconos	
 1TI	4	1	355118	A apostasia nos últimos tempos	
 1TI	5	3	355311	Das viúvas	
+1TI	5	17	355484	Acerca dos presbíteros. Vários conselhos	
 1TI	6	1	355615	Dos senhores e dos servos	
 1TI	6	3	355655	Os falsos mestres e os perigos da riqueza	
 1TI	6	11	355756	Apelo para Timóteo	
 1TI	6	17	355804	Acerca dos ricos	
+1TI	6	20	355832	O conselho final e a bênção apostólica	
 2CH	1	1	137582	Salomão oferece sacrifícios em Gibeão	
 2CH	1	1	137632	Salomão pede a Deus sabedoria	
 2CH	1	1	137769	As riquezas de Salomão	
 2CH	2	1	137837	Salomão faz aliança com Hirão	
+2CH	2	1	138076	Os preparativos para edificar o templo	
 2CH	3	1	138141	Salomão edifica o templo	
 2CH	3	1	138237	Os dois querubins	
 2CH	3	1	138328	As duas colunas	
 2CH	4	1	138364	O mar de fundição	
 2CH	4	1	138449	Outros utensílios para o templo	
+2CH	5	1	138642	As dádivas de Davi colocadas no templo	
 2CH	5	1	138660	Salomão traz para o templo a arca	
 2CH	6	1	138857	Salomão fala ao povo	
 2CH	6	1	139000	Salomão ora a Deus	
@@ -293,6 +340,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2CH	10	1	140420	Roboão causa separação entre as tribos	
 2CH	10	1	140599	Dez tribos seguem Jeroboão	
 2CH	11	5	140722	As cidades fortificadas de Roboão	
+2CH	11	13	140768	Sacerdotes e levitas vêm a Jerusalém	
 2CH	11	18	140861	A família de Roboão	
 2CH	12	1	140917	A invasão de Sisaque	
 2CH	12	1	141062	O reinado de Roboão	
@@ -325,6 +373,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2CH	24	2	144601	A conspiração contra o rei Joás	
 2CH	25	2	144678	O reinado de Amazias	
 2CH	25	2	144728	Amazias vence os edomitas	
+2CH	25	14	144881	Deus repreende Amazias por ser este idólatra	
 2CH	25	2	144923	Amazias derrotado por Jeoás	
 2CH	25	2	145078	A morte de Amazias, de Judá	
 2CH	26	2	145126	O reinado de Uzias	
@@ -336,16 +385,22 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2CH	28	2	146019	A morte de Acaz	
 2CH	29	2	146063	Ezequias manda abrir o templo	
 2CH	29	12	146204	Os levitas purificam o templo	
+2CH	29	20	146351	Ezequias restabelece o culto de Deus	
 2CH	30	1	146604	A celebração da Páscoa	
+2CH	32	2	147461	Senaqueribe afronta a Ezequias e ao Senhor	
+2CH	32	2	147634	A destruição do exército dos assírios	
 2CH	32	2	147707	Doença de Ezequias	
 2CH	32	2	147805	A morte de Ezequias	
 2CH	33	2	147872	O reinado de Manassés	
+2CH	33	10	147984	O cativeiro de Manassés e sua oração	
 2CH	33	2	148111	A morte de Manassés	
 2CH	33	2	148157	O reinado de Amom	
 2CH	34	2	148242	O reinado de Josias	
 2CH	34	2	148260	A purificação do templo e do culto	
 2CH	34	2	148326	O rei repara o templo	
 2CH	34	2	148451	Hilquias acha o Livro da Lei	
+2CH	34	2	148513	Josias manda consultar a profetisa Hulda	
+2CH	34	2	148686	Josias renova a aliança ante o Senhor	
 2CH	35	2	148797	A celebração da Páscoa	
 2CH	35	2	149089	A morte de Josias no vale de Megido	
 2CH	36	2	149191	O reinado e deposição de Joacaz	
@@ -357,8 +412,12 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2CO	1	1	343740	Prefácio e saudação	
 2CO	1	3	343758	Ação de graças de Paulo pelo conforto divino	
 2CO	1	12	343876	A sinceridade de Paulo	
+2CO	1	15	343963	Paulo explica a sua demora em ir a Corinto	
 2CO	2	5	344132	O penitente deve ser readmitido na igreja	
 2CO	2	12	344182	A intranquilidade de Paulo não encontrando Tito	
+2CO	2	14	344204	A vitória de Cristo no ministério apostólico	
+2CO	3	1	344281	A excelência do ministério da nova aliança	
+2CO	3	12	344395	Onde há o Espírito do Senhor, aí há liberdade	
 2CO	4	1	344488	Paulo cumpre o seu ministério com fidelidade	
 2CO	4	7	344548	O poder de Paulo vem só de Deus	
 2CO	4	16	344671	O desígnio e efeito das aflições	
@@ -374,6 +433,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2CO	8	16	345601	O novo encargo de Tito	
 2CO	9	6	345786	A sementeira e a colheita	
 2CO	10	1	345902	Paulo defende a sua autoridade apostólica	
+2CO	10	13	346067	A esfera da ação missionária de Paulo	
 2CO	11	1	346170	Paulo continua a sua defesa	
 2CO	11	7	346232	O desprendimento do apóstolo	
 2CO	11	16	346369	Os sofrimentos de Paulo por amor do evangelho	
@@ -384,18 +444,22 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2CO	12	19	346822	Paulo apela para o juiz de todos	
 2CO	13	1	346878	Paulo promete investigar e castigar	
 2CO	13	11	347003	Saudações	
+2CO	13	12	347007	Quanto   ao   mais,   irmãos,   adeus!   Aperfeiçoai-vos,	
 2CO	13	13	347029	A bênção	
 2JN	1	1	366309	Prefácio e saudação	
 2JN	1	4	366335	O amor fraternal	
+2JN	1	7	366379	Os falsos ensinadores e como tratá-los	
 2JN	1	12	366419	Informações finais. Saudações	
 2KI	1	1	117206	Acazias e o profeta Elias	
 2KI	1	9	117290	Elias e os três capitães	
 2KI	1	17	117437	A morte de Acazias	
 2KI	2	1	117463	Eliseu é sucessor de Elias	
 2KI	2	9	117582	Elias é elevado ao céu	
+2KI	2	15	117652	Os discípulos dos profetas procuram Elias	
 2KI	2	19	117731	Eliseu torna saudáveis as águas de Jericó	
 2KI	2	23	117769	Rapazinhos zombam de Eliseu	
 2KI	3	1	117797	O reinado de Jorão sobre Israel	
+2KI	3	4	117827	Eliseu prediz a vitória sobre Moabe	
 2KI	3	21	118051	A derrota de Moabe	
 2KI	4	1	118135	Eliseu aumenta o azeite da viúva	
 2KI	4	8	118238	Eliseu e a sunamita	
@@ -406,6 +470,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2KI	6	1	119069	Eliseu faz flutuar um machado	
 2KI	6	8	119121	A ação de Eliseu na guerra contra os siros	
 2KI	6	24	119345	Reina fome em Samaria	
+2KI	6	31	119417	Eliseu prediz a abundância de víveres	
 2KI	7	3	119516	Quatro leprosos revelam a fuga dos siros	
 2KI	7	16	119733	Cumpriu-se a profecia de Eliseu	
 2KI	8	1	119807	Restaurados os bens da sunamita	
@@ -447,15 +512,18 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2KI	16	2	123171	A idolatria de Acaz	
 2KI	16	2	123324	A morte de Acaz	
 2KI	17	1	123383	O reinado de Oseias, de Israel	
+2KI	17	3	123399	A queda de Samaria e o cativeiro de Israel	
 2KI	17	7	123437	A causa do cativeiro	
 2KI	17	24	123680	O rei da Assíria renova a população de Samaria	
 2KI	17	29	123781	O culto misto dos samaritanos	
 2KI	18	2	123940	O reinado de Ezequias, de Judá	
 2KI	18	2	124093	Senaqueribe invade Judá	
+2KI	18	2	124177	Rabsaqué afronta a Ezequias e ao Senhor	
 2KI	19	1	124465	Ezequias consulta a Isaías	Isaías 37.1-7
 2KI	19	8	124555	A carta do rei da Assíria	Isaías 37.8-13
 2KI	19	14	124656	A oração de Ezequias	Isaías 37.14-20
 2KI	19	20	124714	O profeta conforta a Ezequias	Isaías 37.21-35
+2KI	19	2	124932	A destruição do exército dos assírios	
 2KI	20	2	124976	A doença de Ezequias e a sua cura maravilhosa	
 2KI	20	12	125119	A embaixada da Babilônia	Isaías 39.1-8
 2KI	20	2	125203	A morte de Ezequias	
@@ -466,8 +534,10 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2KI	22	2	125592	O reinado de Josias	
 2KI	22	2	125622	O rei repara o templo	
 2KI	22	2	125676	Hilquias acha o Livro da Lei	
+2KI	22	2	125714	Josias manda consultar a profetisa Hulda	
 2KI	23	2	125871	Josias renova a aliança ante o Senhor	
 2KI	23	2	125960	A purificação do templo e do culto	
+2KI	23	15	126153	Profanado e derribado o altar de Betel	
 2KI	23	2	126225	A celebração da Páscoa	
 2KI	23	24	126286	A piedade de Josias	
 2KI	23	2	126350	A morte de Josias	
@@ -481,6 +551,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2KI	25	27	127257	Libertado e honrado o rei Joaquim	Jeremias 52.31-34
 2PE	1	1	364230	Prefácio e saudação	
 2PE	1	12	364340	O apóstolo dá os motivos por que escreveu esta carta	
+2PE	1	16	364413	A superioridade da palavra de Deus	
 2PE	2	1	364469	Os falsos mestres, seu caráter, obras e justo castigo	
 2PE	3	1	364761	A vinda do Senhor e o seu significado	
 2SA	1	11	97692	Davi manda matar o amalequita	
@@ -489,6 +560,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2SA	2	8	97992	Abner faz Isbosete rei de Israel	
 2SA	2	12	98026	Vitória de Davi sobre Isbosete	
 2SA	2	18	98117	Abner mata a Asael	
+2SA	2	24	98187	Joabe persegue os homens de Abner	
 2SA	3	1	98320	A família de Davi em Hebrom	
 2SA	3	6	98358	Abner faz aliança com Davi	
 2SA	3	22	98553	Joabe mata a Abner à traição	
@@ -496,6 +568,8 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2SA	4	1	98841	A morte de Isbosete	
 2SA	5	1	99006	Davi é ungido rei de todo o Israel	
 2SA	5	1	99058	Davi conquista Sião	
+2SA	5	1	99141	O reinado de Davi reconhecido por Hirão	
+2SA	5	1	99173	Os filhos de Davi que nasceram em Jerusalém	
 2SA	5	1	99203	Davi derrota os filisteus	
 2SA	6	1	99336	Davi traz para Jerusalém a arca	
 2SA	6	1	99467	A arca é levada para Jerusalém	
@@ -518,6 +592,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2SA	13	37	101905	Absalão foge para Talmai	
 2SA	14	1	101972	Absalão volta para Jerusalém	
 2SA	14	25	102249	A beleza de Absalão	
+2SA	14	28	102306	Absalão admitido à presença de Davi	
 2SA	15	1	102366	A revolta de Absalão e a fuga de Davi	
 2SA	15	19	102577	A lealdade de Itai	
 2SA	16	1	102825	Davi e Ziba	
@@ -550,6 +625,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2TH	3	18	354498	A saudação é de próprio punho: Paulo. Este é o sinal	
 2TI	1	1	355930	Prefácio e saudação	
 2TI	1	3	355952	Ação de graças	
+2TI	1	6	355992	A prática do zelo, da firmeza e da fidelidade	
 2TI	2	1	356145	Cristo	
 2TI	3	1	356433	Os males e as corrupções dos últimos dias	
 2TI	4	1	356610	A fidelidade e o zelo na pregação	
@@ -558,6 +634,7 @@ livro	capitulo	versiculo	linha_txt	titulo_ara	referencias
 2TI	4	19	356779	As saudações finais e a bênção	
 3JN	1	1	366484	Prefácio e saudação	
 3JN	1	5	366522	O bom exemplo de Gaio	
+3JN	1	9	366564	Diótrefes, o ambicioso. Demétrio, fiel cristão	
 3JN	1	13	366608	Informações finais. Saudações	
 ACT	1	1	321772	Prólogo	
 ACT	1	6	321818	A ascensão de Jesus	
@@ -579,6 +656,7 @@ ACT	5	1	323329	Ananias e Safira
 ACT	5	12	323464	Os apóstolos fazem muitos milagres	
 ACT	5	17	323512	A prisão dos apóstolos	
 ACT	5	33	323687	O parecer de Gamaliel	
+ACT	5	41	323806	Chamando          os     apóstolos,       açoitaram-nos          e,	
 ACT	6	1	323838	A instituição dos diáconos	
 ACT	6	8	323937	Estêvão perante o Sinédrio	
 ACT	7	1	324009	A defesa de Estêvão	
@@ -597,7 +675,9 @@ ACT	9	32	325542	A cura de Eneias
 ACT	9	36	325605	A ressurreição de Dorcas	
 ACT	10	1	325689	O centurião Cornélio	
 ACT	10	9	325788	Pedro tem uma visão	
+ACT	10	17	325846	Os enviados de Cornélio chegam a Jope	
 ACT	10	23	325945	Pedro vai com eles	
+ACT	10	44	326178	O Espírito Santo desce sobre os gentios	
 ACT	11	1	326259	A defesa de Pedro	
 ACT	11	19	326430	Os discípulos são chamados cristãos em Antioquia	
 ACT	11	27	326504	Ágabo prediz grande fome	
@@ -606,6 +686,9 @@ ACT	12	9	326653	Pedro é livre da prisão
 ACT	12	20	326792	A morte de Herodes	
 ACT	13	4	326929	Elimas, o mágico	
 ACT	13	13	327021	João Marcos volta a Jerusalém	
+ACT	13	16	327076	O testemunho de Paulo em Antioquia	
+ACT	13	42	327347	Instados a pregar no sábado seguinte	
+ACT	13	44	327410	Paulo e Barnabé vão para os gentios	
 ACT	14	1	327494	Paulo e Barnabé em Icônio	
 ACT	14	8	327579	A cura de um coxo em Listra	
 ACT	14	19	327673	Paulo é apedrejado	
@@ -631,6 +714,7 @@ ACT	18	12	329279	Paulo perante Gálio
 ACT	18	18	329364	O final da segunda viagem missionária de Paulo	
 ACT	19	1	329519	Paulo em Éfeso	
 ACT	19	8	329577	Paulo na escola de Tirano	
+ACT	19	21	329718	Paulo envia à Macedônia Timóteo e Erasto	
 ACT	19	23	329740	Demétrio excita grande tumulto	
 ACT	20	1	329996	De novo, Paulo visita a Macedônia e a Grécia	
 ACT	20	7	330054	Paulo em Trôade	
@@ -652,6 +736,7 @@ ACT	24	22	331941	Paulo perante Félix e Drusila
 ACT	25	1	332038	Paulo perante Festo. Apela para César	
 ACT	25	13	332201	Festo expõe a Agripa o caso de Paulo	
 ACT	25	23	332324	Festo, de novo, fala a Agripa	
+ACT	26	1	332402	Paulo discursa perante o rei Agripa	
 ACT	26	24	332710	Paulo é interrompido por Festo	
 ACT	27	1	332804	Paulo enviado para a Itália	
 ACT	27	9	332935	Os perigos da viagem	
@@ -661,6 +746,7 @@ ACT	28	7	333454	Públio hospeda a Paulo
 ACT	28	11	333496	A continuação da viagem	
 ACT	28	16	333573	Paulo em Roma	
 ACT	28	23	333643	Paulo prega em Roma	
+ACT	28	30	333756	Paulo prisioneiro durante dois anos	
 AMO	1	1	268485	Ameaças contra diversas nações	
 AMO	2	4	268712	Ameaças contra Judá	
 AMO	2	6	268734	Ameaças contra Israel	
@@ -679,8 +765,11 @@ AMO	9	11	270265	Restauração do Israel espiritual
 COL	1	1	351689	Prefácio e saudação	
 COL	1	3	351707	Ação de graças	
 COL	1	9	351753	Paulo ora pelos colossenses	
+COL	1	13	351789	A excelência da pessoa e da obra de Cristo	
 COL	1	24	351930	A missão de Paulo. O mistério do evangelho	
+COL	2	1	352023	O interesse de Paulo pelos colossenses	
 COL	2	8	352093	Cristo e a sua obra redentora	
+COL	2	16	352216	O cerimonialismo, sombra de coisas futuras	
 COL	3	1	352308	A união com Cristo glorificado	
 COL	3	12	352433	As virtudes devem ser cultivadas	
 COL	3	18	352524	Os deveres da família	
@@ -688,6 +777,7 @@ COL	4	2	352594	A oração e a prudência
 COL	4	7	352646	Tíquico e Onésimo	
 COL	4	10	352705	As saudações finais	
 COL	4	18	352799	Saudação pessoal. A bênção	
+COL	4	1	352854	Primeira epístola de Paulo aos	
 DAN	1	1	260052	A educação de Daniel e de seus companheiros	
 DAN	2	1	260293	Daniel interpreta o sonho de Nabucodonosor	
 DAN	4	1	261444	A loucura de Nabucodonosor	
@@ -711,6 +801,7 @@ DAN	12	15	265913	Conversão insincera
 DAN	12	1	266072	Iniquidade dos reis e príncipes	
 DAN	12	1	266271	O castigo está próximo	
 DAN	12	1	266448	Israel já antes castigado	
+DAN	12	1	266678	Israel semeou malícia e segará destruição	
 DAN	12	6	266722	Os  moradores  de  Samaria  serão  atemorizados  por	
 DAN	12	1	266893	O amor de Deus Pai. A ingratidão de Israel	
 DAN	12	1	267052	Jacó, modelo para o povo de Israel	
@@ -732,7 +823,9 @@ DEU	3	23	59323	A oração de Moisés para entrar em Canaã	Números 27.12-23
 DEU	4	1	59399	Moisés exorta o povo à obediência	
 DEU	4	41	59934	Três cidades de refúgio	Números 35.9-15; Deuteronômio 19.1-3
 DEU	4	44	60007	O Segundo Discurso de Moisés	
+DEU	4	44	60009	Moisés conta a história da legislação	
 DEU	5	1	60059	A repetição dos dez mandamentos	Êxodo 20.1-17
+DEU	5	22	60256	Moisés, mediador entre Deus e o povo	Êxodo 20.18-21
 DEU	6	1	60435	O fim da lei é a obediência	
 DEU	7	1	60743	Admoestações contra a infidelidade	Êxodo 34.10-17
 DEU	7	12	60894	Bênçãos decorrentes da obediência	Levítico 26.3-13; Deuteronômio 28.1-14
@@ -745,8 +838,10 @@ DEU	10	12	61936	Exortação à obediência
 DEU	11	8	62172	Os benefícios da obediência	
 DEU	11	26	62395	A bênção e a maldição	
 DEU	12	1	62504	O lugar do culto verdadeiro	
+DEU	12	15	62691	De como comer a carne e as ofertas	
 DEU	13	1	62970	Contra os falsos profetas e os idólatras	
 DEU	14	1	63224	Mutilação do corpo proibida	
+DEU	14	3	63242	Leis sobre os animais limpos e os imundos	Levítico 11.1-47
 DEU	14	22	63415	Os dízimos para o serviço do SENHOR	
 DEU	15	1	63546	O ano da remissão	
 DEU	15	7	63622	Leis a favor dos pobres	Levítico 25.35-38
@@ -765,6 +860,7 @@ DEU	18	9	64616	Contra os adivinhos e os feiticeiros
 DEU	18	15	64684	A promessa do grande profeta	
 DEU	19	1	64803	Seis cidades de refúgio	Números 35.9-15; Deuteronômio 4.41-43
 DEU	19	11	64982	Execução do homicida	Números 35.16-21
+DEU	19	14	65022	Acerca dos limites e das testemunhas	
 DEU	20	1	65104	Acerca da guerra	
 DEU	21	10	65471	Acerca da mulher prisioneira	
 DEU	21	15	65511	O direito do primogênito	
@@ -800,8 +896,10 @@ DEU	31	1	69015	As Últimas Disposições
 DEU	31	1	69017	Josué, sucessor de Moisés	
 DEU	31	9	69138	A lei deve ser lida ao povo de sete em sete anos	
 DEU	31	14	69184	A futura rebeldia de Israel	
+DEU	31	24	69369	O Livro da Lei posto ao lado da arca	
 DEU	31	30	69456	O cântico de Moisés	
 DEU	32	48	70007	O Último Dia da Vida de Moisés	
+DEU	32	48	70009	Moisés vê do monte Nebo a terra de Canaã	
 DEU	33	1	70106	A bênção de Moisés	
 DEU	34	1	70458	A morte de Moisés	
 ECC	1	1	201825	Tudo é vaidade	
@@ -828,12 +926,14 @@ ECC	11	9	204321	A mocidade
 ECC	12	1	204382	A velhice	
 ECC	12	9	204478	Conclusão	
 EPH	1	1	348789	Prefácio e saudação	
+EPH	1	3	348805	As bênçãos de Deus em Cristo, autor da nossa	
 EPH	1	15	348915	Paulo ora pelos crentes	
 EPH	2	1	349032	Do pecado para a salvação pela graça	
 EPH	2	11	349147	Os gentios e os judeus são unidos pela cruz de Cristo	
 EPH	3	1	349296	A vocação dos gentios e o apostolado de Paulo	
 EPH	3	14	349406	Paulo ora novamente	
 EPH	4	1	349503	A unidade da fé	
+EPH	4	7	349551	O santo ministério e o serviço dos santos	
 EPH	4	17	349684	A santidade cristã oposta à dissolução	
 EPH	4	25	349744	Exortações à santidade	
 EPH	5	3	349853	O fruto da luz e as obras das trevas	
@@ -844,8 +944,11 @@ EPH	6	10	350227	A armadura de Deus
 EPH	6	21	350356	Tíquico	
 EPH	6	23	350372	A bênção	
 EST	1	1	158293	O banquete de Assuero	
+EST	1	10	158381	Vasti, a rainha, recusa assistir ao banquete	
 EST	2	1	158602	Ester feita rainha	
+EST	2	21	158926	Mordecai descobre uma conspiração	
 EST	3	1	159001	Mordecai odiado por Hamã	
+EST	3	7	159071	Hamã pretende matar todos os judeus	
 EST	3	12	159133	O rei decreta a morte dos judeus	
 EST	4	1	159236	Ester promete interceder pelo seu povo	
 EST	6	1	159669	Hamã forçado a honrar a Mordecai	
@@ -853,6 +956,7 @@ EST	7	1	159846	Ester denuncia a Hamã, que é enforcado
 EST	8	1	159999	Os judeus são autorizados a resistir	
 EST	9	1	160266	Os judeus matam aos seus inimigos	
 EST	9	16	160459	A Festa de Purim	
+EST	9	30	160685	Então,  a  rainha  Ester,  filha  de  Abiail,  e  o  judeu	
 EST	10	1	160741	O renome de Mordecai	
 EXO	1	1	17670	Os descendentes de Jacó no Egito	
 EXO	1	15	17786	As parteiras desobedecem a Faraó	
@@ -864,6 +968,7 @@ EXO	4	1	18495	Deus concede poderes a Moisés
 EXO	4	18	18680	Moisés regressa ao Egito	
 EXO	5	1	18845	Moisés e Arão falam a Faraó	
 EXO	5	6	18889	Faraó aflige os israelitas	
+EXO	5	15	19026	Os israelitas queixam-se de Moisés e Arão	
 EXO	6	2	19169	Deus promete livrar os israelitas	
 EXO	6	14	19277	Genealogias de Moisés e Arão	
 EXO	6	28	19410	Moisés fala novamente a Faraó	
@@ -877,6 +982,7 @@ EXO	10	1	20523	Oitava praga: gafanhotos
 EXO	10	21	20805	Nona praga: trevas	
 EXO	11	1	20926	Deus anuncia a décima praga	
 EXO	12	1	21042	A instituição da Páscoa	
+EXO	12	29	21362	Décima praga: morte dos primogênitos	
 EXO	12	37	21481	A saída dos israelitas do Egito	
 EXO	13	1	21652	Consagração dos primogênitos	
 EXO	13	17	21827	Deus guia o povo pelo caminho	
@@ -895,6 +1001,7 @@ EXO	18	1	23262	O sogro de Moisés traz-lhe sua mulher e seus filhos
 EXO	18	13	23417	A nomeação de auxiliares	Deuteronômio 1.9-18
 EXO	19	1	23584	Deus fala com Moisés no monte Sinai	
 EXO	20	1	23894	Os dez mandamentos	Deuteronômio 5.1-21
+EXO	20	18	24043	Moisés, mediador entre Deus e o povo	Deuteronômio 5.22-33
 EXO	20	22	24089	Leis acerca dos altares	
 EXO	21	1	24145	Leis acerca dos servos	Deuteronômio 15.12-18
 EXO	21	12	24270	Leis acerca da violência	
@@ -936,11 +1043,13 @@ EXO	32	30	28811	Moisés intercede pelo povo	Êxodo 32.11-14; Deuteronômio 9.25-
 EXO	33	1	28898	O Anjo de Deus irá adiante do povo	
 EXO	33	12	29031	Moisés roga a Deus a sua presença	
 EXO	34	1	29182	As segundas tábuas da lei	Deuteronômio 10.1-5
+EXO	34	10	29278	Deus faz uma aliança e admoesta contra a	Deuteronômio 7.1-5
 EXO	34	18	29397	As três festas	Êxodo 23.14-19; Levítico 23.4-21,33-44; Deuteronômio 16.1-17
 EXO	34	29	29552	O rosto de Moisés resplandece	
 EXO	35	1	29630	O Sábado	
 EXO	35	4	29695	Deus manda trazer ofertas para o tabernáculo	Êxodo 25.1-9
 EXO	35	10	29745	Os utensílios do tabernáculo	Êxodo 39.32-43
+EXO	35	20	29868	A prontidão do povo em trazer ofertas	
 EXO	35	30	29992	Deus chama a Bezalel e a Aoliabe	Êxodo 31.1-11
 EXO	36	8	30216	As cortinas do tabernáculo	Êxodo 26.1-13
 EXO	36	20	30324	A coberta de peles e as tábuas	Êxodo 26.14-30
@@ -975,6 +1084,7 @@ EZK	8	1	244689	Visão das abominações em Jerusalém
 EZK	9	1	244967	Os castigos de Jerusalém	
 EZK	10	1	245146	A visão das brasas de fogo	
 EZK	10	9	245261	A visão das quatro rodas	
+EZK	10	18	245365	A glória de Deus abandona o templo	
 EZK	11	1	245460	O juízo de Deus contra os chefes do povo	
 EZK	11	14	245603	Promessa da restauração de Israel	
 EZK	12	1	245725	O profeta descreve o cativeiro	
@@ -1002,14 +1112,17 @@ EZK	25	15	251067	Profecia contra a Filístia
 EZK	26	1	251138	Profecia contra Tiro	
 EZK	27	1	251448	Lamentação sobre Tiro	
 EZK	28	1	251870	Profecia contra o rei de Tiro	
+EZK	28	11	251997	Outra lamentação contra o rei de Tiro	
 EZK	28	20	252103	Profecia contra Sidom	
 EZK	29	1	252210	Profecia contra o Egito	
 EZK	30	1	252496	O Egito será conquistado pela Babilônia	
 EZK	31	1	252814	O destino do Egito	
 EZK	32	1	253081	Lamentação contra Faraó, rei do Egito	
+EZK	32	17	253303	Os egípcios com outras nações no além	
 EZK	33	1	253518	O dever do verdadeiro atalaia	
 EZK	33	21	253784	O castigo de Israel por causa da sua presunção	
 EZK	34	1	253973	Profecia contra os pastores infiéis de Israel	
+EZK	34	11	254083	O cuidado do Senhor pelo seu rebanho	
 EZK	35	1	254365	Profecia contra o monte Seir	
 EZK	36	1	254540	Profecia aos montes de Israel	
 EZK	36	16	254711	A restauração de Israel	
@@ -1018,6 +1131,7 @@ EZK	37	15	255198	Reunião de Judá e Israel
 EZK	38	1	255369	Profecia contra Gogue	
 EZK	38	14	255536	Gogue invadirá Israel	
 EZK	39	1	255711	A queda de Gogue	
+EZK	39	11	255848	O sepultamento das hordas de Gogue	
 EZK	39	17	255914	O grande sacrifício do Senhor	
 EZK	40	1	256109	A visão do templo	
 EZK	43	1	257481	A glória do Senhor enche o templo	
@@ -1034,6 +1148,7 @@ EZK	46	9	258931	Instruções referentes às ofertas
 EZK	47	1	259223	A torrente das águas purificadoras	
 EZK	47	13	259384	As fronteiras da terra de Israel	
 EZK	48	1	259543	Os limites de sete tribos	
+EZK	48	13	259714	Os limites dos sacerdotes e dos levitas	
 EZK	48	15	259746	Os limites da cidade	
 EZK	48	21	259826	Os limites do príncipe	
 EZK	48	23	259893	Os limites das outras cinco tribos	
@@ -1053,16 +1168,20 @@ EZR	7	1	151519	Artaxerxes envia Esdras a Jerusalém
 EZR	8	1	151861	A lista dos que voltaram com Esdras	
 EZR	8	15	151986	Esdras manda buscar levitas	
 EZR	8	21	152058	O jejum	
+EZR	8	24	152102	A entrega das contribuições aos sacerdotes	
 EZR	8	31	152209	A chegada a Jerusalém	
 EZR	9	1	152285	A oração e confissão de Esdras	
 EZR	10	1	152579	Os israelitas despedem suas mulheres heteias	
 GAL	1	1	347094	Prefácio e saudação	
 GAL	1	6	347130	A inconstância dos gálatas	
+GAL	1	10	347168	O evangelho que Paulo recebeu e pregou	
+GAL	1	18	347283	Paulo vai a Jerusalém, Síria e Cilícia	
 GAL	2	1	347331	O apostolado aos judeus e aos gentios	
 GAL	2	11	347472	Cristo Jesus	
 GAL	3	1	347605	Paulo apela para a experiência dos gálatas	
 GAL	3	6	347653	A experiência de Abraão	
 GAL	3	15	347754	A lei não pode invalidar a promessa	
+GAL	3	23	347846	A tutela da lei para nos conduzir a Cristo	
 GAL	4	1	347947	A nossa filiação em Cristo	
 GAL	4	8	348003	O valor transitório dos ritos judaicos	
 GAL	4	12	348035	A perplexidade de Paulo	
@@ -1071,6 +1190,7 @@ GAL	5	1	348279	Ou a lei ou Cristo
 GAL	5	13	348357	A liberdade é limitada pelo amor	
 GAL	5	16	348422	As obras da carne e o fruto do Espírito	
 GAL	6	1	348516	O auxílio mútuo e a responsabilidade pessoal	
+GAL	6	6	348587	O que o homem semear, isso também ceifará	
 GAL	6	12	348639	Paulo gloria-se na cruz de Cristo	
 GAL	6	18	348699	A bênção	
 GEN	1	1	369	A criação dos céus e da terra e de tudo o que neles há	
@@ -1086,6 +1206,7 @@ GEN	6	11	1878	Deus anuncia o dilúvio
 GEN	7	1	2023	Noé e sua família entram na arca	
 GEN	7	17	2198	O dilúvio	
 GEN	8	1	2315	Diminuem as águas do dilúvio	
+GEN	8	6	2369	Noé solta um corvo e depois uma pomba	
 GEN	8	13	2462	Noé e sua família saem da arca	
 GEN	8	20	2522	Noé levanta um altar	
 GEN	9	1	2591	A aliança de Deus com Noé	
@@ -1101,6 +1222,7 @@ GEN	14	1	3893	Guerra de quatro reis contra cinco
 GEN	14	12	3999	Ló é levado cativo	
 GEN	14	18	4104	Melquisedeque abençoa a Abrão	
 GEN	15	1	4164	Deus anima a Abrão e lhe promete um filho	
+GEN	15	12	4289	O SENHOR entra em aliança com Abrão	
 GEN	16	1	4400	Sarai e Agar	
 GEN	16	15	4565	Nascimento de Ismael	
 GEN	17	1	4585	Deus muda o nome de Abrão	
@@ -1109,7 +1231,9 @@ GEN	17	15	4738	Deus muda o nome de Sarai
 GEN	17	23	4818	Pratica-se a circuncisão	
 GEN	18	1	4905	O SENHOR e dois anjos aparecem a Abraão	
 GEN	18	16	5072	Deus anuncia a destruição de Sodoma e Gomorra	
+GEN	18	22	5140	Abraão intercede junto a Deus pelos homens	
 GEN	19	1	5303	Ló recebe em sua casa os dois anjos	
+GEN	19	23	5597	A destruição de Sodoma e Gomorra	
 GEN	19	30	5657	A origem dos moabitas e dos amonitas	
 GEN	20	1	5784	Abraão e Sara peregrinam em Gerar	
 GEN	21	1	5981	O nascimento de Isaque	
@@ -1125,6 +1249,8 @@ GEN	25	1	7573	Descendentes de Abraão e Quetura
 GEN	25	7	7613	A morte de Abraão	
 GEN	25	1	7682	Descendentes de Ismael	
 GEN	25	19	7740	Descendentes de Isaque	
+GEN	25	27	7804	Depois,  nasceu  o  irmão;  segurava  com  a  mão  o	
+GEN	25	27	7818	Esaú vende o seu direito de primogenitura	
 GEN	26	1	7919	Isaque na terra dos filisteus	
 GEN	26	26	8211	Isaque faz aliança com Abimeleque	
 GEN	27	1	8309	Isaque abençoa a Jacó e a Esaú	
@@ -1165,6 +1291,7 @@ GEN	43	15	14869	José hospeda seus irmãos
 GEN	44	1	15100	Estratagema de José para deter seus irmãos	
 GEN	44	14	15257	A defesa de Judá	
 GEN	45	1	15523	José dá-se a conhecer a seus irmãos	
+GEN	45	16	15708	Faraó ouve falar dos irmãos de José	
 GEN	46	1	15861	Jacó e toda a sua família descem para o Egito	
 GEN	46	28	16102	O encontro de José com seu pai	
 GEN	47	1	16211	Israel é apresentado a Faraó	
@@ -1172,6 +1299,7 @@ GEN	47	13	16380	José compra toda a terra do Egito para Faraó
 GEN	48	1	16666	Jacó adoece	
 GEN	48	11	16760	Jacó abençoa José e os filhos deste	
 GEN	49	1	16937	Bênçãos proféticas de Jacó	
+GEN	50	1	17297	A lamentação por Jacó e o seu enterro	
 GEN	50	15	17470	A magnanimidade de José para com seus irmãos	
 GEN	50	23	17569	A morte de José	
 HAB	1	1	273360	A iniquidade de Judá	
@@ -1186,25 +1314,34 @@ HAG	2	1	275051	A glória do segundo templo
 HAG	2	10	275143	Repreendida a infidelidade do povo	
 HAG	2	20	275292	A promessa do Senhor a Zorobabel	
 HEB	1	1	357764	A revelação de Deus	
+HEB	1	5	357810	Cristo é o Filho, os anjos são ministros	
+HEB	1	11	357856	Ainda:      No     princípio,       SENHOR,         lançaste       os	
 HEB	2	1	357935	O perigo da negligência	
 HEB	4	1	358361	A entrada no descanso de Deus pela fé	
 HEB	5	11	358687	Os cristãos hebreus não tinham progredido	
 HEB	6	1	358760	Exortação ao progresso na fé	
 HEB	6	4	358784	Os perigos espirituais	
+HEB	6	9	358834	As coisas melhores e pertencentes à salvação	
 HEB	6	13	358909	A imutabilidade da promessa de Deus	
 HEB	7	1	358983	Melquisedeque, tipo de Cristo	
+HEB	7	4	359017	O sacerdócio de Cristo é superior ao levítico	
 HEB	7	20	359235	Cristo, sacerdote único e perfeito	
+HEB	9	1	359524	Os ritos, ofertas e sacrifícios mosaicos eram	
 HEB	9	11	359669	O sacrifício de Cristo não se repete, é perfeito e eficaz	
+HEB	9	23	359810	O sacrifício de Cristo é eficaz para sempre	
 HEB	10	26	360198	O castigo do pecado voluntário	
 HEB	11	1	360361	A natureza da fé	
+HEB	12	1	360830	Devemos imitar o exemplo de Cristo, que foi	
 HEB	12	14	360989	A exortação à paz e à pureza	
 HEB	12	18	361037	O contraste entre Sinai e Sião	
 HEB	13	1	361202	Os deveres sociais	
 HEB	13	7	361287	Os deveres espirituais	
 HEB	13	18	361393	Algumas recomendações pessoais	
+HEB	13	24	361474	Notifico-vos   que  o  irmão  Timóteo  foi  posto  em	
 ISA	1	1	206158	A nação pecaminosa	
 ISA	1	10	206248	Condenado o culto hipócrita	
 ISA	1	18	206363	O convite da graça	
+ISA	1	21	206399	O julgamento e a redenção de Jerusalém	
 ISA	2	1	206538	A glória futura do Israel espiritual	Miqueias 4.1-5
 ISA	2	6	206596	Abatido o orgulho dos homens	
 ISA	3	1	206794	Julgamento de Judá e de Jerusalém	
@@ -1215,6 +1352,7 @@ ISA	5	8	207238	Ais contra os perversos
 ISA	6	1	207520	A visão de Isaías e o seu chamamento	
 ISA	7	1	207677	Profecia contra Israel e a Síria	
 ISA	7	10	207796	A promessa a respeito de Emanuel	
+ISA	7	12	207806	Pede  ao  SENHOR,  teu  Deus,  um  sinal,  quer  seja	
 ISA	7	17	207852	Males sobre Jerusalém	
 ISA	8	1	207977	A invasão dos assírios	
 ISA	8	9	208039	O Senhor é a nossa esperança	
@@ -1225,6 +1363,7 @@ ISA	11	1	208940	O reinado pacífico do rebento de Jessé
 ISA	11	11	209061	A nova glória de Israel	
 ISA	12	1	209162	Canto de louvor pela restauração de Israel	
 ISA	13	1	209216	Profecia contra a Babilônia	
+ISA	14	1	209482	Hino triunfal sobre a queda da Babilônia	
 ISA	14	24	209753	Profecia contra os assírios	
 ISA	14	28	209826	Profecia contra os filisteus	
 ISA	15	1	209880	Profecia contra Moabe	
@@ -1246,6 +1385,7 @@ ISA	28	1	212405	Será castigada a impenitência de Efraim
 ISA	28	7	212504	Contra os habitantes de Jerusalém	
 ISA	28	23	212727	Deus é grande em sabedoria	
 ISA	29	1	212826	Jerusalém e seus inimigos	
+ISA	29	9	212902	A cegueira espiritual e a hipocrisia do povo	
 ISA	29	17	213039	A redenção de Israel	
 ISA	30	1	213170	Contra a aliança com o Egito	
 ISA	30	18	213363	Promessas consoladoras para Sião	
@@ -1256,10 +1396,12 @@ ISA	33	1	213983	A aflição e o livramento de Jerusalém
 ISA	34	1	214254	A indignação de Deus contra as nações	
 ISA	35	1	214496	A felicidade na Sião futura	
 ISA	36	2	214586	Senaqueribe invade Judá	
+ISA	36	2	214659	Rabsaqué afronta a Ezequias e ao Senhor	
 ISA	37	2	214892	Ezequias consulta a Isaías	
 ISA	37	2	215013	A carta do rei da Assíria	
 ISA	37	2	215073	A oração de Ezequias	
 ISA	37	2	215160	O profeta conforta a Ezequias	
+ISA	37	2	215345	A destruição do exército dos assírios	
 ISA	38	2	215383	A doença de Ezequias e a sua cura maravilhosa	
 ISA	38	9	215480	Cântico de Ezequias	
 ISA	39	2	215651	A embaixada da Babilônia	
@@ -1268,6 +1410,7 @@ ISA	40	12	215868	A majestade do Senhor
 ISA	41	1	216110	Deus suscita o Redentor	
 ISA	41	21	216321	O Senhor prova a sua grandeza	
 ISA	42	1	216450	O Servo do Senhor	
+ISA	42	10	216544	Cântico de louvor pela salvação do povo	
 ISA	42	18	216655	Lamento sobre a cegueira de Israel	
 ISA	43	1	216770	Só Deus resgata Israel	
 ISA	43	14	216915	Libertação do jugo da Babilônia	
@@ -1300,11 +1443,13 @@ ISA	62	1	221550	Jerusalém, a noiva do Senhor
 ISA	63	1	221707	Deus vinga o seu povo	
 ISA	63	7	221804	A última oração do profeta	
 ISA	65	1	222152	A resposta de Deus: rejeitados os rebeldes	
+ISA	65	8	222222	A resposta de Deus: salvo o restante fiel	
 ISA	65	17	222351	Novos céus e nova terra	
 ISA	66	10	222572	A felicidade eterna de Sião	
 JAS	1	1	361541	Prefácio e saudação	
 JAS	1	2	361551	Os benefícios das provações	
 JAS	1	5	361577	Como obter a sabedoria	
+JAS	1	9	361611	As circunstâncias terrenas são transitórias	
 JAS	1	12	361649	A origem do pecado	
 JAS	1	16	361720	A origem do bem	
 JAS	1	19	361744	A prática da palavra de Deus	
@@ -1316,6 +1461,7 @@ JAS	4	1	362368	A origem das contendas
 JAS	4	11	362456	A maledicência é condenada	
 JAS	4	13	362478	A falibilidade dos projetos humanos	
 JAS	5	7	362605	A necessidade, bênçãos e exemplo da paciência	
+JAS	5	12	362680	Eis  que   temos   por  felizes  os  que   perseveraram	
 JER	1	1	222839	A vocação de Jeremias	
 JER	1	11	222933	A visão da vara de amendoeira	
 JER	1	13	222949	A visão da panela ao fogo	
@@ -1331,27 +1477,35 @@ JER	6	27	225034	O trabalho inútil de Jeremias
 JER	7	1	225076	O templo não protege a nação iníqua	
 JER	7	29	225418	Judá rejeitado por Deus	
 JER	8	4	225567	O castigo é inevitável	
+JER	8	18	225762	A dor do profeta por causa da ruína do povo	
 JER	9	7	225903	Ameaças de ruína e exílio	
+JER	9	23	226090	Conhecer a Deus constitui a glória do homem	
 JER	10	1	226185	Contraste entre o Senhor e os ídolos	
 JER	10	17	226376	Lamento sobre a desolação de Judá	
 JER	11	1	226491	A aliança é violada	
 JER	11	18	226710	Conspiração contra Jeremias	
 JER	12	1	226799	A queixa de Jeremias	
 JER	12	5	226853	A resposta de Deus	
+JER	12	7	226881	Deus castiga os devastadores do país	
 JER	12	14	226982	As finalidades do castigo de Deus	
 JER	13	1	227040	O cinto de linho	
 JER	13	12	227173	O jarro quebrado	
 JER	13	15	227207	Apelo e ameaças finais	
 JER	14	1	227378	Grande seca em Judá	
+JER	14	7	227461	Rejeitada a primeira intercessão de Jeremias	
+JER	14	13	227533	Rejeitada a segunda intercessão de Jeremias	
 JER	14	19	227642	Jeremias	
 JER	15	10	227825	O Senhor conforta ao seu profeta	
 JER	16	1	227982	A vida solitária do profeta, figura do povo	
 JER	17	1	228248	O pecado engana e destrói	
+JER	17	12	228364	Jeremias clama a Deus que o socorra dos seus	
 JER	17	19	228455	A santificação do sábado	
 JER	18	1	228604	O vaso do oleiro	
 JER	18	18	228781	O profeta ora contra seus inimigos	
 JER	19	1	228886	A botija quebrada	
 JER	20	7	229175	O lamento do profeta	
+JER	20	14	229294	Jeremias amaldiçoa o dia de seu nascimento	
+JER	21	1	229340	Predita a destruição de Jerusalém por	
 JER	21	1	229344	Nabucodonosor	
 JER	22	1	229556	Profecia contra a casa real de Judá	
 JER	22	10	229644	Contra Salum, rei de Judá	
@@ -1372,8 +1526,10 @@ JER	30	1	232371	Deus promete trazer do cativeiro o seu povo
 JER	31	1	232634	Lamento transformado em júbilo	
 JER	31	31	233013	Firmada nova aliança com Israel	
 JER	32	1	233129	Jeremias compra um campo em Anatote	
+JER	32	16	233337	Jeremias pede esclarecimentos a Deus	
 JER	32	26	233443	A resposta de Deus	
 JER	33	1	233691	Promessas de paz e prosperidade	
+JER	33	14	233892	Repetição da promessa do Renovo de Davi	Jeremias 23.5-6
 JER	34	1	234083	Prediz-se a sorte de Zedequias	
 JER	34	8	234192	As ameaças de Deus por causa da escravatura	
 JER	35	1	234425	A fidelidade dos recabitas	
@@ -1388,6 +1544,9 @@ JER	39	2	235769	Nabucodonosor toma Jerusalém
 JER	39	11	235912	Nabucodonosor cuida de Jeremias	
 JER	40	13	236266	Ismael conspira contra Gedalias	
 JER	41	11	236457	Joanã livra os cativos	
+JER	42	1	236580	Jeremias exorta o povo a não ir ao Egito	
+JER	43	1	236896	Jeremias é levado ao Egito pelo povo	
+JER	43	8	236974	Jeremias profetiza a conquista do Egito por	
 JER	43	8	236976	Nabucodonosor	
 JER	44	15	237268	Jeremias é contraditado	
 JER	44	20	237375	Jeremias prediz castigo	
@@ -1441,6 +1600,7 @@ JHN	7	37	315624	Jesus, a fonte da água viva
 JHN	7	45	315694	Os guardas voltam sem Jesus	
 JHN	8	1	315785	A mulher adúltera	
 JHN	8	12	315914	Jesus, a luz do mundo	
+JHN	8	21	315998	Jesus defende a sua missão e autoridade	
 JHN	9	1	316427	A cura de um cego de nascença	
 JHN	9	13	316525	Os fariseus interrogam o cego	
 JHN	9	35	316765	Jesus revela-se ao cego	
@@ -1448,6 +1608,7 @@ JHN	10	1	316823	Jesus, o bom pastor
 JHN	10	19	317000	Nova dissensão entre os judeus	
 JHN	10	22	317055	A Festa da Dedicação. Jesus é interrogado	
 JHN	11	1	317246	A ressurreição de Lázaro	
+JHN	11	32	317526	Os  judeus  que  estavam  com  Maria  em  casa  e  a	
 JHN	11	47	317656	O plano para tirar a vida de Jesus	
 JHN	12	1	317807	Jesus ungido por Maria em Betânia	Mateus 26.6-13; Marcos 14.3-9                                                   (Mt 26.6-13; Mc 14.3-9)
 JHN	12	9	317906	O plano para tirar a vida de Lázaro	
@@ -1481,6 +1642,7 @@ JHN	20	1	321033	A ressurreição de Jesus	Mateus 28.1-10; Marcos 16.1-8; Lucas 2
 JHN	20	11	321127	Jesus aparece a Maria Madalena	Marcos 16.9-11
 JHN	20	19	321238	Jesus aparece aos discípulos	Lucas 24.36-43                                                                (Lc 24.36-49)
 JHN	20	24	321290	A incredulidade de Tomé	
+JHN	20	26	321349	Jesus aparece novamente aos discípulos	
 JHN	20	30	321381	O objetivo deste Evangelho	
 JHN	21	1	321409	Jesus aparece a sete discípulos	
 JHN	21	15	321562	Pedro é interrogado	
@@ -1489,14 +1651,18 @@ JOB	1	1	160828	A virtude e riqueza de Jó
 JOB	1	13	160936	As aflições e a paciência de Jó	
 JOB	3	1	161254	Jó amaldiçoa o seu nascimento	
 JOB	4	1	161488	Elifaz repreende a Jó	
+JOB	5	1	161663	Elifaz exorta a Jó a que busque a Deus	
 JOB	6	1	161872	Jó justifica as suas queixas	
 JOB	7	1	162136	Jó contende com Deus	
 JOB	8	1	162327	Bildade afirma a justiça de Deus	
 JOB	9	1	162545	Jó é incapaz de responder a Deus	
+JOB	10	1	162816	Jó protesta contra a severidade de Deus	
 JOB	11	1	163044	Zofar acusa a Jó de iniquidade	
 JOB	12	1	163211	Jó se defende das acusações de seus amigos	
 JOB	13	1	163414	Jó defende a sua integridade	
+JOB	14	1	163664	Jó medita sobre a brevidade da vida	
 JOB	15	1	163853	Elifaz acusa a Jó de impiedade	
+JOB	15	17	163982	Elifaz mostra o justo castigo dos perversos	
 JOB	16	1	164147	Jó se queixa do trato de Deus	
 JOB	17	1	164338	Jó nada mais espera desta vida	
 JOB	18	1	164485	Bildade descreve a sorte do perverso	
@@ -1506,17 +1672,24 @@ JOB	22	1	165461	Elifaz acusa a Jó de grandes pecados
 JOB	23	1	165717	Jó deseja apresentar-se perante Deus	
 JOB	26	1	166160	Jó afirma a soberania de Deus	
 JOB	27	1	166281	Jó descreve a sorte dos perversos	
+JOB	28	1	166468	O homem apropria-se das riquezas da terra	
+JOB	28	12	166546	A verdadeira sabedoria é dom de Deus	
+JOB	29	1	166689	Jó lembra-se do seu primeiro estado feliz	
 JOB	30	1	166925	Jó lamenta a miséria em que caiu	
 JOB	31	1	167196	Jó declara sua integridade	
 JOB	32	1	167581	Eliú irado contra Jó e seus três amigos	
+JOB	32	6	167617	Eliú vinga o seu direito de responder a Jó	
 JOB	33	1	167778	Eliú repreende a Jó	
 JOB	34	1	168066	Eliú justifica a Deus	
+JOB	36	1	168537	No sofrer do homem, Deus lhe visa o bem	
 JOB	36	24	168726	Eliú exalta a majestade de Deus	
 JOB	38	1	169024	O Senhor convence a Jó de ignorância	
 JOB	40	3	169638	A resposta humilde de Jó	
+JOB	40	6	169658	As manifestações do poder de Deus	
 JOB	42	1	170123	A confissão de Jó	
 JOB	42	7	170165	Deus repreende os três amigos de Jó	
 JOB	42	10	170252	Deus restaura a prosperidade de Jó	
+JOL	1	1	267513	A carestia causada pelo gafanhoto e pela seca	
 JOL	2	12	267885	A misericórdia do Senhor	
 JOL	2	28	268106	Promessa do derramamento do Espírito	
 JOL	3	1	268191	Os juízos de Deus sobre as nações inimigas	
@@ -1561,6 +1734,7 @@ JOS	11	1	74120	Outras vitórias de Josué
 JOS	12	1	74428	Os reis vencidos por Moisés	
 JOS	12	7	74537	Os reis vencidos por Josué	
 JOS	13	1	74676	As terras ainda não conquistadas	
+JOS	13	14	74867	As heranças distribuídas por Moisés	
 JOS	14	1	75068	A terra de Canaã distribuída por sorte	
 JOS	14	6	75112	Josué dá Hebrom a Calebe	
 JOS	15	13	75422	Calebe conquista Hebrom	Juízes 1.11-15
@@ -1590,15 +1764,22 @@ JUD	1	5	366768	Exemplos da punição dos ímpios
 JUD	1	17	366931	A profecia apostólica. Exortações	
 JUD	1	24	366991	A doxologia	
 LAM	1	2	241170	Jerusalém destruída e desolada	
+LAM	2	1	241516	As tristezas de Sião provêm do Senhor	
+LAM	3	1	241894	Convidado o povo a reconhecer o seu pecado	
 LAM	4	1	242397	Os sofrimentos do cerco	
 LAM	5	1	242691	Os fiéis pedem misericórdia	
 LEV	1	1	32277	Os holocaustos	
 LEV	2	1	32462	As ofertas de manjares	
 LEV	3	1	32651	Os sacrifícios pacíficos	
+LEV	4	1	32844	O sacrifício pelos pecados por ignorância dos	
+LEV	4	27	33170	Os sacrifícios pelos pecados por ignorância de	
 LEV	5	1	33303	O sacrifício pelos pecados ocultos	
 LEV	5	14	33496	O sacrifício pelo sacrilégio	
+LEV	5	17	33534	O sacrifício pelos pecados de ignorância	
+LEV	6	1	33603	O sacrifício pelos pecados voluntários	
 LEV	6	8	33679	A lei do holocausto	
 LEV	6	14	33766	A lei da oferta de manjares	
+LEV	6	19	33826	A oferta na consagração dos sacerdotes	
 LEV	6	24	33882	A lei da oferta pelo pecado	
 LEV	7	1	33983	A lei da oferta pela culpa	
 LEV	7	6	34017	O  sacerdote  o  queimará  sobre  o  altar  em  oferta	
@@ -1616,6 +1797,7 @@ LEV	14	1	36682	A lei acerca do leproso depois de sarado
 LEV	14	33	37106	A lei acerca da lepra numa casa	
 LEV	15	1	37366	Imundícias do homem e da mulher	
 LEV	16	1	37774	O Dia da Expiação	
+LEV	16	11	37919	O sacrifício pelo próprio sumo sacerdote	
 LEV	16	15	37973	O sacrifício pelo povo	
 LEV	16	29	38152	A Festa anual das Expiações	
 LEV	17	1	38243	Leis referentes à matança dos animais	
@@ -1626,6 +1808,7 @@ LEV	19	1	38782	A repetição de diversas leis
 LEV	19	35	39154	Pesos e medidas justos	Deuteronômio 25.13-16
 LEV	20	1	39217	As penas de diversos crimes	
 LEV	21	1	39561	Leis para os sacerdotes	
+LEV	22	1	39816	A lei acerca de comer coisas santas	
 LEV	22	17	40034	Os animais sacrificados devem ser sem defeito	
 LEV	23	1	40229	As festas solenes do SENHOR	
 LEV	23	3	40245	O Sábado	Êxodo 23.12
@@ -1642,11 +1825,14 @@ LEV	25	8	41130	O Ano do Jubileu
 LEV	25	35	41460	Leis a favor dos pobres	Deuteronômio 15.7-11
 LEV	25	39	41504	Leis a favor dos escravos	
 LEV	26	1	41750	Admoestação contra a idolatria	
+LEV	26	3	41768	Bênçãos decorrentes da obediência	Deuteronômio 7.12-24; 28.1-14
 LEV	26	14	41915	Os castigos da desobediência	Deuteronômio 28.15-68
 LEV	27	1	42323	Votos particulares e a avaliação deles	
+LEV	27	16	42490	Voto de um campo e o resgate dele	
 LEV	27	30	42655	Sobre as dízimas	
 LUK	1	1	299171	Prefácio	
 LUK	1	5	299215	Zacarias e Isabel	
+LUK	1	8	299245	Predições referentes a João Batista	
 LUK	1	24	299410	A felicidade de Isabel	
 LUK	1	26	299432	Predito o nascimento de Jesus	
 LUK	1	39	299555	Maria visita a Isabel	
@@ -1656,16 +1842,19 @@ LUK	1	67	299815	O cântico de Zacarias
 LUK	2	1	299917	O nascimento de Jesus Cristo	Mateus 1.18-25                                                                  (Mt 1.18-25)
 LUK	2	8	300004	Os anjos e os pastores	
 LUK	2	21	300137	A circuncisão de Jesus	
+LUK	2	22	300147	A apresentação de Jesus no templo	
 LUK	2	25	300183	O cântico de Simeão	
 LUK	2	36	300288	A profetisa Ana	
 LUK	2	39	300316	O menino Jesus em Nazaré	
 LUK	2	41	300334	O menino Jesus no meio dos doutores	
 LUK	3	1	300459	A pregação de João Batista	Mateus 3.1-10; Marcos 1.2-5                                                      (Mt 3.1-12; Mc 1.2-8)
+LUK	3	15	300610	Também   soldados   lhe   perguntaram:   E   nós,   que	
 LUK	3	15	300624	João dá testemunho de Jesus	Mateus 3.11-12; Marcos 1.7-8; João 1.19-27
 LUK	3	21	300698	O batismo de Jesus	Mateus 3.13-17; Marcos 1.9-11; João 1.32-34                                            (Mt 3.13-17; Mt 1.1-17; Mc 1.9-11)
 LUK	3	23	300718	A genealogia de Jesus Cristo	Mateus 1.1-16
 LUK	4	1	300875	A tentação de Jesus	Mateus 4.1-11; Marcos 1.12-13                                                      (Mt 4.1-11; Mc 1.12,13)
 LUK	4	14	300998	Jesus volta para a Galileia e principia a sua missão	Mateus 4.12-17; Marcos 1.14-15
+LUK	4	16	301024	Jesus prega em Nazaré. É rejeitado pelos seus	Mateus 13.54-58; Marcos 6.1-4
 LUK	4	31	301191	A cura de um endemoninhado em Cafarnaum	Marcos 1.21-28                                                                (Mc 1.21-28)
 LUK	4	38	301286	A cura da sogra de Pedro	Mateus 8.14-15; Marcos 1.29-31                                                         (Mt 8.14-17; Mc 1.29-34)
 LUK	4	40	301312	Muitas outras curas	Mateus 8.16-17; Marcos 1.32-34
@@ -1685,6 +1874,7 @@ LUK	6	24	302098	Os ais
 LUK	6	27	302161	Da vingança	Mateus 5.38-42                                                                 (Mt 5.38-48)
 LUK	6	32	302199	Do amor ao próximo	Mateus 5.43-48
 LUK	6	37	302265	O juízo temerário é proibido	Mateus 7.1-5                                                                   (Mt 7.1-6)
+LUK	6	39	302324	A parábola do cego que guia a outro cego	
 LUK	6	43	302374	Árvores e seus frutos	Mateus 12.33-35                                                               (Mt 7.15-20)
 LUK	6	46	302414	Os dois fundamentos	Mateus 7.24-27                                                                (Mt 7.24-29)
 LUK	7	1	302515	A cura do servo de um centurião	Mateus 8.5-13                                                                   (Mt 8.5-13)
@@ -1707,10 +1897,12 @@ LUK	9	1	303794	As instruções para os doze	Mateus 10.1,5-15; Marcos 6.7-13     
 LUK	9	7	303883	Herodes e João Batista	Mateus 14.1-12; Marcos 6.14-29
 LUK	9	10	303925	A primeira multiplicação de pães e peixes	Mateus 14.13-21; Marcos 6.30-44; João 6.1-13                                        (Mt 14.13-21; Mc 6.30-44; Jo 6.1-15)
 LUK	9	18	304009	A confissão de Pedro. Jesus prediz a própria morte	Mateus 16.13-21; Marcos 8.27-31                                                    (Mt 16.13-20; Mc 8.27-30)
+LUK	9	23	304090	O discípulo de Jesus deve levar a sua cruz	Mateus 16.24-28; Marcos 8.34—9.1
 LUK	9	28	304140	A transfiguração	Mateus 17.1-8; Marcos 9.2-8                                                       (Mt 17.1-13; Mc 9.2-13)
 LUK	9	37	304253	A cura de um jovem possesso	Mateus 17.14-20; Marcos 9.14-29                                                    (Mt 17.14-23; Mc 9.14-32)
 LUK	9	44	304335	De novo prediz Jesus a sua morte	Mateus 17.22-23; Marcos 9.30-32
 LUK	9	46	304402	O maior no reino dos céus	Mateus 18.1-5; Marcos 9.33-37                                                       (Mt 18.1-5; Mc 9.33-41)
+LUK	9	49	304430	Jesus ensina a tolerância e a caridade	Marcos 9.38-40
 LUK	9	51	304452	Os samaritanos não recebem Jesus	
 LUK	9	57	304502	Jesus põe à prova os que queriam segui-lo	Mateus 8.18-22                                                                   (Mt 8.19-22)
 LUK	10	1	304589	A missão dos setenta	
@@ -1756,6 +1948,7 @@ LUK	16	14	307804	Jesus reprova os fariseus
 LUK	16	18	307850	Acerca do divórcio	Mateus 19.9; Marcos 10.10-12
 LUK	16	19	307874	O rico e o mendigo	
 LUK	17	1	308021	Os tropeços	Mateus 18.6-7; Marcos 9.42
+LUK	17	3	308045	Quantas vezes se deve perdoar a um irmão	Mateus 18.21-22
 LUK	17	11	308154	A cura de dez leprosos	
 LUK	17	20	308218	A vinda do reino de Deus	
 LUK	18	1	308422	A parábola do juiz iníquo	
@@ -1782,6 +1975,8 @@ LUK	21	5	309965	A destruição do templo	Mateus 24.1-2; Marcos 13.1-2           
 LUK	21	7	309995	O princípio das dores	Mateus 24.3-14; Marcos 13.3-13
 LUK	21	20	310124	Jerusalém sitiada	Mateus 24.15-28; Marcos 13.14-23
 LUK	21	25	310176	A vinda do Filho do Homem	Mateus 24.29-31; Marcos 13.24-27
+LUK	21	29	310245	A parábola da figueira. Exortação à vigilância	Mateus 24.32-44; Marcos 13.28-37
+LUK	21	37	310309	O povo vai ter com Jesus para o ouvir	
 LUK	22	1	310337	O plano para tirar a vida de Jesus	Mateus 26.1-5; Marcos 14.1-2
 LUK	22	3	310357	O pacto da traição	Mateus 26.14-16; Marcos 14.10-11
 LUK	22	7	310432	Os discípulos preparam a Páscoa	Mateus 26.17-19; Marcos 14.12-16                                           (Mt 26.17-35; Mc 14.12-31; Jo 13.18-30,36-38)
@@ -1815,6 +2010,7 @@ MAL	2	1	278476	O castigo dos sacerdotes
 MAL	2	10	278603	Advertência contra a infidelidade conjugal	
 MAL	2	17	278707	A vinda do Senhor precedida pelo seu Anjo	
 MAL	3	6	278828	O roubo no tocante aos dízimos e às ofertas	
+MAL	3	13	278914	A diferença entre o justo e o perverso	
 MAL	4	1	279021	O sol da justiça e seu precursor	
 MAT	1	1	279144	A genealogia de Jesus Cristo	Lucas 3.23-38                                                                            (Lc 3.23-38)
 MAT	1	19	279305	O nascimento de Jesus Cristo	Lucas 2.1-7
@@ -1828,8 +2024,9 @@ MAT	3	13	279806	O batismo de Jesus	Marcos 1.9-11; Lucas 3.21-22; João 1.32-34  
 MAT	4	1	279850	A tentação de Jesus	Marcos 1.12-13; Lucas 4.1-13                                                         (Mc 1.12,13; Lc 4.1-13)
 MAT	4	12	279973	Jesus volta para a Galileia	Marcos 1.14-15; Lucas 4.14-15                                                     (Mc 1.14,15; Lc 4.14,15)
 MAT	4	18	280019	A vocação de discípulos	Marcos 1.16-20; Lucas 5.1-11                                               (Mc 1.16-20; Lc 5.1-11; Jo 1.35-42)
+MAT	4	23	280092	Jesus prega por toda a Galileia e cura muitos	Lucas 6.17-19
 MAT	5	1	280136	O sermão do monte	
-MAT	5	3	280138	As bem-aventuranças	Lucas 6.20-23
+MAT	5	1	280138	As bem-aventuranças	Lucas 6.20-23
 MAT	5	13	280249	Os discípulos, o sal da terra	Marcos 9.49-50; Lucas 14.34-35
 MAT	5	14	280263	Os discípulos, a luz do mundo	
 MAT	5	17	280297	Jesus não veio revogar a Lei, mas cumprir	
@@ -1837,12 +2034,13 @@ MAT	5	21	280345	Jesus completa o que foi dito aos antigos
 MAT	5	21	280347	Do homicídio	
 MAT	5	27	280452	Do adultério	
 MAT	5	33	280512	Dos juramentos	
-MAT	5	38	280577	Da vingança	Lucas 6.27-30
-MAT	5	43	280621	Do amor ao próximo	Lucas 6.32-36
+MAT	5	38	280577	Da vingança	Lucas 6.27-30                                                                  (Lc 6.29,30)
+MAT	5	43	280621	Do amor ao próximo	Lucas 6.32-36                                                               (Lc 6.27,28,32-36)
 MAT	6	1	280671	A prática da justiça	
 MAT	6	2	280689	Como se deve dar esmolas	
 MAT	6	5	280756	Como se deve orar	
 MAT	6	9	280810	A oração dominical	Lucas 11.2-4
+MAT	6	17	280872	Quando  jejuardes,  não  vos  mostreis  contristados	
 MAT	6	17	280890	Como jejuar	
 MAT	6	19	280943	Os tesouros no céu	
 MAT	6	22	280967	A luz e as trevas	Lucas 11.34-36
@@ -1876,6 +2074,7 @@ MAT	10	16	282502	As admoestações
 MAT	10	24	282613	Os estímulos	
 MAT	10	34	282703	As dificuldades	
 MAT	10	40	282776	As recompensas	
+MAT	10	42	282788	Quem  recebe  um  profeta,  no  caráter  de  profeta,	
 MAT	11	1	282816	Jesus prega nas cidades	
 MAT	11	2	282834	João envia mensageiros a Jesus	Lucas 7.18-23
 MAT	11	7	282876	Jesus dá testemunho de João	Lucas 7.24-35
@@ -1885,6 +2084,7 @@ MAT	11	28	283144	Vinde a mim
 MAT	12	1	283170	Jesus é senhor do sábado	Marcos 2.23-28; Lucas 6.1-5                                                    (Mc 2.23–3.6; Lc 6.1-11)
 MAT	12	9	283273	O homem da mão ressequida	Marcos 3.1-6; Lucas 6.6-11
 MAT	12	15	283319	Jesus se retira	
+MAT	12	22	283369	A cura de um endemoninhado cego e mudo. A	Marcos 3.22-30; Lucas 11.14-23                                                     (Mc 3.20-30; Lc 11.14-23)
 MAT	12	33	283498	Árvores e seus frutos	Lucas 6.43-45
 MAT	12	38	283544	O sinal de Jonas	Lucas 11.29-32                                                                   (Lc 11.29-32)
 MAT	12	43	283641	A estratégia de Satanás	Lucas 11.24-26
@@ -1906,10 +2106,12 @@ MAT	14	13	284506	A primeira multiplicação de pães e peixes	Marcos 6.30-44; Lu
 MAT	14	22	284629	Jesus anda por sobre o mar	Marcos 6.45-52; João 6.15-21                                                      (Mc 6.45-56; Jo 6.16-24)
 MAT	14	34	284711	Jesus em Genesaré	Marcos 6.53-56
 MAT	15	21	284985	A mulher cananeia	Marcos 7.24-30                                                                  (Mc 7.24-30)
+MAT	15	32	285120	A segunda multiplicação de pães e peixes	Marcos 8.1-10
 MAT	16	1	285196	Os fariseus e os saduceus pedem um sinal do céu	Marcos 8.11-13                                                                    (Mc 8.11-13)
 MAT	16	5	285234	O fermento dos fariseus e dos saduceus	Marcos 8.14-21                                                                    (Mc 8.14-21)
 MAT	16	13	285331	A confissão de Pedro	Marcos 8.27-30; Lucas 9.18-21                                                   (Mc 8.27-30; Lc 9.18-21)
 MAT	16	21	285401	Jesus prediz a sua morte e ressurreição	Marcos 8.31-33; Lucas 9.22                                                    (Mc 8.31–9.1; Lc 9.22-27)
+MAT	16	24	285468	O discípulo de Cristo deve levar a sua cruz	Marcos 8.34—9.1; Lucas 9.23-27
 MAT	17	1	285518	A transfiguração	Marcos 9.2-8; Lucas 9.28-36                                                        (Mc 9.2-13; Lc 9.28-36)
 MAT	17	9	285613	A vinda de Elias	Marcos 9.9-13
 MAT	17	14	285659	A cura de um jovem possesso	Marcos 9.14-29; Lucas 9.37-42                                                      (Mc 9.14-32; Lc 9.37-45)
@@ -1919,6 +2121,7 @@ MAT	18	6	285900	Os tropeços	Marcos 9.42-48; Lucas 17.1-2
 MAT	18	10	285983	A parábola da ovelha perdida	Lucas 15.3-7                                                                 (Lc 15.3-7)
 MAT	18	15	286025	Como se deve tratar a um irmão culpado	
 MAT	18	21	286124	Quantas vezes se deve perdoar a um irmão	Lucas 17.3-4
+MAT	18	23	286144	A parábola do credor incompassivo	
 MAT	19	1	286281	Jesus atravessa o Jordão	Marcos 10.1                                                                   (Mc 10.1-12)
 MAT	19	3	286299	A questão do divórcio	Marcos 10.2-12; Lucas 16.18
 MAT	19	13	286401	Jesus abençoa as crianças	Marcos 10.13-16; Lucas 18.15-17                                                   (Mc 10.13-16; Lc 18.15-17)
@@ -1939,12 +2142,14 @@ MAT	22	15	287729	A questão do tributo	Marcos 12.13-17; Lucas 20.20-26          
 MAT	22	23	287826	Os saduceus e a ressurreição	Marcos 12.18-27; Lucas 20.27-40                                                 (Mc 12.18-27; Lc 20.27-40)
 MAT	22	34	287906	O grande mandamento	Marcos 12.28-31                                                               (Mc 12.28-34)
 MAT	22	41	287983	O Cristo, Filho de Davi	Marcos 12.35-37; Lucas 20.41-44                                                  (Mc 12.35-37; Lc 20.41-44)
+MAT	23	1	288037	Jesus censura os escribas e os fariseus	Marcos 12.38-40; Lucas 11.37-52; 20.45-47
 MAT	23	13	288156	Várias advertências de Jesus	
 MAT	23	37	288401	O lamento sobre Jerusalém	Lucas 13.34-35
 MAT	24	1	288482	O sermão profético	A destruição do templo                                                              (Mc 13.1-31; Lc 21.5-37); Marcos 13.1-2; Lucas 21.5-6
 MAT	24	3	288506	O princípio das dores	Marcos 13.3-13; Lucas 21.7-19
 MAT	24	15	288643	A grande tribulação	Marcos 13.14-23; Lucas 21.20-23
 MAT	24	29	288747	A vinda do Filho do Homem	Marcos 13.24-27; Lucas 21.25-28
+MAT	24	32	288822	A parábola da figueira. Exortação à vigilância	Marcos 13.28-37; Lucas 21.29-36
 MAT	24	45	288961	A parábola do bom servo e do mau	Lucas 12.42-46
 MAT	25	1	289019	A parábola das dez virgens	
 MAT	25	14	289142	A parábola dos talentos	
@@ -1969,6 +2174,7 @@ MAT	27	33	290653	A crucificação	Marcos 15.22-32; Lucas 23.32-43; João 19.17-2
 MAT	27	45	290776	A morte de Jesus	Marcos 15.33-41; Lucas 23.44-49; João 19.28-30                                     (Mc 15.33-41; Lc 23.44-49; Jo 19.28-30)
 MAT	27	57	290901	O sepultamento de Jesus	Marcos 15.42-47; Lucas 23.50-56; João 19.38-42                                   (Mc 15.42-47; Lc 23.50-56; Jo 19.38-42)
 MAT	27	62	290939	A guarda do sepulcro	
+MAT	28	1	290999	A ressurreição de Jesus. Seu aparecimento às	Marcos 16.1-8; Lucas 24.1-12; João 20.1-10                                        (Mc 16.1-8; Lc 24.1-12; Jo 20.1-9)
 MAT	28	11	291140	Os judeus subornam os guardas	
 MAT	28	16	291192	Jesus aparece aos discípulos na Galileia	
 MAT	28	18	291208	A Grande Comissão	Marcos 16.15-18; Lucas 24.44-49
@@ -2019,6 +2225,7 @@ MRK	8	14	294766	O fermento dos fariseus e o de Herodes	Mateus 16.5-12           
 MRK	8	22	294832	A cura de um cego em Betsaida	
 MRK	8	27	294913	A confissão de Pedro	Mateus 16.13-20; Lucas 9.18-21                                                    (Mt 16.13-20; Lc 9.18-21)
 MRK	8	31	294953	Jesus prediz a sua morte e ressurreição	Mateus 16.21-23; Lucas 9.22                                                      (Mt 16.21-28; Lc 9.22-27)
+MRK	8	34	294993	O discípulo de Jesus deve levar a sua cruz	Mateus 16.24-28; Lucas 9.23-27
 MRK	9	2	295100	A transfiguração	Mateus 17.1-8; Lucas 9.28-36                                                      (Mt 17.1-13; Lc 9.28-36)
 MRK	9	9	295158	A vinda de Elias	Mateus 17.9-13
 MRK	9	14	295208	A cura de um jovem possesso	Mateus 17.14-21; Lucas 9.37-43                                                     (Mt 17.14-23; Lc 9.37-45)
@@ -2049,6 +2256,7 @@ MRK	13	1	297178	O sermão profético	A destruição do templo                   
 MRK	13	3	297210	O princípio das dores	Mateus 24.3-14; Lucas 21.7-19
 MRK	13	14	297339	A grande tribulação	Mateus 24.15-28; Lucas 21.20-24
 MRK	13	24	297419	A vinda do Filho do Homem	Mateus 24.29-31; Lucas 21.25-28
+MRK	13	28	297486	A parábola da figueira. Exortação à vigilância	Mateus 24.32-44; Lucas 21.29-36
 MRK	14	1	297572	O plano para tirar a vida de Jesus	Mateus 26.1-5; Lucas 22.1-2                                                          (Mt 26.6-13; Jo 12.1-8)
 MRK	14	3	297629	Jesus ungido em Betânia	Mateus 26.6-13; João 12.1-8
 MRK	14	10	297707	O pacto da traição	Mateus 26.14-16; Lucas 22.3-6
@@ -2066,9 +2274,11 @@ MRK	15	16	298534	Jesus entregue aos soldados	Mateus 27.27-31                    
 MRK	15	21	298578	Simão leva a cruz de Jesus	Mateus 27.32; Lucas 23.26                                              (Mt 27.32-44; Lc 23.26-43; Jo 19.16-27)
 MRK	15	22	298623	A crucificação	Mateus 27.33-44; Lucas 23.33-43; João 19.17-24
 MRK	15	33	298705	A morte de Jesus	Mateus 27.45-56; Lucas 23.44-49; João 19.28-30                                      (Mt 27.45-56; Lc 23.44-49; Jo 19.28-30)
+MRK	15	37	298733	E  um  deles  correu  a  embeber  uma  esponja  em	
 MRK	15	42	298812	O sepultamento de Jesus	Mateus 27.57-61; Lucas 23.50-56; João 19.38-42                                      (Mt 27.57-61; Lc 23.50-56; Jo 19.38-42)
 MRK	16	1	298868	A ressurreição de Jesus	Mateus 28.1-10; Lucas 24.1-12; João 20.1-10                                         (Mt 28.1-10; Lc 24.1-12; Jo 20.1-9)
 MRK	16	10	298971	Jesus aparece a Maria Madalena	João 20.11-18
+MRK	16	12	299003	Jesus aparece a dois de seus discípulos	Lucas 24.13-35
 MRK	16	14	299023	A ordem para a evangelização	
 MRK	16	19	299069	A ascensão de Jesus	Lucas 24.50-53; Atos 1.6-11
 NAM	1	1	272766	A ira e a misericórdia de Deus	
@@ -2083,17 +2293,23 @@ NEH	5	1	154342	Medidas contra a usura
 NEH	5	13	154515	O bom exemplo de Neemias	
 NEH	6	1	154662	Os inimigos conspiram para intimidar Neemias	
 NEH	6	15	154845	Terminada a reconstrução do muro	
+NEH	7	1	154909	Neemias estabelece guardas em Jerusalém	
+NEH	7	5	154973	A relação dos que voltaram a Jerusalém	Esdras 2.1-70
 NEH	7	70	155529	Contribuições para o templo	
 NEH	8	1	155585	Esdras lê a Lei diante do povo	
 NEH	8	13	155774	A Festa dos Tabernáculos	
 NEH	9	1	155895	Arrependimento e confissão de pecados	
 NEH	9	38	156420	A aliança do povo sobre guardar a Lei	
 NEH	11	1	156792	Relação dos que habitaram em Jerusalém	
+NEH	11	20	157060	Os que habitaram nas cidades de Judá	
 NEH	11	25	157128	Os residentes nas aldeias	
 NEH	12	1	157241	Os sacerdotes que vieram para Jerusalém	
 NEH	12	27	157458	A dedicação dos muros	
+NEH	12	44	157675	A manutenção dos sacerdotes e levitas	
 NEH	13	1	157774	Os estrangeiros separados de Israel	
 NEH	13	4	157808	Tobias expulso do templo	
+NEH	13	10	157876	Restaurada a manutenção dos levitas	
+NEH	13	15	157967	Restabelecimento da observância do sábado	
 NEH	13	23	158122	Condenação do casamento misto	
 NEH	13	30	158220	As reformas de Neemias	
 NUM	1	1	42746	Deus manda Moisés levantar o censo de Israel	
@@ -2120,6 +2336,7 @@ NUM	9	1	46872	A celebração da Páscoa
 NUM	9	15	47092	A nuvem sobre o tabernáculo	Êxodo 40.34-38
 NUM	10	1	47202	As duas trombetas de prata	
 NUM	10	11	47331	Os israelitas partem do Sinai	
+NUM	10	29	47500	Moisés roga a Hobabe que vá com eles	
 NUM	11	1	47601	As murmurações dos israelitas	
 NUM	11	10	47685	Moisés acha pesado o seu cargo	
 NUM	11	16	47796	Deus designa setenta anciãos para ajudarem Moisés	
@@ -2153,17 +2370,20 @@ NUM	22	1	52007	Balaque envia mensageiros a Balaão
 NUM	22	21	52236	O Anjo do SENHOR e a jumenta de Balaão	
 NUM	23	1	52518	Balaão abençoa a Israel pela primeira vez	
 NUM	23	13	52649	Balaão abençoa a Israel pela segunda vez	
+NUM	24	1	52838	Balaão abençoa a Israel pela terceira vez	
 NUM	24	15	53011	A profecia de Balaão. A estrela de Jacó	
 NUM	25	1	53148	A adoração a Baal-Peor e o zelo de Fineias	
 NUM	26	1	53353	O censo de todos os israelitas	
 NUM	26	52	53894	A lei acerca da divisão da terra	
 NUM	26	57	53932	O censo dos levitas	
 NUM	27	12	54192	Deus prediz a morte de Moisés	Deuteronômio 3.23-29
+NUM	27	18	54256	Josué designado sucessor de Moisés	
 NUM	28	1	54351	Ofertas contínuas	Êxodo 29.38-42
 NUM	29	1	54693	Ofertas nas outras festas solenes	
 NUM	30	1	55150	Acerca de votos	Deuteronômio 23.21-23
 NUM	31	1	55377	A vitória sobre os midianitas	
 NUM	31	13	55524	O tratamento dos cativos	
+NUM	31	19	55590	A purificação dos soldados e da presa	
 NUM	31	25	55644	A divisão da presa	
 NUM	31	48	55894	A oferta voluntária dos capitães	
 NUM	32	33	56385	Distribuição da Transjordânia	Deuteronômio 3.12-17
@@ -2171,6 +2391,7 @@ NUM	33	1	56467	Os acampamentos desde o Egito
 NUM	33	38	56775	A morte de Arão	Números 20.22-29
 NUM	33	50	56894	Deus manda lançar fora os moradores de Canaã	
 NUM	34	1	56960	Os confins da terra	
+NUM	34	16	57113	Os homens que devem repartir a terra	
 NUM	35	1	57252	As cidades dos levitas	
 NUM	35	9	57379	Seis cidades de refúgio	Deuteronômio 4.41-43; 19.1-3
 NUM	35	16	57451	Execução do homicida	Deuteronômio 19.11-13
@@ -2180,10 +2401,12 @@ OBA	1	15	270604	A restauração e felicidade de Israel
 PHM	1	1	357480	Prefácio e saudação	
 PHM	1	4	357502	Ação de graças	
 PHM	1	8	357532	Paulo intercede em favor de Onésimo	
+PHM	1	21	357673	Comunicações pessoais. Saudações e bênção	
 PHP	1	1	350435	Prefácio e saudação	
 PHP	1	12	350531	A situação do apóstolo contribui para o progresso do	
 PHP	1	27	350696	A unidade cristã na luta	
 PHP	2	1	350787	Exortação ao amor fraternal e à humildade	
+PHP	2	5	350831	O exemplo de Cristo na humilhação	
 PHP	2	12	350885	O desenvolvimento da salvação	
 PHP	2	19	350978	Paulo e seus companheiros Timóteo e Epafrodito	
 PHP	3	1	351117	A exortação referente à alegria cristã	
@@ -2218,9 +2441,13 @@ PRO	31	1	201514	Conselhos para o rei Lemuel
 PRO	31	11	201605	O louvor da mulher virtuosa	
 PSA	1	1	170379	Os justos e os ímpios	
 PSA	2	1	170425	O reinado do Ungido de Deus	
+PSA	3	2	170554	Confiança em Deus, na adversidade	
 PSA	3	2	170558	Salmo de Davi quando fugia de Absalão, seu filho	
 PSA	4	1	170626	Confiança em Deus, na angústia	
 PSA	5	1	170733	Proteção contra os ímpios	
+PSA	5	1	170739	Ao mestre de canto, para flautas. Salmo de Davi	
+PSA	6	2	170860	Davi recorre à misericórdia de Deus	
+PSA	7	2	170962	Deus defende o justo contra o ímpio	
 PSA	9	2	171268	Ações de graças	
 PSA	10	2	171451	A derrubada dos ímpios	
 PSA	11	1	171622	O Senhor é forte refúgio	
@@ -2228,6 +2455,7 @@ PSA	11	1	171626	Ao mestre de canto. Salmo de Davi
 PSA	12	1	171711	Auxílio contra a falsidade	
 PSA	13	1	171783	Oração de fé	
 PSA	13	1	171787	Ao mestre de canto. Salmo de  Davi	
+PSA	14	1	171874	A corrupção do pecador e sua redenção	Salmo 53.1-6
 PSA	14	1	171882	Ao mestre de canto. Salmo de Davi	
 PSA	15	2	171944	O cidadão dos céus	
 PSA	15	2	171948	Salmo de Davi	
@@ -2237,6 +2465,7 @@ PSA	16	6	172071	O  SENHOR  é  a  porção  da  minha  herança  e  o  meu
 PSA	17	1	172123	Súplica pela proteção divina	
 PSA	17	1	172127	Oração de Davi	
 PSA	18	1	172276	Vitória e domínio	
+PSA	19	1	172729	A excelência da criação e da palavra de Deus	
 PSA	19	1	172733	Ao mestre de canto. Salmo de Davi	
 PSA	20	1	172872	Oração a favor do rei	
 PSA	20	1	172876	Ao mestre de canto. Salmo de Davi	
@@ -2257,9 +2486,11 @@ PSA	28	1	173981	Súplica e ações de graças
 PSA	28	1	173985	Salmo de Davi	
 PSA	29	1	174096	A voz de Deus na tempestade	
 PSA	29	1	174100	Salmo de Davi	
+PSA	30	1	174203	Ações de graças pela libertação da morte	
 PSA	30	1	174209	Salmo de Davi. Cântico da dedicação da casa	
 PSA	31	1	174305	Lamentos e louvor	
 PSA	31	1	174309	Ao mestre de canto. Salmo de Davi	
+PSA	32	1	174573	A bem-aventurança de quem recebe o perdão	
 PSA	32	1	174577	De Davi. Salmo didático	
 PSA	33	1	174700	Louvor ao Criador e Preservador	
 PSA	34	1	174879	Provai que o Senhor é bom!	
@@ -2267,14 +2498,18 @@ PSA	34	1	174883	Salmo de Davi, quando se fingiu amalucado na presença de
 PSA	34	1	174885	Abimeleque e, por este expulso, ele se foi	
 PSA	35	1	175064	Castigo dos adversários	
 PSA	35	1	175068	Salmo de Davi	
+PSA	36	1	175354	Malícia humana e benignidade divina	
 PSA	36	1	175358	Ao mestre de canto. De Davi, servo do Senhor	
+PSA	37	1	175483	Temporária, a felicidade dos perversos	
 PSA	37	1	175487	Salmo de Davi	
 PSA	38	2	175823	Arrependimento do pecador	
 PSA	38	2	175827	Salmo de Davi. Em memória	
 PSA	39	1	176032	A vaidade da vida	
+PSA	39	1	176038	Ao mestre de canto, Jedutum. Salmo de Davi	
 PSA	40	1	176199	Oração para livramento	
 PSA	40	1	176203	Vs. 13-17: Salmo 70.1-5	
 PSA	40	1	176207	Ao mestre de canto. Salmo de Davi	
+PSA	41	1	176394	A calúnia dos inimigos e o socorro de Deus	
 PSA	41	1	176398	Ao mestre de canto. Salmo de Davi	
 PSA	42	1	176537	A alma anela por Deus	
 PSA	42	1	176541	Ao mestre de canto. Salmo didático dos filhos de Corá	
@@ -2293,6 +2528,8 @@ PSA	50	1	177678	A essência do culto a Deus
 PSA	50	1	177682	Salmo de Asafe	
 PSA	51	2	177912	Confissão e arrependimento	
 PSA	52	1	178095	Condenação do ímpio	
+PSA	53	1	178214	A corrupção do pecador e sua redenção	Salmo 14.1-7
+PSA	53	1	178222	Ao mestre de canto. Salmo didático de Davi, para cítara	
 PSA	54	1	178292	Apelo para o socorro divino	
 PSA	55	1	178393	Que os traidores sejam destruídos	
 PSA	56	1	178614	Conforto na perseguição	
@@ -2305,22 +2542,27 @@ PSA	60	2	179194	Oração em tempos de guerra
 PSA	60	2	179198	Vs. 5-12: Salmo 108.6-13	
 PSA	60	2	179206	Hino de Davi para ensinar. Quando lutou contra os siros da	
 PSA	61	1	179294	Oração pelo rei	
+PSA	61	1	179333	Ao mestre de canto. Com instrumentos de cordas. De Davi	
 PSA	62	1	179397	Exortação à confiança	
 PSA	63	2	179536	Buscando a Deus	
 PSA	63	2	179542	Salmo de Davi, quando no deserto de Judá	
 PSA	64	1	179661	Proteção contra os inimigos	
 PSA	64	1	179665	Ao mestre de canto. Salmo de Davi	
+PSA	65	1	179743	Ações de graças pelas bênçãos das searas	
 PSA	65	1	179749	Ao mestre de canto. De Davi. Cântico	
 PSA	66	1	179880	Ofertas de gratidão	
 PSA	66	1	179884	Ao mestre de canto. Cântico. Salmo	
 PSA	67	1	180053	As nações rendem graças	
+PSA	68	1	180144	A vitória de Deus sobre os seus inimigos	
 PSA	68	1	180150	Ao mestre de canto. Salmo de Davi. Cântico	
 PSA	69	1	180486	O lamento do Messias	
+PSA	69	1	180492	Ao mestre de canto. Segundo a melodia “Os lírios”. De Davi	
 PSA	70	1	180816	Petição por auxílio divino	Salmo 40.13-17
 PSA	70	1	180824	Ao mestre de canto. De Davi. Em memória	
 PSA	71	1	180872	Súplicas de um ancião	
 PSA	72	1	181120	O rei justo e o seu reinado eterno	
 PSA	72	1	181124	Salmo de Salomão	
+PSA	73	1	181321	O problema da prosperidade dos maus	
 PSA	73	1	181325	Salmo de Asafe	
 PSA	74	1	181569	Lamento por causa da profanação	
 PSA	74	1	181573	Salmo didático de Asafe	
@@ -2328,7 +2570,11 @@ PSA	75	1	181800	Deus é juiz
 PSA	75	1	181808	Asafe. Cântico	
 PSA	76	1	181909	A majestade e o poder de Deus	
 PSA	76	1	181915	Cântico	
+PSA	77	1	182001	As grandes obras e a misericórdia de Deus	
+PSA	77	1	182007	Ao mestre de canto, Jedutum. Salmo de Asafe	
+PSA	78	1	182176	A providência divina na história do seu povo	
 PSA	78	1	182213	Salmo didático de Asafe	
+PSA	79	1	182790	O povo pede castigo contra os inimigos	
 PSA	79	1	182794	Salmo de Asafe	
 PSA	80	1	182927	Pedindo restaurações	
 PSA	80	1	182935	Asafe. Salmo	
@@ -2343,6 +2589,7 @@ PSA	86	1	183771	Oração de Davi
 PSA	87	1	183930	Jerusalém, amada de Deus	
 PSA	87	1	183934	Salmo dos filhos de Corá. Cântico	
 PSA	88	1	183986	Lamentação de um atribulado	
+PSA	89	1	184157	Promessa do reino messiânico a Davi	
 PSA	89	1	184161	Salmo didático de Etã, ezraíta	
 PSA	90	1	184624	A eternidade de Deus e a transitoriedade do homem	
 PSA	90	1	184626	Oração de Moisés, homem de Deus	
@@ -2352,6 +2599,7 @@ PSA	92	1	184940	Salmo. Cântico para o dia de sábado
 PSA	93	1	185075	O poder e a majestade de Deus	
 PSA	94	1	185117	Apelo para a justiça de Deus	
 PSA	95	1	185314	Convite a louvar o Senhor	
+PSA	96	1	185427	Tributo à glória e majestade de Deus	
 PSA	97	1	185552	A majestade e o domínio de Deus	
 PSA	98	1	185673	A justiça do Senhor	
 PSA	99	1	185745	A santidade de Deus	
@@ -2363,6 +2611,7 @@ PSA	102	1	186011	Arrependimento e esperança
 PSA	103	1	186242	A misericórdia de Deus	
 PSA	103	1	186246	Salmo de Davi	
 PSA	104	1	186458	Louvor ao Deus criador	
+PSA	106	1	187112	A graça de Deus e a ingratidão de Israel	
 PSA	106	1	187116	Vs. 47-48: 1 Crônicas 16.35-36	
 PSA	107	1	187547	Deus salva de todas as tribulações	
 PSA	108	1	187879	Deus concede vitória ao seu povo	Salmo 57.7-11; Vs. 6-13: Salmo 60.5-12
@@ -2372,9 +2621,11 @@ PSA	109	1	188008	Ao mestre de canto. Salmo de Davi
 PSA	110	1	188253	O reino e o sacerdócio do Messias	
 PSA	110	1	188257	Salmo de Davi	
 PSA	111	1	188356	As obras magníficas de Deus	
+PSA	112	1	188426	Promessa da vida futura aos piedosos	
 PSA	114	1	188593	As maravilhas do êxodo	
 PSA	115	1	188682	Honras somente a Deus	
 PSA	116	1	188843	Salmo de ações de graças	
+PSA	117	1	189008	Todos os povos devem louvar ao Senhor	
 PSA	118	1	189034	A alegria dos justos pelo Salvador	
 PSA	119	1	189290	Excelência da lei divina	
 PSA	120	1	190755	Contra as más línguas	
@@ -2416,12 +2667,16 @@ PSA	139	2	192391	Deus onisciente e onipotente
 PSA	139	2	192395	Ao mestre de canto. Salmo de Davi	
 PSA	140	1	192633	Contra inimigos e perfídias	
 PSA	140	1	192637	Ao mestre de canto. Salmo de Davi	
+PSA	141	1	192768	Oração vespertina por santificação e proteção	
 PSA	141	1	192772	Salmo de Davi	
 PSA	142	1	192864	Oração no meio de grande perigo	
 PSA	143	1	192963	Súplica por libertação	
 PSA	143	1	192967	Salmo de Davi	
+PSA	144	1	193102	Ações de graças pela proteção de Deus	
 PSA	144	1	193106	Salmo de Davi	
+PSA	145	1	193265	A bondade, grandeza e providência de Deus	
 PSA	145	1	193269	Louvores de Davi	
+PSA	146	1	193442	A fraqueza do homem e a fidelidade de Deus	
 PSA	147	1	193508	Louvor ao Deus Todo-Poderoso	
 PSA	148	1	193673	Um coro de aleluias	
 PSA	149	1	193808	Os fiéis louvam a Deus	
@@ -2462,6 +2717,7 @@ REV	12	7	369684	Cristo e do seu povo
 REV	12	13	369785	O dragão persegue a mulher	
 REV	13	1	369855	A besta que emerge do mar	
 REV	13	11	369976	A besta que emerge da terra	
+REV	14	1	370095	O Cordeiro e os seus remidos no monte Sião	
 REV	14	6	370151	A primeira voz	
 REV	14	8	370169	A segunda voz	
 REV	14	9	370181	A terceira voz	
@@ -2479,14 +2735,19 @@ REV	16	12	370626	O sexto flagelo
 REV	16	17	370678	O sétimo flagelo	
 REV	17	1	370773	A descrição da grande meretriz	
 REV	18	1	370984	O anúncio da queda de Babilônia	
+REV	18	9	371101	Os lamentos dos admiradores de Babilônia	
+REV	18	21	371276	A ruína de Babilônia é completa e definitiva	
 REV	19	1	371334	O júbilo no céu	
 REV	19	11	371463	Cristo, o vencedor da besta e do falso profeta	
+REV	20	1	371604	A prisão de Satanás por mil anos. A primeira	
 REV	20	7	371699	Satanás é solto e derrotado	
 REV	20	11	371743	O juízo de Deus	
 REV	21	1	371795	O novo céu e a nova terra	
 REV	21	9	371902	A nova Jerusalém	
+REV	22	8	372212	As admoestações e as promessas finais	
 REV	22	18	372306	A conclusão do livro	
 REV	22	21	372383	A bênção	
+REV	22	202	372448	Trata-se de iniciativa particular, no sentido de contribuir para a divulgação da Bíblia.	
 ROM	1	1	333821	Prefácio e saudação	
 ROM	1	18	334004	A idolatria e depravação dos homens	
 ROM	2	17	334356	Os judeus são indesculpáveis	
@@ -2506,9 +2767,12 @@ ROM	8	1	335929	Nenhuma condenação. O pendor do Espírito
 ROM	8	12	336078	Filhos e herdeiros	
 ROM	8	18	336165	Os sofrimentos do presente e as glórias do porvir	
 ROM	8	26	336231	A intercessão do Espírito	
+ROM	8	31	336322	As provas e a certeza do amor de Deus	
 ROM	9	1	336396	Paulo e a incredulidade dos judeus	
 ROM	9	19	336593	A soberania de Deus	
 ROM	9	30	336726	Israel é responsável pela sua rejeição	
+ROM	10	1	336768	Os judeus rejeitam a justiça de Deus	
+ROM	10	16	336907	Israel não pode alegar falta de oportunidade	
 ROM	11	1	337002	O futuro de Israel	
 ROM	11	11	337127	A rejeição de Israel não é final	
 ROM	11	33	337360	A maravilhosa sabedoria dos desígnios divinos	
@@ -2520,8 +2784,10 @@ ROM	13	8	337738	O amor ao próximo é o cumprimento da lei
 ROM	13	11	337797	O dia está próximo	
 ROM	14	1	337843	A tolerância para com os fracos na fé	
 ROM	14	13	337974	A liberdade e a caridade	
+ROM	15	1	338117	A imitação a Cristo. A simpatia e o altruísmo	
 ROM	15	14	338247	A explicação de Paulo	
 ROM	15	22	338366	Os planos de Paulo	
+ROM	15	29	338461	Tendo,      pois,     concluído        isto    e    havendo-lhes	
 ROM	15	30	338477	Paulo pede as orações	
 ROM	16	1	338513	Paulo recomenda a Febe	
 ROM	16	3	338531	As saudações pessoais	
@@ -2532,6 +2798,7 @@ RUT	1	1	85682	Noemi e Rute
 RUT	2	1	85931	Rute vai rebuscar espigas	
 RUT	2	8	86032	Boaz fala a Rute benignamente	
 RUT	3	1	86249	Rute e Boaz na eira	
+RUT	3	6	86289	Boaz promete a Rute casar com ela	
 RUT	4	1	86456	Boaz casa com Rute	
 RUT	4	13	86635	Rute dá à luz Obede	
 SNG	1	2	204616	Primeiro cântico	
@@ -2571,10 +2838,12 @@ SNG	8	13	206089	Esposo
 SNG	8	14	206103	Esposa	
 TIT	1	1	356856	Prefácio e saudação	
 TIT	1	5	356896	Deveres e qualificações dos ministros	
+TIT	1	10	356954	Os falsos mestres e as falsas doutrinas	
 TIT	2	1	357061	Os deveres das várias classes de pessoas crentes	
 TIT	3	12	357391	A bênção	
 ZEC	1	1	275404	Exortação ao arrependimento	
 ZEC	1	7	275466	A primeira visão: os cavalos	
+ZEC	1	18	275617	A segunda visão: os quatro chifres e os quatro	
 ZEC	2	1	275657	A terceira visão: Jerusalém é medida	
 ZEC	2	6	275730	Israel exortado a voltar para Sião	
 ZEC	3	1	275812	A quarta visão: o sumo sacerdote Josué	
@@ -2583,6 +2852,7 @@ ZEC	5	5	276142	A sétima visão: a mulher e o efa
 ZEC	6	1	276245	A oitava visão: os quatro carros	
 ZEC	6	9	276313	A coroação de Josué. O Renovo	
 ZEC	7	1	276416	O jejum que não agrada a Deus	
+ZEC	7	8	276502	A desobediência foi a causa do cativeiro	
 ZEC	8	1	276621	Sião restaurada	
 ZEC	9	1	276933	O castigo de diversos povos	
 ZEC	9	9	277011	O Rei vem de Sião	

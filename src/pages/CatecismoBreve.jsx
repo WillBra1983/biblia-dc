@@ -18,6 +18,7 @@ import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import CapitulosListaCards from '../components/CapitulosListaCards'
 import PageReadingShell from '../components/PageReadingShell'
+import { HISTORIA_CATECISMO_BREVE } from '../data/historiasWestminster'
 
 export default function CatecismoBreve() {
   const location = useLocation()
@@ -133,11 +134,14 @@ export default function CatecismoBreve() {
     return (
       <CapitulosListaCards
         titulo="Catecismo Breve de Westminster"
+        subtitulo="Síntese da fé cristã em perguntas e respostas para memorização, ensino e discipulado."
+        historia={HISTORIA_CATECISMO_BREVE}
+        etiqueta="Catecismo"
         capitulos={breveCatecismo}
         capituloAtual={pergunta}
         onSelectCapitulo={handlePerguntaChange}
         open={mostrarLista}
-        gradient="linear-gradient(135deg, #00796b 0%, #004d40 100%)"
+        gradient="linear-gradient(135deg, #0f3a1d 0%, #14532d 58%, #1e3a5f 100%)"
       />
     )
   }

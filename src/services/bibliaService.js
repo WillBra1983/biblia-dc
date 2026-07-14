@@ -27,6 +27,34 @@ function clausulaSqlLivro(livroId) {
   return Number.isFinite(id) && id > 0 ? 'AND b.id = ?' : ''
 }
 
+function escaparRegExp(s) {
+  return String(s || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
+ * "Palavra literal": o termo aparece como palavra inteira (bordas sem letra/número).
+ * Ex.: "ira" casa em "… à ira …" / "ira,", mas não em "beira" / "cadeira".
+ */
+export function contemPalavraLiteral(texto, termo) {
+  const t = String(texto || '')
+  const p = String(termo || '').trim()
+  if (!p || !t) return false
+  try {
+    const re = new RegExp(
+      `(^|[^\\p{L}\\p{N}])${escaparRegExp(p)}(?=[^\\p{L}\\p{N}]|$)`,
+      'iu'
+    )
+    return re.test(t)
+  } catch {
+    // Fallback sem Unicode property escapes (ambientes antigos)
+    const re = new RegExp(
+      `(^|[^A-Za-zÀ-ÿ0-9])${escaparRegExp(p)}(?=[^A-Za-zÀ-ÿ0-9]|$)`,
+      'i'
+    )
+    return re.test(t)
+  }
+}
+
 function gravarCacheLimitado(map, key, value, max) {
   if (map.size >= max) {
     map.delete(map.keys().next().value)
@@ -169,13 +197,17 @@ export const bibliaService = {
     }
   },
 
-  async buscarTexto(texto, tipoBusca = 'ambos', testamento = 'ambos', livroId = null) {
+  async buscarTexto(texto, tipoBusca = 'ambos', testamento = 'ambos', livroId = null, modoPalavra = 'literal') {
     const db = await initDB();
     
-    const termoBusca = `%${texto}%`;
+    const termo = String(texto || '').trim()
+    if (!termo) return []
+
+    const termoBusca = `%${termo}%`;
     const resultados = [];
     const filtroTestamento = clausulaSqlTestamento(testamento);
     const filtroLivro = clausulaSqlLivro(livroId);
+    const literal = modoPalavra !== 'incompleta'
 
     try {
       // Busca nos versículos (se tipoBusca for 'texto' ou 'ambos')
@@ -205,7 +237,10 @@ export const bibliaService = {
         const stmt1 = db.prepare(queryVersos);
         stmt1.bind(paramsVersos);
         while (stmt1.step()) {
-          resultados.push(stmt1.getAsObject());
+          const row = stmt1.getAsObject()
+          if (!literal || contemPalavraLiteral(row.texto, termo)) {
+            resultados.push(row)
+          }
         }
         stmt1.free();
       }
@@ -234,7 +269,10 @@ export const bibliaService = {
         const stmt2 = db.prepare(queryPericopes);
         stmt2.bind(paramsPericopes);
         while (stmt2.step()) {
-          resultados.push(stmt2.getAsObject());
+          const row = stmt2.getAsObject()
+          if (!literal || contemPalavraLiteral(row.pericope, termo)) {
+            resultados.push(row)
+          }
         }
         stmt2.free();
       }

@@ -51,7 +51,7 @@ export async function chamarGeminiViaProxy(model, body) {
       return { ok: false, status: 401, error: 'Inicie sessão para usar a IA.', code: 'AUTH' }
     }
     if (code.includes('resource-exhausted')) {
-      return { ok: false, status: 429, error: msg, code: 'QUOTA' }
+      return { ok: false, status: 429, error: msg, code: 'QUOTA_EXCEEDED' }
     }
     if (code.includes('failed-precondition')) {
       return { ok: false, status: 503, error: msg, code: 'NO_SERVER_KEY' }

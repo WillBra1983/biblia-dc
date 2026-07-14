@@ -696,7 +696,43 @@ export default function Discipulado() {
 
     return (
       <LayoutEstudo>
-        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: 2, bgcolor: '#004d40', minHeight: '100%', overflowX: 'hidden', fontFamily: ff }}>
+        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: { xs: 2, sm: 3 }, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', fontFamily: ff }}>
+          <Box
+            sx={{
+              position: 'relative',
+              overflow: 'hidden',
+              maxWidth: 760,
+              mx: 'auto',
+              mb: 2,
+              p: { xs: 2.25, sm: 3 },
+              borderRadius: 2,
+              color: 'white',
+              background: 'linear-gradient(135deg, #0f3a1d 0%, #14532d 58%, #1e3a5f 100%)',
+              boxShadow: isDarkMode ? '0 18px 48px rgba(0,0,0,0.35)' : '0 18px 48px rgba(15,58,29,0.18)',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                inset: 0,
+                background: `
+                  radial-gradient(circle at 14% 18%, rgba(255,255,255,0.20), transparent 26%),
+                  radial-gradient(circle at 88% 18%, rgba(234,179,8,0.18), transparent 28%)
+                `,
+                pointerEvents: 'none',
+              },
+            }}
+          >
+            <Box sx={{ position: 'relative', zIndex: 1 }}>
+              <Typography variant="overline" sx={{ color: 'rgba(255,255,255,0.72)', fontWeight: 800 }}>
+                Formação cristã
+              </Typography>
+              <Typography variant="h4" component="h1" sx={{ fontWeight: 800, lineHeight: 1.05, mb: 1 }}>
+                Discipulado
+              </Typography>
+              <Typography variant="subtitle1" sx={{ color: 'rgba(255,255,255,0.88)', maxWidth: 620, lineHeight: 1.45 }}>
+                Escolha um módulo para estudar com leitura, meditação, perguntas e acompanhamento de progresso.
+              </Typography>
+            </Box>
+          </Box>
           {ultimaLicao && (
             <Card
               onClick={() => handleSelectTema(ultimaLicao.tema.id, ultimaLicao.estudo?.id ?? null)}
@@ -708,7 +744,7 @@ export default function Discipulado() {
                   borderRadius: 2,
                 }),
                 width: '100%',
-                maxWidth: 400,
+                maxWidth: 760,
                 mx: 'auto',
                 mb: 2,
                 color: 'white',
@@ -754,7 +790,7 @@ export default function Discipulado() {
             const temSubitens = Array.isArray(tema.estudos) && tema.estudos.length > 0
             const expandido = Boolean(modulosExpandidos[tema.id])
             return (
-              <Box key={tema.id} sx={{ width: '100%', maxWidth: 400, mx: 'auto', mb: 2 }}>
+              <Box key={tema.id} sx={{ width: '100%', maxWidth: 760, mx: 'auto', mb: 1.5 }}>
                 <Card
                   onClick={() => {
                     if (temSubitens) {

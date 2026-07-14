@@ -18,6 +18,7 @@ import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import CapitulosListaCards from '../components/CapitulosListaCards'
 import PageReadingShell from '../components/PageReadingShell'
+import { HISTORIA_CATECISMO_MAIOR } from '../data/historiasWestminster'
 
 export default function CatecismoMaior() {
   const location = useLocation()
@@ -118,11 +119,14 @@ export default function CatecismoMaior() {
     return (
       <CapitulosListaCards
         titulo="Catecismo Maior de Westminster"
+        subtitulo="Perguntas e respostas com profundidade doutrinária para estudo, ensino e revisão pessoal."
+        historia={HISTORIA_CATECISMO_MAIOR}
+        etiqueta="Catecismo"
         capitulos={catecismoMaior}
         capituloAtual={pergunta}
         onSelectCapitulo={handlePerguntaChange}
         open={mostrarLista}
-        gradient="linear-gradient(135deg, #00796b 0%, #004d40 100%)"
+        gradient="linear-gradient(135deg, #0f3a1d 0%, #14532d 58%, #1e3a5f 100%)"
       />
     )
   }

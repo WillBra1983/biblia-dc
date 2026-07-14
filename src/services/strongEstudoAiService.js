@@ -547,7 +547,7 @@ async function executarGeminiResumo({ montarTentativas, maxChars = MAX_CHARS_RES
           /not found|is not supported|unsupported|unknown model/i.test(msg || '')
         if (isModelNotFound) break
         if (label === 'web' && erroIndicaToolIncompativel(msg)) continue
-        if (invocacao.code === 'AUTH' || invocacao.code === 'QUOTA') {
+        if (invocacao.code === 'AUTH' || invocacao.code === 'QUOTA_EXCEEDED') {
           return { ok: false, error: msg, code: invocacao.code, status: invocacao.status }
         }
         return {

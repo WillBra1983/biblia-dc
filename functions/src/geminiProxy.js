@@ -65,7 +65,7 @@ exports.geminiGenerateContent = onCall(
       throw new HttpsError('invalid-argument', 'Corpo da requisição excede o limite permitido.')
     }
 
-    const apiKey = GEMINI_API_KEY.value()
+    const apiKey = String(GEMINI_API_KEY.value() || '').trim()
     if (!apiKey || apiKey.length < 8) {
       throw new HttpsError(
         'failed-precondition',
@@ -90,7 +90,16 @@ exports.geminiGenerateContent = onCall(
     }
 
     const data = await res.json().catch(() => ({}))
-    logger.info('Gemini proxy', { uid, model, status: res.status })
+    if (!res.ok) {
+      logger.warn('Gemini proxy: erro da API', {
+        uid,
+        model,
+        status: res.status,
+        message: data?.error?.message || res.statusText
+      })
+    } else {
+      logger.info('Gemini proxy', { uid, model, status: res.status })
+    }
 
     return {
       ok: res.ok,

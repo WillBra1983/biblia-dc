@@ -15,6 +15,7 @@ import { useState, useEffect, useLayoutEffect } from 'react'
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
 import GlobalPinchZoom from './GlobalPinchZoom'
 import { useZoomReset } from '../contexts/ZoomResetContext'
+import { useApp } from '../contexts/AppContext'
 // Antes: `import { discipuladoData } from '../data/discipulado'` puxava 220 kB
 // para o caminho crítico só para resolver títulos de tela. Agora usamos o
 // índice leve (≈ 1 kB) — o dataset completo é importado por dynamic chunks
@@ -22,7 +23,7 @@ import { useZoomReset } from '../contexts/ZoomResetContext'
 import { discipuladoTitulos } from '../data/discipuladoTitulos'
 import LeituraConfigButton from './LeituraConfigButton'
 import SharePageButton from './SharePageButton'
-import { sxFullViewportHeight } from '../utils/viewportHeight'
+import { sxFullViewportHeight, sxMainBelowAppBar } from '../utils/viewportHeight'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { loadFirebaseModules, isFirebaseConfigured } from '../config/firebase'
 import {
@@ -100,6 +101,7 @@ export default function Layout({ title, children }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { user } = useFirebaseAuth()
+  const { setBackButtonHandler } = useApp()
   const pathnameNorm =
     location.pathname !== '/' && location.pathname.endsWith('/')
       ? location.pathname.slice(0, -1)
@@ -145,6 +147,18 @@ export default function Layout({ title, children }) {
       document.body.style.overflow = prevOverflow
     }
   }, [drawerOpen])
+
+  // Com o menu principal aberto, o botão/gesto voltar do sistema fecha o menu
+  // (volta ao conteúdo) em vez de sair do app ou trocar de rota.
+  useEffect(() => {
+    if (!setBackButtonHandler) return
+    if (drawerOpen) {
+      setBackButtonHandler(() => setDrawerOpen(false))
+    } else {
+      setBackButtonHandler(null)
+    }
+    return () => setBackButtonHandler(null)
+  }, [drawerOpen, setBackButtonHandler])
 
   /** Conteúdo do `main` começa por baixo do AppBar fixo (evita títulos escondidos). */
   const p = location.pathname
@@ -598,10 +612,7 @@ export default function Layout({ title, children }) {
           pt: needsMainToolbarPadding
             ? bibliaToolbarOverlay
               ? 0
-              : {
-                  xs: 'calc(56px + env(safe-area-inset-top, 0px))',
-                  sm: 'calc(64px + env(safe-area-inset-top, 0px))'
-                }
+              : sxMainBelowAppBar()
             : 0,
           pb: 'env(safe-area-inset-bottom, 0px)', // evita que a barra de gestos/botões do celular corte o conteúdo
           // `100vh` em mobile inclui a área coberta pela barra do navegador,

@@ -17,7 +17,6 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { discipuladoData } from '../data/discipulado'
 import { useLocation } from 'react-router-dom'
 import MenuDrawer from './MenuDrawer'
-import { sxFullViewportHeight, sxMinViewportHeight } from '../utils/viewportHeight'
 
 export default function LayoutEstudo({ children, onSelectTema }) {
   const theme = useTheme()
@@ -82,7 +81,9 @@ export default function LayoutEstudo({ children, onSelectTema }) {
     <Box
       sx={{
         display: 'flex',
-        ...sxMinViewportHeight(),
+        flexDirection: 'column',
+        flex: '1 1 auto',
+        minHeight: 0,
         width: '100%',
         margin: 0,
         padding: 0,
@@ -92,9 +93,9 @@ export default function LayoutEstudo({ children, onSelectTema }) {
       <Box
         component="main"
         sx={{
-          flexGrow: 1,
+          flex: '1 1 auto',
+          minHeight: 0,
           width: '100%',
-          ...sxFullViewportHeight({ maxHeight: false }),
           overflow: 'auto',
           overflowX: 'hidden',
           overscrollBehaviorY: 'contain',
@@ -108,7 +109,6 @@ export default function LayoutEstudo({ children, onSelectTema }) {
             width: '100%',
             maxWidth: '100%',
             margin: 0,
-            padding: 0
           }
         }}
       >

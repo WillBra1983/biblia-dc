@@ -17,6 +17,7 @@ import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import CapitulosListaCards from '../components/CapitulosListaCards'
 import PageReadingShell from '../components/PageReadingShell'
+import { HISTORIA_CONFISSAO_WESTMINSTER } from '../data/historiasWestminster'
 
 export default function Confissao() {
   const theme = useTheme()
@@ -113,11 +114,14 @@ export default function Confissao() {
     return (
       <CapitulosListaCards
         titulo="Confissão de Fé de Westminster"
+        subtitulo="Leitura guiada por capítulos: doutrina, referências bíblicas e continuidade histórica."
+        historia={HISTORIA_CONFISSAO_WESTMINSTER}
+        etiqueta="Documento confessional"
         capitulos={confissaoFeData}
         capituloAtual={capituloAtual}
         onSelectCapitulo={handleCapituloChange}
         open={mostrarLista}
-        gradient="linear-gradient(135deg, #f57c00 0%, #e65100 100%)"
+        gradient="linear-gradient(135deg, #123524 0%, #14532d 58%, #7c5d22 100%)"
       />
     )
   }

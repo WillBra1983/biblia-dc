@@ -39,6 +39,7 @@ import {
 import { livros } from '../data/biblia'
 import { VERSICULOS_MARCADOS_CLOUD_SYNC_ENABLED } from '../config/featureFlags'
 import CloudSyncBadge from '../components/CloudSyncBadge'
+import { limparBibliaSessaoCache } from '../utils/bibliaSessionCache'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { resolveFontFamily } from '../utils/fontFamily'
 
@@ -160,19 +161,17 @@ export default function VersiculosMarcados() {
   }
 
   const handleIrParaVersiculo = async (versiculo) => {
-    // Salva a referência no localStorage para a página Biblia carregar
-    localStorage.setItem('ultimaLeitura', JSON.stringify({
-      livroId: versiculo.livroId,
-      capitulo: versiculo.capitulo
-    }))
-    // Salva o versículo para scroll
+    const { livroId, capitulo, versiculo: versiculoNum } = versiculo
+    // Destino explícito — não reutilizar cache/scroll da leitura anterior.
+    limparBibliaSessaoCache()
+    localStorage.setItem('ultimaLeitura', JSON.stringify({ livroId, capitulo }))
     localStorage.setItem('versiculoParaScroll', JSON.stringify({
-      livroId: versiculo.livroId,
-      cap: versiculo.capitulo,
-      versiculoNum: versiculo.versiculo
+      livroId,
+      cap: capitulo,
+      versiculoNum,
     }))
     window.dispatchEvent(new Event('localStorageChange'))
-    navigate('/biblia')
+    navigate(`/?livro=${livroId}&capitulo=${capitulo}&versiculo=${versiculoNum}`)
   }
 
   const handleIrParaGrupo = (grupo) => {

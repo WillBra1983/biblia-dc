@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, startTransition, Fragment } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef, startTransition, Fragment } from 'react'
 import { createPortal } from 'react-dom'
 import { 
   Box, 
@@ -65,6 +65,7 @@ import { buildBibliaVersiculosExport } from '../utils/appExportPayload'
 import { ensureUserForChatExport, ensureUserForFeature, pushPendingChatExport } from '../utils/chatExportSend'
 import {
   sxFullViewportHeight,
+  sxMainBelowAppBar,
   sxFullscreenFlexColumn,
   sxFullscreenScrollBody,
   sxSafeAreaTop,
@@ -176,6 +177,14 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const [tipoBusca] = useState('texto') // Apenas busca por texto (perícopes removidas)
   const [testamentoBusca, setTestamentoBusca] = useState('ambos')
   const [livroBusca, setLivroBusca] = useState(null)
+  const [modoPalavraBusca, setModoPalavraBusca] = useState(() => {
+    try {
+      const salvo = localStorage.getItem('bibliaBuscaModoPalavra')
+      return salvo === 'incompleta' ? 'incompleta' : 'literal'
+    } catch {
+      return 'literal'
+    }
+  })
   const [resultadosBusca, setResultadosBusca] = useState([])
   const [buscaConcluida, setBuscaConcluida] = useState(false)
   const [buscando, setBuscando] = useState(false)
@@ -290,10 +299,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const ignorarScrollImersivoRef = React.useRef(false)
   const LIMITE_ESCONDER_IMERSIVO = 96
   const LIMITE_MOSTRAR_IMERSIVO = 72
-  const sxPadToolbarBiblia = {
-    xs: 'calc(56px + env(safe-area-inset-top, 0px))',
-    sm: 'calc(64px + env(safe-area-inset-top, 0px))',
-  }
+  const sxPadToolbarBiblia = sxMainBelowAppBar()
   const pinchLeituraRef = React.useRef(null)
   // Multiplicador local do zoom da leitura aplicado pelo pinch de dedo.
   // É temporário (não persiste): o zoom permanente vive em `fontSize` (via
@@ -800,6 +806,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
 
   /** Estado → URL antes do efeito que aplica a URL ao estado (evita corrida com URL atrasada após loading). */
   useLayoutEffect(() => {
+    if (carregandoInicial) return
     if (!livroAtual?.id || !capitulo) return
     const params = new URLSearchParams(location.search)
     params.set('livro', String(livroAtual.id))
@@ -821,9 +828,10 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     if (!searchParamsSemanticallyEqual(next, location.search || '')) {
       navigate(`${location.pathname}${next}`, { replace: true })
     }
-  }, [livroAtual?.id, capitulo, deepLinkVerse, versiculosDestaqueLink, location.pathname, location.search, navigate])
+  }, [livroAtual?.id, capitulo, deepLinkVerse, versiculosDestaqueLink, location.pathname, location.search, navigate, carregandoInicial])
 
   useEffect(() => {
+    if (carregandoInicial) return
     const qs = new URLSearchParams(location.search)
     const livroQ = Number(qs.get('livro'))
     const capQ = Number(qs.get('capitulo') ?? qs.get('cap'))
@@ -854,7 +862,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
       setVersiculoParaScroll({ livroId: livro.id, cap: capQ, versiculoNum: versiculosQ[0] })
     }
     navegacaoInternaRef.current = false
-  }, [location.search, opcoesLivros, loading])
+  }, [location.search, opcoesLivros, loading, carregandoInicial])
 
   useEffect(() => {
     const onPopState = () => {
@@ -1096,6 +1104,21 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     window.addEventListener('salvation-biblia-fechar-selecao-versiculos', onFecharSelecao)
     return () => window.removeEventListener('salvation-biblia-fechar-selecao-versiculos', onFecharSelecao)
   }, [limparSelecaoVersiculos])
+
+  // Ao trocar de livro/capítulo (menu, setas, busca, deep link), encerra a
+  // seleção anterior — evita a barra de ações “presa” a versículos do trecho antigo.
+  const contextoLeituraSelRef = useRef(
+    livroAtual?.id != null ? `${livroAtual.id}:${capitulo}` : null
+  )
+  useEffect(() => {
+    if (livroAtual?.id == null) return
+    const ctx = `${livroAtual.id}:${capitulo}`
+    const anterior = contextoLeituraSelRef.current
+    contextoLeituraSelRef.current = ctx
+    if (anterior != null && anterior !== ctx) {
+      limparSelecaoVersiculos()
+    }
+  }, [livroAtual?.id, capitulo, limparSelecaoVersiculos])
 
   const linkCompartilharVersiculos = useMemo(() => {
     if (!livroAtual || !versiculosSelecionadosOrdenados.length) return ''
@@ -1478,7 +1501,11 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
               .then((p) => setPericopesCapitulo(p || []))
               .catch(() => {})
           }
-          scrollRestaurarRef.current = cache?.scrollTop ?? 0
+          if (versiculoParaScrollData?.versiculoNum) {
+            scrollRestaurarRef.current = null
+          } else {
+            scrollRestaurarRef.current = cache?.scrollTop ?? 0
+          }
           setCarregandoInicial(false)
           setLoading(false)
 
@@ -1794,6 +1821,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     const livroId = overrides.livroId !== undefined
       ? overrides.livroId
       : (livroBusca?.id ?? null)
+    const modoPalavra = overrides.modoPalavra ?? modoPalavraBusca
 
     setBuscando(true)
     try {
@@ -1820,7 +1848,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         }
       }
 
-      const resultados = await buscarTexto(termo, tipoBusca, testamento, livroId)
+      const resultados = await buscarTexto(termo, tipoBusca, testamento, livroId, modoPalavra)
       setResultadosBusca(resultados)
       restaurarBuscaAoVoltarRef.current = false
       buscaScrollSalvoRef.current = { conteudo: 0, lista: 0 }
@@ -2121,6 +2149,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             <Button
               variant="outlined"
               onClick={() => {
+                limparSelecaoVersiculos()
                 salvarSnapshotNavegacao()
                 // Pré-carrega contagem de versículos do livro atual para que
                 // o seletor de versículos abra instantaneamente quando o
@@ -2174,6 +2203,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
               <Button
                 variant="outlined"
                 onClick={() => {
+                  limparSelecaoVersiculos()
                   salvarSnapshotNavegacao()
                   // Marca que o diálogo de capítulos NÃO veio do diálogo de livros
                   setCapitulosVemDeLivros(false)
@@ -3107,6 +3137,47 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
               Buscar
             </Button>
           </Box>
+
+          <ToggleButtonGroup
+            value={modoPalavraBusca}
+            exclusive
+            onChange={(_, valor) => {
+              if (!valor) return
+              setModoPalavraBusca(valor)
+              try {
+                localStorage.setItem('bibliaBuscaModoPalavra', valor)
+              } catch {
+                /* ignore */
+              }
+              if (termoBusca.trim()) {
+                realizarBusca({ modoPalavra: valor })
+              }
+            }}
+            size="small"
+            fullWidth
+            sx={{
+              mb: 1.5,
+              flexShrink: 0,
+              '& .MuiToggleButton-root': {
+                textTransform: 'none',
+                fontSize: { xs: '0.78rem', sm: '0.8125rem' },
+                lineHeight: 1.25,
+                px: { xs: 0.75, sm: 1.25 },
+              },
+            }}
+          >
+            <ToggleButton value="literal">Palavra literal</ToggleButton>
+            <ToggleButton value="incompleta">Palavras incompletas</ToggleButton>
+          </ToggleButtonGroup>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: 'block', mt: -1, mb: 1.5, lineHeight: 1.35 }}
+          >
+            {modoPalavraBusca === 'literal'
+              ? '“ira” encontra a palavra inteira (não “eira” nem “cadeira”).'
+              : '“ira” também encontra trechos dentro de outras palavras (ex.: eira, cadeira).'}
+          </Typography>
 
           <ToggleButtonGroup
             value={testamentoBusca}

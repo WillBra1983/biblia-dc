@@ -92,6 +92,24 @@ export function sxFullscreenFlexColumn(extra = {}) {
   }
 }
 
+/** Folga visual entre o AppBar fixo e o início do conteúdo rolável (px). */
+export const APP_MAIN_CONTENT_TOP_GAP_PX = 12
+
+const APPBAR_HEIGHT_XS = '56px'
+const APPBAR_HEIGHT_SM = '64px'
+
+/**
+ * Padding-top do `<main>` global: altura do AppBar + safe-area + folga.
+ * Usado no `Layout` e no espaçador interno da Bíblia (modo overlay).
+ */
+export function sxMainBelowAppBar(extraGapPx = APP_MAIN_CONTENT_TOP_GAP_PX) {
+  const gap = `${extraGapPx}px`
+  return {
+    xs: `calc(${APPBAR_HEIGHT_XS} + env(safe-area-inset-top, 0px) + ${gap})`,
+    sm: `calc(${APPBAR_HEIGHT_SM} + env(safe-area-inset-top, 0px) + ${gap})`,
+  }
+}
+
 /** Padding-top somando safe area (AppBar, DialogTitle). */
 export function sxSafeAreaTop(extra = '0px') {
   return {

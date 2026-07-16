@@ -27,6 +27,7 @@ import Delete from '@mui/icons-material/Delete'
 import Visibility from '@mui/icons-material/Visibility'
 import TextoBiblico from '../components/TextoBiblico'
 import PlanoPinchZoomShell from '../components/PlanoPinchZoomShell'
+import { limparBibliaSessaoCache } from '../utils/bibliaSessionCache'
 import {
   migrarLegadoSeNecessario,
   obterInstancia,
@@ -185,6 +186,8 @@ export default function PlanoLeituraBiblia() {
       if (!instancia || !planoAtual || !instanciaId) return
       const dest = destinoMapaBloco(instancia, planoAtual, blocoId)
       if (!dest) return
+      // Evita que o cache da última leitura na Bíblia sobrescreva o destino do plano.
+      limparBibliaSessaoCache()
       navigate(
         `/?livro=${dest.livroId}&capitulo=${dest.capitulo}&planoId=${encodeURIComponent(instanciaId)}&origem=plano`
       )
@@ -602,11 +605,12 @@ export default function PlanoLeituraBiblia() {
                       key={cap}
                       variant={isCapituloLido(livro.id, cap) ? 'contained' : 'outlined'}
                       size="small"
-                      onClick={() =>
+                      onClick={() => {
+                        limparBibliaSessaoCache()
                         navigate(
                           `/?livro=${livro.id}&capitulo=${cap}&planoId=${encodeURIComponent(instanciaId)}&origem=plano`
                         )
-                      }
+                      }}
                       sx={{
                         position: 'relative',
                         lineHeight: 1,

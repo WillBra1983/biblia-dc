@@ -116,6 +116,62 @@ function searchParamsSemanticallyEqual(searchA, searchB) {
   return keysA.every((k) => pa.get(k) === pb.get(k))
 }
 
+/**
+ * Deep link da URL na montagem (`?livro=&capitulo=` do plano, marcados, etc.).
+ * Tem prioridade sobre o cache de sessão — senão o efeito estado→URL
+ * sobrescreve o destino com o último capítulo lido na Bíblia.
+ */
+function deepLinkLivroCapDaUrl() {
+  try {
+    const qs = new URLSearchParams(
+      typeof window !== 'undefined' ? window.location.search : ''
+    )
+    const livroId = Number(qs.get('livro'))
+    const capitulo = Number(qs.get('capitulo') ?? qs.get('cap'))
+    if (
+      Number.isInteger(livroId) &&
+      livroId >= 1 &&
+      Number.isInteger(capitulo) &&
+      capitulo >= 1
+    ) {
+      return { livroId, capitulo }
+    }
+  } catch {
+    /* ignore */
+  }
+  return null
+}
+
+function estadoInicialBibliaDaSessao() {
+  const deep = deepLinkLivroCapDaUrl()
+  const cache = lerBibliaSessaoCache()
+  const cacheServeDeep =
+    Boolean(deep) && bibliaSessaoCacheCasa(deep.livroId, deep.capitulo)
+  const usarCache = !deep || cacheServeDeep
+
+  let livroAtual = null
+  if (deep) {
+    livroAtual =
+      cache?.opcoesLivros?.find((l) => l.id === deep.livroId) ||
+      (cacheServeDeep ? cache?.livroAtual : null) ||
+      null
+  } else {
+    livroAtual = cache?.livroAtual ?? null
+  }
+
+  return {
+    resultados: usarCache ? cache?.resultados ?? [] : [],
+    versiculosRenderizados: usarCache
+      ? cache?.versiculosRenderizados ?? BIBLIA_RENDER_INICIAL
+      : BIBLIA_RENDER_INICIAL,
+    pericopesCapitulo: usarCache ? cache?.pericopesCapitulo ?? [] : [],
+    opcoesLivros: cache?.opcoesLivros ?? [],
+    carregandoInicial: usarCache ? !(cache?.resultados?.length > 0) : true,
+    livroAtual,
+    capitulo: deep?.capitulo ?? cache?.capitulo ?? 1,
+  }
+}
+
 function isEventoEscadaVisual(e) {
   return e?.tipo === 'plano_dia_bronze' || e?.tipo === 'plano_escada_conversao'
 }
@@ -156,21 +212,17 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`
   }
 
-  const [resultados, setResultados] = useState(() => lerBibliaSessaoCache()?.resultados ?? [])
-  const [versiculosRenderizados, setVersiculosRenderizados] = useState(() => {
-    const c = lerBibliaSessaoCache()
-    return c?.versiculosRenderizados ?? BIBLIA_RENDER_INICIAL
-  })
-  const [pericopesCapitulo, setPericopesCapitulo] = useState(
-    () => lerBibliaSessaoCache()?.pericopesCapitulo ?? []
+  const [estadoBoot] = useState(estadoInicialBibliaDaSessao)
+  const [resultados, setResultados] = useState(() => estadoBoot.resultados)
+  const [versiculosRenderizados, setVersiculosRenderizados] = useState(
+    () => estadoBoot.versiculosRenderizados
   )
-  const [opcoesLivros, setOpcoesLivros] = useState(() => lerBibliaSessaoCache()?.opcoesLivros ?? [])
+  const [pericopesCapitulo, setPericopesCapitulo] = useState(() => estadoBoot.pericopesCapitulo)
+  const [opcoesLivros, setOpcoesLivros] = useState(() => estadoBoot.opcoesLivros)
   const [loading, setLoading] = useState(false)
-  const [carregandoInicial, setCarregandoInicial] = useState(
-    () => !(lerBibliaSessaoCache()?.resultados?.length > 0)
-  )
-  const [livroAtual, setLivroAtual] = useState(() => lerBibliaSessaoCache()?.livroAtual ?? null)
-  const [capitulo, setCapitulo] = useState(() => lerBibliaSessaoCache()?.capitulo ?? 1)
+  const [carregandoInicial, setCarregandoInicial] = useState(() => estadoBoot.carregandoInicial)
+  const [livroAtual, setLivroAtual] = useState(() => estadoBoot.livroAtual)
+  const [capitulo, setCapitulo] = useState(() => estadoBoot.capitulo)
   const [erro, setErro] = useState(null)
   const [dialogoBuscaAberto, setDialogoBuscaAberto] = useState(false)
   const [termoBusca, setTermoBusca] = useState('')

@@ -46,16 +46,16 @@ function paragrafosHistoria(historia) {
     .filter(Boolean)
 }
 
-export default function CapitulosListaCards({
+export default function CapitulosListaCards({ 
   titulo,
   subtitulo,
   descricao,
   historia,
   etiqueta = 'Biblioteca reformada',
   capitulos,
-  capituloAtual,
-  onSelectCapitulo,
-  open,
+  capituloAtual, 
+  onSelectCapitulo, 
+  open, 
   onClose,
   gradient = 'linear-gradient(135deg, #0f3a1d 0%, #14532d 58%, #7c5d22 100%)'
 }) {
@@ -145,7 +145,7 @@ export default function CapitulosListaCards({
                 edge="start"
                 color="inherit"
                 onClick={handleDrawerToggle}
-                sx={{
+                sx={{ 
                   mr: 2,
                   border: '2px solid',
                   borderRadius: '2px',
@@ -163,7 +163,7 @@ export default function CapitulosListaCards({
               </Typography>
             </Toolbar>
           </AppBar>
-
+          
           <Drawer
             variant="temporary"
             anchor="left"
@@ -173,7 +173,7 @@ export default function CapitulosListaCards({
               keepMounted: true
             }}
             sx={{
-              '& .MuiDrawer-paper': {
+              '& .MuiDrawer-paper': { 
                 boxSizing: 'border-box',
                 width: { xs: '100%', sm: 400, md: 500 },
                 bgcolor: '#004d40'
@@ -189,9 +189,9 @@ export default function CapitulosListaCards({
         sx={{
           p: { xs: 2, sm: 3 },
           bgcolor: 'background.default',
-          overflow: 'auto',
-          height: isDialogMode ? 'calc(100% - 64px)' : '100%',
-          ...sxViewportHeightMinusOffset(isDialogMode ? '64px' : '110px')
+        overflow: 'auto', 
+        height: isDialogMode ? 'calc(100% - 64px)' : '100%',
+        ...sxViewportHeightMinusOffset(isDialogMode ? '64px' : '110px')
         }}
       >
         <Box sx={{ maxWidth: 1040, mx: 'auto', width: '100%' }}>
@@ -352,28 +352,28 @@ export default function CapitulosListaCards({
 
           <Grid container spacing={1.5}>
             {capitulosFiltrados.map((cap) => {
-              const numero = cap.capitulo || cap.numero
-              const texto = cap.titulo || cap.pergunta || `Capítulo ${numero}`
-              const isAtual = capituloAtual && (
-                (capituloAtual.capitulo === numero) ||
-                (capituloAtual.numero === numero)
-              )
+            const numero = cap.capitulo || cap.numero
+            const texto = cap.titulo || cap.pergunta || `Capítulo ${numero}`
+            const isAtual = capituloAtual && (
+              (capituloAtual.capitulo === numero) ||
+              (capituloAtual.numero === numero)
+            )
 
-              return (
+            return (
                 <Grid item xs={12} sm={6} key={numero}>
-                  <Card
-                    onClick={() => handleSelect(cap)}
-                    sx={{
+                <Card
+                  onClick={() => handleSelect(cap)}
+                  sx={{
                       height: '100%',
                       bgcolor: 'background.paper',
-                      border: isAtual
+                    border: isAtual 
                         ? `1.5px solid ${theme.palette.warning.main}`
                         : `1px solid ${theme.palette.divider}`,
                       boxShadow: isAtual
                         ? (isDarkMode ? '0 10px 28px rgba(0,0,0,0.32)' : '0 10px 28px rgba(20,83,45,0.12)')
                         : 'none',
                       transition: 'transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease',
-                      cursor: 'pointer',
+                    cursor: 'pointer',
                       '&:hover': {
                         transform: 'translateY(-2px)',
                         borderColor: 'primary.main',
@@ -401,16 +401,16 @@ export default function CapitulosListaCards({
                       <Box sx={{ minWidth: 0, flex: 1 }}>
                         <Typography variant="overline" sx={{ color: 'text.secondary', fontWeight: 800, lineHeight: 1 }}>
                           {cap.titulo ? 'Capítulo' : 'Pergunta'}
-                        </Typography>
+                    </Typography>
                         <Typography variant="subtitle1" sx={{ color: 'text.primary', fontWeight: 800, lineHeight: 1.25, mt: 0.25 }}>
-                          {texto}
-                        </Typography>
+                      {texto}
+                    </Typography>
                       </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )
-            })}
+                  </CardContent>
+                </Card>
+              </Grid>
+            )
+          })}
 
             {capitulosFiltrados.length === 0 && (
               <Grid item xs={12}>
@@ -421,7 +421,7 @@ export default function CapitulosListaCards({
                 </Box>
               </Grid>
             )}
-          </Grid>
+        </Grid>
         </Box>
       </Box>
     </>

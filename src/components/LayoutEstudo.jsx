@@ -92,14 +92,17 @@ export default function LayoutEstudo({ children, onSelectTema }) {
     >
       <Box
         component="main"
+        ref={mainContentRef}
         sx={{
           flex: '1 1 auto',
+          height: '100%',
           minHeight: 0,
           width: '100%',
           overflow: 'auto',
           overflowX: 'hidden',
-          overscrollBehaviorY: 'contain',
+          overscrollBehaviorY: 'auto',
           WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-y',
           position: 'relative',
           display: 'flex',
           flexDirection: 'column',

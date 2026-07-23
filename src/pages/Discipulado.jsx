@@ -696,7 +696,7 @@ export default function Discipulado() {
 
     return (
       <LayoutEstudo>
-        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: { xs: 2, sm: 3 }, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', fontFamily: ff }}>
+        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: { xs: 2, sm: 3 }, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
           <Box
             sx={{
               position: 'relative',
@@ -899,7 +899,7 @@ export default function Discipulado() {
     return (
       <LayoutEstudo>
         {discAppBarPortals}
-        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: 2, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', fontFamily: ff }}>
+        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: 2, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
           {/* Introdução do tema */}
           {tema.introducao && (
             <Box sx={{ mb: 3, color: 'text.primary', textAlign: textAlign || 'left' }}>
@@ -928,11 +928,13 @@ export default function Discipulado() {
             onClose={() => setDrawerSubtemasAberto(false)}
             sx={{
               '& .MuiDrawer-paper': {
-                width: { xs: '100%', sm: 400, md: 500 }
+                width: { xs: '100%', sm: 400, md: 500 },
+                maxWidth: '100vw',
+                overflow: 'hidden'
               }
             }}
           >
-            <Box sx={{ width: '100%', bgcolor: '#004d40', height: '100%', overflow: 'auto' }}>
+            <Box sx={{ width: '100%', bgcolor: '#004d40', height: '100%', overflow: 'auto', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: 1, borderColor: 'divider' }}>
                 <IconButton onClick={() => {
                   setDrawerSubtemasAberto(false)
@@ -1024,7 +1026,7 @@ export default function Discipulado() {
   return (
     <LayoutEstudo onSelectTema={handleSelectTema}>
       {discAppBarPortals}
-      <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: 2, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', fontFamily: ff }}>
+      <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: 2, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
         {temaSelecionado && (
           <Paper 
             elevation={0} 
@@ -1466,11 +1468,13 @@ export default function Discipulado() {
             onClose={() => setDrawerSubtemasAberto(false)}
             sx={{
               '& .MuiDrawer-paper': {
-                width: { xs: '100%', sm: 400, md: 500 }
+                width: { xs: '100%', sm: 400, md: 500 },
+                maxWidth: '100vw',
+                overflow: 'hidden'
               }
             }}
           >
-            <Box sx={{ width: '100%', bgcolor: 'background.default', height: '100%', overflow: 'auto' }}>
+            <Box sx={{ width: '100%', bgcolor: 'background.default', height: '100%', overflow: 'auto', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: 1, borderColor: 'divider' }}>
                 <IconButton onClick={() => {
                   setDrawerSubtemasAberto(false)

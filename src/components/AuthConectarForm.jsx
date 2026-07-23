@@ -129,13 +129,9 @@ export default function AuthConectarForm({ embedded = false, titleLogin = 'Entra
         </Alert>
       ) : null}
       {lastError ? (
-        <Typography
-          color="error"
-          variant="body2"
-          sx={{ mb: 1, whiteSpace: 'pre-line', wordBreak: 'break-word' }}
-        >
+        <Alert severity="error" sx={{ mb: 1.5, whiteSpace: 'pre-line', wordBreak: 'break-word' }}>
           {lastError}
-        </Typography>
+        </Alert>
       ) : null}
       <Stack spacing={1}>
         <Button

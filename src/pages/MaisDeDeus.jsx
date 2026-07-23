@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { 
   Container, 
   Typography, 
@@ -35,10 +35,19 @@ import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { useZoomReset } from '../contexts/ZoomResetContext'
 import { getGlassCardStyles } from '../utils/glassCardStyles'
 
+function mesmoId(a, b) {
+  return String(a) === String(b)
+}
+
+function encontrarAssimDizItem(itemId) {
+  if (itemId == null || itemId === '') return null
+  return maisDeDeusData.assimDizSenhor.find((item) => mesmoId(item.id, itemId)) || null
+}
+
 export default function MaisDeDeus() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { voltarParaPaginaAnterior, fontSize, textAlign, fontFamily, lineHeight } = useApp()
+  const { voltarParaPaginaAnterior, setBackButtonHandler, fontSize, textAlign, fontFamily, lineHeight } = useApp()
   const ff = resolveFontFamily(fontFamily)
   const lh = readingLineHeightToCss(lineHeight)
   const { bumpZoomReset } = useZoomReset()
@@ -53,6 +62,64 @@ export default function MaisDeDeus() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const etapasSalvacao = [
+    { tipo: 'apresentacao', label: 'ApresentaÃ§Ã£o' },
+    ...maisDeDeusData.questions.map((q, i) => ({ tipo: 'pergunta', index: i, label: `${i + 1}. ${q.question}` })),
+    { tipo: 'reflexao', label: 'ReflexÃ£o' },
+    { tipo: 'cremos', label: 'Cremos' }
+  ].map((etapa) => {
+    if (etapa.tipo === 'apresentacao') return { ...etapa, label: 'Apresenta\u00e7\u00e3o' }
+    if (etapa.tipo === 'reflexao') return { ...etapa, label: 'Reflex\u00e3o' }
+    return etapa
+  })
+
+  const navegarPara = useCallback((params = {}, options = {}) => {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        searchParams.set(key, String(value))
+      }
+    })
+    const search = searchParams.toString()
+    navigate(`${location.pathname}${search ? `?${search}` : ''}`, options)
+  }, [location.pathname, navigate])
+
+  const abrirInicio = useCallback((options = { replace: true }) => {
+    setTemaSelecionado(null)
+    setSubtemaSelecionado(null)
+    setIniciou(false)
+    setEtapaAtual(0)
+    navegarPara({}, options)
+  }, [navegarPara])
+
+  const abrirAssimDizLista = useCallback((options = {}) => {
+    setTemaSelecionado('assimDizSenhor')
+    setSubtemaSelecionado(null)
+    setIniciou(false)
+    navegarPara({ tema: 'assimDizSenhor' }, options)
+  }, [navegarPara])
+
+  const abrirAssimDizItem = useCallback((itemId, options = {}) => {
+    const item = encontrarAssimDizItem(itemId)
+    if (!item) {
+      abrirAssimDizLista({ replace: true })
+      return
+    }
+    setTemaSelecionado('assimDizSenhor')
+    setSubtemaSelecionado(item.id)
+    setIniciou(false)
+    navegarPara({ tema: 'assimDizSenhor', item: item.id }, options)
+  }, [abrirAssimDizLista, navegarPara])
+
+  const abrirSalvacaoEtapa = useCallback((etapa, options = {}) => {
+    const etapaSegura = Math.min(etapasSalvacao.length - 1, Math.max(0, Number(etapa) || 0))
+    setTemaSelecionado('salvacao')
+    setSubtemaSelecionado(null)
+    setIniciou(true)
+    setEtapaAtual(etapaSegura)
+    navegarPara({ tema: 'salvacao', etapa: etapaSegura }, options)
+  }, [etapasSalvacao.length, navegarPara])
+
   useEffect(() => {
     localStorage.setItem('subtemasAssimDizLidos', JSON.stringify(subtemasLidos));
   }, [subtemasLidos]);
@@ -61,17 +128,13 @@ export default function MaisDeDeus() {
   useEffect(() => {
     const params = new URLSearchParams(location.search)
     const tema = params.get('tema') ?? params.get('t')
-    if (!tema) return
 
     if (tema === 'assimDizSenhor') {
       setTemaSelecionado('assimDizSenhor')
       setIniciou(false)
       const subtema = params.get('item') ?? params.get('s')
-      if (subtema && maisDeDeusData.assimDizSenhor.some((i) => i.id === subtema)) {
-        setSubtemaSelecionado(subtema)
-      } else {
-        setSubtemaSelecionado(null)
-      }
+      const item = encontrarAssimDizItem(subtema)
+      setSubtemaSelecionado(item?.id ?? null)
       return
     }
 
@@ -80,98 +143,78 @@ export default function MaisDeDeus() {
       setSubtemaSelecionado(null)
       setIniciou(true)
       const etapa = Number(params.get('etapa') ?? params.get('e'))
-      if (Number.isInteger(etapa) && etapa >= 0) {
-        setEtapaAtual(Math.min(etapasSalvacao.length - 1, etapa))
-      }
-    }
-  }, [location.search])
-
-  // Mantém a URL sincronizada para compartilhamento do estudo/subtema atual.
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    if (!temaSelecionado) {
-      params.delete('tema')
-      params.delete('item')
-      params.delete('etapa')
-      params.delete('t')
-      params.delete('s')
-      params.delete('e')
-    } else if (temaSelecionado === 'assimDizSenhor') {
-      params.set('tema', 'assimDizSenhor')
-      if (subtemaSelecionado) params.set('item', subtemaSelecionado)
-      else params.delete('item')
-      params.delete('etapa')
-      params.delete('t')
-      params.delete('s')
-      params.delete('e')
-    } else if (temaSelecionado === 'salvacao') {
-      params.set('tema', 'salvacao')
-      if (iniciou) params.set('etapa', String(etapaAtual))
-      else params.delete('etapa')
-      params.delete('item')
-      params.delete('t')
-      params.delete('s')
-      params.delete('e')
+      setEtapaAtual(Number.isInteger(etapa) && etapa >= 0
+        ? Math.min(etapasSalvacao.length - 1, etapa)
+        : 0)
+      return
     }
 
-    const nextSearch = params.toString()
-    const currentSearch = (location.search || '').replace(/^\?/, '')
-    if (nextSearch !== currentSearch) {
-      navigate(`${location.pathname}${nextSearch ? `?${nextSearch}` : ''}`, { replace: true })
-    }
-  }, [temaSelecionado, subtemaSelecionado, iniciou, etapaAtual, location.pathname, location.search, navigate])
+    setTemaSelecionado(null)
+    setSubtemaSelecionado(null)
+    setIniciou(false)
+    setEtapaAtual(0)
+  }, [location.search, etapasSalvacao.length])
 
   /** Zoom global só na “camada” atual (ex.: lista → texto de um subtema → voltar). */
   useEffect(() => {
     bumpZoomReset()
   }, [temaSelecionado, subtemaSelecionado, bumpZoomReset])
 
-  // Suporte ao botão voltar do celular
-  useEffect(() => {
-    const handlePopState = () => {
-      if (subtemaSelecionado) {
-        setSubtemaSelecionado(null)
-      } else if (temaSelecionado === 'salvacao' && iniciou && etapaAtual > 0) {
-        setEtapaAtual(prev => Math.max(0, prev - 1))
-      } else if (temaSelecionado === 'salvacao' && iniciou) {
-        setIniciou(false)
-        setTemaSelecionado(null)
-      } else if (temaSelecionado) {
-        setTemaSelecionado(null)
-      } else {
-        voltarParaPaginaAnterior('/biblia')
-      }
+  const voltarFluxoAtual = useCallback(() => {
+    if (menuAberto) {
+      setMenuAberto(false)
+      return
     }
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [temaSelecionado, subtemaSelecionado, iniciou, etapaAtual, voltarParaPaginaAnterior])
+    if (subtemaSelecionado) {
+      abrirAssimDizLista({ replace: true })
+      return
+    }
+    if (temaSelecionado === 'salvacao' && iniciou && etapaAtual > 0) {
+      abrirSalvacaoEtapa(etapaAtual - 1, { replace: true })
+      return
+    }
+    if (temaSelecionado) {
+      abrirInicio({ replace: true })
+      return
+    }
+    voltarParaPaginaAnterior('/biblia')
+  }, [
+    abrirAssimDizLista,
+    abrirInicio,
+    abrirSalvacaoEtapa,
+    etapaAtual,
+    iniciou,
+    menuAberto,
+    subtemaSelecionado,
+    temaSelecionado,
+    voltarParaPaginaAnterior,
+  ])
+
+  useEffect(() => {
+    if (!setBackButtonHandler) return undefined
+    if (!menuAberto && !temaSelecionado && !subtemaSelecionado) return undefined
+
+    setBackButtonHandler(voltarFluxoAtual)
+    return () => setBackButtonHandler(null)
+  }, [menuAberto, setBackButtonHandler, subtemaSelecionado, temaSelecionado, voltarFluxoAtual])
+
+  useEffect(() => {
+    if (temaSelecionado === 'assimDizSenhor' && subtemaSelecionado && !encontrarAssimDizItem(subtemaSelecionado)) {
+      abrirAssimDizLista({ replace: true })
+    }
+  }, [abrirAssimDizLista, subtemaSelecionado, temaSelecionado])
 
   // Ao trocar de etapa pelas setas, iniciar no topo da página
   useEffect(() => {
     if (temaSelecionado === 'salvacao' && iniciou) {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+      requestAnimationFrame(() => {
+        document.querySelectorAll('main.MuiBox-root').forEach((el) => {
+          el.scrollTop = 0
+        })
+      })
     }
   }, [etapaAtual, temaSelecionado, iniciou])
-
-  // Temas principais
-  const temasPrincipais = [
-    {
-      id: 'salvacao',
-      titulo: 'O que precisamos saber sobre a Salvação?'
-    },
-    {
-      id: 'assimDizSenhor',
-      titulo: 'Assim diz o Senhor'
-    }
-  ]
-
-  // Etapas do devocional
-  const etapasSalvacao = [
-    { tipo: 'apresentacao', label: 'Apresentação' },
-    ...maisDeDeusData.questions.map((q, i) => ({ tipo: 'pergunta', index: i, label: `${i + 1}. ${q.question}` })),
-    { tipo: 'reflexao', label: 'Reflexão' },
-    { tipo: 'cremos', label: 'Cremos' }
-  ]
 
   // Subtemas de Assim diz o Senhor
   const subtemasAssimDizSenhor = maisDeDeusData.assimDizSenhor.map((item, i) => ({
@@ -201,9 +244,7 @@ export default function MaisDeDeus() {
     const path = pathnameParaCompartilhamento(location.pathname)
     const url = buildAppShareLink(path, search ? `?${search}` : '')
     const tituloDoc = document.title || 'Bíblia DC'
-    const itemAtual = itemId
-      ? maisDeDeusData.assimDizSenhor.find((i) => i.id === itemId)
-      : null
+    const itemAtual = itemId ? encontrarAssimDizItem(itemId) : null
     const titulo = itemAtual?.titulo
       ? `${itemAtual.titulo} — Assim diz o Senhor`
       : tituloDoc
@@ -214,7 +255,7 @@ export default function MaisDeDeus() {
   // TELA INICIAL: escolha do tema principal
   if (!temaSelecionado) {
     return (
-      <Box sx={{ width: '100%', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, bgcolor: 'background.default', pt: 2, px: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', fontFamily: ff }}>
+      <Box sx={{ width: '100%', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', touchAction: 'pan-y', fontFamily: ff }}>
         {/* Card principal: Salvação */}
         <Card sx={{
           ...getGlassCardStyles('linear-gradient(135deg, rgba(34, 197, 94, 0.85) 0%, rgba(20, 83, 45, 0.85) 100%)', {
@@ -232,7 +273,7 @@ export default function MaisDeDeus() {
             <Typography variant="body1" align="center" sx={{ fontWeight: 'bold', mb: 2, fontSize: `${fontSize}%`, color: 'white' }}>
               O que precisamos saber sobre a Salvação?
             </Typography>
-            <Button variant="contained" color="primary" size="medium" onClick={() => { setTemaSelecionado('salvacao'); setIniciou(true); window.history.pushState({ listaType: 'mais-de-deus-conteudo' }, ''); }}>
+            <Button variant="contained" color="primary" size="medium" onClick={() => abrirSalvacaoEtapa(0)}>
               Começar
             </Button>
           </CardContent>
@@ -254,7 +295,7 @@ export default function MaisDeDeus() {
             <Typography variant="body1" align="center" sx={{ fontWeight: 'bold', mb: 2, fontSize: `${fontSize}%`, color: 'white' }}>
               Assim diz o Senhor
             </Typography>
-            <Button variant="contained" color="primary" size="medium" onClick={() => { setTemaSelecionado('assimDizSenhor'); window.history.pushState({ listaType: 'mais-de-deus-tema' }, ''); }}>
+            <Button variant="contained" color="primary" size="medium" onClick={() => abrirAssimDizLista()}>
               Começar
             </Button>
           </CardContent>
@@ -275,7 +316,7 @@ export default function MaisDeDeus() {
       );
     });
     return (
-      <Box sx={{ width: '100%', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, bgcolor: 'background.default', pt: 2, px: 2 }}>
+      <Box sx={{ width: '100%', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: { xs: 2, sm: 3 }, touchAction: 'pan-y' }}>
         <TextField
           fullWidth
           size="small"
@@ -292,7 +333,7 @@ export default function MaisDeDeus() {
           sx={{ mt: 0, mb: 2 }}
         />
         <Box sx={{ mb: 2, textAlign: 'left' }}>
-          <Button variant="outlined" color="primary" onClick={() => window.history.back()}>
+          <Button variant="outlined" color="primary" onClick={() => abrirInicio({ replace: true })}>
             Voltar
           </Button>
         </Box>
@@ -311,7 +352,7 @@ export default function MaisDeDeus() {
             )
           })()}
         </Box>
-        <Grid container spacing={2} justifyContent="center">
+        <Grid container spacing={2} justifyContent="center" sx={{ maxWidth: 960, mx: 'auto' }}>
           {subtemasFiltrados.map((subtema) => (
             <Grid item xs={12} sm={8} md={6} key={subtema.id}>
               <Card sx={{
@@ -323,7 +364,7 @@ export default function MaisDeDeus() {
                 position: 'relative',
                 color: 'white',
                 border: '1px solid rgba(255, 255, 255, 0.18)',
-              }} onClick={() => { setSubtemaSelecionado(subtema.id); window.history.pushState({ listaType: 'mais-de-deus-conteudo' }, ''); }}>
+              }} onClick={() => abrirAssimDizItem(subtema.id)}>
                 <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Typography variant="body1" align="center" sx={{ fontWeight: 'bold', mb: 2, fontSize: `${fontSize}%`, color: 'white' }}>
                     {subtema.titulo}
@@ -333,7 +374,7 @@ export default function MaisDeDeus() {
             Começar
                   </Button>
                 </CardContent>
-                {subtemasLidos.includes(subtema.id) && (
+                {subtemasLidos.some((lidoId) => mesmoId(lidoId, subtema.id)) && (
                   <Tooltip title="Reflexão lida">
                     <CheckCircleIcon 
                       sx={{
@@ -359,17 +400,22 @@ export default function MaisDeDeus() {
 
   // EXIBIÇÃO DO SUBTEMA DE "ASSIM DIZ O SENHOR"
   if (temaSelecionado === 'assimDizSenhor' && subtemaSelecionado) {
-    const item = maisDeDeusData.assimDizSenhor.find((i) => i.id === subtemaSelecionado)
-    const lido = subtemasLidos.includes(item.id);
+    const item = encontrarAssimDizItem(subtemaSelecionado)
+    if (!item) {
+      return null
+    }
+    const lido = subtemasLidos.some((lidoId) => mesmoId(lidoId, item.id));
     const toggleLido = () => {
       setSubtemasLidos(prev =>
-        prev.includes(item.id) ? prev.filter(lidoId => lidoId !== item.id) : [...prev, item.id]
+        prev.some((lidoId) => mesmoId(lidoId, item.id))
+          ? prev.filter((lidoId) => !mesmoId(lidoId, item.id))
+          : [...prev, item.id]
       );
     };
     return (
-      <Box sx={{ width: '100%', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, bgcolor: 'background.default', pt: 2, px: 0, fontFamily: ff }}>
+      <Box sx={{ width: '100%', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: { xs: 2, sm: 3 }, touchAction: 'pan-y', fontFamily: ff }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, px: 2, flexWrap: 'wrap', gap: 1 }}>
-          <Button variant="outlined" color="primary" onClick={() => window.history.back()}>
+          <Button variant="outlined" color="primary" onClick={() => abrirAssimDizLista({ replace: true })}>
             Voltar
           </Button>
           {/* Partilha o link desta reflexão (não exporta marcações). */}
@@ -394,7 +440,7 @@ export default function MaisDeDeus() {
             </Typography>
           </Box>
         </Box>
-        <Paper elevation={3} sx={{ p: { xs: 2, sm: 3, md: 4 }, mb: 2, width: '100%', boxSizing: 'border-box', fontFamily: ff }}>
+        <Paper elevation={3} sx={{ p: { xs: 2, sm: 3, md: 4 }, mb: 2, width: '100%', maxWidth: 880, mx: 'auto', boxSizing: 'border-box', fontFamily: ff }}>
           <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1, textAlign: textAlign || 'left' }}>{item.titulo}</Typography>
           <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'bold', textAlign: textAlign || 'left' }}>{item.referencia}</Typography>
           <Typography variant="body1" sx={{ fontStyle: 'italic', mb: 2, textAlign: textAlign || 'left' }}>
@@ -422,7 +468,7 @@ export default function MaisDeDeus() {
     const p = maisDeDeusData.presentation
     conteudo = (
       <Box>
-        <Button variant="outlined" color="primary" sx={{ mb: 2 }} onClick={() => window.history.back()}>
+        <Button variant="outlined" color="primary" sx={{ mb: 2 }} onClick={() => abrirInicio({ replace: true })}>
           Voltar
         </Button>
         <Typography variant="h5" gutterBottom sx={{ textAlign: textAlign || 'left' }}>Apresentação</Typography>
@@ -613,34 +659,37 @@ export default function MaisDeDeus() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, fontFamily: ff }}>
-      {/* Menu do MaisDeDeus - Posicionado à direita do AppBar */}
-      <Box sx={{ position: 'fixed', top: 0, right: 0, zIndex: 1100, p: 1 }}>
-        <IconButton color="inherit" onClick={() => setMenuAberto(true)} sx={{ color: 'white' }}>
-          <MenuIcon />
-        </IconButton>
-      </Box>
-
       <Drawer
         anchor="left"
         open={menuAberto}
         onClose={() => setMenuAberto(false)}
-        PaperProps={{ sx: { width: 300, mt: 2, maxHeight: 'calc(100vh)', overflowY: 'auto' } }}
+        PaperProps={{
+          sx: {
+            width: { xs: '88vw', sm: 340 },
+            maxWidth: 360,
+            maxHeight: '100vh',
+            '@supports (max-height: 100dvh)': { maxHeight: '100dvh' },
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            pt: 'env(safe-area-inset-top, 0px)'
+          }
+        }}
       >
-        <List sx={{ width: '100%', bgcolor: 'background.paper', position: 'relative', overflow: 'auto', maxHeight: '100%', '& ul': { padding: 0 } }}>
+        <List sx={{ width: '100%', bgcolor: 'background.paper', position: 'relative', overflowY: 'auto', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y', flex: 1, minHeight: 0, '& ul': { padding: 0 } }}>
           {etapas.map((item, index) => (
             <ListItemButton
               key={index}
               selected={index === etapaAtual}
               onClick={() => {
-                setEtapaAtual(index)
                 setMenuAberto(false)
-                if (index > etapaAtual) window.history.pushState({ listaType: 'mais-de-deus-etapa' }, '')
+                abrirSalvacaoEtapa(index, { replace: true })
               }}
               sx={{ borderBottom: '1px solid rgba(0, 0, 0, 0.12)', py: 1 }}
             >
               <ListItemText 
                 primary={item.label}
-                primaryTypographyProps={{ fontSize: '0.9rem', noWrap: true }}
+                primaryTypographyProps={{ fontSize: '0.9rem', lineHeight: 1.25 }}
               />
             </ListItemButton>
           ))}
@@ -665,15 +714,39 @@ export default function MaisDeDeus() {
         </Box>
       </Drawer>
 
-      <Container maxWidth={false} disableGutters sx={{ px: 0, pt: 2, pb: 2, mt: 0, width: '100%', minWidth: 0 }}>
-        <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: 'bold', mb: 3, fontSize: `${fontSize}%` }}>
-          {maisDeDeusData.title}
-        </Typography>
+      <Container maxWidth={false} disableGutters sx={{ px: { xs: 2, sm: 3 }, pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', mt: 0, width: '100%', minWidth: 0, touchAction: 'pan-y' }}>
+        <Box sx={{ position: 'relative', width: '100%', maxWidth: 900, mx: 'auto', minHeight: 44, mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', px: { xs: 5.5, sm: 7 } }}>
+          <Typography variant="h5" align="center" sx={{ fontWeight: 'bold', m: 0, fontSize: `${fontSize}%`, lineHeight: 1.25 }}>
+            {maisDeDeusData.title}
+          </Typography>
+          <Tooltip title="Abrir etapas">
+            <IconButton
+              aria-label="Abrir etapas"
+              onClick={() => setMenuAberto(true)}
+              sx={{
+                position: 'absolute',
+                right: { xs: 0, sm: 4 },
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: 44,
+                height: 44,
+                color: 'text.primary',
+                bgcolor: 'background.paper',
+                border: 1,
+                borderColor: 'divider',
+                boxShadow: 2,
+                '&:hover': { bgcolor: 'action.hover' }
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
 
-        <Box sx={{ position: 'relative', width: '100%' }}>
+        <Box sx={{ position: 'relative', width: '100%', maxWidth: 900, mx: 'auto' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', position: 'fixed', top: '50%', left: 0, right: 0, transform: 'translateY(-50%)', px: 1, zIndex: 1000 }}>
             <IconButton
-              onClick={() => (etapaAtual > 0 ? window.history.back() : undefined)}
+              onClick={() => (etapaAtual > 0 ? abrirSalvacaoEtapa(etapaAtual - 1, { replace: true }) : undefined)}
               disabled={etapaAtual === 0}
               sx={{ bgcolor: '#004d40', opacity: 0.6, color: 'white', '&:hover': { bgcolor: '#004d40', opacity: 0.9 }, '&.Mui-disabled': { opacity: 0.2 } }}
             >
@@ -683,8 +756,7 @@ export default function MaisDeDeus() {
             <IconButton
               onClick={() => {
                 if (etapaAtual < etapas.length - 1) {
-                  window.history.pushState({ listaType: 'mais-de-deus-etapa' }, '')
-                  setEtapaAtual(Math.min(etapas.length - 1, etapaAtual + 1))
+                  abrirSalvacaoEtapa(etapaAtual + 1, { replace: true })
                 }
               }}
               disabled={etapaAtual === etapas.length - 1}
@@ -694,11 +766,11 @@ export default function MaisDeDeus() {
             </IconButton>
           </Box>
 
-          <Paper elevation={2} sx={{ p: { xs: 1, sm: 2, md: 3 }, mb: 2, mt: 0, bgcolor: 'background.default', width: '100%', maxWidth: '100%', boxSizing: 'border-box', fontFamily: ff, '&:hover': { bgcolor: 'background.default' } }}>
+          <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, mb: 2, mt: 0, bgcolor: 'background.default', width: '100%', maxWidth: '100%', boxSizing: 'border-box', fontFamily: ff, '&:hover': { bgcolor: 'background.default' } }}>
             {conteudo}
           </Paper>
         </Box>
       </Container>
     </Box>
   )
-} 
+}

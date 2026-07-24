@@ -2,10 +2,27 @@
 # Pré-requisito: npm run build:web (gera dist/ com base /biblia/).
 # Uso: npm run deploy:pwa-apis
 
+param(
+  [string]$ApisRoot = $env:SALVATION_APIS_ROOT
+)
+
 $ErrorActionPreference = 'Stop'
 # scripts/ -> raiz do projeto Salvation
 $SalvationRoot = Split-Path $PSScriptRoot -Parent
-$ApisRoot = Join-Path (Split-Path $SalvationRoot -Parent) 'apis'
+
+if ([string]::IsNullOrWhiteSpace($ApisRoot)) {
+  $CandidatosApis = @(
+    'C:\apis',
+    (Join-Path (Split-Path $SalvationRoot -Parent) 'apis')
+  )
+
+  $ApisRoot = $CandidatosApis | Where-Object { Test-Path $_ } | Select-Object -First 1
+}
+
+if ([string]::IsNullOrWhiteSpace($ApisRoot)) {
+  $ApisRoot = 'C:\apis'
+}
+
 $Dist = Join-Path $SalvationRoot 'dist'
 $BibliaTarget = Join-Path $ApisRoot 'biblia_dist'
 $WellKnownSrc = Join-Path $SalvationRoot 'public\.well-known'
@@ -15,9 +32,10 @@ if (-not (Test-Path $Dist)) {
   Write-Error "Pasta dist nao encontrada. Rode antes: npm run build:web"
 }
 if (-not (Test-Path $ApisRoot)) {
-  Write-Error "Pasta apis nao encontrada em: $ApisRoot"
+  Write-Error "Pasta apis nao encontrada em: $ApisRoot. Informe outro caminho com: npm run deploy:pwa-apis -- -ApisRoot C:\apis"
 }
 
+Write-Host "Usando pasta apis: $ApisRoot"
 Write-Host "Copiando dist -> $BibliaTarget ..."
 if (-not (Test-Path $BibliaTarget)) { New-Item -ItemType Directory -Path $BibliaTarget -Force | Out-Null }
 robocopy $Dist $BibliaTarget /MIR /NFL /NDL /NJH /NJS /nc /ns /np | Out-Host

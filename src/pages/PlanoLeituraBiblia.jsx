@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { lazy, Suspense, useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import {
   Container,
   Typography,
@@ -25,7 +25,6 @@ import Close from '@mui/icons-material/Close'
 import MoreVert from '@mui/icons-material/MoreVert'
 import Delete from '@mui/icons-material/Delete'
 import Visibility from '@mui/icons-material/Visibility'
-import TextoBiblico from '../components/TextoBiblico'
 import PlanoPinchZoomShell from '../components/PlanoPinchZoomShell'
 import { limparBibliaSessaoCache } from '../utils/bibliaSessionCache'
 import {
@@ -48,11 +47,12 @@ const hojeBrasil = () => diaCivilAmericaSaoPaulo()
 import { resumoVisualAPartirInventario } from '../utils/escadaPlanoLeitura'
 import { processarMedalhasAposAbrirPlano } from '../utils/medalhasGamificacao'
 import PlanoEscadaBarraMedalhas from '../components/PlanoEscadaBarraMedalhas'
-import PlanoEscadaCelebracao from '../components/PlanoEscadaCelebracao'
-import PlanoRankingLeitura from '../components/PlanoRankingLeitura'
 import { blocosVisiveisParaTemplate, destinoMapaBloco } from '../utils/planoMapaLeitura'
 import { sxFundoVerdePagina } from '../utils/fundoVerdePagina'
 import { preloadPlanoRankingIcon } from '../utils/planoEscadaImagens'
+
+const PlanoEscadaCelebracao = lazy(() => import('../components/PlanoEscadaCelebracao'))
+const PlanoRankingLeitura = lazy(() => import('../components/PlanoRankingLeitura'))
 
 function CabecalhoSecaoRecolhivel({ titulo, expandido, onToggle, sx = {}, acaoDireita = null }) {
   return (
@@ -196,6 +196,10 @@ export default function PlanoLeituraBiblia() {
   )
 
   const capitulosLidosPlano = instancia?.capitulosLidos ?? []
+  const capitulosLidosSet = useMemo(
+    () => new Set(capitulosLidosPlano),
+    [capitulosLidosPlano]
+  )
 
   const refresh = useCallback(() => setTick((t) => t + 1), [])
 
@@ -251,7 +255,7 @@ export default function PlanoLeituraBiblia() {
   }
 
   const isCapituloLido = (livroId, capitulo) => {
-    return capitulosLidosPlano.includes(`${livroId}-${capitulo}`)
+    return capitulosLidosSet.has(`${livroId}-${capitulo}`)
   }
 
   const calcularProgresso = () => {
@@ -453,15 +457,19 @@ export default function PlanoLeituraBiblia() {
         </Menu>
       </Box>
 
-      <PlanoEscadaCelebracao
-        aberto={Boolean(atualCelebracao)}
-        onFechar={fecharCelebracao}
-        mensagem={propsCelebracao.mensagem}
-        variante={propsCelebracao.variante}
-        eventoChave={atualCelebracao?.chave}
-        tipoConfete={atualCelebracao?.meta?.confete}
-        tituloDestaque={propsCelebracao.tituloDialogo}
-      />
+      {atualCelebracao ? (
+        <Suspense fallback={null}>
+          <PlanoEscadaCelebracao
+            aberto
+            onFechar={fecharCelebracao}
+            mensagem={propsCelebracao.mensagem}
+            variante={propsCelebracao.variante}
+            eventoChave={atualCelebracao.chave}
+            tipoConfete={atualCelebracao.meta?.confete}
+            tituloDestaque={propsCelebracao.tituloDialogo}
+          />
+        </Suspense>
+      ) : null}
 
       <PlanoPinchZoomShell>
         {blocosMapa.length > 0 && (
@@ -513,7 +521,7 @@ export default function PlanoLeituraBiblia() {
                 </Stack>
               }
             />
-            <Collapse in={mapaExpandido} timeout="auto" unmountOnExit={false}>
+            <Collapse in={mapaExpandido} timeout="auto" unmountOnExit>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, pt: 0.5 }}>
                 {blocosMapa.map((b) => (
                   <Button key={b.id} variant="outlined" size="small" onClick={() => abrirMapaBloco(b.id)}>
@@ -543,7 +551,7 @@ export default function PlanoLeituraBiblia() {
             onToggle={() => setLivrosExpandido((v) => !v)}
             sx={{ color: isDarkMode ? 'grey.300' : 'grey.800' }}
           />
-          <Collapse in={livrosExpandido} timeout="auto" unmountOnExit={false}>
+          <Collapse in={livrosExpandido} timeout="auto" unmountOnExit>
         <Grid container spacing={1} sx={{ pt: 0.5 }}>
           {planoAtual.livros.map((livro) => (
             <Grid
@@ -648,16 +656,20 @@ export default function PlanoLeituraBiblia() {
             mb: 2,
           }}
         >
-          <PlanoRankingLeitura
-            tamanho="grande"
-            tick={tick}
-            instanciaId={instanciaId}
-            progresso={{
-              capitulosLidos: capitulosLidosPlano.length,
-              totalCapitulos: planoAtual.capitulos,
-              progressoPct: calcularProgresso(),
-            }}
-          />
+          <Suspense
+            fallback={<Box sx={{ width: '100%', maxWidth: 400, minHeight: { xs: 280, sm: 360 } }} />}
+          >
+            <PlanoRankingLeitura
+              tamanho="grande"
+              tick={tick}
+              instanciaId={instanciaId}
+              progresso={{
+                capitulosLidos: capitulosLidosPlano.length,
+                totalCapitulos: planoAtual.capitulos,
+                progressoPct: calcularProgresso(),
+              }}
+            />
+          </Suspense>
         </Box>
       </PlanoPinchZoomShell>
 

@@ -258,12 +258,7 @@ export function normalizarNomeLivro(nome) {
     'segundo cor.': '2 Coríntios',
     '2 coríntios': '2 Coríntios',
     '2 Co': '2 Coríntios',
-    '2 co.': '2 Coríntios',
-    '2co': '2 Coríntios',
     '2co.': '2 Coríntios',
-    '2 coríntios': '2 Coríntios',
-    '2 co': '2 Coríntios',
-    '2 co.': '2 Coríntios',
     'gl': 'Gálatas',
     'gal': 'Gálatas',
     'ef': 'Efésios',
@@ -325,7 +320,6 @@ export function normalizarNomeLivro(nome) {
     'apo': 'Apocalipse',
 
     // Variações de Jó
-    'jo': 'João',
     'jo.': 'João',
     'jó': 'Jó',
     'jó.': 'Jó',
@@ -353,7 +347,7 @@ export function normalizarNomeLivro(nome) {
     n.toLowerCase() === nomeMinusculo ||
     n.toLowerCase().replace(/\s+/g, '') === nomeMinusculo.replace(/\s+/g, '') ||
     // Adiciona comparação especial para Jó
-    (nomeMinusculo === 'jó' || nomeMinusculo === 'jo' || nomeMinusculo === 'job')
+    (nomeMinusculo === 'jó' || nomeMinusculo === 'job')
   )
   if (nomeEncontrado) {
     return nomeEncontrado
@@ -361,4 +355,4 @@ export function normalizarNomeLivro(nome) {
 
   // Se não encontrou nenhuma correspondência, retorna o nome original
   return nome
-} 
+}

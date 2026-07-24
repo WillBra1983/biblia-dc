@@ -14,7 +14,7 @@ export default function Sobre() {
           discipulado, devocionais, hinário e mais conteúdos de apoio cristão.
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 0.75 }}>
-          Versão 1.5
+          Versão 1.2.4
         </Typography>
         <Typography variant="body2" sx={{ mb: 0.75 }}>
           Desenvolvido por Pastor Wilson Lucas Ferreira.

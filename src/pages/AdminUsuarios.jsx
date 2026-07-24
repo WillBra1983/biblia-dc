@@ -29,9 +29,33 @@ import PeopleIcon from '@mui/icons-material/People'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { getFirebaseDatabase, getFirebaseFunctions, loadFirebaseModules } from '../config/firebase'
 import { confirmarAsync, mostrarSnackbar } from '../utils/uiDialogs'
+
+function dataMs(val) {
+  if (typeof val !== 'string' || !val.trim()) return 0
+  const ms = Date.parse(val)
+  return Number.isFinite(ms) ? ms : 0
+}
+
+function usuarioUltimoAcessoMs(row) {
+  return Math.max(
+    dataMs(row?.ultimoAcesso),
+    dataMs(row?.lastAccessAt),
+    dataMs(row?.lastSignInTime),
+    dataMs(row?.creationTime)
+  )
+}
+
+function ordenarUsuariosPorAcesso(rows) {
+  return [...rows].sort((a, b) => {
+    const byAccess = usuarioUltimoAcessoMs(b) - usuarioUltimoAcessoMs(a)
+    if (byAccess) return byAccess
+    return String(a?.email || a?.uid || '').localeCompare(String(b?.email || b?.uid || ''))
+  })
+}
 
 export default function AdminUsuarios() {
   const { user } = useFirebaseAuth()
@@ -102,7 +126,7 @@ export default function AdminUsuarios() {
       })
       const data = res.data || {}
       const novos = Array.isArray(data.users) ? data.users : []
-      setRows((prev) => (pageToken ? [...prev, ...novos] : novos))
+      setRows((prev) => ordenarUsuariosPorAcesso(pageToken ? [...prev, ...novos] : novos))
       setNextPageToken(data.pageToken || null)
     } catch (e) {
       setErro(e?.message || 'Falha ao carregar utilizadores.')
@@ -181,6 +205,18 @@ export default function AdminUsuarios() {
           Usuários registrados
         </Typography>
       </Stack>
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={loading ? <CircularProgress size={16} /> : <RefreshIcon />}
+          disabled={loading}
+          onClick={() => void carregarPagina(null)}
+        >
+          Atualizar
+        </Button>
+      </Box>
 
       <Alert severity="info" sx={{ mb: 2 }}>
         Lista do Firebase Authentication. O <strong>@apelido</strong> é o nome público do chat (reservado

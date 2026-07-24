@@ -107,6 +107,7 @@ export default function Confissao() {
 
   const handleVoltarLista = () => {
     setMostrarLista(true)
+    navigate('/confissao', { replace: true })
   }
 
   // Se mostrarLista é true, mostra a lista de capítulos
@@ -133,7 +134,7 @@ export default function Confissao() {
       <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => window.history.back()}
+          onClick={handleVoltarLista}
           sx={{ color: 'text.primary' }}
         >
           Voltar

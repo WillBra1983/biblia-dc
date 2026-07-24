@@ -1127,31 +1127,38 @@ export async function ensurePublicProfileMirrorAuth(uid, { email, photoURL, disp
 }
 
 const SESSION_ENTRADA_KEY = 'salvation_user_entry_registered'
+const ENTRADA_MIN_INTERVAL_MS = 5 * 60 * 1000
 
-function entradaJaRegistadaNestaSessao(uid) {
+function entradaRegistadaRecentemente(uid, minIntervalMs = ENTRADA_MIN_INTERVAL_MS) {
   if (!uid || typeof sessionStorage === 'undefined') return false
   try {
-    return sessionStorage.getItem(`${SESSION_ENTRADA_KEY}:${uid}`) === '1'
+    const raw = sessionStorage.getItem(`${SESSION_ENTRADA_KEY}:${uid}`)
+    const last = Number(raw)
+    return Number.isFinite(last) && last > 0 && Date.now() - last < minIntervalMs
   } catch {
     return false
   }
 }
 
-function marcarEntradaRegistadaNestaSessao(uid) {
+function marcarEntradaRegistadaAgora(uid) {
   if (!uid || typeof sessionStorage === 'undefined') return
   try {
-    sessionStorage.setItem(`${SESSION_ENTRADA_KEY}:${uid}`, '1')
+    sessionStorage.setItem(`${SESSION_ENTRADA_KEY}:${uid}`, String(Date.now()))
   } catch {
     /* ignore */
   }
 }
 
 /**
- * Regista a entrada do utilizador na app (uma vez por sessão/aba):
+ * Regista a entrada do utilizador na app com throttle local:
  * espelha e-mail/nome/foto do Auth se faltarem e grava `lastAccessAt` no perfil RTDB.
  */
-export async function registrarEntradaUsuario(uid, { email, photoURL, displayName } = {}) {
-  if (!uid || entradaJaRegistadaNestaSessao(uid)) return
+export async function registrarEntradaUsuario(
+  uid,
+  { email, photoURL, displayName } = {},
+  { force = false, minIntervalMs = ENTRADA_MIN_INTERVAL_MS } = {}
+) {
+  if (!uid || (!force && entradaRegistadaRecentemente(uid, minIntervalMs))) return
   const db = getFirebaseDatabase()
   if (!db) return
 
@@ -1162,7 +1169,7 @@ export async function registrarEntradaUsuario(uid, { email, photoURL, displayNam
       lastAccessAt: serverTimestamp(),
       clientId: getRtdbClientId(),
     })
-    marcarEntradaRegistadaNestaSessao(uid)
+    marcarEntradaRegistadaAgora(uid)
   } catch {
     /* permissão / rede — nova tentativa na próxima montagem ou login */
   }

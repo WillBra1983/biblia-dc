@@ -4,11 +4,11 @@
 const base = (import.meta.env.BASE_URL || '/').replace(/\/?$/, '/')
 
 export const SRC_ESCADA = {
-  bronze: `${base}medalhas-plano/medalha-bronze.png`,
-  prata: `${base}medalhas-plano/medalha-prata.png`,
-  ouro: `${base}medalhas-plano/medalha-ouro.png`,
-  trofeu: `${base}medalhas-plano/trofeu.png`,
-  superTrofeu: `${base}medalhas-plano/super-trofeu.png`,
+  bronze: `${base}medalhas-plano/medalha-bronze.webp`,
+  prata: `${base}medalhas-plano/medalha-prata.webp`,
+  ouro: `${base}medalhas-plano/medalha-ouro.webp`,
+  trofeu: `${base}medalhas-plano/trofeu.webp`,
+  superTrofeu: `${base}medalhas-plano/super-trofeu.webp`,
 }
 
 /** Ícone do ranking na tela do plano (`public/medalhas-plano/plano-ranking-icon.png`). */

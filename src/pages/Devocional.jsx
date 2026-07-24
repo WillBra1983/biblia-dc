@@ -4,6 +4,7 @@ import {
   Container, 
   Typography, 
   Card, 
+  CardActionArea,
   CardContent, 
   Box, 
   Grid,
@@ -23,10 +24,9 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import ShareIcon from '@mui/icons-material/Share'
 import { useApp } from '../contexts/AppContext'
-import { getGlassCardStyles } from '../utils/glassCardStyles'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
-import { sxFullViewportHeight, sxMinViewportHeight } from '../utils/viewportHeight'
+import { sxMinViewportHeight } from '../utils/viewportHeight'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { buildDevocionalExport } from '../utils/appExportPayload'
 import { ensureUserForChatExport, pushPendingChatExport } from '../utils/chatExportSend'
@@ -36,7 +36,7 @@ export default function Devocional() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useFirebaseAuth()
-  const { fontSize, voltarParaPaginaAnterior, fontFamily, lineHeight, isDarkMode, devocionaisConcluidos, setDevocionaisConcluidos } = useApp()
+  const { fontSize, fontFamily, lineHeight, devocionaisConcluidos, setDevocionaisConcluidos } = useApp()
   const ff = resolveFontFamily(fontFamily)
   const lh = readingLineHeightToCss(lineHeight)
   const [searchTerm, setSearchTerm] = useState('')
@@ -105,11 +105,11 @@ export default function Devocional() {
     )
   )
 
-  const cardPadraoGradient = isDarkMode
-    ? 'linear-gradient(135deg, #000000 0%, #000000 100%)'
-    : 'linear-gradient(135deg, #ffffff 0%, #ffffff 100%)'
-  const cardPadraoCorTexto = isDarkMode ? 'white' : '#111'
-  const cardPadraoBorda = isDarkMode ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.12)'
+  const totalDevocionais = devocionalData.length
+  const totalConcluidos = devocionaisConcluidos.length
+  const progressoPercentual = totalDevocionais > 0
+    ? Math.round((totalConcluidos / totalDevocionais) * 100)
+    : 0
 
   return (
     <Box
@@ -125,94 +125,111 @@ export default function Devocional() {
             key={devocionalAtual?.id}
             sx={{ 
               flex: 1,
+              width: '100%',
+              minHeight: 0,
               display: 'flex',
               flexDirection: 'column',
-              ...sxFullViewportHeight({ maxHeight: false }),
               overflow: 'hidden',
-              bgcolor: 'background.paper',
+              bgcolor: 'background.default',
               position: 'relative',
-              pt: 2,
+              boxShadow: 'none',
+              borderRadius: 0,
               fontFamily: ff,
               lineHeight: lh,
             }}
           >
-            {/* Linha dos botões - Remover a seta de voltar daqui */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', p: 2 }}>
-              {/* O botão de voltar para /devocional foi movido para baixo do título */}
-              {/* <Box>
-                <IconButton onClick={() => navigate('/devocional')} sx={{ color: 'primary.main' }}>
-                  <ArrowBackIosNewIcon />
-                  <Typography variant="body2" sx={{ ml: 1, display: 'inline' }}>
-                    Voltar
-                  </Typography>
-                </IconButton>
-              </Box> */}
-            </Box>
-
-            {/* Linha do título e opção de marcar como lido */}
-            <Box sx={{ width: '100%', textAlign: 'center', mb: 2 }}>
-              <Typography 
-                variant="h5" 
-                sx={{ fontSize: `${fontSize}%`, wordBreak: 'break-word', display: 'inline-block', lineHeight: lh }}
-              >
-                {devocionalAtual.titulo}
-              </Typography>
-            </Box>
-
-            {/* Nova linha para os botões Voltar e Marcar como Lido */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2, mb: 2 }}>
-              {/* Botão Voltar para cards */}
-              <IconButton onClick={() => window.history.back()} sx={{ color: 'primary.main', p: 0.5, borderRadius: 1 }}>
-                <ArrowBackIosNewIcon fontSize="small" />
-                <Typography variant="body2" sx={{ ml: 0.5, display: 'inline' }}>
-                  Voltar
-                </Typography>
-              </IconButton>
-              
-              {/* Opção de Marcar como lido */}
-              <Tooltip title={devocionaisConcluidos.includes(devocionalAtual.id) ? "Desmarcar como lido" : "Marcar como lido"}>
-                <IconButton
-                  onClick={() => toggleDevocionalConcluido(devocionalAtual.id)}
-                  color={devocionaisConcluidos.includes(devocionalAtual.id) ? "success" : "default"}
-                  sx={{ display: 'flex', alignItems: 'center', p: 0.5, borderRadius: 1 }}
+            <Box
+              component="header"
+              sx={{
+                flexShrink: 0,
+                bgcolor: 'background.paper',
+                borderBottom: 1,
+                borderColor: 'divider',
+                px: { xs: 1.5, sm: 2.5 },
+                py: { xs: 1.25, sm: 1.75 },
+              }}
+            >
+              <Box sx={{ width: '100%', maxWidth: 920, mx: 'auto', display: 'grid', gap: 1.25 }}>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontSize: { xs: '1.12rem', sm: '1.35rem' },
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    wordBreak: 'break-word',
+                    lineHeight: 1.25,
+                  }}
                 >
-                  <CheckCircleIcon fontSize="small" />
-                  <Typography variant="body2" sx={{ ml: 0.5, display: 'inline' }}>
-                    {devocionaisConcluidos.includes(devocionalAtual.id) ? "Lido" : "Marcar como lido"}
-                  </Typography>
-                </IconButton>
-              </Tooltip>
-            </Box>
+                  {devocionalAtual.titulo}
+                </Typography>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center', px: 2, mb: 2 }}>
-              <Button
-                type="button"
-                variant="outlined"
-                size="small"
-                startIcon={<ShareIcon />}
-                onClick={() => {
-                  if (!ensureUserForChatExport(user, navigate)) return
-                  const { serialized, previewText } = buildDevocionalExport({
-                    concluidos: devocionaisConcluidos,
-                    destaqueTitulo: devocionalAtual?.titulo
-                  })
-                  if (serialized.length > 12000) {
-                    avisarAsync({
-                      titulo: 'Volume de dados excedido',
-                      mensagem: 'O volume de dados excede o limite do chat.',
-                      severidade: 'warning'
-                    })
-                    return
-                  }
-                  pushPendingChatExport(navigate, {
-                    exportKind: 'devocional',
-                    exportPayload: serialized,
-                    previewText
-                  })
-                }}
-              >
-                Enviar progresso pelo chat
-              </Button>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 1,
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <Button
+                    type="button"
+                    variant="outlined"
+                    size="small"
+                    startIcon={<ArrowBackIosNewIcon fontSize="small" />}
+                    onClick={() => navigate('/devocional')}
+                    sx={{ textTransform: 'none', fontWeight: 700 }}
+                  >
+                    Voltar
+                  </Button>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    <Button
+                      type="button"
+                      variant="outlined"
+                      size="small"
+                      startIcon={<ShareIcon />}
+                      onClick={() => {
+                        if (!ensureUserForChatExport(user, navigate)) return
+                        const { serialized, previewText } = buildDevocionalExport({
+                          concluidos: devocionaisConcluidos,
+                          destaqueTitulo: devocionalAtual?.titulo
+                        })
+                        if (serialized.length > 12000) {
+                          avisarAsync({
+                            titulo: 'Volume de dados excedido',
+                            mensagem: 'O volume de dados excede o limite do chat.',
+                            severidade: 'warning'
+                          })
+                          return
+                        }
+                        pushPendingChatExport(navigate, {
+                          exportKind: 'devocional',
+                          exportPayload: serialized,
+                          previewText
+                        })
+                      }}
+                      sx={{ textTransform: 'none', fontWeight: 700 }}
+                    >
+                      Enviar progresso
+                    </Button>
+
+                    <Tooltip title={devocionaisConcluidos.includes(devocionalAtual.id) ? "Desmarcar como lido" : "Marcar como lido"}>
+                      <Button
+                        type="button"
+                        variant={devocionaisConcluidos.includes(devocionalAtual.id) ? "contained" : "outlined"}
+                        color={devocionaisConcluidos.includes(devocionalAtual.id) ? "success" : "primary"}
+                        size="small"
+                        startIcon={<CheckCircleIcon fontSize="small" />}
+                        onClick={() => toggleDevocionalConcluido(devocionalAtual.id)}
+                        sx={{ textTransform: 'none', fontWeight: 700 }}
+                      >
+                        {devocionaisConcluidos.includes(devocionalAtual.id) ? "Lido" : "Marcar como lido"}
+                      </Button>
+                    </Tooltip>
+                  </Box>
+                </Box>
+              </Box>
             </Box>
 
             {/* Conteúdo do devocional */}
@@ -221,11 +238,27 @@ export default function Devocional() {
               sx={{
                 flex: 1,
                 overflow: 'auto',
-                p: 0
+                px: { xs: 1.5, sm: 2.5 },
+                py: { xs: 1.5, sm: 2.5 },
+                pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)',
+                WebkitOverflowScrolling: 'touch',
+                overscrollBehavior: 'contain',
+                touchAction: 'pan-y',
               }}
             >
-              <Card sx={{ mb: 2, width: '100%', borderRadius: 0, mx: 0 }}>
-                <CardContent>
+              <Box sx={{ width: '100%', maxWidth: 860, mx: 'auto' }}>
+              <Card
+                variant="outlined"
+                sx={{
+                  mb: 2,
+                  width: '100%',
+                  borderRadius: 2,
+                  boxShadow: 'none',
+                  bgcolor: 'background.paper',
+                  borderColor: 'divider',
+                }}
+              >
+                <CardContent sx={{ px: { xs: 2, sm: 2.5 }, py: { xs: 2, sm: 2.5 } }}>
                   <Typography variant="body1" sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
                     {devocionalAtual.introducao.texto}
                   </Typography>
@@ -234,8 +267,18 @@ export default function Devocional() {
 
               {/* Meditação */}
               {devocionalAtual.meditacao.map((meditacao, index) => (
-                <Card key={index} sx={{ mb: 2 }}>
-                  <CardContent>
+                <Card
+                  key={index}
+                  variant="outlined"
+                  sx={{
+                    mb: 2,
+                    borderRadius: 2,
+                    boxShadow: 'none',
+                    bgcolor: 'background.paper',
+                    borderColor: 'divider',
+                  }}
+                >
+                  <CardContent sx={{ px: { xs: 2, sm: 2.5 }, py: { xs: 2, sm: 2.5 } }}>
                     <Typography variant="h6" gutterBottom sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
                       {meditacao.titulo}
                     </Typography>
@@ -272,6 +315,7 @@ export default function Devocional() {
                   </CardContent>
                 </Card>
               ))}
+              </Box>
             </Box>
 
             {/* Navegação */}
@@ -281,10 +325,10 @@ export default function Devocional() {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 width: '100%',
-                position: 'fixed',
-                bottom: 20,
+                position: 'absolute',
+                bottom: 'calc(env(safe-area-inset-bottom, 0px) + 14px)',
                 left: 0,
-                px: 0,
+                px: { xs: 1, sm: 2 },
                 zIndex: 1000,
                 pointerEvents: 'none',
               }}
@@ -293,147 +337,182 @@ export default function Devocional() {
                 onClick={handleAnterior}
                 disabled={devocionalAtual.id <= 1}
                 sx={{
-                  bgcolor: '#004d40',
-                  opacity: 0.2,
-                  color: 'white',
+                  bgcolor: 'background.paper',
+                  color: 'primary.main',
+                  border: 1,
+                  borderColor: 'divider',
+                  opacity: 0.9,
                   '&:hover': {
-                    bgcolor: '#004d40',
-                    opacity: 0.5
+                    bgcolor: 'action.hover',
+                    opacity: 1
                   },
                   '&.Mui-disabled': {
-                    opacity: 0.1
+                    opacity: 0.28
                   },
-                  boxShadow: 2,
+                  boxShadow: 3,
                   pointerEvents: 'auto',
-                  ml: 0
                 }}
               >
                 <ArrowBackIosNewIcon />
               </IconButton>
 
-        <IconButton
+              <IconButton
                 onClick={handleProximo}
                 disabled={devocionalAtual.id >= devocionalData.length}
                 sx={{
-                  bgcolor: '#004d40',
-                  opacity: 0.2,
-                  color: 'white',
+                  bgcolor: 'background.paper',
+                  color: 'primary.main',
+                  border: 1,
+                  borderColor: 'divider',
+                  opacity: 0.9,
                   '&:hover': {
-                    bgcolor: '#004d40',
-                    opacity: 0.5
+                    bgcolor: 'action.hover',
+                    opacity: 1
                   },
                   '&.Mui-disabled': {
-                    opacity: 0.1
+                    opacity: 0.28
                   },
-                  boxShadow: 2,
+                  boxShadow: 3,
                   pointerEvents: 'auto',
-                  mr: 0
                 }}
               >
                 <ArrowForwardIosIcon />
-        </IconButton>
-      </Box>
+              </IconButton>
+            </Box>
           </Paper>
         ) : (
-          <Container maxWidth="lg" sx={{ py: 0, pt: 2, mt: 0, fontFamily: ff }}>
-          {/* Barra de busca */}
-            <Box sx={{ mb: 2 }}>
-            <TextField
-              fullWidth
-              size="small"
-              placeholder="Buscar devocional..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
+          <Container
+            maxWidth="lg"
+            sx={{
+              width: '100%',
+              py: { xs: 1.5, sm: 2.5 },
+              px: { xs: 1.5, sm: 3 },
+              fontFamily: ff,
+            }}
+          >
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 1.5, sm: 2 },
+                mb: 2,
+                border: 1,
+                borderColor: 'divider',
+                borderRadius: 2,
+                bgcolor: 'background.paper',
               }}
-              sx={{ mt: 8, mb: 0 }}
-            />
-          </Box>
+            >
+              <Box sx={{ display: 'flex', alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 1.5, flexDirection: { xs: 'column', sm: 'row' } }}>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography variant="h5" sx={{ fontSize: { xs: '1.2rem', sm: '1.45rem' }, fontWeight: 800, lineHeight: 1.2 }}>
+                    Devocionais
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                    {totalConcluidos} de {totalDevocionais} lidos
+                  </Typography>
+                </Box>
 
-            {/* Grid de devocionais */}
-            <Box sx={{ p: 0 }}>
-              <Grid container spacing={1}>
-            {devocionaisFiltrados.map((devocional) => (
-                  <Grid item xs={12} sm={6} md={4} key={devocional.id}>
-                    <Card 
+                <Box sx={{ width: { xs: '100%', sm: 280 } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>
+                      Progresso
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>
+                      {progressoPercentual}%
+                    </Typography>
+                  </Box>
+                  <Box sx={{ height: 8, borderRadius: 99, bgcolor: 'action.hover', overflow: 'hidden' }}>
+                    <Box
                       sx={{
-                        ...getGlassCardStyles(cardPadraoGradient, {
-                          hover: true,
-                          shimmer: false,
-                          borderRadius: 1,
-                        }),
-                        mb: 2,
-                        width: '100%',
-                        mx: 0,
-                        position: 'relative',
-                        border: `1px solid ${cardPadraoBorda}`,
-                        cursor: 'pointer',
-                        color: cardPadraoCorTexto,
+                        width: `${progressoPercentual}%`,
+                        height: '100%',
+                        bgcolor: 'success.main',
+                        transition: 'width 0.2s ease',
                       }}
-                      onClick={() => navigate(`/devocional/${devocional.id}`)}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Buscar devocional..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ mt: 1.5 }}
+              />
+            </Paper>
+
+            <Grid container spacing={1.5}>
+              {devocionaisFiltrados.map((devocional) => {
+                const concluido = devocionaisConcluidos.includes(devocional.id)
+                return (
+                  <Grid item xs={12} sm={6} md={4} key={devocional.id}>
+                    <Card
+                      variant="outlined"
+                      sx={{
+                        height: '100%',
+                        borderRadius: 2,
+                        boxShadow: 'none',
+                        bgcolor: 'background.paper',
+                        borderColor: concluido ? 'success.main' : 'divider',
+                        overflow: 'hidden',
+                      }}
                     >
-                      <CardContent sx={{ 
-                        px: 2, 
-                        py: 3,
-                        textAlign: 'center',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        minHeight: 200
-                      }}>
-                        <Typography 
-                          variant="h6" 
-                          gutterBottom 
-                          sx={{ 
-                            wordBreak: 'break-word',
-                            color: cardPadraoCorTexto,
-                            fontWeight: 700,
-                            mb: 2,
-                          }}
-                        >
-                          {devocional.titulo}
-                        </Typography>
-                        {devocionaisConcluidos.includes(devocional.id) && (
-                          <Tooltip title="Devocional lido">
-                            <CheckCircleIcon 
-                              sx={{
-                                color: 'success.main',
-                                fontSize: '4rem',
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                opacity: 0.5,
-                                zIndex: 1
-                              }} 
-                            />
-                          </Tooltip>
-                        )}
-                        <Typography 
-                          variant="body2" 
-                          sx={{
-                            color: cardPadraoCorTexto,
-                            textAlign: 'center',
-                            lineHeight: 1.6,
-                            opacity: 0.9,
-                          }}
-                        >
-                          {devocional.introducao.texto.substring(0, 100)}...
-                        </Typography>
-                      </CardContent>
+                      <CardActionArea onClick={() => navigate(`/devocional/${devocional.id}`)} sx={{ height: '100%' }}>
+                        <CardContent sx={{ p: { xs: 1.75, sm: 2 }, minHeight: 150, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800 }}>
+                              Dia {devocional.id}
+                            </Typography>
+                            {concluido && (
+                              <Tooltip title="Devocional lido">
+                                <CheckCircleIcon color="success" sx={{ fontSize: '1.25rem', flexShrink: 0 }} />
+                              </Tooltip>
+                            )}
+                          </Box>
+
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontSize: '1.02rem',
+                              lineHeight: 1.25,
+                              fontWeight: 800,
+                              wordBreak: 'break-word',
+                            }}
+                          >
+                            {devocional.titulo}
+                          </Typography>
+
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                              lineHeight: 1.55,
+                              display: '-webkit-box',
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {devocional.introducao.texto}
+                          </Typography>
+                        </CardContent>
+                      </CardActionArea>
                     </Card>
                   </Grid>
-                ))}
-              </Grid>
-          </Box>
+                )
+              })}
+            </Grid>
           </Container>
       )}
     </Box>
   )
-} 
+}

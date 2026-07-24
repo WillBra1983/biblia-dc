@@ -36,6 +36,7 @@ const importers = {
 }
 
 const carregadas = new Set()
+let rotasComunsAgendadas = false
 
 export function prefetchRota(nome) {
   const fn = importers[nome]
@@ -53,18 +54,33 @@ export function prefetchRota(nome) {
 
 /** Atalho para prefetar várias rotas (ex.: ao abrir o menu principal). */
 export function prefetchRotasComuns() {
-  if (typeof window === 'undefined') return
-  const run = () => {
-    prefetchRota('chat')
-    prefetchRota('discipulado')
-    prefetchRota('versiculosMarcados')
-    prefetchRota('planoLeitura')
-    prefetchRota('planoLeituraBiblia')
-    prefetchRota('estudosBiblicosHub')
+  if (typeof window === 'undefined' || rotasComunsAgendadas) return
+  rotasComunsAgendadas = true
+
+  // O plano é um dos primeiros itens do menu e ganha prioridade. As demais
+  // rotas entram em sequência para não disputar rede e CPU ao mesmo tempo.
+  const fila = [
+    'planoLeituraBiblia',
+    'discipulado',
+    'estudosBiblicosHub',
+    'devocional',
+    'maisDeDeus',
+    'hinario',
+    'confissao',
+    'catecismoMaior',
+    'catecismoBreve',
+    'versiculosMarcados',
+    'quizRetiro',
+    'chat',
+    'sobre',
+  ]
+
+  const carregarProxima = () => {
+    const nome = fila.shift()
+    if (!nome) return
+    prefetchRota(nome)
+    window.setTimeout(carregarProxima, 180)
   }
-  if (typeof window.requestIdleCallback === 'function') {
-    window.requestIdleCallback(run, { timeout: 1500 })
-  } else {
-    window.setTimeout(run, 200)
-  }
+
+  carregarProxima()
 }

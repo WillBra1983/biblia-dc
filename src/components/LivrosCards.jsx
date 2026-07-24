@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Typography, Grid, Dialog, AppBar, Toolbar, IconButton } from '@mui/material'
+import { Box, Typography, Dialog, AppBar, Toolbar, IconButton, ButtonBase } from '@mui/material'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { obterCorLivro } from '../utils/coresBiblia'
@@ -87,19 +87,37 @@ export default function LivrosCards({ livros, livroAtual, onSelectLivro, open, o
     return () => { cancelado = true }
   }, [open, livroAtual])
 
-  // Helper para o estilo plano de cada card de livro. Reaproveitado em AT e NT.
-  const sxCardLivro = (livro) => ({
+  // Helper para o estilo plano de cada livro. Reaproveitado em AT e NT.
+  const sxLivroTile = (livro) => ({
     cursor: 'pointer',
     bgcolor: obterCorLivro(livro.id),
     color: '#fff',
-    height: '100%',
-    borderRadius: 2,
+    minHeight: 92,
+    width: '100%',
+    borderRadius: 1,
     border: livroAtual?.id === livro.id
       ? '2px solid rgba(255, 255, 255, 0.85)'
-      : '1px solid rgba(255, 255, 255, 0.18)',
+      : '1px solid',
+    borderColor: livroAtual?.id === livro.id
+      ? 'rgba(255, 255, 255, 0.95)'
+      : 'rgba(255, 255, 255, 0.22)',
     boxShadow: 'none',
-    transition: 'none',
-    '&:active': { opacity: 0.85 }
+    transition: 'background-color 120ms ease, border-color 120ms ease, color 120ms ease',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    p: 1.5,
+    gap: 0.5,
+    '&:active': { opacity: 0.85 },
+    '@media (hover: hover)': {
+      '&:hover': {
+        bgcolor: obterCorLivro(livro.id),
+        borderColor: 'rgba(255, 255, 255, 0.95)',
+        filter: 'brightness(1.06)',
+      }
+    }
   })
 
   return (
@@ -132,7 +150,7 @@ export default function LivrosCards({ livros, livroAtual, onSelectLivro, open, o
         ref={scrollContainerRef}
         sx={{ 
           ...sxFullscreenScrollBody(),
-          p: 3, 
+          p: { xs: 2, sm: 3 },
           position: 'relative'
         }}
       >
@@ -140,54 +158,47 @@ export default function LivrosCards({ livros, livroAtual, onSelectLivro, open, o
         <Typography variant="h6" sx={{ mb: 2, mt: 3, color: 'text.secondary' }}>
           Antigo Testamento
         </Typography>
-        <Grid container spacing={2} sx={{ mb: 4 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(3, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' }, gap: 1.25, mb: 4 }}>
           {antigoTestamento.map((livro) => (
-            <Grid item xs={6} sm={4} md={3} key={livro.id}>
-              <Card
-                ref={(el) => { if (el) livrosRefs.current[livro.id] = el }}
-                onClick={() => handleSelect(livro)}
-                sx={sxCardLivro(livro)}
-              >
-                <CardContent sx={{ p: 2, textAlign: 'center' }}>
-                  <MenuBookIcon sx={{ fontSize: 32, mb: 1 }} />
-                  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.9rem' }}>
-                    {livro.nome}
-                  </Typography>
-                  <Typography variant="caption" sx={{ opacity: 0.9, fontSize: '0.75rem' }}>
-                    {livro.maxCapitulos} cap.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+            <ButtonBase
+              key={livro.id}
+              ref={(el) => { if (el) livrosRefs.current[livro.id] = el }}
+              onClick={() => handleSelect(livro)}
+              sx={sxLivroTile(livro)}
+            >
+              <MenuBookIcon sx={{ fontSize: 28 }} />
+              <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.9rem', lineHeight: 1.2 }}>
+                {livro.nome}
+              </Typography>
+              <Typography variant="caption" sx={{ opacity: 0.78, fontSize: '0.72rem', lineHeight: 1 }}>
+                {livro.maxCapitulos} cap.
+              </Typography>
+            </ButtonBase>
           ))}
-        </Grid>
+        </Box>
 
         <Typography variant="h6" sx={{ mb: 2, mt: 3, color: 'text.secondary' }}>
           Novo Testamento
         </Typography>
-        <Grid container spacing={2}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(3, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' }, gap: 1.25 }}>
           {novoTestamento.map((livro) => (
-            <Grid item xs={6} sm={4} md={3} key={livro.id}>
-              <Card
-                ref={(el) => { if (el) livrosRefs.current[livro.id] = el }}
-                onClick={() => handleSelect(livro)}
-                sx={sxCardLivro(livro)}
-              >
-                <CardContent sx={{ p: 2, textAlign: 'center' }}>
-                  <MenuBookIcon sx={{ fontSize: 32, mb: 1 }} />
-                  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.9rem' }}>
-                    {livro.nome}
-                  </Typography>
-                  <Typography variant="caption" sx={{ opacity: 0.9, fontSize: '0.75rem' }}>
-                    {livro.maxCapitulos} cap.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+            <ButtonBase
+              key={livro.id}
+              ref={(el) => { if (el) livrosRefs.current[livro.id] = el }}
+              onClick={() => handleSelect(livro)}
+              sx={sxLivroTile(livro)}
+            >
+              <MenuBookIcon sx={{ fontSize: 28 }} />
+              <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.9rem', lineHeight: 1.2 }}>
+                {livro.nome}
+              </Typography>
+              <Typography variant="caption" sx={{ opacity: 0.78, fontSize: '0.72rem', lineHeight: 1 }}>
+                {livro.maxCapitulos} cap.
+              </Typography>
+            </ButtonBase>
           ))}
-        </Grid>
+        </Box>
       </Box>
     </Dialog>
   )
 }
-

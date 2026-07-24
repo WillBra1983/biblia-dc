@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Typography, Grid, Dialog, AppBar, Toolbar, IconButton } from '@mui/material'
+import { Box, Typography, Dialog, AppBar, Toolbar, IconButton, ButtonBase } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useEffect, useState } from 'react'
 import { obterCorLivro } from '../utils/coresBiblia'
@@ -15,14 +15,6 @@ export default function CapitulosCards({
 }) {
   const handleSelect = (cap) => {
     onSelectCapitulo(cap)
-  }
-
-  const handleBack = () => {
-    if (onBack) {
-      onBack()
-    } else {
-      onClose()
-    }
   }
 
   // Pré-carrega a contagem de versículos de cada capítulo do livro escolhido —
@@ -107,69 +99,68 @@ export default function CapitulosCards({
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700 }}>
-          {livro.nome} - Selecione um Capítulo
-        </Typography>
+          <Typography variant="h6" sx={{ flexGrow: 1, minWidth: 0, fontWeight: 700, fontSize: { xs: '1rem', sm: '1.25rem' }, lineHeight: 1.2 }}>
+            {livro.nome} - Selecione um Capítulo
+          </Typography>
         </Toolbar>
       </AppBar>
-      <Box sx={{ ...sxFullscreenScrollBody(), p: 3 }}>
+      <Box sx={{ ...sxFullscreenScrollBody(), p: { xs: 2, sm: 3 } }}>
 
-        <Grid container spacing={0.5}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(6, minmax(0, 1fr))', sm: 'repeat(10, minmax(0, 1fr))', md: 'repeat(12, minmax(0, 1fr))' }, gap: 0.75 }}>
           {capitulos.map((cap) => {
             const ativo = capituloAtual === cap
             return (
-              <Grid item xs={2} sm={1} md={1} lg={1} xl={1} key={cap}>
-                <Card
-                  onClick={() => handleSelect(cap)}
-                  sx={{
-                    cursor: 'pointer',
-                    bgcolor: corLivro,
-                    color: '#fff',
-                    width: '100%',
-                    aspectRatio: '1',
-                    borderRadius: 1,
-                    border: ativo
-                      ? '1.5px solid rgba(255, 255, 255, 0.85)'
-                      : '1px solid rgba(255, 255, 255, 0.18)',
-                    boxShadow: 'none',
-                    transition: 'none',
-                    '&:active': { opacity: 0.85 },
-                  }}
+              <ButtonBase
+                key={cap}
+                onClick={() => handleSelect(cap)}
+                sx={{
+                  cursor: 'pointer',
+                  bgcolor: corLivro,
+                  color: '#fff',
+                  width: '100%',
+                  aspectRatio: '1',
+                  borderRadius: 1,
+                  border: '1px solid',
+                  borderColor: ativo
+                    ? 'rgba(255, 255, 255, 0.95)'
+                    : 'rgba(255, 255, 255, 0.22)',
+                  boxShadow: 'none',
+                  transition: 'background-color 120ms ease, border-color 120ms ease, color 120ms ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 0.15,
+                  contain: 'layout paint',
+                  '&:active': { opacity: 0.85 },
+                  '@media (hover: hover)': {
+                    '&:hover': {
+                      bgcolor: corLivro,
+                      borderColor: 'rgba(255, 255, 255, 0.95)',
+                      filter: 'brightness(1.06)',
+                    }
+                  },
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: 800, fontSize: '0.78rem', lineHeight: 1 }}
                 >
-                  <CardContent
-                    sx={{
-                      p: 0,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      height: '100%',
-                      gap: 0.15,
-                      '&:last-child': { paddingBottom: 0 },
-                    }}
+                  {cap}
+                </Typography>
+                {versiculosPorCap?.[cap] ? (
+                  <Typography
+                    variant="caption"
+                    sx={{ fontSize: '0.52rem', lineHeight: 1, opacity: 0.78 }}
                   >
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 700, fontSize: '0.78rem', lineHeight: 1 }}
-                    >
-                      {cap}
-                    </Typography>
-                    {versiculosPorCap?.[cap] ? (
-                      <Typography
-                        variant="caption"
-                        sx={{ fontSize: '0.52rem', lineHeight: 1, opacity: 0.88 }}
-                      >
-                        {versiculosPorCap[cap]} v.
-                      </Typography>
-                    ) : null}
-                  </CardContent>
-                </Card>
-              </Grid>
+                    {versiculosPorCap[cap]} v.
+                  </Typography>
+                ) : null}
+              </ButtonBase>
             )
           })}
-        </Grid>
+        </Box>
       </Box>
     </Dialog>
   )
 }
-

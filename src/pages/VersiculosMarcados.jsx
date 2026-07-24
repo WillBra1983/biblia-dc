@@ -240,7 +240,7 @@ export default function VersiculosMarcados() {
           minWidth: 0,
         }}>
           <IconButton
-            onClick={() => window.history.back()}
+            onClick={() => navigate('/biblia')}
             sx={{ 
               mr: { xs: 0.5, sm: 1 },
               color: 'primary.main',
@@ -468,4 +468,3 @@ export default function VersiculosMarcados() {
     </Box>
   )
 }
-

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { 
   Dialog,
   DialogTitle,
@@ -32,7 +32,7 @@ export default function VersiculoPopup({ versiculos, onClose }) {
 
   if (!versiculos || versiculos.length === 0) return null
 
-  const formatarTitulo = () => {
+  const titulo = useMemo(() => {
     const getNumero = (v) => Number(v?.numero ?? v?.versiculo ?? 0)
     const getCapitulo = (v) => Number(v?.capitulo ?? 0)
 
@@ -90,7 +90,7 @@ export default function VersiculoPopup({ versiculos, onClose }) {
       .join('; ')
 
     return `${livro} ${ref}`
-  }
+  }, [versiculos])
 
   return (
     <Dialog 
@@ -112,20 +112,22 @@ export default function VersiculoPopup({ versiculos, onClose }) {
           pl: 'calc(16px + env(safe-area-inset-left, 0px))',
           pr: 'calc(8px + env(safe-area-inset-right, 0px))',
           pb: 1.5,
-          bgcolor: 'grey.900',
-          color: 'white',
+          bgcolor: 'background.paper',
+          color: 'text.primary',
+          borderBottom: 1,
+          borderColor: 'divider',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: 1,
         }}
       >
-        <Typography sx={{ flex: 1, minWidth: 0, pr: 1 }}>{formatarTitulo()}</Typography>
+        <Typography sx={{ flex: 1, minWidth: 0, pr: 1, fontWeight: 700 }}>{titulo}</Typography>
         <IconButton
           onClick={onClose}
           aria-label="Fechar leitura"
           sx={{
-            color: 'white',
+            color: 'text.primary',
             flexShrink: 0,
             width: 44,
             height: 44,
@@ -137,31 +139,41 @@ export default function VersiculoPopup({ versiculos, onClose }) {
 
       <DialogContent
         sx={sxFullscreenScrollBody({
-          p: 3,
-          pl: 'calc(24px + env(safe-area-inset-left, 0px))',
-          pr: 'calc(24px + env(safe-area-inset-right, 0px))',
-          '&.MuiDialogContent-root': { padding: 3 },
+          p: 0,
+          '&.MuiDialogContent-root': { padding: 0 },
         })}
       >
-        {versiculos.map((versiculo) => (
-          <Typography 
-            key={`${versiculo.capitulo ?? 0}:${versiculo.numero ?? versiculo.versiculo ?? 0}`}
-            sx={{ 
-              mb: 2,
-              fontSize: `${zoom}%`,
-              lineHeight: 1.6
-            }}
-          >
-            {versiculo.texto}
-          </Typography>
-        ))}
+        <Box sx={{ width: '100%', maxWidth: 820, mx: 'auto', py: { xs: 2.5, sm: 3 }, pl: 'calc(20px + env(safe-area-inset-left, 0px))', pr: 'calc(20px + env(safe-area-inset-right, 0px))' }}>
+          {versiculos.map((versiculo) => {
+            const numero = Number(versiculo.numero ?? versiculo.versiculo ?? 0)
+            return (
+              <Typography
+                key={`${versiculo.capitulo ?? 0}:${numero || 0}`}
+                sx={{
+                  mb: 2,
+                  fontSize: `${zoom}%`,
+                  lineHeight: 1.65
+                }}
+              >
+                {numero ? (
+                  <Box component="strong" sx={{ mr: 0.75, fontSize: '0.82em', color: 'text.secondary' }}>
+                    {numero}
+                  </Box>
+                ) : null}
+                {versiculo.texto}
+              </Typography>
+            )
+          })}
+        </Box>
       </DialogContent>
 
       <Box
         sx={{
           flexShrink: 0,
-          bgcolor: 'grey.900',
-          color: 'white',
+          bgcolor: 'background.paper',
+          color: 'text.primary',
+          borderTop: 1,
+          borderColor: 'divider',
           px: 3,
           pl: 'calc(24px + env(safe-area-inset-left, 0px))',
           pr: 'calc(24px + env(safe-area-inset-right, 0px))',
@@ -181,8 +193,7 @@ export default function VersiculoPopup({ versiculos, onClose }) {
           onChange={(_, value) => setZoom(value)}
           sx={{ 
             width: 120,
-            color: 'white',
-            '& .MuiSlider-rail': { bgcolor: 'grey.600' }
+            '& .MuiSlider-rail': { opacity: 0.32 }
           }}
         />
         <Typography sx={{ minWidth: 45 }}>
@@ -191,4 +202,4 @@ export default function VersiculoPopup({ versiculos, onClose }) {
       </Box>
     </Dialog>
   )
-} 
+}

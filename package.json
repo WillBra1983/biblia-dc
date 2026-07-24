@@ -1,7 +1,7 @@
 {
   "name": "biblia-dc",
   "private": true,
-  "version": "1.2.0",
+  "version": "1.2.5",
   "type": "module",
   "scripts": {
     "screenshots:resize": "node scripts/resize-appstore-screenshot.mjs",

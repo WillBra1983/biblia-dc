@@ -4,15 +4,13 @@ import {
   IconButton,
   AppBar,
   Toolbar,
-  Typography,
-  Tooltip
+  Typography
 } from '@mui/material'
 import MenuCards from './MenuCards'
 import MenuIcon from '@mui/icons-material/Menu'
 import ArrowBack from '@mui/icons-material/ArrowBack'
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import { useState, useEffect, useLayoutEffect } from 'react'
-import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import GlobalPinchZoom from './GlobalPinchZoom'
 import { useZoomReset } from '../contexts/ZoomResetContext'
 import { useApp } from '../contexts/AppContext'
@@ -109,8 +107,6 @@ export default function Layout({ title, children }) {
   const isHinarioApresentacao = pathnameNorm.startsWith('/hinario/apresentacao')
   const isBibliaApresentacao = pathnameNorm.startsWith('/biblia/apresentacao')
   const apresentacaoTelaCheia = isHinarioApresentacao || isBibliaApresentacao
-  const mostrarLapisEstudosHub =
-    pathnameNorm === '/estudos-biblicos'
   const { version: zoomResetVersion } = useZoomReset()
 
   // Rotas onde os botões devem aparecer
@@ -199,6 +195,14 @@ export default function Layout({ title, children }) {
   const showDiscipuladoAppBarBackSlot = isSubtemaDiscipulado || isIntroTemaDiscipulado
   const showPlanoLeituraBibliaBack = location.pathname.startsWith('/plano-leitura-biblia')
   const isStrongStudy = location.pathname.startsWith('/estudo-strong')
+  const ocultarAcoesLeituraAppBar =
+    pathnameNorm.startsWith('/estudos-biblicos') ||
+    pathnameNorm.startsWith('/biblioteca-estudos') ||
+    pathnameNorm.startsWith('/hinario-editor') ||
+    pathnameNorm.startsWith('/youtube') ||
+    pathnameNorm.startsWith('/quiz-retiro') ||
+    pathnameNorm.startsWith('/configuracoes') ||
+    pathnameNorm.startsWith('/admin/')
 
   // Sempre rola para o topo ao mudar de página
   useEffect(() => {
@@ -394,7 +398,7 @@ export default function Layout({ title, children }) {
             )}
           </Box>
 
-          {/* Centro: Título (+ lápis para gerir estudos na página principal).
+          {/* Centro: Título.
               Na rota da Bíblia, o título é omitido — usamos esse espaço como
               slot (`biblia-appbar-toolbar-left`) para receber os controles
               primários da leitura (Livro, Capítulo, Pesquisa, Strong) via
@@ -444,25 +448,6 @@ export default function Layout({ title, children }) {
               >
                 {resolvedToolbarTitle}
               </Typography>
-            )}
-            {mostrarLapisEstudosHub && (
-              <Tooltip title="Gerir meus estudos (módulos, novo, editar)">
-                <IconButton
-                  component={RouterLink}
-                  to="/estudos-biblicos/gerir"
-                  size="small"
-                  color="inherit"
-                  aria-label="Gerir meus estudos"
-                  sx={{
-                    pointerEvents: 'auto',
-                    flexShrink: 0,
-                    opacity: 0.92,
-                    '&:hover': { opacity: 1 }
-                  }}
-                >
-                  <EditOutlinedIcon sx={{ fontSize: '1.35rem' }} />
-                </IconButton>
-              </Tooltip>
             )}
           </Box>
 
@@ -544,6 +529,15 @@ export default function Layout({ title, children }) {
                 }}
               />
             </Box>
+          ) : ocultarAcoesLeituraAppBar ? (
+            <Box
+              aria-hidden
+              sx={{
+                minWidth: 56,
+                flexShrink: 0,
+                pr: { xs: 0.75, sm: 1 }
+              }}
+            />
           ) : (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', minWidth: 'fit-content', pr: { xs: 0.75, sm: 1 }, gap: 0.5 }}>
               {!showPlanoLeituraBibliaBack ? <LeituraConfigButton /> : null}

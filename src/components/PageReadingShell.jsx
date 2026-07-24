@@ -19,7 +19,7 @@ import Container from '@mui/material/Container'
  * @param {import('react').ReactNode} props.children
  * @param {number|string} [props.maxWidth=820] — largura máxima do bloco de texto.
  * @param {object} [props.sx] — overrides finais (vence o resto).
- * @param {boolean} [props.fullHeight=true] — preenche viewport (útil em rotas
+ * @param {boolean} [props.fullHeight=true] — preenche o main disponível (útil em rotas
  *   onde o conteúdo é curto e queremos cor de fundo consistente).
  */
 export default function PageReadingShell({
@@ -33,13 +33,8 @@ export default function PageReadingShell({
       sx={{
         bgcolor: 'background.default',
         color: 'text.primary',
-        ...(fullHeight
-          ? {
-              minHeight: '100vh',
-              '@supports (min-height: 100dvh)': { minHeight: '100dvh' }
-            }
-          : {}),
-        width: '100%'
+        minHeight: fullHeight ? '100%' : undefined,
+        width: '100%',
       }}
     >
       <Container

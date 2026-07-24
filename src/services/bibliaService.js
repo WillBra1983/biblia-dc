@@ -13,6 +13,8 @@ const LIVRO_NOME_CACHE_MAX = 80
 const INTERVALO_VERSOS_CACHE_MAX = 200
 const capituloCache = new Map()
 const CAPITULO_CACHE_MAX = 24
+const pericopesCache = new Map()
+const PERICOPES_CACHE_MAX = 80
 /** Primeiro livro do NT (Mateus); ids menores são AT. */
 const LIVRO_ID_NT_INICIO = 40
 
@@ -352,6 +354,11 @@ export const bibliaService = {
   },
 
   async buscarPericopes(livroId, capitulo) {
+    const cacheKey = `${livroId}:${capitulo}`
+    if (pericopesCache.has(cacheKey)) {
+      return pericopesCache.get(cacheKey)
+    }
+
     try {
       const db = await initDB()
       
@@ -380,6 +387,7 @@ export const bibliaService = {
       }
       stmt.free()
       
+      gravarCacheLimitado(pericopesCache, cacheKey, pericopes, PERICOPES_CACHE_MAX)
       return pericopes
       
     } catch (error) {

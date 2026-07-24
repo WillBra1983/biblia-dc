@@ -742,6 +742,7 @@ export default function Discipulado() {
                   hover: true,
                   shimmer: false,
                   borderRadius: 2,
+                  performance: true,
                 }),
                 width: '100%',
                 maxWidth: 760,
@@ -805,6 +806,7 @@ export default function Discipulado() {
                       hover: true,
                       shimmer: false,
                       borderRadius: 2,
+                      performance: true,
                     }),
                     color: menuCardTextColor,
                     border: `1px solid ${menuCardBorder}`,
@@ -849,6 +851,7 @@ export default function Discipulado() {
                             hover: true,
                             shimmer: false,
                             borderRadius: 2,
+                            performance: true,
                           }),
                           color: menuCardTextColor,
                           border: `1px solid ${menuCardBorder}`,
@@ -870,6 +873,7 @@ export default function Discipulado() {
                               hover: true,
                               shimmer: false,
                               borderRadius: 2,
+                              performance: true,
                             }),
                             color: menuCardTextColor,
                             border: `1px solid ${menuCardBorder}`,
@@ -961,9 +965,10 @@ export default function Discipulado() {
                         ...getGlassCardStyles('linear-gradient(135deg, #37474f 0%, #263238 100%)', {
                           hover: true,
                           border: !estudoSelecionado,
-                          shimmer: true,
+                          shimmer: false,
                           borderRadius: 2,
                           shimmerDelay: 0,
+                          performance: true,
                         }),
                         cursor: 'pointer',
                         border: !estudoSelecionado
@@ -989,9 +994,10 @@ export default function Discipulado() {
                           ...getGlassCardStyles('linear-gradient(135deg, #424242 0%, #212121 100%)', {
                             hover: true,
                             border: (estudoSelecionado == estudo.id),
-                            shimmer: true,
+                            shimmer: false,
                             borderRadius: 2,
                             shimmerDelay: Math.random() * 7,
+                            performance: true,
                           }),
                           cursor: 'pointer',
                           border: (estudoSelecionado == estudo.id) 
@@ -1501,9 +1507,10 @@ export default function Discipulado() {
                         ...getGlassCardStyles('linear-gradient(135deg, #37474f 0%, #263238 100%)', {
                           hover: true,
                           border: !estudoSelecionado,
-                          shimmer: true,
+                          shimmer: false,
                           borderRadius: 2,
                           shimmerDelay: 0,
+                          performance: true,
                         }),
                         cursor: 'pointer',
                         border: !estudoSelecionado
@@ -1529,9 +1536,10 @@ export default function Discipulado() {
                           ...getGlassCardStyles('linear-gradient(135deg, #424242 0%, #212121 100%)', {
                             hover: true,
                             border: (estudoSelecionado == estudo.id),
-                            shimmer: true,
+                            shimmer: false,
                             borderRadius: 2,
                             shimmerDelay: Math.random() * 7,
+                            performance: true,
                           }),
                           cursor: 'pointer',
                           border: (estudoSelecionado == estudo.id) 

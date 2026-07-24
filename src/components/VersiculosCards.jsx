@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Typography, Grid, Dialog, AppBar, Toolbar, IconButton } from '@mui/material'
+import { Box, Typography, Dialog, AppBar, Toolbar, IconButton, ButtonBase } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { obterCorLivro } from '../utils/coresBiblia'
 import { useEffect, useState } from 'react'
@@ -109,56 +109,53 @@ export default function VersiculosCards({
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700 }}>
+          <Typography variant="h6" sx={{ flexGrow: 1, minWidth: 0, fontWeight: 700, fontSize: { xs: '1rem', sm: '1.25rem' }, lineHeight: 1.2 }}>
             {livro.nome} {capitulo} - Selecione um Versículo
           </Typography>
         </Toolbar>
       </AppBar>
-      <Box sx={{ ...sxFullscreenScrollBody(), p: 2 }}>
-        <Grid container spacing={0.5}>
+      <Box sx={{ ...sxFullscreenScrollBody(), p: { xs: 2, sm: 3 } }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(6, minmax(0, 1fr))', sm: 'repeat(10, minmax(0, 1fr))', md: 'repeat(12, minmax(0, 1fr))' }, gap: 0.75 }}>
           {versiculos.map((versiculo) => {
             const ativo = versiculoAtual === versiculo
             return (
-              <Grid item xs={2} sm={1} md={1} lg={1} xl={1} key={versiculo}>
-                <Card
-                  onClick={() => handleSelect(versiculo)}
-                  sx={{
-                    cursor: 'pointer',
-                    bgcolor: corLivro,
-                    color: '#fff',
-                    width: '100%',
-                    aspectRatio: '1',
-                    borderRadius: 1,
-                    border: ativo
-                      ? '1.5px solid rgba(255, 255, 255, 0.85)'
-                      : '1px solid rgba(255, 255, 255, 0.18)',
-                    boxShadow: 'none',
-                    transition: 'none',
-                    '&:active': { opacity: 0.85 }
-                  }}
+              <ButtonBase
+                key={versiculo}
+                onClick={() => handleSelect(versiculo)}
+                sx={{
+                  cursor: 'pointer',
+                  bgcolor: ativo ? corLivro : 'background.paper',
+                  color: ativo ? '#fff' : 'text.primary',
+                  width: '100%',
+                  aspectRatio: '1',
+                  borderRadius: 1,
+                  border: '1px solid',
+                  borderColor: ativo ? 'rgba(255, 255, 255, 0.85)' : 'divider',
+                  boxShadow: 'none',
+                  transition: 'background-color 120ms ease, border-color 120ms ease, color 120ms ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  contain: 'layout paint',
+                  '&:active': { opacity: 0.85 },
+                  '@media (hover: hover)': {
+                    '&:hover': {
+                      bgcolor: ativo ? corLivro : 'action.hover',
+                      borderColor: ativo ? 'rgba(255, 255, 255, 0.85)' : corLivro,
+                    }
+                  },
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: 800, fontSize: '0.78rem', lineHeight: 1 }}
                 >
-                  <CardContent
-                    sx={{
-                      p: 0,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      height: '100%',
-                      '&:last-child': { paddingBottom: 0 }
-                    }}
-                  >
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 700, fontSize: '0.78rem', lineHeight: 1 }}
-                    >
-                      {versiculo}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
+                  {versiculo}
+                </Typography>
+              </ButtonBase>
             )
           })}
-        </Grid>
+        </Box>
       </Box>
     </Dialog>
   )

@@ -31,7 +31,7 @@ import { ensureUserForFeature } from '../utils/chatExportSend'
 import AdminSectionViewCounts from './AdminSectionViewCounts'
 import PeopleIcon from '@mui/icons-material/People'
 import { chavesMetricaParaPathMenu, registarVisualizacaoSecaoSeNecessario } from '../utils/sectionViewKeys'
-import { prefetchRota } from '../utils/routePrefetch'
+import { prefetchRota, prefetchRotasComuns } from '../utils/routePrefetch'
 
 const ICON_BOX = 44
 const ICON_SIZE = 26
@@ -300,6 +300,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
   useEffect(() => {
     if (menuOpen === undefined) return
     setConectarExpanded(false)
+    if (menuOpen) prefetchRotasComuns()
   }, [menuOpen])
 
   // Detecta admin — mostra "Enviar aviso" dentro de Conectar > Notificações.
@@ -1423,5 +1424,4 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
     </Box>
   )
 }
-
 

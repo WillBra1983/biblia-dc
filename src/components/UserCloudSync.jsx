@@ -57,20 +57,36 @@ export default function UserCloudSync() {
     if (!isConfigured || !user?.uid || usuarioPrecisaVerificarEmail(user)) return
 
     let cancelled = false
-    const cancelarEspera = aguardarPosSplash(() => {
+    const payload = {
+      email: user.email || '',
+      photoURL: user.photoURL || '',
+      displayName: user.displayName || '',
+    }
+    const registrarEntrada = () => {
       void loadFirebaseModules().then(() => {
         if (cancelled) return
-        void registrarEntradaUsuario(user.uid, {
-          email: user.email || '',
-          photoURL: user.photoURL || '',
-          displayName: user.displayName || '',
-        })
+        void registrarEntradaUsuario(user.uid, payload)
       })
-    })
+    }
+    const cancelarEspera = aguardarPosSplash(registrarEntrada)
+    const handleFocus = () => registrarEntrada()
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') registrarEntrada()
+    }
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    const capListenerPromise = import('@capacitor/app')
+      .then(({ App }) => App.addListener('appStateChange', ({ isActive }) => {
+        if (isActive) registrarEntrada()
+      }))
+      .catch(() => null)
 
     return () => {
       cancelled = true
       cancelarEspera()
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      capListenerPromise.then((h) => h?.remove?.()).catch(() => {})
     }
   }, [isConfigured, user?.uid, user?.email, user?.photoURL, user?.displayName, user?.emailVerified])
 

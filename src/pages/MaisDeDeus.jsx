@@ -255,13 +255,14 @@ export default function MaisDeDeus() {
   // TELA INICIAL: escolha do tema principal
   if (!temaSelecionado) {
     return (
-      <Box sx={{ width: '100%', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', touchAction: 'pan-y', fontFamily: ff }}>
+      <Box sx={{ width: '100%', minHeight: '100%', bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', touchAction: 'pan-y', fontFamily: ff }}>
         {/* Card principal: Salvação */}
         <Card sx={{
           ...getGlassCardStyles('linear-gradient(135deg, rgba(34, 197, 94, 0.85) 0%, rgba(20, 83, 45, 0.85) 100%)', {
             hover: true,
-            shimmer: true,
+            shimmer: false,
             borderRadius: 2,
+            performance: true,
           }),
           mb: 2,
           width: '100%',
@@ -282,8 +283,9 @@ export default function MaisDeDeus() {
         <Card sx={{
           ...getGlassCardStyles('linear-gradient(135deg, rgba(37, 99, 235, 0.85) 0%, rgba(30, 64, 175, 0.85) 100%)', {
             hover: true,
-            shimmer: true,
+            shimmer: false,
             borderRadius: 2,
+            performance: true,
           }),
           mb: 2,
           width: '100%',
@@ -316,7 +318,7 @@ export default function MaisDeDeus() {
       );
     });
     return (
-      <Box sx={{ width: '100%', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: { xs: 2, sm: 3 }, touchAction: 'pan-y' }}>
+      <Box sx={{ width: '100%', minHeight: '100%', bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: { xs: 2, sm: 3 }, touchAction: 'pan-y' }}>
         <TextField
           fullWidth
           size="small"
@@ -358,8 +360,9 @@ export default function MaisDeDeus() {
               <Card sx={{
                 ...getGlassCardStyles('linear-gradient(135deg, rgba(37, 99, 235, 0.85) 0%, rgba(30, 64, 175, 0.85) 100%)', {
                   hover: true,
-                  shimmer: true,
+                  shimmer: false,
                   borderRadius: 2,
+                  performance: true,
                 }),
                 position: 'relative',
                 color: 'white',
@@ -658,7 +661,7 @@ export default function MaisDeDeus() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, fontFamily: ff }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100%', fontFamily: ff }}>
       <Drawer
         anchor="left"
         open={menuAberto}
@@ -748,7 +751,7 @@ export default function MaisDeDeus() {
             <IconButton
               onClick={() => (etapaAtual > 0 ? abrirSalvacaoEtapa(etapaAtual - 1, { replace: true }) : undefined)}
               disabled={etapaAtual === 0}
-              sx={{ bgcolor: '#004d40', opacity: 0.6, color: 'white', '&:hover': { bgcolor: '#004d40', opacity: 0.9 }, '&.Mui-disabled': { opacity: 0.2 } }}
+              sx={{ bgcolor: 'background.paper', opacity: 0.9, color: 'primary.main', border: 1, borderColor: 'divider', boxShadow: 3, '&:hover': { bgcolor: 'action.hover', opacity: 1 }, '&.Mui-disabled': { opacity: 0.28 } }}
             >
               <NavigateBefore />
             </IconButton>
@@ -760,7 +763,7 @@ export default function MaisDeDeus() {
                 }
               }}
               disabled={etapaAtual === etapas.length - 1}
-              sx={{ bgcolor: '#004d40', opacity: 0.6, color: 'white', '&:hover': { bgcolor: '#004d40', opacity: 0.9 }, '&.Mui-disabled': { opacity: 0.2 } }}
+              sx={{ bgcolor: 'background.paper', opacity: 0.9, color: 'primary.main', border: 1, borderColor: 'divider', boxShadow: 3, '&:hover': { bgcolor: 'action.hover', opacity: 1 }, '&.Mui-disabled': { opacity: 0.28 } }}
             >
               <NavigateNext />
             </IconButton>

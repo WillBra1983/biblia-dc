@@ -11,6 +11,7 @@ import {
   DialogActions,
   Button
 } from '@mui/material'
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { useApp } from '../contexts/AppContext'
@@ -238,6 +239,26 @@ export default function EstudosBiblicosHub() {
           {err}
         </Alert>
       )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1.5 }}>
+        <Button
+          component={RouterLink}
+          to="/estudos-biblicos/gerir"
+          variant="contained"
+          endIcon={<AddCircleOutlineIcon />}
+          sx={{
+            minHeight: 44,
+            px: 2,
+            borderRadius: 999,
+            textTransform: 'none',
+            fontWeight: 800,
+            boxShadow: '0 8px 18px rgba(0, 77, 64, 0.18)'
+          }}
+        >
+          Administrar
+        </Button>
+      </Box>
+
       <TextField
         fullWidth
         size="small"

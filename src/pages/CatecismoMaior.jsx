@@ -112,6 +112,7 @@ export default function CatecismoMaior() {
 
   const handleVoltarLista = () => {
     setMostrarLista(true)
+    navigate('/catecismo-maior', { replace: true })
   }
 
   // Se mostrarLista é true, mostra a lista de perguntas
@@ -136,7 +137,7 @@ export default function CatecismoMaior() {
       <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => window.history.back()}
+          onClick={handleVoltarLista}
           sx={{ color: 'text.primary' }}
         >
           Voltar
@@ -260,4 +261,4 @@ export default function CatecismoMaior() {
       </Box>
     </PageReadingShell>
   )
-} 
+}

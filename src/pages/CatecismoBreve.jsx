@@ -127,6 +127,7 @@ export default function CatecismoBreve() {
 
   const handleVoltarLista = () => {
     setMostrarLista(true)
+    navigate('/catecismo-breve', { replace: true })
   }
 
   // Se mostrarLista é true, mostra a lista de perguntas
@@ -151,7 +152,7 @@ export default function CatecismoBreve() {
       <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => window.history.back()}
+          onClick={handleVoltarLista}
           sx={{ color: 'text.primary' }}
         >
           Voltar
@@ -264,4 +265,4 @@ export default function CatecismoBreve() {
         </Paper>
     </PageReadingShell>
   )
-} 
+}

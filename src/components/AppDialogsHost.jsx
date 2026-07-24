@@ -47,11 +47,18 @@ export default function AppDialogsHost() {
         }}
         maxWidth="xs"
         fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            overflow: 'hidden',
+            boxShadow: '0 18px 60px rgba(0, 0, 0, 0.24)'
+          }
+        }}
       >
         {dialog?.titulo ? (
-          <DialogTitle sx={{ pr: 6 }}>{dialog.titulo}</DialogTitle>
+          <DialogTitle sx={{ pr: 6, pb: 1, fontWeight: 800 }}>{dialog.titulo}</DialogTitle>
         ) : null}
-        <DialogContent>
+        <DialogContent sx={{ pt: dialog?.titulo ? 1 : 2.5 }}>
           {dialog?.severidade && dialog?.tipo === 'aviso' && dialog.severidade !== 'info' ? (
             <Alert severity={dialog.severidade} sx={{ mb: 2 }}>
               {dialog.mensagem}
@@ -67,13 +74,14 @@ export default function AppDialogsHost() {
             </DialogContentText>
           )}
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
+        <DialogActions sx={{ px: 3, py: 2, borderTop: 1, borderColor: 'divider', bgcolor: 'background.default' }}>
           {dialog?.tipo === 'confirmacao' ? (
             <>
               <Button
                 onClick={() => dialog.resolver(false)}
                 color="inherit"
                 variant="text"
+                sx={{ textTransform: 'none', fontWeight: 700 }}
               >
                 {dialog.labelCancelar}
               </Button>
@@ -82,6 +90,7 @@ export default function AppDialogsHost() {
                 color={dialog.destrutivo ? 'error' : 'primary'}
                 variant="contained"
                 autoFocus
+                sx={{ textTransform: 'none', fontWeight: 800 }}
               >
                 {dialog.labelOk}
               </Button>
@@ -92,6 +101,7 @@ export default function AppDialogsHost() {
               color="primary"
               variant="contained"
               autoFocus
+              sx={{ textTransform: 'none', fontWeight: 800 }}
             >
               {dialog?.labelOk || 'OK'}
             </Button>

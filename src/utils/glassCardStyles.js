@@ -22,6 +22,8 @@ export function getGlassCardStyles(gradient, options = {}) {
     performance = false,
   } = options
 
+  const usarShimmer = shimmer && !performance
+
   // Gera delay aleatório se não fornecido (entre 0 e 7 segundos)
   const randomDelay = shimmerDelay !== null 
     ? shimmerDelay 
@@ -31,7 +33,9 @@ export function getGlassCardStyles(gradient, options = {}) {
     position: 'relative',
     overflow: 'hidden',
     cursor: cursor,
-    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: performance
+      ? 'background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease'
+      : 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s ease, border-color 0.4s ease',
     background: gradient,
     ...(performance
       ? {}
@@ -41,18 +45,20 @@ export function getGlassCardStyles(gradient, options = {}) {
         }),
     borderRadius: borderRadius,
     // Sombras múltiplas para efeito de vidro e profundidade
-    boxShadow: `
-      0 8px 32px 0 rgba(0, 0, 0, 0.37),
-      inset 0 1px 0 rgba(255, 255, 255, 0.4),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.15),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset,
-      0 2px 8px rgba(0, 0, 0, 0.2)
-    `,
+    boxShadow: performance
+      ? '0 1px 2px rgba(0, 0, 0, 0.16)'
+      : `
+        0 8px 32px 0 rgba(0, 0, 0, 0.37),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+        0 2px 8px rgba(0, 0, 0, 0.2)
+      `,
   }
 
   // Efeito de brilho animado (shimmer) com delay aleatório
   // A animação dura 7s: brilho passa em ~1s e fica pausado por ~6s
-  if (shimmer) {
+  if (usarShimmer) {
     baseStyles['&::before'] = {
       content: '""',
       position: 'absolute',
@@ -69,21 +75,23 @@ export function getGlassCardStyles(gradient, options = {}) {
   }
 
   // Efeito de reflexo brilhante estático
-  baseStyles['&::after'] = {
-    content: '""',
-    position: 'absolute',
-    top: '-50%',
-    left: '-50%',
-    width: '200%',
-    height: '200%',
-    background: `
-      radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4) 0%, transparent 60%),
-      radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.25) 0%, transparent 60%)
-    `,
-    opacity: 0.7,
-    zIndex: 0,
-    pointerEvents: 'none',
-    transition: 'opacity 0.4s ease',
+  if (!performance) {
+    baseStyles['&::after'] = {
+      content: '""',
+      position: 'absolute',
+      top: '-50%',
+      left: '-50%',
+      width: '200%',
+      height: '200%',
+      background: `
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4) 0%, transparent 60%),
+        radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.25) 0%, transparent 60%)
+      `,
+      opacity: 0.7,
+      zIndex: 0,
+      pointerEvents: 'none',
+      transition: 'opacity 0.4s ease',
+    }
   }
 
   // Efeito de hover com mais brilho e elevação
@@ -91,26 +99,32 @@ export function getGlassCardStyles(gradient, options = {}) {
     // Em touch/mobile, `hover` pode "grudar" após o toque e causar overflow
     // visual (faixa branca/largura extra). Aplicamos transformação só em
     // ponteiro fino (mouse/trackpad) e desativamos transform em touch.
-    baseStyles['@media (hover: hover) and (pointer: fine)'] = {
-      '&:hover': {
-        transform: 'translateY(-4px) scale(1.02)',
-        boxShadow: `
-          0 16px 64px 0 rgba(0, 0, 0, 0.5),
-          inset 0 2px 0 rgba(255, 255, 255, 0.5),
-          inset 0 -2px 0 rgba(255, 255, 255, 0.2),
-          0 0 30px rgba(255, 255, 255, 0.3),
-          0 0 0 1px rgba(255, 255, 255, 0.15) inset
-        `,
-        '&::after': {
-          opacity: 1,
-        },
-        ...(shimmer && {
-          '&::before': {
-            animation: 'shimmer 7s infinite',
+    baseStyles['@media (hover: hover) and (pointer: fine)'] = performance
+      ? {
+          '&:hover': {
+            boxShadow: '0 3px 10px rgba(0, 0, 0, 0.22)',
           },
-        }),
-      },
-    }
+        }
+      : {
+          '&:hover': {
+            transform: 'translateY(-4px) scale(1.02)',
+            boxShadow: `
+              0 16px 64px 0 rgba(0, 0, 0, 0.5),
+              inset 0 2px 0 rgba(255, 255, 255, 0.5),
+              inset 0 -2px 0 rgba(255, 255, 255, 0.2),
+              0 0 30px rgba(255, 255, 255, 0.3),
+              0 0 0 1px rgba(255, 255, 255, 0.15) inset
+            `,
+            '&::after': {
+              opacity: 1,
+            },
+            ...(usarShimmer && {
+              '&::before': {
+                animation: 'shimmer 7s infinite',
+              },
+            }),
+          },
+        }
 
     baseStyles['@media (hover: none), (pointer: coarse)'] = {
       '&:hover, &:active': {
@@ -165,4 +179,3 @@ export function getGlassCardWithTransparency(baseColor, opacity = 0.8) {
     `,
   }
 }
-

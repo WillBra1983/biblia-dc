@@ -18,8 +18,8 @@ import {
   FUNDOS_VERSICULO,
   baixarImagemVersiculo,
   compartilharArquivoImagem,
+  formatarCitacaoTextoVersiculo,
   gerarImagemVersiculo,
-  limparNumeracaoTextoVersiculo,
   urlFundoVersiculo,
   urlLogoApp,
 } from '../utils/versiculoImagem'
@@ -38,7 +38,7 @@ export default function CompartilharVersiculoImagemDialog({ open, onClose, refer
   }, [fundoId])
 
   const fundo = FUNDOS_VERSICULO.find((item) => item.id === fundoId) || FUNDOS_VERSICULO[0]
-  const textoLimpo = limparNumeracaoTextoVersiculo(texto)
+  const textoCitacao = formatarCitacaoTextoVersiculo(texto)
 
   const criar = async (modo) => {
     setGerando(true)
@@ -110,7 +110,7 @@ export default function CompartilharVersiculoImagemDialog({ open, onClose, refer
               maxHeight: '70%',
               overflow: 'hidden',
               fontFamily: 'Georgia, serif',
-              fontSize: textoLimpo.length > 420 ? '0.9rem' : textoLimpo.length > 220 ? '1.05rem' : '1.25rem',
+              fontSize: textoCitacao.length > 420 ? '0.9rem' : textoCitacao.length > 220 ? '1.05rem' : '1.25rem',
               fontWeight: 600,
               lineHeight: 1.38,
               textAlign: 'center',
@@ -118,7 +118,7 @@ export default function CompartilharVersiculoImagemDialog({ open, onClose, refer
               whiteSpace: 'pre-line',
             }}
           >
-            {textoLimpo}
+            {textoCitacao}
           </Typography>
           <Box sx={{ textAlign: 'center' }}>
             <Typography sx={{ fontWeight: 800, fontSize: '1rem', textShadow: '0 2px 6px rgba(0,0,0,.5)' }}>

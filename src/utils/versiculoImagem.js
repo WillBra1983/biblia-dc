@@ -43,6 +43,29 @@ export function limparNumeracaoTextoVersiculo(texto) {
     .join(' ')
 }
 
+function ehLetraMinuscula(caractere) {
+  if (!caractere) return false
+  return (
+    caractere === caractere.toLocaleLowerCase('pt-BR') &&
+    caractere !== caractere.toLocaleUpperCase('pt-BR')
+  )
+}
+
+export function formatarCitacaoTextoVersiculo(texto) {
+  const limpo = limparNumeracaoTextoVersiculo(texto)
+  if (!limpo) return ''
+
+  const primeiraLetra = limpo.match(/[A-Za-zÀ-ÖØ-öø-ÿ]/)?.[0] || ''
+  const ultimoCaractere = limpo.trim().slice(-1)
+  const iniciaEmContinuacao = ehLetraMinuscula(primeiraLetra)
+  const terminaEmContinuacao =
+    ehLetraMinuscula(ultimoCaractere) || /[,;:–—-]$/.test(limpo.trim())
+
+  const inicio = iniciaEmContinuacao ? '[...] ' : ''
+  const fim = terminaEmContinuacao ? ' [...]' : ''
+  return `“${inicio}${limpo}${fim}”`
+}
+
 function carregarImagem(src) {
   return new Promise((resolve, reject) => {
     const img = new Image()
@@ -126,8 +149,8 @@ export async function gerarImagemVersiculo({ referencia, texto, fundoId }) {
   ctx.fillStyle = 'rgba(255,255,255,0.62)'
   ctx.fillRect(390, 148, 300, 3)
 
-  const textoLimpo = limparNumeracaoTextoVersiculo(texto)
-  const ajuste = ajustarTexto(ctx, textoLimpo, 860, 700)
+  const textoCitacao = formatarCitacaoTextoVersiculo(texto)
+  const ajuste = ajustarTexto(ctx, textoCitacao, 860, 700)
   ctx.font = `600 ${ajuste.tamanho}px Georgia, serif`
   ctx.fillStyle = '#ffffff'
   ctx.shadowColor = 'rgba(0,0,0,0.34)'

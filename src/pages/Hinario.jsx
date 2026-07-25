@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, lazy, Suspense } from 'react'
+import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react'
 import {
   Typography,
   Paper,
@@ -12,11 +12,12 @@ import {
   InputAdornment,
   Stack,
   Button,
-  Tooltip,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material'
 import NavigateBefore from '@mui/icons-material/NavigateBefore'
 import NavigateNext from '@mui/icons-material/NavigateNext'
-import MoreVert from '@mui/icons-material/MoreVert'
+import LibraryMusic from '@mui/icons-material/LibraryMusic'
 import SearchIcon from '@mui/icons-material/Search'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import Close from '@mui/icons-material/Close'
@@ -40,12 +41,16 @@ export default function Hinario() {
   const [hinos, setHinos] = useState([])
   const [ordenacao, setOrdenacao] = useState('numero')
   const [loading, setLoading] = useState(true)
+  const [buscando, setBuscando] = useState(false)
+  const [carregandoHino, setCarregandoHino] = useState(false)
   const [error, setError] = useState(null)
   const [menuAberto, setMenuAberto] = useState(false)
   const [paginaPdf, setPaginaPdf] = useState(null)
   const [resolvendoPaginaPdf, setResolvendoPaginaPdf] = useState(false)
   /** Evita repetir seleção automática quando o usuário volta à lista (hinoAtual null). */
   const selecaoInicialFeitaRef = useRef(false)
+  const buscaIdRef = useRef(0)
+  const selecaoIdRef = useRef(0)
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -64,6 +69,29 @@ export default function Hinario() {
 
   const prefixoNumero = n => parseInt(String(n ?? '').match(/^\d+/)?.[0] || '0', 10)
 
+  const selecionarHino = async (resumo, { fecharMenu = true, registrarHistorico = true } = {}) => {
+    if (!resumo) return
+    const selecaoId = ++selecaoIdRef.current
+    setCarregandoHino(true)
+    setError(null)
+    try {
+      const completo = resumo.conteudo
+        ? resumo
+        : await hinarioService.buscarHino(resumo.numero)
+      if (selecaoId !== selecaoIdRef.current || !completo) return
+      setHinoAtual(completo)
+      localStorage.setItem('ultimoHinoAcessado', completo.numero)
+      if (fecharMenu) setMenuAberto(false)
+      if (registrarHistorico) {
+        window.history.pushState({ listaType: 'hinario-hino' }, '')
+      }
+    } catch (err) {
+      if (selecaoId === selecaoIdRef.current) setError(err.message)
+    } finally {
+      if (selecaoId === selecaoIdRef.current) setCarregandoHino(false)
+    }
+  }
+
   const voltarDaVisualizacaoHino = () => {
     window.dispatchEvent(new Event('salvation-open-main-menu'))
   }
@@ -79,13 +107,36 @@ export default function Hinario() {
     return () => setBackButtonHandler(null)
   }, [menuAberto, setBackButtonHandler])
 
-  // Carregar hinos ao iniciar
+  // Carrega apenas o índice. A letra completa é buscada ao abrir um hino.
   useEffect(() => {
-    if (searchTerm) {
-      buscarHinos()
-    } else {
-      carregarTodos()
-    }
+    const buscaId = ++buscaIdRef.current
+    const termo = searchTerm.trim()
+    const primeiraCarga = selecaoInicialFeitaRef.current === false && hinos.length === 0
+    if (primeiraCarga) setLoading(true)
+    else setBuscando(true)
+
+    const timer = window.setTimeout(async () => {
+      try {
+        const data = termo
+          ? await hinarioService.buscarPorTexto(termo)
+          : await hinarioService.buscarTodos()
+        if (buscaId === buscaIdRef.current) {
+          setHinos(data)
+          setError(null)
+        }
+      } catch (err) {
+        if (buscaId === buscaIdRef.current) setError(err.message)
+      } finally {
+        if (buscaId === buscaIdRef.current) {
+          setLoading(false)
+          setBuscando(false)
+        }
+      }
+    }, termo ? 220 : 0)
+
+    return () => window.clearTimeout(timer)
+    // A lista é atualizada somente pela busca; incluir `hinos` repetiria a consulta.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm])
 
   // Primeira vez com lista carregada: último hino visto ou o primeiro (evita tela em branco ao voltar do menu/Bíblia)
@@ -97,7 +148,7 @@ export default function Hinario() {
     if (ultimo) {
       const hinoSalvo = hinos.find(h => String(h.numero) === String(ultimo))
       if (hinoSalvo) {
-        setHinoAtual(hinoSalvo)
+        void selecionarHino(hinoSalvo, { fecharMenu: false, registrarHistorico: false })
         return
       }
     }
@@ -110,8 +161,7 @@ export default function Hinario() {
     })
     const first = sorted[0]
     if (first) {
-      setHinoAtual(first)
-      localStorage.setItem('ultimoHinoAcessado', first.numero)
+      void selecionarHino(first, { fecharMenu: false, registrarHistorico: false })
     }
   }, [hinos])
 
@@ -167,33 +217,7 @@ export default function Hinario() {
     }, 100);
   }, [hinoAtual]);
 
-  const carregarTodos = async () => {
-    try {
-      setLoading(true)
-      const data = await hinarioService.buscarTodos()
-      setHinos(data)
-    } catch (err) {
-      console.error('Erro ao carregar hinos:', err)
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const buscarHinos = async () => {
-    try {
-      setLoading(true)
-      const data = await hinarioService.buscarPorTexto(searchTerm)
-      setHinos(data)
-    } catch (err) {
-      console.error('Erro ao buscar hinos:', err)
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const hinosFiltrados = [...hinos].sort((a, b) => {
+  const hinosFiltrados = useMemo(() => [...hinos].sort((a, b) => {
     if (ordenacao === 'alfabetica') {
       return a.titulo.localeCompare(b.titulo, 'pt-BR')
     }
@@ -201,7 +225,7 @@ export default function Hinario() {
     const nb = prefixoNumero(b.numero)
     if (na !== nb) return na - nb
     return String(a.numero).localeCompare(String(b.numero), 'pt-BR')
-  })
+  }), [hinos, ordenacao])
 
   const indiceHinoAtual = () => {
     if (!hinoAtual) return -1
@@ -212,8 +236,7 @@ export default function Hinario() {
     const i = indiceHinoAtual()
     if (i > 0) {
       const h = hinosFiltrados[i - 1]
-      setHinoAtual(h)
-      localStorage.setItem('ultimoHinoAcessado', h.numero)
+      void selecionarHino(h)
     }
   }
 
@@ -221,8 +244,7 @@ export default function Hinario() {
     const i = indiceHinoAtual()
     if (i >= 0 && i < hinosFiltrados.length - 1) {
       const h = hinosFiltrados[i + 1]
-      setHinoAtual(h)
-      localStorage.setItem('ultimoHinoAcessado', h.numero)
+      void selecionarHino(h)
     }
   }
 
@@ -273,26 +295,27 @@ export default function Hinario() {
           borderColor: 'divider',
         }}
       >
-        <IconButton
+        <Button
           color="primary"
           onClick={() => navigate('/biblia')}
           aria-label="Ir para o início"
+          startIcon={<ArrowBack />}
+          size="small"
+          sx={{ fontWeight: 700 }}
         >
-          <ArrowBack />
-          <Typography variant="body2" sx={{ ml: 0.5 }}>
-            Início
-          </Typography>
-        </IconButton>
-        <IconButton
-          color="inherit"
+          Início
+        </Button>
+        <Button
+          color="primary"
           onClick={() => setMenuAberto(true)}
           aria-label="Abrir menu do hinário"
+          startIcon={<LibraryMusic />}
+          variant="outlined"
+          size="small"
+          sx={{ fontWeight: 700 }}
         >
-          <MoreVert />
-          <Typography variant="body2" sx={{ ml: 0.5 }}>
-            Hinos
-          </Typography>
-        </IconButton>
+          Escolher hino
+        </Button>
       </Box>
 
       {/* Drawer do Menu */}
@@ -305,7 +328,7 @@ export default function Hinario() {
           sx: {
             width: { xs: '100vw', sm: 400, md: 400 },
             maxWidth: '100vw',
-            pt: 2
+            pt: 1
           }
         }}
       >
@@ -316,7 +339,7 @@ export default function Hinario() {
         <Box
           sx={{
             width: '100%',
-            pt: 2,
+            pt: 1,
             boxSizing: 'border-box',
             // flex column 100% para que a lista virtualizada ocupe o resto
             // do drawer (acima dela só ficam busca + botões de ordenação).
@@ -326,8 +349,17 @@ export default function Hinario() {
             minHeight: 0
           }}
         >
+          <Box sx={{ px: 2, pt: 1, flexShrink: 0 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800 }}>
+              Hinos
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {hinosFiltrados.length} {hinosFiltrados.length === 1 ? 'resultado' : 'resultados'}
+            </Typography>
+          </Box>
+
           {/* Barra de busca */}
-          <Box sx={{ p: 2, flexShrink: 0 }}>
+          <Box sx={{ p: 2, pb: 1, flexShrink: 0 }}>
             <TextField
               fullWidth
               size="small"
@@ -340,53 +372,27 @@ export default function Hinario() {
                     <SearchIcon />
                   </InputAdornment>
                 ),
+                endAdornment: buscando ? (
+                  <InputAdornment position="end">
+                    <CircularProgress size={18} />
+                  </InputAdornment>
+                ) : null,
               }}
             />
           </Box>
 
           {/* Botões de ordenação */}
           <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pb: 1, justifyContent: 'space-between', flexShrink: 0 }}>
-          <Stack 
-            direction="row"
-            spacing={1} 
-          >
-            <IconButton 
+            <ToggleButtonGroup
+              exclusive
               size="small"
-              onClick={() => setOrdenacao('numero')}
-              color={ordenacao === 'numero' ? 'primary' : 'default'}
-              sx={{ 
-                border: 1,
-                borderColor: ordenacao === 'numero' ? 'primary.main' : 'divider',
-                borderRadius: '50%',
-                width: 36,
-                height: 36
-              }}
+              value={ordenacao}
+              onChange={(_, valor) => valor && setOrdenacao(valor)}
+              aria-label="Ordenar hinos"
             >
-              <Stack spacing={0} alignItems="center">
-                <Typography sx={{ fontSize: '0.7rem', lineHeight: 1, fontWeight: 'bold' }}>1</Typography>
-                <Typography sx={{ fontSize: '0.7rem', lineHeight: 1, fontWeight: 'bold' }}>2</Typography>
-                <Typography sx={{ fontSize: '0.7rem', lineHeight: 1, fontWeight: 'bold' }}>3</Typography>
-              </Stack>
-            </IconButton>
-            <IconButton 
-              size="small"
-              onClick={() => setOrdenacao('alfabetica')}
-              color={ordenacao === 'alfabetica' ? 'primary' : 'default'}
-              sx={{ 
-                border: 1,
-                borderColor: ordenacao === 'alfabetica' ? 'primary.main' : 'divider',
-                borderRadius: '50%',
-                width: 36,
-                height: 36
-              }}
-            >
-              <Stack spacing={0} alignItems="center">
-                <Typography sx={{ fontSize: '0.7rem', lineHeight: 1, fontWeight: 'bold' }}>A</Typography>
-                <Typography sx={{ fontSize: '0.7rem', lineHeight: 1, fontWeight: 'bold' }}>B</Typography>
-                <Typography sx={{ fontSize: '0.7rem', lineHeight: 1, fontWeight: 'bold' }}>C</Typography>
-              </Stack>
-            </IconButton>
-          </Stack>
+              <ToggleButton value="numero" aria-label="Ordenar por número">123</ToggleButton>
+              <ToggleButton value="alfabetica" aria-label="Ordenar alfabeticamente">ABC</ToggleButton>
+            </ToggleButtonGroup>
             <Button 
               startIcon={<ArrowBack />}
               onClick={() => setMenuAberto(false)}
@@ -407,12 +413,10 @@ export default function Hinario() {
               <ListItem
                 button
                 onClick={() => {
-                  setHinoAtual(hino)
-                  setMenuAberto(false)
-                  localStorage.setItem('ultimoHinoAcessado', hino.numero)
-                  window.history.pushState({ listaType: 'hinario-hino' }, '')
+                  void selecionarHino(hino)
                 }}
-                sx={{ height: '100%' }}
+                selected={String(hinoAtual?.numero) === String(hino.numero)}
+                sx={{ height: '100%', px: 2.25 }}
               >
                 <ListItemText
                   primary={`${hino.numero}. ${hino.titulo}`}
@@ -468,12 +472,16 @@ export default function Hinario() {
               </Typography>
             </Stack>
           ) : (
-            <Stack
-              direction="row"
+            <Box
               alignItems="center"
-              justifyContent="center"
-              spacing={1}
-              sx={{ px: 1, pt: 1.5, pb: 0.5 }}
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+                gap: 1,
+                px: { xs: 0.75, sm: 2 },
+                pt: 1.5,
+                pb: 0.5,
+              }}
             >
               <Typography
                 variant="h5"
@@ -482,6 +490,8 @@ export default function Hinario() {
                   wordBreak: 'break-word',
                   overflowWrap: 'break-word',
                   flex: 1,
+                  gridColumn: 2,
+                  minWidth: 0,
                   ...sxTextoLeitura,
                   textAlign: 'center',
                 }}
@@ -494,26 +504,12 @@ export default function Hinario() {
                   variant="outlined"
                   startIcon={<Slideshow />}
                   onClick={abrirModoApresentacao}
-                  sx={{ flexShrink: 0 }}
+                  sx={{ gridColumn: 3, justifySelf: 'end', flexShrink: 0 }}
                 >
                   Apresentação
                 </Button>
-              ) : (
-                <Tooltip title="Modo apresentação disponível apenas no computador">
-                  <span>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<Slideshow />}
-                      disabled
-                      sx={{ flexShrink: 0 }}
-                    >
-                      Apresentação
-                    </Button>
-                  </span>
-                </Tooltip>
-              )}
-            </Stack>
+              ) : null}
+            </Box>
           )}
 
           {/* Conteúdo: letra com scroll; cifras ocupa o restante da tela (sem padding lateral) */}
@@ -527,7 +523,7 @@ export default function Hinario() {
             }}
           >
             {!modoCifras ? (
-              <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+              <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 0.75, sm: 2 }, py: 1.5 }}>
                 <Typography sx={{ whiteSpace: 'pre-wrap', ...sxTextoLeitura }}>
                   {formatarNotasRodapeHinario(hinoAtual.conteudo)}
                 </Typography>
@@ -666,6 +662,13 @@ export default function Hinario() {
             </IconButton>
           </Box>
         </Paper>
+      ) : carregandoHino ? (
+        <Box sx={{ flex: 1, display: 'grid', placeItems: 'center' }}>
+          <Stack alignItems="center" spacing={1.5}>
+            <CircularProgress size={32} />
+            <Typography color="text.secondary">Abrindo hino...</Typography>
+          </Stack>
+        </Box>
       ) : null}
     </Box>
   )

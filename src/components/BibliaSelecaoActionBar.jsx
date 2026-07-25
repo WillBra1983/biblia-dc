@@ -6,6 +6,7 @@ import {
   Typography
 } from '@mui/material'
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
+import BookmarksOutlinedIcon from '@mui/icons-material/BookmarksOutlined'
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined'
 import CloseIcon from '@mui/icons-material/Close'
@@ -37,7 +38,49 @@ const sxIconeAcao = (theme) => ({
   }
 })
 
-const sxWrapIcone = { display: 'inline-flex', flexShrink: 0 }
+function AcaoSelecao({ label, tooltip, color, onClick, disabled = false, children }) {
+  return (
+    <Tooltip title={tooltip}>
+      <Box
+        component="span"
+        sx={{
+          width: { xs: 46, sm: 56 },
+          flexShrink: 0,
+          display: 'inline-flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 0.125,
+        }}
+      >
+        <IconButton
+          aria-label={tooltip}
+          onClick={onClick}
+          size="small"
+          disabled={disabled}
+          sx={(theme) => ({ color, ...sxIconeAcao(theme) })}
+        >
+          {children}
+        </IconButton>
+        <Typography
+          component="span"
+          variant="caption"
+          sx={{
+            maxWidth: '100%',
+            color: disabled ? 'text.disabled' : 'text.primary',
+            fontSize: { xs: '0.65rem', sm: '0.7rem' },
+            fontWeight: 700,
+            lineHeight: 1.1,
+            textAlign: 'center',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {label}
+        </Typography>
+      </Box>
+    </Tooltip>
+  )
+}
 
 export default function BibliaSelecaoActionBar({
   visivel,
@@ -46,6 +89,7 @@ export default function BibliaSelecaoActionBar({
   onAbrirEstudo,
   onCopiarLink,
   onEnviarChat,
+  onAbrirMarcados,
   onLimparSelecao,
   shareTitle,
   shareText,
@@ -70,8 +114,8 @@ export default function BibliaSelecaoActionBar({
         width: '100%',
         maxWidth: '100vw',
         boxSizing: 'border-box',
-        paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 20px)',
-        paddingRight: 'calc(env(safe-area-inset-right, 0px) + 20px)',
+        paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 8px)',
+        paddingRight: 'calc(env(safe-area-inset-right, 0px) + 8px)',
         transform: visivel
           ? 'translateY(-50%)'
           : 'translateY(calc(-50% + min(70vh, 520px)))',
@@ -90,7 +134,7 @@ export default function BibliaSelecaoActionBar({
         boxShadow: theme.palette.mode === 'dark'
           ? '0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)'
           : '0 12px 40px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.06)',
-        py: { xs: 1, sm: 0.875 },
+        py: { xs: 0.625, sm: 0.5 },
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'stretch',
@@ -100,7 +144,7 @@ export default function BibliaSelecaoActionBar({
         WebkitOverflowScrolling: 'touch',
         scrollbarWidth: 'none',
         '&::-webkit-scrollbar': { display: 'none' },
-        minHeight: { xs: 52, sm: 48 }
+        minHeight: { xs: 64, sm: 62 }
       })}
     >
       <Box
@@ -112,7 +156,7 @@ export default function BibliaSelecaoActionBar({
           flexWrap: 'nowrap',
           gap: 0,
           minWidth: 0,
-          minHeight: 40,
+          minHeight: 54,
           overflowX: 'auto',
           overflowY: 'hidden',
           WebkitOverflowScrolling: 'touch',
@@ -123,12 +167,15 @@ export default function BibliaSelecaoActionBar({
         <Box
           sx={{
             display: 'inline-flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            gap: 0.5,
+            justifyContent: 'center',
+            gap: 0.125,
             flexShrink: 0,
-            minWidth: 0,
-            height: 40,
-            px: 0.5
+            width: { xs: 42, sm: 48 },
+            minWidth: { xs: 42, sm: 48 },
+            height: 54,
+            px: 0
           }}
         >
           <Typography
@@ -143,7 +190,7 @@ export default function BibliaSelecaoActionBar({
               lineHeight: 1,
               display: 'inline-flex',
               alignItems: 'center',
-              height: 40
+              justifyContent: 'center'
             }}
             aria-live="polite"
           >
@@ -160,77 +207,38 @@ export default function BibliaSelecaoActionBar({
               lineHeight: 1,
               display: 'inline-flex',
               alignItems: 'center',
-              height: 40
+              justifyContent: 'center'
             }}
           >
-            {totalSelecionados === 1 ? 'versículo' : 'versículos'}
+            {totalSelecionados === 1 ? 'verso' : 'versos'}
           </Typography>
         </Box>
 
-        <Tooltip title="Marcar com cor">
-          <span style={sxWrapIcone}>
-            <IconButton
-              aria-label="Marcar com cor"
-              onClick={onAbrirMarcador}
-              size="small"
-              sx={(theme) => ({
-                color: theme.palette.mode === 'dark' ? '#FFEB3B' : '#F9A825',
-                ...sxIconeAcao(theme)
-              })}
-            >
-              <BookmarkBorderIcon />
-            </IconButton>
-          </span>
-        </Tooltip>
+        <AcaoSelecao label="Marcados" tooltip="Ver versículos marcados" color="primary.main" onClick={onAbrirMarcados}>
+          <BookmarksOutlinedIcon />
+        </AcaoSelecao>
 
-        <Tooltip title="Estudo compartilhado">
-          <span style={sxWrapIcone}>
-            <IconButton
-              aria-label="Preparar estudo compartilhado"
-              onClick={onAbrirEstudo}
-              size="small"
-              sx={(theme) => ({
-                color: 'primary.main',
-                ...sxIconeAcao(theme)
-              })}
-            >
-              <MenuBookOutlinedIcon />
-            </IconButton>
-          </span>
-        </Tooltip>
+        <AcaoSelecao label="Marcar" tooltip="Marcar com cor" color="#F9A825" onClick={onAbrirMarcador}>
+          <BookmarkBorderIcon />
+        </AcaoSelecao>
 
-        <Tooltip title="Compartilhar">
-          <span style={sxWrapIcone}>
-            <IconButton
-              aria-label="Compartilhar versículos selecionados"
-              onClick={abrirMenuShare}
-              size="small"
-              disabled={shareDisabled && !shareText && !shareUrl}
-              sx={(theme) => ({
-                color: 'text.primary',
-                ...sxIconeAcao(theme)
-              })}
-            >
-              <ShareOutlinedIcon />
-            </IconButton>
-          </span>
-        </Tooltip>
+        <AcaoSelecao label="Estudar" tooltip="Preparar estudo compartilhado" color="primary.main" onClick={onAbrirEstudo}>
+          <MenuBookOutlinedIcon />
+        </AcaoSelecao>
 
-        <Tooltip title="Sair da seleção">
-          <span style={sxWrapIcone}>
-            <IconButton
-              aria-label="Sair da seleção"
-              onClick={onLimparSelecao}
-              size="small"
-              sx={(theme) => ({
-                color: theme.palette.mode === 'dark' ? '#EF5350' : '#D32F2F',
-                ...sxIconeAcao(theme)
-              })}
-            >
-              <CloseIcon />
-            </IconButton>
-          </span>
-        </Tooltip>
+        <AcaoSelecao
+          label="Enviar"
+          tooltip="Compartilhar versículos selecionados"
+          color="text.primary"
+          onClick={abrirMenuShare}
+          disabled={shareDisabled && !shareText && !shareUrl}
+        >
+          <ShareOutlinedIcon />
+        </AcaoSelecao>
+
+        <AcaoSelecao label="Fechar" tooltip="Sair da seleção" color="#D32F2F" onClick={onLimparSelecao}>
+          <CloseIcon />
+        </AcaoSelecao>
       </Box>
 
       <MenuOpcoesCompartilhar

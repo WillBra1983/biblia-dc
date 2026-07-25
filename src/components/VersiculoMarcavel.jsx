@@ -68,10 +68,6 @@ const VersiculoMarcavel = React.forwardRef(function VersiculoMarcavel(
       ? `${corInfo.cor}30`
       : 'transparent'
 
-  const borderLeft = marcado && corInfo
-    ? `4px solid ${corInfo.cor}`
-    : '4px solid transparent'
-
   const resolvedFontFamily = resolveFontFamily(fontFamily)
   const lh = readingLineHeightToCss(lineHeightStore)
   const compacto = semEspacoEntreVersiculos === true
@@ -93,8 +89,8 @@ const VersiculoMarcavel = React.forwardRef(function VersiculoMarcavel(
         transition: 'background-color 0.2s ease, border-color 0.2s ease',
         cursor: clicavel ? 'pointer' : 'default',
         bgcolor: bgColor,
-        borderLeft,
-        pl: marcado ? 1.5 : 0.5,
+        borderLeft: 'none',
+        pl: marcado ? 1.25 : 0.25,
         borderRadius: marcado ? '4px' : 0,
         WebkitFontSmoothing: 'antialiased',
         '@media (hover: hover)': clicavel

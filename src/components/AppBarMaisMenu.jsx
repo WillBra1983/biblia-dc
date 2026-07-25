@@ -61,7 +61,7 @@ function obterLivroCapituloParaApresentacao(location) {
  * Botão "+" no AppBar que agrupa ações globais utilitárias:
  *  - Configurações de leitura (mesmo diálogo do antigo "Aa")
  *  - Compartilhar página (mesmo fluxo do antigo ícone de share)
- *  - Versículos marcados (atalho para a página dedicada)
+ *  - Versículos marcados (atalho global para a página dedicada)
  *
  * Substitui visualmente os botões soltos `LeituraConfigButton` +
  * `SharePageButton` no AppBar. Esses dois componentes continuam renderizados
@@ -144,27 +144,27 @@ export default function AppBarMaisMenu() {
           </ListItemIcon>
           <ListItemText>Editar fonte</ListItemText>
         </MenuItem>
-        <MenuItem onClick={alternarModoApresentacao} disabled={!podeModoApresentacao}>
-          <ListItemIcon>
-            {modoApresentacaoAtivo ? (
-              <CheckIcon fontSize="small" color="primary" />
-            ) : (
-              <SlideshowOutlinedIcon fontSize="small" />
-            )}
-          </ListItemIcon>
-          <ListItemText
-            primary="Modo apresentação"
-            secondary={
-              !apresentacaoNoComputador
-                ? 'Somente no computador'
-                : pathNorm === '/' || pathNorm === '/biblia' || naApresentacaoBiblia
+        {apresentacaoNoComputador && (
+          <MenuItem onClick={alternarModoApresentacao} disabled={!podeModoApresentacao}>
+            <ListItemIcon>
+              {modoApresentacaoAtivo ? (
+                <CheckIcon fontSize="small" color="primary" />
+              ) : (
+                <SlideshowOutlinedIcon fontSize="small" />
+              )}
+            </ListItemIcon>
+            <ListItemText
+              primary="Modo apresentação"
+              secondary={
+                pathNorm === '/' || pathNorm === '/biblia' || naApresentacaoBiblia
                   ? modoApresentacaoAtivo
                     ? 'Sair da tela de slides'
                     : 'Abrir capítulo em tela cheia'
                   : 'Disponível na Bíblia'
-            }
-          />
-        </MenuItem>
+              }
+            />
+          </MenuItem>
+        )}
         <MenuItem onClick={compartilharPagina}>
           <ListItemIcon>
             <ShareOutlinedIcon fontSize="small" />

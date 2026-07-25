@@ -2587,7 +2587,6 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         bgcolor: 'background.default',
         WebkitOverflowScrolling: 'touch',
         px: 0,
-        ...(textAlign === 'justify' ? { pr: '5pt' } : {}),
         // Folga inferior generosa: respeita o safe-area (home indicator
         // do iOS, gestos do Android) e adiciona espaço para que o botão
         // "Marcar como lido" no rodapé seja totalmente alcançável mesmo
@@ -2605,7 +2604,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             pointerEvents: 'none',
           }}
         />
-        <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto', px: { xs: 1.5, sm: 2.5 }, boxSizing: 'border-box' }}>
+        <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto', px: { xs: 0.5, sm: 2.5 }, boxSizing: 'border-box' }}>
         {erro ? (
           <Typography color="error" align="center">
             {erro}
@@ -2990,7 +2989,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
               left: -10
             },
             transition: 'all 0.2s',
-            zIndex: 1,
+            zIndex: 3,
             padding: 1,
             borderRadius: '0 8px 8px 0'
           }}
@@ -3025,7 +3024,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
               right: -10
             },
             transition: 'all 0.2s',
-            zIndex: 1,
+            zIndex: 3,
             padding: 1,
             borderRadius: '8px 0 0 8px'
           }}
@@ -3455,6 +3454,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         onAbrirEstudo={handleEstudoIaPassagem}
         onCopiarLink={copiarLinkVersiculosSelecionados}
         onEnviarChat={handleEnviarVersiculosSelecionadosChat}
+        onAbrirMarcados={() => navigate('/versiculos-marcados')}
         shareTitle={payloadCompartilharVersiculos.title}
         shareText={payloadCompartilharVersiculos.text}
         shareUrl={payloadCompartilharVersiculos.url}

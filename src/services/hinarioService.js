@@ -2,13 +2,15 @@ import initSqlJs from 'sql.js'
 
 let db = null
 let SQL = null
+let dbPromise = null
 
 const getBase = () => (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/'
 
 const initDB = async () => {
   if (db) return db
-  
-  try {
+  if (dbPromise) return dbPromise
+
+  dbPromise = (async () => {
     const base = getBase().replace(/\/$/, '') || ''
     const baseSlash = base ? base + '/' : '/'
     SQL = await initSqlJs({
@@ -16,18 +18,29 @@ const initDB = async () => {
     })
 
     const response = await fetch(`${baseSlash}hinario.db`)
+    if (!response.ok) {
+      throw new Error(`Banco do hinário indisponível (${response.status})`)
+    }
     const arrayBuffer = await response.arrayBuffer()
     const uint8Array = new Uint8Array(arrayBuffer)
 
     db = new SQL.Database(uint8Array)
     return db
-  } catch (error) {
+  })().catch((error) => {
+    dbPromise = null
     console.error('Erro ao iniciar o banco de dados do hinário:', error)
     throw error
-  }
+  })
+
+  return dbPromise
 }
 
 export const hinarioService = {
+  /** Aquece o WebAssembly e o banco sem bloquear a navegação atual. */
+  async precarregar() {
+    await initDB()
+  },
+
   async buscarHino(numero) {
     const db = await initDB()
     const query = `
@@ -45,7 +58,7 @@ export const hinarioService = {
   async buscarTodos() {
     const db = await initDB()
     const query = `
-      SELECT numero, titulo, conteudo, referencia
+      SELECT numero, titulo
       FROM hinos
       ORDER BY numero
     `
@@ -64,7 +77,7 @@ export const hinarioService = {
     try {
       const db = await initDB()
       const query = `
-        SELECT DISTINCT numero, titulo, conteudo, referencia 
+        SELECT DISTINCT numero, titulo
         FROM hinos 
         WHERE 
           numero = ? 
@@ -152,4 +165,4 @@ export const hinarioService = {
       return {}
     }
   }
-} 
+}

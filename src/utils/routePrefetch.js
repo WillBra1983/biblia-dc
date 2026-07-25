@@ -13,7 +13,14 @@ import { preloadPlanoRankingIcon } from './planoEscadaImagens'
 const importers = {
   chat: () => import('../pages/Chat'),
   discipulado: () => import('../pages/Discipulado'),
-  hinario: () => import('../pages/Hinario'),
+  hinario: async () => {
+    const [pagina, { hinarioService }] = await Promise.all([
+      import('../pages/Hinario'),
+      import('../services/hinarioService'),
+    ])
+    void hinarioService.precarregar().catch(() => {})
+    return pagina
+  },
   hinarioEditor: () => import('../pages/HinarioEditor'),
   confissao: () => import('../pages/Confissao'),
   catecismoMaior: () => import('../pages/CatecismoMaior'),
@@ -62,10 +69,10 @@ export function prefetchRotasComuns() {
   const fila = [
     'planoLeituraBiblia',
     'discipulado',
+    'hinario',
     'estudosBiblicosHub',
     'devocional',
     'maisDeDeus',
-    'hinario',
     'confissao',
     'catecismoMaior',
     'catecismoBreve',

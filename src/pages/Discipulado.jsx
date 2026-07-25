@@ -56,7 +56,6 @@ import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { chaveConclusaoDiscipulado, chaveLocalStorageConclusao } from '../utils/discipuladoConclusao'
 import MenuOpcoesCompartilhar from '../components/MenuOpcoesCompartilhar'
 import { buildAppShareLink } from '../services/bibliaEstudosService'
-import { montarLinksInstalacao } from '../utils/appStoreLinks'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { ensureUserForChatExport, pushPendingChatDraft } from '../utils/chatExportSend'
 import { montarCorpoCompartilhamento } from '../utils/compartilharOpcoes'
@@ -671,7 +670,7 @@ export default function Discipulado() {
     setCompartilharMenu({
       anchorEl: event.currentTarget,
       title,
-      text: `${descricao}\n\n${montarLinksInstalacao()}`,
+      text: descricao,
       url: buildAppShareLink(caminho, params.toString()),
     })
   }

@@ -243,6 +243,7 @@ export default function MenuOpcoesCompartilhar({
         onClose={() => setImagemOpen(false)}
         referencia={imageQuote?.referencia || ''}
         texto={imageQuote?.texto || ''}
+        url={url || ''}
       />
     </>
   )

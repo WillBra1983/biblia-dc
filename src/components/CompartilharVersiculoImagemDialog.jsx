@@ -27,7 +27,7 @@ import { mostrarSnackbar } from '../utils/uiDialogs'
 
 const STORAGE_FUNDO = 'salvation_fundo_versiculo_imagem'
 
-export default function CompartilharVersiculoImagemDialog({ open, onClose, referencia, texto }) {
+export default function CompartilharVersiculoImagemDialog({ open, onClose, referencia, texto, url }) {
   const [fundoId, setFundoId] = useState(() => localStorage.getItem(STORAGE_FUNDO) || 'amanhecer')
   const [gerando, setGerando] = useState(false)
 
@@ -46,7 +46,7 @@ export default function CompartilharVersiculoImagemDialog({ open, onClose, refer
       const blob = await gerarImagemVersiculo({ referencia, texto, fundoId })
       if (modo === 'compartilhar') {
         try {
-          const abriu = await compartilharArquivoImagem(blob, referencia)
+          const abriu = await compartilharArquivoImagem(blob, referencia, url)
           if (abriu) return
         } catch (error) {
           if (error?.name === 'AbortError') return

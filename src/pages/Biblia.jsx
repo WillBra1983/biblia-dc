@@ -1269,7 +1269,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
       })
       .filter(Boolean)
 
-    const mensagem = `${referenciaCompacta}\n\n${linhas.join('\n')}\n\nLer capítulo: ${capLink}`
+    const mensagem = `${referenciaCompacta}\n\n${linhas.join('\n')}\n\nAbrir este texto: ${capLink}`
 
     return {
       title: `Bíblia DC - ${referenciaCompacta}`,

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
@@ -9,6 +10,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import TelegramIcon from '@mui/icons-material/Telegram'
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
 import SmsOutlinedIcon from '@mui/icons-material/SmsOutlined'
+import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined'
 import {
   abrirEmail,
   abrirSms,
@@ -20,6 +22,7 @@ import {
 } from '../utils/compartilharOpcoes'
 import { avisarAsync, mostrarSnackbar } from '../utils/uiDialogs'
 import { isPublicAppUrlUnreachableForOthers } from '../services/bibliaEstudosService'
+import CompartilharVersiculoImagemDialog from './CompartilharVersiculoImagemDialog'
 
 /**
  * Menu consolidado: copiar, apps externos (WhatsApp, Telegram, e-mail…), chat interno e share nativo.
@@ -34,8 +37,10 @@ export default function MenuOpcoesCompartilhar({
   onCopiarLink,
   onEnviarChat,
   chatLabel = 'Enviar no chat interno',
+  imageQuote = null,
   disabled = false,
 }) {
+  const [imagemOpen, setImagemOpen] = useState(false)
   const corpo = montarCorpoCompartilhamento({ text, url })
   const temCorpo = Boolean(corpo)
   const temUrl = Boolean(url)
@@ -142,10 +147,16 @@ export default function MenuOpcoesCompartilhar({
     abrirSms(corpo)
   }
 
+  const abrirImagem = () => {
+    fechar()
+    setImagemOpen(true)
+  }
+
   if (!temCorpo && !temUrl && typeof onEnviarChat !== 'function') return null
 
   return (
-    <Menu
+    <>
+      <Menu
       anchorEl={anchorEl}
       open={open}
       onClose={fechar}
@@ -208,6 +219,14 @@ export default function MenuOpcoesCompartilhar({
           <ListItemText>{chatLabel}</ListItemText>
         </MenuItem>
       )}
+      {imageQuote?.referencia && imageQuote?.texto && (
+        <MenuItem onClick={abrirImagem} disabled={disabled}>
+          <ListItemIcon>
+            <ImageOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Compartilhar como imagem</ListItemText>
+        </MenuItem>
+      )}
       {(temCorpo || temUrl) && (
         <MenuItem onClick={shareNativo} disabled={disabled}>
           <ListItemIcon>
@@ -218,6 +237,13 @@ export default function MenuOpcoesCompartilhar({
           </ListItemText>
         </MenuItem>
       )}
-    </Menu>
+      </Menu>
+      <CompartilharVersiculoImagemDialog
+        open={imagemOpen}
+        onClose={() => setImagemOpen(false)}
+        referencia={imageQuote?.referencia || ''}
+        texto={imageQuote?.texto || ''}
+      />
+    </>
   )
 }

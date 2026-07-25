@@ -23,6 +23,7 @@ import RecoverFromDeployError from './components/RecoverFromDeployError'
 import { FirebaseAuthProvider } from './contexts/FirebaseAuthContext'
 import PushNotificationsBootstrap from './components/PushNotificationsBootstrap'
 import AvisoAtualizacaoLoja from './components/AvisoAtualizacaoLoja'
+import ConviteAplicativoWeb from './components/ConviteAplicativoWeb'
 import RequireAuth from './components/RequireAuth'
 import ApresentacaoSomenteDesktop from './components/ApresentacaoSomenteDesktop'
 import { aguardarPosSplash, jaPassouDoSplash, marcarSplashFechado, splashUiJaConcluiu } from './utils/posSplash'
@@ -145,6 +146,7 @@ function AppShell() {
         <NativeDeepLinkHandler />
         <PushNotificationsBootstrap />
         <AvisoAtualizacaoLoja />
+        <ConviteAplicativoWeb />
         <ScrollToTop />
         <RequireAuth>
           <Suspense
@@ -256,4 +258,4 @@ export function createAppRouter(basename, useHashRouter) {
 
 export default function App({ router }) {
   return <RouterProvider router={router} />
-} 
+}

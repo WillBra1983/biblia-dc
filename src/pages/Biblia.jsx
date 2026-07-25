@@ -1226,11 +1226,11 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
 
   const payloadCompartilharVersiculos = useMemo(() => {
     if (!livroAtual || !versiculosSelecionados.length) {
-      return { title: '', text: '', url: '' }
+      return { title: '', text: '', url: '', imageQuote: null }
     }
     const versiculosOrdenados = versiculosSelecionadosOrdenados
     if (!versiculosOrdenados.length) {
-      return { title: '', text: '', url: '' }
+      return { title: '', text: '', url: '', imageQuote: null }
     }
 
     const blocos = []
@@ -1275,6 +1275,13 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
       title: `Bíblia DC - ${referenciaCompacta}`,
       text: mensagem,
       url: capLink,
+      imageQuote: {
+        referencia: `${livroMeta?.nome || livroAtual?.nome || referenciaCompacta.split(' ')[0]} ${capitulo}:${blocos.join(';')}`,
+        texto: linhas
+          .map((linha) => linha.replace(/^\s*\d+\s*[.:;,)\-–—]?\s*/, '').trim())
+          .filter(Boolean)
+          .join(' '),
+      },
     }
   }, [
     livroAtual,
@@ -3458,6 +3465,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         shareTitle={payloadCompartilharVersiculos.title}
         shareText={payloadCompartilharVersiculos.text}
         shareUrl={payloadCompartilharVersiculos.url}
+        imageQuote={payloadCompartilharVersiculos.imageQuote}
         shareDisabled={!livroAtual || !versiculosSelecionados.length}
         onLimparSelecao={limparSelecaoVersiculos}
       />

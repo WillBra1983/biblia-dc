@@ -94,6 +94,7 @@ export default function BibliaSelecaoActionBar({
   shareTitle,
   shareText,
   shareUrl,
+  imageQuote,
   shareDisabled = false,
 }) {
   const [menuShareAnchor, setMenuShareAnchor] = useState(null)
@@ -250,6 +251,7 @@ export default function BibliaSelecaoActionBar({
         url={shareUrl}
         onCopiarLink={onCopiarLink}
         onEnviarChat={onEnviarChat}
+        imageQuote={imageQuote}
         disabled={shareDisabled}
       />
     </Box>

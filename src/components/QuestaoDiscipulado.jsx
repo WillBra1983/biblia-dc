@@ -12,6 +12,7 @@ import {
 } from '@mui/material'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import HandIcon from '@mui/icons-material/PanTool'
+import ShareIcon from '@mui/icons-material/Share'
 import TextoComReferencias from './TextoComReferencias'
 import AudioPlayer from './AudioPlayer'
 import { useApp } from '../contexts/AppContext'
@@ -28,6 +29,7 @@ export default function QuestaoDiscipulado({
   numero,
   onConcluirLicao,
   audioUrl,
+  onShare,
 }) {
   const { textAlign, lineHeight } = useApp()
   const ta = textAlign || 'left'
@@ -80,13 +82,20 @@ export default function QuestaoDiscipulado({
 
   return (
     <Paper sx={{ p: 3, position: 'relative', mb: 2, lineHeight: lh }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 2 }}>
         <Typography variant="h6" component="span">
           Questão {numero}
         </Typography>
-        {respostaAtual && !mostrarExplicacao && (
-          <HandIcon color="primary" sx={{ ml: 1, transform: 'rotate(-45deg)' }} />
-        )}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          {respostaAtual && !mostrarExplicacao && (
+            <HandIcon color="primary" sx={{ transform: 'rotate(-45deg)' }} />
+          )}
+          {onShare && (
+            <Button type="button" size="small" startIcon={<ShareIcon />} onClick={onShare}>
+              Compartilhar
+            </Button>
+          )}
+        </Box>
       </Box>
 
       <Box sx={{ mb: 3, textAlign: ta }}>

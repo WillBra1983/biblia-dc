@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   Box,
   Typography,
@@ -37,8 +37,8 @@ import {
   CORES_DISPONIVEIS
 } from '../services/versiculosMarcadosService'
 import { livros } from '../data/biblia'
-import { VERSICULOS_MARCADOS_CLOUD_SYNC_ENABLED } from '../config/featureFlags'
-import CloudSyncBadge from '../components/CloudSyncBadge'
+import MenuOpcoesCompartilhar from '../components/MenuOpcoesCompartilhar'
+import { buildAppShareLink } from '../services/bibliaEstudosService'
 import { limparBibliaSessaoCache } from '../utils/bibliaSessionCache'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { resolveFontFamily } from '../utils/fontFamily'
@@ -103,6 +103,13 @@ function rotuloGrupo(livroId, capitulo, grupo) {
   return `${abr} ${capitulo}:${faixas}`
 }
 
+function rotuloGrupoCompleto(livroId, capitulo, grupo) {
+  const livro = livros.find((l) => l.id === livroId)
+  const nome = livro?.nome || `Livro ${livroId}`
+  const faixas = numerosVersiculoParaFaixas(grupo.map((v) => v.versiculo))
+  return `${nome} ${capitulo}:${faixas}`
+}
+
 function textoGrupoUnido(grupo) {
   return grupo
     .map((v) => (typeof v.texto === 'string' ? v.texto.trim() : ''))
@@ -110,9 +117,18 @@ function textoGrupoUnido(grupo) {
     .join(' ')
 }
 
+function mapaMarcadosDoGrupo(grupo) {
+  return Object.fromEntries(
+    (grupo || []).map((v) => [`${v.livroId}-${v.capitulo}-${v.versiculo}`, v])
+  )
+}
+
 export default function VersiculosMarcados() {
   const [versiculosMarcados, setVersiculosMarcados] = useState([])
   const [dialogoLimparAberto, setDialogoLimparAberto] = useState(false)
+  const [compartilharAnchor, setCompartilharAnchor] = useState(null)
+  const [grupoCompartilhar, setGrupoCompartilhar] = useState(null)
+  const compartilharButtonRef = useRef(null)
   const navigate = useNavigate()
   const { user } = useFirebaseAuth()
   const { voltarParaPaginaAnterior, setBackButtonHandler, fontSize, lineHeight, textAlign, fontFamily } =
@@ -194,9 +210,10 @@ export default function VersiculosMarcados() {
     // Reconciliação automática pelo service.
   }
 
-  const handleEnviarVersiculosChat = () => {
+  const handleEnviarVersiculosChat = (grupo = null) => {
     if (!ensureUserForChatExport(user, navigate)) return
-    const { serialized, previewText } = buildVersiculosMarcadosExport()
+    const marcados = grupo?.length ? mapaMarcadosDoGrupo(grupo) : null
+    const { serialized, previewText } = buildVersiculosMarcadosExport(marcados)
     if (serialized.length > 12000) {
       avisarAsync({
         titulo: 'Volume de dados excedido',
@@ -220,6 +237,53 @@ export default function VersiculosMarcados() {
     acc[v.corId].push(v)
     return acc
   }, {})
+
+  const gruposCompartilhados = grupoCompartilhar?.length
+    ? [grupoCompartilhar]
+    : Object.values(versiculosPorCor).flatMap((lista) => agruparVersiculosNaCor(lista))
+
+  const blocosCompartilhamento = gruposCompartilhados.map((grupo) => {
+    const v0 = grupo[0]
+    const numeros = grupo.map((v) => Number(v.versiculo)).filter(Number.isFinite)
+    const referencia = rotuloGrupo(v0.livroId, v0.capitulo, grupo)
+    const link = buildAppShareLink(
+      '/',
+      `?livro=${v0.livroId}&capitulo=${v0.capitulo}&versiculos=${numeros.join(',')}`
+    )
+    return `${referencia}\n${textoGrupoUnido(grupo) || 'Sem texto salvo'}\n${link}`
+  })
+  const compartilhamentoTitle = grupoCompartilhar?.length
+    ? `Versículo marcado - ${rotuloGrupo(grupoCompartilhar[0].livroId, grupoCompartilhar[0].capitulo, grupoCompartilhar)}`
+    : `Versículos marcados (${versiculosMarcados.length})`
+  const compartilhamentoText = blocosCompartilhamento.join('\n\n')
+  const compartilhamentoUrl = grupoCompartilhar?.length
+    ? blocosCompartilhamento[0]?.split('\n').at(-1) || ''
+    : ''
+
+  const abrirCompartilhamento = (anchor, grupo = null) => {
+    setGrupoCompartilhar(grupo)
+    setCompartilharAnchor(anchor || compartilharButtonRef.current)
+  }
+
+  const fecharCompartilhamento = () => {
+    setCompartilharAnchor(null)
+    setGrupoCompartilhar(null)
+  }
+
+  useEffect(() => {
+    const override = () => {
+      abrirCompartilhamento(compartilharButtonRef.current, null)
+      return true
+    }
+    window.__bibliaSharePageOverride = override
+    return () => {
+      if (window.__bibliaSharePageOverride === override) {
+        delete window.__bibliaSharePageOverride
+      }
+    }
+    // O override só precisa dos setters e da ref, que permanecem estáveis.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1200, mx: 'auto' }}>
@@ -270,24 +334,21 @@ export default function VersiculosMarcados() {
               flexShrink: 0,
             }}
           />
-          <CloudSyncBadge
-            featureEnabled={VERSICULOS_MARCADOS_CLOUD_SYNC_ENABLED}
-            recurso="marcadores"
-          />
         </Box>
         {versiculosMarcados.length > 0 && (
           <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ flexShrink: 0 }}>
             <Button
+              ref={compartilharButtonRef}
               variant="outlined"
               color="primary"
               startIcon={<ShareIcon />}
-              onClick={handleEnviarVersiculosChat}
+              onClick={(e) => abrirCompartilhamento(e.currentTarget)}
               sx={{
                 fontSize: { xs: '0.75rem', sm: '0.875rem' },
                 px: { xs: 1.5, sm: 2 }
               }}
             >
-              Enviar pelo chat
+              Compartilhar
             </Button>
             <Button
               variant="outlined"
@@ -374,14 +435,17 @@ export default function VersiculosMarcados() {
                             '&:hover': {
                               bgcolor: `${cor.cor}20`
                             },
-                            pr: { xs: 9, sm: 10 },
+                            pr: { xs: 6, sm: 7 },
+                            minHeight: { xs: 112, sm: 128 },
                             alignItems: 'flex-start'
                           }}
                           secondaryAction={
                             <Box
                               sx={{
                                 display: 'flex',
-                                gap: { xs: 0.5, sm: 1 },
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: 0.25,
                                 position: 'absolute',
                                 right: { xs: 4, sm: 8 },
                                 top: '50%',
@@ -389,7 +453,14 @@ export default function VersiculosMarcados() {
                               }}
                             >
                               <IconButton
-                                edge="end"
+                                onClick={(e) => abrirCompartilhamento(e.currentTarget, grupo)}
+                                color="primary"
+                                size={isMobile ? 'small' : 'medium'}
+                                aria-label="Compartilhar esta marcação"
+                              >
+                                <ShareIcon fontSize={isMobile ? 'small' : 'medium'} />
+                              </IconButton>
+                              <IconButton
                                 onClick={() => handleIrParaGrupo(grupo)}
                                 color="primary"
                                 size={isMobile ? 'small' : 'medium'}
@@ -398,7 +469,6 @@ export default function VersiculosMarcados() {
                                 <NavigateNextIcon fontSize={isMobile ? 'small' : 'medium'} />
                               </IconButton>
                               <IconButton
-                                edge="end"
                                 onClick={() => handleDesmarcarGrupo(grupo)}
                                 color="error"
                                 size={isMobile ? 'small' : 'medium'}
@@ -450,6 +520,29 @@ export default function VersiculosMarcados() {
           })}
         </Stack>
       )}
+
+      <MenuOpcoesCompartilhar
+        anchorEl={compartilharAnchor}
+        open={Boolean(compartilharAnchor)}
+        onClose={fecharCompartilhamento}
+        title={compartilhamentoTitle}
+        text={compartilhamentoText}
+        url={compartilhamentoUrl}
+        onEnviarChat={() => handleEnviarVersiculosChat(grupoCompartilhar)}
+        chatLabel="Enviar pelo chat"
+        imageQuote={grupoCompartilhar?.length ? {
+          referencia: rotuloGrupoCompleto(
+            grupoCompartilhar[0].livroId,
+            grupoCompartilhar[0].capitulo,
+            grupoCompartilhar
+          ),
+          texto: grupoCompartilhar
+            .map((v) => String(v.texto || '').replace(/^\s*(?:\d+|[⁰¹²³⁴⁵⁶⁷⁸⁹]+)\s*[.:;,)\-–—]?\s*/, '').trim())
+            .filter(Boolean)
+            .join(' '),
+        } : null}
+        disabled={!compartilhamentoText}
+      />
 
       <Dialog open={dialogoLimparAberto} onClose={() => setDialogoLimparAberto(false)}>
         <DialogTitle>Limpar todos os versículos marcados?</DialogTitle>

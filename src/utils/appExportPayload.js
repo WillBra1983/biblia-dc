@@ -25,7 +25,6 @@ import {
 } from '../constants/quizRetiroStorage'
 import {
   obterVersiculosMarcados,
-  mesclarVersiculosMarcadosImportados,
 } from '../services/versiculosMarcadosService'
 import { notificarDevocionalLocal } from '../services/devocionalCloudSync'
 import { normalizarDevocionaisConcluidos } from './devocionalConcluidos'
@@ -184,8 +183,10 @@ export async function summarizeDiscipuladoForPreview(data) {
 
 // ——— Versículos marcados (cópia local) ———
 
-export function buildVersiculosMarcadosExport() {
-  const marcados = obterVersiculosMarcados()
+export function buildVersiculosMarcadosExport(marcadosArg = null) {
+  const marcados = marcadosArg && typeof marcadosArg === 'object'
+    ? marcadosArg
+    : obterVersiculosMarcados()
   const n = Object.keys(marcados).length
   const body = baseBody('versiculos_marcados', { marcados })
   const serialized = JSON.stringify(body)
@@ -393,12 +394,22 @@ export function parseAnyExport(serialized, options = {}) {
 
   if (data.kind === 'versiculos_marcados') {
     if (!data.marcados || typeof data.marcados !== 'object') return { error: 'Dados de versículos inválidos.' }
-    return { kind: 'versiculos_marcados', data, canApply, readOnlyReason }
+    return {
+      kind: 'versiculos_marcados',
+      data,
+      canApply: false,
+      readOnlyReason: 'Este envio é somente para leitura e não altera os seus versículos marcados.'
+    }
   }
 
   if (data.kind === 'biblia_versiculos') {
     if (!Array.isArray(data.items) || data.items.length === 0) return { error: 'Nenhum versículo no envio.' }
-    return { kind: 'biblia_versiculos', data, canApply, readOnlyReason }
+    return {
+      kind: 'biblia_versiculos',
+      data,
+      canApply: false,
+      readOnlyReason: 'Este envio é somente para leitura e não altera os seus versículos marcados.'
+    }
   }
 
   if (data.kind === 'devocional') {
@@ -495,37 +506,6 @@ export function applyExportImport(kind, data, { setDiscipuladoRespostas, setDisc
     navigate(
       data.estudoId != null ? `/discipulado/${data.temaId}/${data.estudoId}` : `/discipulado/${data.temaId}`
     )
-    return
-  }
-
-  if (kind === 'versiculos_marcados') {
-    mesclarVersiculosMarcadosImportados(data.marcados || {})
-    navigate?.('/versiculos-marcados')
-    return
-  }
-
-  if (kind === 'biblia_versiculos') {
-    const merged = {}
-    const iso = new Date().toISOString()
-    for (const it of data.items || []) {
-      const livroId = Number(it.livroId)
-      const capitulo = Number(it.capitulo)
-      const versiculo = Number(it.versiculo)
-      const chave = `${livroId}-${capitulo}-${versiculo}`
-      if (!obterVersiculosMarcados()[chave]) {
-        merged[chave] = {
-          livroId,
-          capitulo,
-          versiculo,
-          corId: 'amarelo',
-          texto: String(it.texto || '').slice(0, 500),
-          dataMarcacao: iso,
-          grupoMarcacaoId: null
-        }
-      }
-    }
-    mesclarVersiculosMarcadosImportados(merged)
-    navigate?.('/versiculos-marcados')
     return
   }
 

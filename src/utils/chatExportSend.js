@@ -13,6 +13,7 @@ import {
  * `ensureUserForFeature` (salva) e `consumePendingLoginRedirect` (lê).
  */
 const PENDING_LOGIN_REDIRECT_KEY = 'salvation-pending-login-redirect'
+const PENDING_CHAT_DRAFT_KEY = 'salvation-pending-chat-draft'
 
 /** Tempo máximo (ms) que uma intenção de redirecionamento fica "viva". */
 const PENDING_LOGIN_REDIRECT_TTL_MS = 10 * 60 * 1000 // 10 min
@@ -143,6 +144,23 @@ export function consumePendingLoginRedirect() {
     return parsed.url
   } catch (_) {
     return null
+  }
+}
+
+export function pushPendingChatDraft(navigate, text) {
+  const draft = String(text || '').trim()
+  if (!draft) return
+  sessionStorage.setItem(PENDING_CHAT_DRAFT_KEY, draft)
+  navigate('/chat')
+}
+
+export function consumePendingChatDraft() {
+  try {
+    const draft = String(sessionStorage.getItem(PENDING_CHAT_DRAFT_KEY) || '').trim()
+    sessionStorage.removeItem(PENDING_CHAT_DRAFT_KEY)
+    return draft
+  } catch {
+    return ''
   }
 }
 

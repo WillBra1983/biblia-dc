@@ -53,11 +53,13 @@ import DialogTitle from '@mui/material/DialogTitle'
 import { getGlassCardStyles } from '../utils/glassCardStyles'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
-import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
-import { buildDiscipuladoExport } from '../utils/appExportPayload'
-import { ensureUserForChatExport, pushPendingChatExport } from '../utils/chatExportSend'
-import { avisarAsync } from '../utils/uiDialogs'
 import { chaveConclusaoDiscipulado, chaveLocalStorageConclusao } from '../utils/discipuladoConclusao'
+import MenuOpcoesCompartilhar from '../components/MenuOpcoesCompartilhar'
+import { buildAppShareLink } from '../services/bibliaEstudosService'
+import { montarLinksInstalacao } from '../utils/appStoreLinks'
+import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
+import { ensureUserForChatExport, pushPendingChatDraft } from '../utils/chatExportSend'
+import { montarCorpoCompartilhamento } from '../utils/compartilharOpcoes'
 
 const textoTeste = `
 A Bíblia é a Palavra viva e infalível do Deus vivo. Como declara Pedro, "homens falaram da parte de Deus, movidos pelo Espírito Santo" (2 Pedro 1:21). 
@@ -81,6 +83,21 @@ function parseEstudoIdParam(raw) {
   if (raw == null || raw === '') return null
   const n = parseInt(raw, 10)
   return Number.isFinite(n) ? n : raw
+}
+
+function parseAlvoCompartilhado(search) {
+  const params = new URLSearchParams(search || '')
+  const parte = String(params.get('parte') || '').toLowerCase()
+  if (parte === 'questao') {
+    const numero = parseInt(params.get('numero'), 10)
+    if (Number.isFinite(numero) && numero > 0) return { parte, numero }
+  }
+  if (parte === 'devocional') {
+    const dia = parseInt(params.get('dia'), 10)
+    if (Number.isFinite(dia) && dia > 0) return { parte, dia }
+  }
+  if (parte === 'completo') return { parte }
+  return null
 }
 
 function persistirUltimaLicao(temaId, estudoId = null) {
@@ -123,6 +140,10 @@ export default function Discipulado() {
   const location = useLocation()
   const { user } = useFirebaseAuth()
   const { temaId, estudoId } = useParams()
+  const alvoCompartilhado = useMemo(
+    () => parseAlvoCompartilhado(location.search),
+    [location.search]
+  )
 
   // ESTADOS PARA FLUXO DE CARDS (URL na carga inicial evita portal/AppBar um frame atrasados)
   const [temaSelecionado, setTemaSelecionado] = useState(() => parseTemaIdParam(temaId))
@@ -337,6 +358,13 @@ export default function Discipulado() {
   const [questaoAtual, setQuestaoAtual] = useState(1)
   const [finalizado, setFinalizado] = useState(false)
   const respondeuNaSessaoRef = useRef(false)
+  const alvoAplicadoRef = useRef('')
+  const [compartilharMenu, setCompartilharMenu] = useState({
+    anchorEl: null,
+    title: '',
+    text: '',
+    url: '',
+  })
 
   useEffect(() => {
     respondeuNaSessaoRef.current = false
@@ -345,10 +373,29 @@ export default function Discipulado() {
   // Restaura progresso ao abrir lição ou quando respostas chegam da nuvem — não ao confirmar resposta.
   useEffect(() => {
     if (!temaSelecionado) return
-    if (respondeuNaSessaoRef.current) return
 
     const questoes = getQuestoes()
     const totalQuestoes = questoes.length
+    if (alvoCompartilhado) {
+      const chaveAlvo = `${location.pathname}${location.search}`
+      if (alvoAplicadoRef.current !== chaveAlvo) {
+        alvoAplicadoRef.current = chaveAlvo
+        if (alvoCompartilhado.parte === 'devocional') {
+          setFinalizado(true)
+          setQuestaoAtual(totalQuestoes + 1)
+          setDiaAtual(Math.min(7, Math.max(1, alvoCompartilhado.dia)))
+        } else {
+          const numero = alvoCompartilhado.parte === 'questao'
+            ? Math.min(Math.max(1, alvoCompartilhado.numero), Math.max(1, totalQuestoes))
+            : 1
+          setFinalizado(false)
+          setQuestaoAtual(numero)
+        }
+      }
+      return
+    }
+    if (respondeuNaSessaoRef.current) return
+
     const temaConcluido = totalQuestoes > 0 && isConclusaoMarcada(temaSelecionado)
 
       if (temaConcluido) {
@@ -392,7 +439,15 @@ export default function Discipulado() {
       // Mostrar a próxima pergunta a responder (não a última já respondida)
       setQuestaoAtual(ultimaQuestao + 1)
     }
-  }, [temaSelecionado, estudoSelecionado, discipuladoConcluidos, respostas])
+  }, [
+    temaSelecionado,
+    estudoSelecionado,
+    discipuladoConcluidos,
+    respostas,
+    alvoCompartilhado,
+    location.pathname,
+    location.search,
+  ])
 
   // Função para responder questão
   const handleResponder = (resposta) => {
@@ -583,39 +638,51 @@ export default function Discipulado() {
 
   const ultimaLicao = getUltimaLicao()
 
-  const handleEnviarDiscipuladoChat = () => {
-    if (!temaSelecionado || !getQuestoes().length) return
-    if (user === undefined) return
+  const abrirCompartilhamentoDiscipulado = (event, parte, numero = null) => {
+    if (!temaSelecionado) return
+    const tituloLicao = estudoSelecionado && estudo ? estudo.titulo : tema?.titulo || 'Discipulado'
+    const caminho = estudoSelecionado
+      ? `/discipulado/${temaSelecionado}/${estudoSelecionado}`
+      : `/discipulado/${temaSelecionado}`
+    const params = new URLSearchParams({ parte })
+    let title = tituloLicao
+    let descricao = `Estude comigo: ${tituloLicao}`
+
+    if (parte === 'questao') {
+      const questao = getQuestoes()[numero - 1]
+      params.set('numero', String(numero))
+      title = `${tituloLicao} - Questão ${numero}`
+      descricao = [`Questão ${numero} de ${tituloLicao}`, String(questao?.pergunta || '').trim()]
+        .filter(Boolean)
+        .join('\n\n')
+    } else if (parte === 'devocional') {
+      const devocional = (conteudoAtual?.meditacao || []).find((item) => item.dia === numero)
+      params.set('dia', String(numero))
+      title = `${tituloLicao} - Devocional do dia ${numero}`
+      descricao = [
+        `Devocional do dia ${numero}: ${devocional?.titulo || tituloLicao}`,
+        devocional?.leitura ? `Leitura: ${devocional.leitura}` : '',
+      ].filter(Boolean).join('\n\n')
+    } else {
+      title = `Discipulado - ${tituloLicao}`
+      descricao = `Estude o discipulado completo: ${tituloLicao}`
+    }
+
+    setCompartilharMenu({
+      anchorEl: event.currentTarget,
+      title,
+      text: `${descricao}\n\n${montarLinksInstalacao()}`,
+      url: buildAppShareLink(caminho, params.toString()),
+    })
+  }
+
+  const enviarCompartilhamentoDiscipuladoNoChat = () => {
     if (!ensureUserForChatExport(user, navigate)) return
-    const { body, serialized, previewText } = buildDiscipuladoExport({
-      temaId: temaSelecionado,
-      estudoId: estudoSelecionado,
-      respostas,
-      questaoAtual,
-      temaTitulo: tema?.titulo,
-      estudoTitulo: estudo?.titulo
+    const corpo = montarCorpoCompartilhamento({
+      text: compartilharMenu.text,
+      url: compartilharMenu.url,
     })
-    if (Object.keys(body.answers).length === 0) {
-      avisarAsync({
-        titulo: 'Sem respostas',
-        mensagem: 'Não há respostas neste módulo para enviar.',
-        severidade: 'info'
-      })
-      return
-    }
-    if (serialized.length > 12000) {
-      avisarAsync({
-        titulo: 'Volume de dados excedido',
-        mensagem: 'O volume de dados excede o limite do chat. Tente outro módulo.',
-        severidade: 'warning'
-      })
-      return
-    }
-    pushPendingChatExport(navigate, {
-      exportKind: 'discipulado',
-      exportPayload: serialized,
-      previewText
-    })
+    pushPendingChatDraft(navigate, corpo)
   }
 
   /** AppBar (portal): seta voltar e botão explícito de subtemas */
@@ -1032,6 +1099,16 @@ export default function Discipulado() {
   return (
     <LayoutEstudo onSelectTema={handleSelectTema}>
       {discAppBarPortals}
+      <MenuOpcoesCompartilhar
+        anchorEl={compartilharMenu.anchorEl}
+        open={Boolean(compartilharMenu.anchorEl)}
+        onClose={() => setCompartilharMenu((prev) => ({ ...prev, anchorEl: null }))}
+        title={compartilharMenu.title}
+        text={compartilharMenu.text}
+        url={compartilharMenu.url}
+        onEnviarChat={enviarCompartilhamentoDiscipuladoNoChat}
+        chatLabel="Enviar no chat interno"
+      />
       <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: 2, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
         {temaSelecionado && (
           <Paper 
@@ -1207,6 +1284,17 @@ export default function Discipulado() {
                               >
                                 Dia {dia.dia}: {dia.titulo}
                               </Typography>
+                              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                                <Button
+                                  type="button"
+                                  variant="outlined"
+                                  size="small"
+                                  startIcon={<ShareIcon />}
+                                  onClick={(event) => abrirCompartilhamentoDiscipulado(event, 'devocional', dia.dia)}
+                                >
+                                  Compartilhar devocional
+                                </Button>
+                              </Box>
                               {dia.audioUrl && (
                                 <Box sx={{ mb: 2 }}>
                                   <AudioPlayer url={dia.audioUrl} label="Ouvir meditação" />
@@ -1350,9 +1438,9 @@ export default function Discipulado() {
                           variant="outlined"
                           size="small"
                           startIcon={<ShareIcon />}
-                          onClick={handleEnviarDiscipuladoChat}
+                          onClick={(event) => abrirCompartilhamentoDiscipulado(event, 'completo')}
                         >
-                          Enviar pelo chat
+                          Compartilhar estudo completo
                         </Button>
                       </Box>
                       <Box sx={{ 
@@ -1458,6 +1546,7 @@ export default function Discipulado() {
                           isLast={questaoAtual === getQuestoes().length}
                           onConcluirLicao={handleConcluirLicao}
                           audioUrl={getQuestoes()[questaoAtual - 1]?.audioUrl}
+                          onShare={(event) => abrirCompartilhamentoDiscipulado(event, 'questao', questaoAtual)}
                         />
                       )}
                     </>

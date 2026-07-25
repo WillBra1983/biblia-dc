@@ -29,7 +29,7 @@ import {
 import { useApp } from '../contexts/AppContext'
 import { ChatAppExportBubble, ChatAppExportDialog } from '../components/ChatAppExport'
 import { PENDING_CHAT_EXPORT_KEY } from '../constants/chatExportPending'
-import { consumePendingLoginRedirect } from '../utils/chatExportSend'
+import { consumePendingChatDraft, consumePendingLoginRedirect } from '../utils/chatExportSend'
 import { EXPORT_KIND_LABELS, applyExportImport } from '../utils/appExportPayload'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
@@ -528,6 +528,12 @@ export default function Chat() {
     } catch {
       sessionStorage.removeItem(PENDING_CHAT_EXPORT_KEY)
     }
+  }, [user?.uid])
+
+  useEffect(() => {
+    if (!user?.uid) return
+    const pendingDraft = consumePendingChatDraft()
+    if (pendingDraft) setDraft(pendingDraft)
   }, [user?.uid])
 
   // Pós-login: se o usuário foi enviado para o Chat só porque tentou abrir

@@ -1,7 +1,7 @@
 {
   "name": "biblia-dc",
   "private": true,
-  "version": "1.2.5",
+  "version": "1.2.6",
   "type": "module",
   "scripts": {
     "screenshots:resize": "node scripts/resize-appstore-screenshot.mjs",
@@ -61,6 +61,7 @@
     "@capacitor/browser": "^6.0.6",
     "@capacitor/cli": "^6.0.0",
     "@capacitor/core": "^6.0.0",
+    "@capacitor/filesystem": "^6.0.4",
     "@capacitor/ios": "^6.2.1",
     "@capacitor/local-notifications": "^6.0.0",
     "@capacitor/push-notifications": "^6.0.5",

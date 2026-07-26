@@ -179,7 +179,7 @@ const hinarioSubItens = [
     text: 'Cifras',
     icon: <HinarioCifrasIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/hinario/cifras',
-    description: 'Partitura com acordes em PDF'
+    description: 'Cifras com transposição de tom'
   }
 ]
 
@@ -1424,4 +1424,3 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
     </Box>
   )
 }
-

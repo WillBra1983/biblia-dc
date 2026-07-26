@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import {
   Typography,
   Paper,
@@ -24,7 +24,8 @@ import Close from '@mui/icons-material/Close'
 import Slideshow from '@mui/icons-material/Slideshow'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { hinarioService } from '../services/hinarioService'
-import { pdfService } from '../services/pdfService'
+import { hinarioCifrasService } from '../services/hinarioCifrasService'
+import HinarioCifrasDiretas from '../components/HinarioCifrasDiretas'
 import LocalPinchZoom from '../components/LocalPinchZoom'
 import ListaVirtualizada from '../components/ListaVirtualizada'
 import { useApp } from '../contexts/AppContext'
@@ -32,8 +33,6 @@ import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { formatarNotasRodapeHinario } from '../utils/hinarioNotasFormat'
 import { usePodeUsarModoApresentacao } from '../utils/modoApresentacaoDispositivo'
-
-const HinarioPdfViewer = lazy(() => import('../components/HinarioPdfViewer'))
 
 export default function Hinario() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -45,8 +44,8 @@ export default function Hinario() {
   const [carregandoHino, setCarregandoHino] = useState(false)
   const [error, setError] = useState(null)
   const [menuAberto, setMenuAberto] = useState(false)
-  const [paginaPdf, setPaginaPdf] = useState(null)
-  const [resolvendoPaginaPdf, setResolvendoPaginaPdf] = useState(false)
+  const [hinoCifrado, setHinoCifrado] = useState(null)
+  const [carregandoCifras, setCarregandoCifras] = useState(false)
   /** Evita repetir seleção automática quando o usuário volta à lista (hinoAtual null). */
   const selecaoInicialFeitaRef = useRef(false)
   const buscaIdRef = useRef(0)
@@ -67,7 +66,10 @@ export default function Hinario() {
     textAlign: textAlign || 'left',
   }
 
-  const prefixoNumero = n => parseInt(String(n ?? '').match(/^\d+/)?.[0] || '0', 10)
+  const prefixoNumero = n => {
+    const prefixo = String(n ?? '').match(/^\d+/)?.[0]
+    return prefixo ? parseInt(prefixo, 10) : Number.MAX_SAFE_INTEGER
+  }
 
   const selecionarHino = async (resumo, { fecharMenu = true, registrarHistorico = true } = {}) => {
     if (!resumo) return
@@ -75,7 +77,9 @@ export default function Hinario() {
     setCarregandoHino(true)
     setError(null)
     try {
-      const completo = resumo.conteudo
+      const completo = modoCifras
+        ? resumo
+        : resumo.conteudo
         ? resumo
         : await hinarioService.buscarHino(resumo.numero)
       if (selecaoId !== selecaoIdRef.current || !completo) return
@@ -117,9 +121,10 @@ export default function Hinario() {
 
     const timer = window.setTimeout(async () => {
       try {
+        const service = modoCifras ? hinarioCifrasService : hinarioService
         const data = termo
-          ? await hinarioService.buscarPorTexto(termo)
-          : await hinarioService.buscarTodos()
+          ? await service.buscarPorTexto(termo)
+          : await service.buscarTodos()
         if (buscaId === buscaIdRef.current) {
           setHinos(data)
           setError(null)
@@ -137,7 +142,7 @@ export default function Hinario() {
     return () => window.clearTimeout(timer)
     // A lista é atualizada somente pela busca; incluir `hinos` repetiria a consulta.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm])
+  }, [searchTerm, modoCifras])
 
   // Primeira vez com lista carregada: último hino visto ou o primeiro (evita tela em branco ao voltar do menu/Bíblia)
   useEffect(() => {
@@ -167,27 +172,26 @@ export default function Hinario() {
 
   useEffect(() => {
     if (!hinoAtual || !modoCifras) {
-      setPaginaPdf(null)
-      setResolvendoPaginaPdf(false)
+      setHinoCifrado(null)
+      setCarregandoCifras(false)
       return
     }
-    setResolvendoPaginaPdf(true)
-    setPaginaPdf(null)
     let cancelled = false
-    void (async () => {
-      try {
-        const p = await pdfService.buscarPaginaParaCifras({
-          titulo: hinoAtual.titulo,
-          numero: hinoAtual.numero
-        })
-        if (!cancelled) setPaginaPdf(p)
-      } finally {
-        if (!cancelled) setResolvendoPaginaPdf(false)
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
+    setHinoCifrado(null)
+    setCarregandoCifras(true)
+    void hinarioCifrasService.buscarHino(hinoAtual.numero)
+      .then(data => {
+        if (cancelled) return
+        setHinoCifrado(data)
+        if (!data) setError(`Cifras não encontradas para o hino ${hinoAtual.numero}.`)
+      })
+      .catch(err => {
+        if (!cancelled) setError(err.message)
+      })
+      .finally(() => {
+        if (!cancelled) setCarregandoCifras(false)
+      })
+    return () => { cancelled = true }
   }, [hinoAtual, modoCifras])
 
   // Suporte ao botão voltar do celular
@@ -512,7 +516,7 @@ export default function Hinario() {
             </Box>
           )}
 
-          {/* Conteúdo: letra com scroll; cifras ocupa o restante da tela (sem padding lateral) */}
+          {/* Conteúdo: letra ou cifras diretas com transposição. */}
           <Box
             sx={{
               flex: 1,
@@ -528,21 +532,15 @@ export default function Hinario() {
                   {formatarNotasRodapeHinario(hinoAtual.conteudo)}
                 </Typography>
               </Box>
+            ) : carregandoCifras || !hinoCifrado ? (
+              <Box sx={{ flex: 1, display: 'grid', placeItems: 'center' }}>
+                <Stack alignItems="center" spacing={1.25}>
+                  <CircularProgress size={30} />
+                  <Typography color="text.secondary">Preparando cifras...</Typography>
+                </Stack>
+              </Box>
             ) : (
-              <Suspense
-                fallback={
-                  <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                    <CircularProgress />
-                  </Box>
-                }
-              >
-                <HinarioPdfViewer
-                  compact
-                  pageNumber={paginaPdf}
-                  resolvingPage={resolvendoPaginaPdf}
-                  tituloHino={`${hinoAtual.numero}. ${hinoAtual.titulo}`}
-                />
-              </Suspense>
+              <HinarioCifrasDiretas key={hinoCifrado.id} hino={hinoCifrado} textSx={sxTextoLeitura} />
             )}
 
             <Box
@@ -609,7 +607,7 @@ export default function Hinario() {
             </Box>
           </Box>
 
-          {/* Setas laterais: só no modo letra (no PDF o pinch usa a área central) */}
+          {/* Setas laterais: no modo cifras a navegação fica no rodapé para não cobrir os acordes. */}
           <Box
             sx={{
               position: 'fixed',

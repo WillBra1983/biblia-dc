@@ -18,6 +18,8 @@ local.properties
 node_modules/
 dist/
 .cache/
+/output/
+/tmp/
 
 # Python venv local
 .venv/

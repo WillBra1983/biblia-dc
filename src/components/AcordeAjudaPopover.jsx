@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import NavigateBefore from '@mui/icons-material/NavigateBefore'
 import NavigateNext from '@mui/icons-material/NavigateNext'
 import {
@@ -268,13 +268,13 @@ const BLACK_KEYS = [
   { note: 8, afterWhite: 4 },
   { note: 10, afterWhite: 5 },
 ]
-const KEYBOARD_WHITE_NOTES = Array.from({ length: 21 }, (_, index) => (
+const KEYBOARD_ALL_WHITE_NOTES = Array.from({ length: 35 }, (_, index) => (
   WHITE_KEYS[index % 7] + Math.floor(index / 7) * 12
 ))
-const KEYBOARD_BLACK_NOTES = Array.from({ length: 3 }, (_, octave) => BLACK_KEYS.map(
+const KEYBOARD_ALL_BLACK_NOTES = Array.from({ length: 5 }, (_, octave) => BLACK_KEYS.map(
   ({ note, afterWhite }) => ({
     note: note + octave * 12,
-    left: (octave * 7 + afterWhite + 1) * 14 - 4.5,
+    afterWhite: octave * 7 + afterWhite,
   })
 )).flat()
 
@@ -292,20 +292,48 @@ function keyboardVoicing(parsed, inversion) {
   return notes
 }
 
+function keyboardWindow(notes, minimumWhiteKeys = 11) {
+  const minNote = Math.min(...notes)
+  const maxNote = Math.max(...notes)
+  let start = KEYBOARD_ALL_WHITE_NOTES.findIndex((note) => note >= minNote)
+  if (start < 0) start = KEYBOARD_ALL_WHITE_NOTES.length - 1
+  start = Math.max(0, start - 1)
+
+  let end = KEYBOARD_ALL_WHITE_NOTES.findIndex((note) => note > maxNote)
+  if (end < 0) end = KEYBOARD_ALL_WHITE_NOTES.length
+  end = Math.min(KEYBOARD_ALL_WHITE_NOTES.length, end + 1)
+
+  while (end - start < minimumWhiteKeys) {
+    if (start > 0) start -= 1
+    if (end - start >= minimumWhiteKeys) break
+    if (end < KEYBOARD_ALL_WHITE_NOTES.length) end += 1
+    if (start === 0 && end === KEYBOARD_ALL_WHITE_NOTES.length) break
+  }
+  return KEYBOARD_ALL_WHITE_NOTES.slice(start, end)
+}
+
 function KeyboardDiagram({ parsed, inversion }) {
-  const tones = new Set(keyboardVoicing(parsed, inversion))
+  const voicing = keyboardVoicing(parsed, inversion)
+  const tones = new Set(voicing)
+  const whiteNotes = keyboardWindow(voicing)
+  const firstWhite = whiteNotes[0]
+  const lastWhite = whiteNotes[whiteNotes.length - 1]
+  const blackNotes = KEYBOARD_ALL_BLACK_NOTES.filter(({ note }) => (
+    note > firstWhite && note < lastWhite
+  ))
+  const whiteKeyWidth = 100 / whiteNotes.length
   const isRoot = (note) => note % 12 === parsed.root
   const keyColor = (note) => isRoot(note) ? KEYBOARD_ROOT_COLOR : KEYBOARD_TONE_COLOR
   const keyBorder = (note) => isRoot(note) ? KEYBOARD_ROOT_BORDER : KEYBOARD_TONE_BORDER
   return (
-    <Box sx={{ width: 294, height: 126, mx: 'auto', mt: 2, position: 'relative' }} aria-label={`Teclado para ${parsed.rootName}`}>
-      <Box sx={{ display: 'flex', height: 120 }}>
-        {KEYBOARD_WHITE_NOTES.map((note) => (
+    <Box sx={{ width: 294, height: 166, mx: 'auto', pt: 2, position: 'relative', boxSizing: 'border-box' }} aria-label={`Teclado para ${parsed.rootName}`}>
+      <Box sx={{ display: 'flex', height: 150 }}>
+        {whiteNotes.map((note) => (
           <Box
             key={note}
             sx={{
-              width: 14,
-              height: 120,
+              width: `${whiteKeyWidth}%`,
+              height: 150,
               border: 1,
               borderColor: tones.has(note) ? keyBorder(note) : 'text.secondary',
               bgcolor: tones.has(note) ? keyColor(note) : 'background.paper',
@@ -318,7 +346,7 @@ function KeyboardDiagram({ parsed, inversion }) {
               justifyContent: 'center',
               pb: 0.75,
               boxSizing: 'border-box',
-              fontSize: '0.52rem',
+              fontSize: '0.62rem',
               fontWeight: 800,
             }}
           >
@@ -326,16 +354,19 @@ function KeyboardDiagram({ parsed, inversion }) {
           </Box>
         ))}
       </Box>
-      {KEYBOARD_BLACK_NOTES.map(({ note, left }) => (
+      {blackNotes.map(({ note }) => {
+        const whiteKeysBefore = whiteNotes.filter((whiteNote) => whiteNote < note).length
+        return (
         <Box
           key={note}
           sx={{
             position: 'absolute',
-            left,
-            top: 0,
-            width: 9,
-            height: 74,
+            left: `${whiteKeysBefore * whiteKeyWidth}%`,
+            top: 16,
+            width: `${whiteKeyWidth * 0.62}%`,
+            height: 92,
             zIndex: 1,
+            transform: 'translateX(-50%)',
             bgcolor: tones.has(note) ? keyColor(note) : 'grey.900',
             color: tones.has(note) ? KEYBOARD_HIGHLIGHT_TEXT : 'common.white',
             border: 1,
@@ -348,13 +379,99 @@ function KeyboardDiagram({ parsed, inversion }) {
             justifyContent: 'center',
             pb: 0.5,
             boxSizing: 'border-box',
-            fontSize: '0.48rem',
+            fontSize: '0.56rem',
             fontWeight: 800,
           }}
         >
           {tones.has(note) ? NOTE_NAMES[note % 12] : ''}
         </Box>
-      ))}
+        )
+      })}
+    </Box>
+  )
+}
+
+function ZoomableDiagram({ children, baseWidth, baseHeight, resetKey, ariaLabel }) {
+  const surfaceRef = useRef(null)
+  const scaleRef = useRef(1)
+  const [scale, setScale] = useState(1)
+
+  useEffect(() => {
+    scaleRef.current = 1
+    setScale(1)
+  }, [resetKey])
+
+  useEffect(() => {
+    const surface = surfaceRef.current
+    if (!surface) return undefined
+    let startDistance = 0
+    let startScale = 1
+
+    const distance = (touches) => Math.hypot(
+      touches[0].clientX - touches[1].clientX,
+      touches[0].clientY - touches[1].clientY
+    )
+    const onTouchStart = (event) => {
+      if (event.touches.length !== 2) return
+      startDistance = distance(event.touches)
+      startScale = scaleRef.current
+    }
+    const onTouchMove = (event) => {
+      if (event.touches.length !== 2 || !startDistance) return
+      event.preventDefault()
+      const nextScale = Math.min(2.25, Math.max(1, startScale * (distance(event.touches) / startDistance)))
+      scaleRef.current = nextScale
+      setScale(nextScale)
+    }
+    const onTouchEnd = () => {
+      startDistance = 0
+    }
+
+    surface.addEventListener('touchstart', onTouchStart, { passive: true })
+    surface.addEventListener('touchmove', onTouchMove, { passive: false })
+    surface.addEventListener('touchend', onTouchEnd, { passive: true })
+    surface.addEventListener('touchcancel', onTouchEnd, { passive: true })
+    return () => {
+      surface.removeEventListener('touchstart', onTouchStart)
+      surface.removeEventListener('touchmove', onTouchMove)
+      surface.removeEventListener('touchend', onTouchEnd)
+      surface.removeEventListener('touchcancel', onTouchEnd)
+    }
+  }, [])
+
+  return (
+    <Box
+      ref={surfaceRef}
+      data-no-global-pinch
+      aria-label={ariaLabel}
+      sx={{
+        width: '100%',
+        maxHeight: 'min(54vh, 390px)',
+        overflow: scale > 1 ? 'auto' : 'hidden',
+        overscrollBehavior: 'contain',
+        touchAction: 'pan-x pan-y',
+        WebkitOverflowScrolling: 'touch',
+      }}
+    >
+      <Box
+        sx={{
+          width: baseWidth * scale,
+          height: baseHeight * scale,
+          mx: scale === 1 ? 'auto' : 0,
+          position: 'relative',
+        }}
+      >
+        <Box
+          sx={{
+            width: baseWidth,
+            height: baseHeight,
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+          }}
+        >
+          {children}
+        </Box>
+      </Box>
     </Box>
   )
 }
@@ -393,7 +510,7 @@ export default function AcordeAjudaPopover({ anchorEl, chord, onClose }) {
       onClose={onClose}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-      slotProps={{ paper: { sx: { width: 356, maxWidth: 'calc(100vw - 16px)', p: 1.5 } } }}
+      slotProps={{ paper: { sx: { width: 356, maxWidth: 'calc(100vw - 8px)', p: { xs: 1, sm: 1.5 } } } }}
     >
       <Typography sx={{ fontWeight: 900, fontSize: '1.2rem', textAlign: 'center', mb: 0.5 }}>
         {chord}
@@ -446,7 +563,14 @@ export default function AcordeAjudaPopover({ anchorEl, chord, onClose }) {
                 </Tooltip>
               </Box>
             </Box>
-            <GuitarDiagram parsed={parsed} voicing={voicings[guitarIndex]} leftHanded={leftHanded} />
+            <ZoomableDiagram
+              baseWidth={238}
+              baseHeight={190}
+              resetKey={`${chord}-guitar-${guitarIndex}-${leftHanded}`}
+              ariaLabel="Ampliação do diagrama de violão"
+            >
+              <GuitarDiagram parsed={parsed} voicing={voicings[guitarIndex]} leftHanded={leftHanded} />
+            </ZoomableDiagram>
           </>
         ) : (
           <>
@@ -481,7 +605,14 @@ export default function AcordeAjudaPopover({ anchorEl, chord, onClose }) {
                 </span>
               </Tooltip>
             </Box>
-            <KeyboardDiagram parsed={parsed} inversion={keyboardIndex} />
+            <ZoomableDiagram
+              baseWidth={294}
+              baseHeight={166}
+              resetKey={`${chord}-keyboard-${keyboardIndex}`}
+              ariaLabel="Ampliação do diagrama de teclado"
+            >
+              <KeyboardDiagram parsed={parsed} inversion={keyboardIndex} />
+            </ZoomableDiagram>
           </>
         )}
       </Box>

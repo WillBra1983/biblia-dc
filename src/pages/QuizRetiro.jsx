@@ -450,7 +450,7 @@ export default function QuizRetiro() {
 
   if (ecra === 'inicio') {
     return (
-      <Box sx={{ px: 2, py: 2, maxWidth: 560, mx: 'auto' }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: 2, maxWidth: 560, mx: 'auto' }}>
         <Typography variant="h5" align="center" gutterBottom fontWeight={700}>
           Quiz Bíblico
         </Typography>
@@ -582,7 +582,7 @@ export default function QuizRetiro() {
     }
 
     return (
-      <Box sx={{ px: 2, py: 2, maxWidth: 560, mx: 'auto' }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: 2, maxWidth: 560, mx: 'auto' }}>
         <Typography variant="h5" gutterBottom>
           Resultado
         </Typography>
@@ -631,7 +631,7 @@ export default function QuizRetiro() {
   }
 
   return (
-    <Box sx={{ px: 2, py: 1, pb: 4, maxWidth: 720, mx: 'auto' }}>
+    <Box sx={{ px: { xs: 1, sm: 2 }, py: 1, pb: 4, maxWidth: 720, mx: 'auto' }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
         <Typography variant="body2" color="text.secondary">
           {atual + 1} / {total}

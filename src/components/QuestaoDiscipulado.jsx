@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   Paper,
   Typography,
@@ -36,7 +36,8 @@ export default function QuestaoDiscipulado({
   const lh = readingLineHeightToCss(lineHeight)
   const [respostaAtual, setRespostaAtual] = useState(resposta || '')
   const [mostrarExplicacao, setMostrarExplicacao] = useState(false)
-  const explicacaoRef = React.useRef(null)
+  const explicacaoRef = useRef(null)
+  const deveRolarParaExplicacaoRef = useRef(false)
 
   const respostaCorreta = React.useMemo(() => {
     return questao?.alternativas?.find((alt) => alt.correta)?.id
@@ -49,7 +50,12 @@ export default function QuestaoDiscipulado({
   }, [questao, resposta])
 
   useEffect(() => {
-    if (mostrarExplicacao && explicacaoRef.current) {
+    deveRolarParaExplicacaoRef.current = false
+  }, [questao])
+
+  useEffect(() => {
+    if (mostrarExplicacao && deveRolarParaExplicacaoRef.current && explicacaoRef.current) {
+      deveRolarParaExplicacaoRef.current = false
       explicacaoRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, [mostrarExplicacao])
@@ -64,6 +70,7 @@ export default function QuestaoDiscipulado({
 
   const handleVerificar = () => {
     if (!respostaAtual) return
+    deveRolarParaExplicacaoRef.current = true
     if (onResponder) {
       onResponder(respostaAtual)
     }
@@ -81,7 +88,7 @@ export default function QuestaoDiscipulado({
   const respostaRevelada = mostrarExplicacao
 
   return (
-    <Paper sx={{ p: 3, position: 'relative', mb: 2, lineHeight: lh }}>
+    <Paper sx={{ p: { xs: 1, sm: 3 }, position: 'relative', mb: 2, lineHeight: lh }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 2 }}>
         <Typography variant="h6" component="span">
           Questão {numero}

@@ -482,22 +482,14 @@ export default function Discipulado() {
   }
 
   useEffect(() => {
-    // Se está na meditação (finalizado e questão atual > total de questões)
+    // Ao entrar na meditação, começa pelo topo. A explicação das questões
+    // controla sua própria rolagem somente após o usuário confirmar a resposta.
     if (finalizado && questaoAtual > getQuestoes().length) {
-      // Na meditação: vai para cima
-    window.scrollTo(0, 0)
+      window.scrollTo(0, 0)
       setTimeout(() => {
         document.querySelectorAll('main.MuiBox-root').forEach(el => {
           el.scrollTop = 0;
         });
-      }, 100);
-    } else if (questaoAtual <= getQuestoes().length && questaoAtual > 0) {
-      // No discipulado (questões): vai para baixo para mostrar explicação
-      setTimeout(() => {
-        const explicacaoElement = document.querySelector('[data-explicacao]');
-        if (explicacaoElement) {
-          explicacaoElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
       }, 100);
     }
   }, [temaSelecionado, estudoSelecionado, diaAtual, questaoAtual, finalizado])
@@ -762,7 +754,7 @@ export default function Discipulado() {
 
     return (
       <LayoutEstudo>
-        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: { xs: 2, sm: 3 }, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
+        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: { xs: 1, sm: 3 }, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
           <Box
             sx={{
               position: 'relative',
@@ -969,7 +961,7 @@ export default function Discipulado() {
     return (
       <LayoutEstudo>
         {discAppBarPortals}
-        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: 2, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
+        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: { xs: 1, sm: 2 }, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
           {/* Introdução do tema */}
           {tema.introducao && (
             <Box sx={{ mb: 3, color: 'text.primary', textAlign: textAlign || 'left' }}>
@@ -1108,7 +1100,7 @@ export default function Discipulado() {
         onEnviarChat={enviarCompartilhamentoDiscipuladoNoChat}
         chatLabel="Enviar no chat interno"
       />
-      <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: 2, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
+      <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: { xs: 1, sm: 2 }, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
         {temaSelecionado && (
           <Paper 
             elevation={0} 

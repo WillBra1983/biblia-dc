@@ -69,7 +69,7 @@ export default function EstudoBiblicoProvaResultado() {
 
   if (!isConfigured) {
     return (
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: 2 }}>
         <Alert severity="warning">Firebase não configurado.</Alert>
       </Box>
     )
@@ -85,7 +85,7 @@ export default function EstudoBiblicoProvaResultado() {
 
   if (err || !row) {
     return (
-      <Box sx={{ p: 2, maxWidth: 560, mx: 'auto' }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: 2, maxWidth: 560, mx: 'auto' }}>
         <Alert severity="error">{err || 'Indisponível.'}</Alert>
         <Button sx={{ mt: 2 }} onClick={() => navigate('/estudos-biblicos')}>
           Voltar aos estudos
@@ -97,7 +97,7 @@ export default function EstudoBiblicoProvaResultado() {
   const itens = Array.isArray(row.itens) ? row.itens : Object.values(row.itens || {})
 
   return (
-    <Box sx={{ p: 2, pb: 8, maxWidth: 720, mx: 'auto' }}>
+    <Box sx={{ px: { xs: 1, sm: 2 }, pt: 2, pb: 8, maxWidth: 720, mx: 'auto' }}>
       <Typography variant="h6" gutterBottom>
         Resultado da avaliação (somente leitura)
       </Typography>

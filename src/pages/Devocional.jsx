@@ -145,7 +145,7 @@ export default function Devocional() {
                 bgcolor: 'background.paper',
                 borderBottom: 1,
                 borderColor: 'divider',
-                px: { xs: 1.5, sm: 2.5 },
+                px: { xs: 1, sm: 2.5 },
                 py: { xs: 1.25, sm: 1.75 },
               }}
             >
@@ -238,7 +238,7 @@ export default function Devocional() {
               sx={{
                 flex: 1,
                 overflow: 'auto',
-                px: { xs: 1.5, sm: 2.5 },
+                px: { xs: 1, sm: 2.5 },
                 py: { xs: 1.5, sm: 2.5 },
                 pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)',
                 WebkitOverflowScrolling: 'touch',
@@ -386,7 +386,7 @@ export default function Devocional() {
             sx={{
               width: '100%',
               py: { xs: 1.5, sm: 2.5 },
-              px: { xs: 1.5, sm: 3 },
+              px: { xs: 1, sm: 3 },
               fontFamily: ff,
             }}
           >

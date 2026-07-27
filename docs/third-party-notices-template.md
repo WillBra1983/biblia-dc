@@ -17,6 +17,19 @@ Para cada fonte externa integrada ao produto, preencher:
 
 ## Entradas
 
+### Guitar Chords DB JSON
+
+- Nome: Collection of guitar chords in JSON format
+- Origem: https://github.com/szaza/guitar-chords-db-json
+- Commit usado: 8a6271765e4748c638c8d7bf071255e16e3ce4fe
+- Licenca: MIT
+- Copyright: Copyright (c) 2019 Zoltan Szabo
+- Uso no app: subconjunto filtrado dos acordes usados pelo Hinario Novo Cantico
+- Arquivo local: src/data/hinarioChordVoicings.json
+- Status interno: Aprovado
+
+---
+
 ### 1) Open Scriptures Hebrew Bible (MorphHB)
 
 - Nome: Open Scriptures Hebrew Bible

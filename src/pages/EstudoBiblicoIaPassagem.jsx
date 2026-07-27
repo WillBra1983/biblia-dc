@@ -1103,7 +1103,7 @@ export default function EstudoBiblicoIaPassagem() {
         </MenuItem>
       </Menu>
 
-      <Box sx={{ flex: 1, overflow: 'auto', p: 2, ...sxLeitura }}>
+      <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 1, sm: 2 }, py: 2, ...sxLeitura }}>
         {fase === 'loading' && (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 6, gap: 2 }}>
             <CircularProgress />

@@ -22,7 +22,7 @@ from PIL import Image
 
 CHORD_RE = re.compile(
     r"^[A-G](?:#|b)?(?:m|-)?(?:maj|min|sus|dim|aug|add)?(?:\d+)?"
-    r"(?:\+|°)?(?:\([^)]*\))?(?:/[A-G](?:#|b)?)?$",
+    r"(?:\+|\u00ba|\u00b0)?(?:\([^)]*\))?(?:/[A-G](?:#|b)?)?$",
     re.IGNORECASE,
 )
 METER_RE = re.compile(r"^\d+/\d+$")
@@ -81,7 +81,7 @@ def split_joined_chords(token: str) -> list[str] | None:
             position += 1
         if position < len(token) and token[position] in "m-":
             position += 1
-        while position < len(token) and (token[position].isdigit() or token[position] in "+°"):
+        while position < len(token) and (token[position].isdigit() or token[position] in "+\u00ba\u00b0"):
             position += 1
         if position < len(token) and token[position] == "/":
             position += 1
@@ -90,7 +90,7 @@ def split_joined_chords(token: str) -> list[str] | None:
             position += 1
             if position < len(token) and token[position] in "#b":
                 position += 1
-        part = token[start:position].replace("-", "m")
+        part = token[start:position].replace("-", "m").replace("\u00b0", "\u00ba")
         if not CHORD_RE.fullmatch(part):
             return None
         parts.append(part)
@@ -110,8 +110,8 @@ def normalize_chord_tokens(words: list[dict]) -> list[dict]:
             token_x1 = word["x0"] + width * raw_consumed / raw_total
             if token in {"/", "(", ")"}:
                 continue
-            if token in {"O", "o", "º", "°"} and normalized and CHORD_RE.fullmatch(normalized[-1]["text"]):
-                normalized[-1] = {**normalized[-1], "text": normalized[-1]["text"] + "dim", "x1": token_x1}
+            if token in {"O", "o", "\u00ba", "\u00b0"} and normalized and CHORD_RE.fullmatch(normalized[-1]["text"]):
+                normalized[-1] = {**normalized[-1], "text": normalized[-1]["text"] + "\u00ba", "x1": token_x1}
                 continue
             if re.fullmatch(r"-\d+", token) and normalized and re.fullmatch(r"[A-G](?:#|b)?", normalized[-1]["text"], re.I):
                 normalized[-1] = {**normalized[-1], "text": normalized[-1]["text"] + "m" + token[1:], "x1": token_x1}

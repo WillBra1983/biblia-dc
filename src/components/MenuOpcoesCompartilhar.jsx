@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { flushSync } from 'react-dom'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
@@ -39,6 +40,7 @@ export default function MenuOpcoesCompartilhar({
   chatLabel = 'Enviar no chat interno',
   imageQuote = null,
   disabled = false,
+  onActionComplete,
 }) {
   const [imagemOpen, setImagemOpen] = useState(false)
   const corpo = montarCorpoCompartilhamento({ text, url })
@@ -50,6 +52,22 @@ export default function MenuOpcoesCompartilhar({
     /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '')
 
   const fechar = () => onClose?.()
+  const concluirAcao = () => {
+    setImagemOpen(false)
+    fechar()
+    onActionComplete?.()
+  }
+  const concluirAcaoSincrona = () => flushSync(() => concluirAcao())
+
+  useEffect(() => {
+    const fecharAoAbrirLink = () => {
+      setImagemOpen(false)
+      onClose?.()
+      onActionComplete?.()
+    }
+    window.addEventListener('salvation-native-deep-link-opening', fecharAoAbrirLink)
+    return () => window.removeEventListener('salvation-native-deep-link-opening', fecharAoAbrirLink)
+  }, [onClose, onActionComplete])
 
   const copiarTexto = async () => {
     fechar()
@@ -66,6 +84,8 @@ export default function MenuOpcoesCompartilhar({
         mensagem: corpo,
         severidade: 'info',
       })
+    } finally {
+      onActionComplete?.()
     }
   }
 
@@ -73,6 +93,7 @@ export default function MenuOpcoesCompartilhar({
     fechar()
     if (typeof onCopiarLink === 'function') {
       await onCopiarLink()
+      onActionComplete?.()
       return
     }
     if (!url) return
@@ -98,16 +119,18 @@ export default function MenuOpcoesCompartilhar({
         mensagem: url,
         severidade: 'info',
       })
+    } finally {
+      onActionComplete?.()
     }
   }
 
   const enviarChat = () => {
-    fechar()
+    concluirAcaoSincrona()
     onEnviarChat?.()
   }
 
   const shareNativo = async () => {
-    fechar()
+    concluirAcaoSincrona()
     const opened = await compartilharNativo({ title, text: corpo || text, url })
     if (opened) return
     if (corpo) {
@@ -128,22 +151,22 @@ export default function MenuOpcoesCompartilhar({
   }
 
   const whatsapp = () => {
-    fechar()
+    concluirAcaoSincrona()
     abrirWhatsApp(corpo)
   }
 
   const telegram = () => {
-    fechar()
+    concluirAcaoSincrona()
     abrirTelegram({ text, url })
   }
 
   const email = () => {
-    fechar()
+    concluirAcaoSincrona()
     abrirEmail({ subject: title, body: corpo })
   }
 
   const sms = () => {
-    fechar()
+    concluirAcaoSincrona()
     abrirSms(corpo)
   }
 
@@ -244,6 +267,7 @@ export default function MenuOpcoesCompartilhar({
         referencia={imageQuote?.referencia || ''}
         texto={imageQuote?.texto || ''}
         url={url || ''}
+        onActionComplete={concluirAcaoSincrona}
       />
     </>
   )

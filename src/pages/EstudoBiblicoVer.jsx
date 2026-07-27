@@ -248,7 +248,7 @@ export default function EstudoBiblicoVer() {
 
   if (!isConfigured) {
     return (
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: 2 }}>
         <Alert severity="warning">Firebase não configurado.</Alert>
       </Box>
     )
@@ -264,7 +264,7 @@ export default function EstudoBiblicoVer() {
 
   if (err && !study) {
     return (
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: 2 }}>
         <Alert severity="error">{err}</Alert>
       </Box>
     )
@@ -272,14 +272,14 @@ export default function EstudoBiblicoVer() {
 
   if (!study) {
     return (
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: 2 }}>
         <Alert severity="warning">Não foi possível carregar o estudo.</Alert>
       </Box>
     )
   }
 
   return (
-    <Box sx={{ p: 2, pb: 8, maxWidth: 720, mx: 'auto', color: 'text.primary' }}>
+    <Box sx={{ px: { xs: 1, sm: 2 }, pt: 2, pb: 8, maxWidth: 720, mx: 'auto', color: 'text.primary' }}>
       {user === null && (
         <Alert severity="info" sx={{ mb: 2 }}>
           Faça login para salvar o estudo na sua lista e registrar a leitura. O conteúdo pode ser lido sem conta.

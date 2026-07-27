@@ -27,7 +27,7 @@ import { mostrarSnackbar } from '../utils/uiDialogs'
 
 const STORAGE_FUNDO = 'salvation_fundo_versiculo_imagem'
 
-export default function CompartilharVersiculoImagemDialog({ open, onClose, referencia, texto, url }) {
+export default function CompartilharVersiculoImagemDialog({ open, onClose, referencia, texto, url, onActionComplete }) {
   const [fundoId, setFundoId] = useState(() => localStorage.getItem(STORAGE_FUNDO) || 'amanhecer')
   const [gerando, setGerando] = useState(false)
 
@@ -45,6 +45,7 @@ export default function CompartilharVersiculoImagemDialog({ open, onClose, refer
     try {
       const blob = await gerarImagemVersiculo({ referencia, texto, fundoId })
       if (modo === 'compartilhar') {
+        onActionComplete?.()
         try {
           const abriu = await compartilharArquivoImagem(blob, referencia, url)
           if (abriu) return
@@ -53,6 +54,7 @@ export default function CompartilharVersiculoImagemDialog({ open, onClose, refer
         }
       }
       baixarImagemVersiculo(blob, referencia)
+      if (modo !== 'compartilhar') onActionComplete?.()
       mostrarSnackbar({
         mensagem: modo === 'compartilhar'
           ? 'O aparelho não compartilha arquivos diretamente. A imagem foi baixada.'

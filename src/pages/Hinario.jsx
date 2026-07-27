@@ -482,7 +482,7 @@ export default function Hinario() {
                 display: 'grid',
                 gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
                 gap: 1,
-                px: { xs: 0.75, sm: 2 },
+                px: { xs: 1, sm: 2 },
                 pt: 1.5,
                 pb: 0.5,
               }}
@@ -527,7 +527,7 @@ export default function Hinario() {
             }}
           >
             {!modoCifras ? (
-              <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 0.75, sm: 2 }, py: 1.5 }}>
+              <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 1, sm: 2 }, py: 1.5 }}>
                 <Typography sx={{ whiteSpace: 'pre-wrap', ...sxTextoLeitura }}>
                   {formatarNotasRodapeHinario(hinoAtual.conteudo)}
                 </Typography>

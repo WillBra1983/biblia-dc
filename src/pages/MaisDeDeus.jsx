@@ -254,7 +254,7 @@ export default function MaisDeDeus() {
   // TELA INICIAL: escolha do tema principal
   if (!temaSelecionado) {
     return (
-      <Box sx={{ width: '100%', minHeight: '100%', bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: { xs: 0.75, sm: 2 }, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', touchAction: 'pan-y', fontFamily: ff }}>
+      <Box sx={{ width: '100%', minHeight: '100%', bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: { xs: 1, sm: 2 }, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', touchAction: 'pan-y', fontFamily: ff }}>
         {/* Card principal: Salvação */}
         <Card sx={{
           ...getGlassCardStyles('linear-gradient(135deg, rgba(34, 197, 94, 0.85) 0%, rgba(20, 83, 45, 0.85) 100%)', {
@@ -317,7 +317,7 @@ export default function MaisDeDeus() {
       );
     });
     return (
-      <Box sx={{ width: '100%', minHeight: '100%', bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: { xs: 0.75, sm: 3 }, touchAction: 'pan-y' }}>
+      <Box sx={{ width: '100%', minHeight: '100%', bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: { xs: 1, sm: 3 }, touchAction: 'pan-y' }}>
         <TextField
           fullWidth
           size="small"
@@ -413,8 +413,8 @@ export default function MaisDeDeus() {
       );
     };
     return (
-      <Box sx={{ width: '100%', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: { xs: 0.5, sm: 3 }, touchAction: 'pan-y', fontFamily: ff }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, px: { xs: 0.5, sm: 2 }, flexWrap: 'wrap', gap: 1 }}>
+      <Box sx={{ width: '100%', minHeight: '100vh', '@supports (min-height: 100dvh)': { minHeight: '100dvh' }, bgcolor: 'background.default', pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', px: { xs: 1, sm: 3 }, touchAction: 'pan-y', fontFamily: ff }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, px: { xs: 0, sm: 2 }, flexWrap: 'wrap', gap: 1 }}>
           <Button variant="outlined" color="primary" onClick={() => abrirAssimDizLista({ replace: true })}>
             Voltar
           </Button>
@@ -714,7 +714,7 @@ export default function MaisDeDeus() {
         </Box>
       </Drawer>
 
-      <Container maxWidth={false} disableGutters sx={{ px: { xs: 0.5, sm: 3 }, pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', mt: 0, width: '100%', minWidth: 0, touchAction: 'pan-y' }}>
+      <Container maxWidth={false} disableGutters sx={{ px: { xs: 1, sm: 3 }, pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', mt: 0, width: '100%', minWidth: 0, touchAction: 'pan-y' }}>
         <Box sx={{ position: 'relative', width: '100%', maxWidth: 900, mx: 'auto', minHeight: 44, mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', px: { xs: 5.5, sm: 7 } }}>
           <Typography variant="h5" align="center" sx={{ fontWeight: 'bold', m: 0, fontSize: `${fontSize}%`, lineHeight: 1.25 }}>
             {maisDeDeusData.title}

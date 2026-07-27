@@ -41,7 +41,7 @@ export default function PageReadingShell({
         maxWidth={false}
         disableGutters
         sx={{
-          px: { xs: 0.75, sm: 3 },
+          px: { xs: 1, sm: 3 },
           py: { xs: 2, sm: 3 },
           width: '100%'
         }}

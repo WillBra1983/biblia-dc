@@ -16,6 +16,22 @@ import {
   sxSafeAreaTop,
 } from '../utils/viewportHeight'
 
+const SUPERSCRIPT_DIGITS = { 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' }
+
+function removerNumeroDuplicado(texto, numero) {
+  const value = String(texto ?? '')
+  if (!numero) return value
+  const superscript = String(numero).split('').map(digit => SUPERSCRIPT_DIGITS[digit] || digit).join('')
+  const prefix = new RegExp(`^\\s*(?:${numero}|${superscript})(?:[\\s.:;,-]+|(?=[A-ZÀ-Ú]))`, 'u')
+  return value.replace(prefix, '')
+}
+
+const NUMERO_ORIGINAL_RE = /^\s*(?:\d+|[\u2070\u00b9\u00b2\u00b3\u2074-\u2079]+)(?=\s|[A-Z\u00c0-\u00da])/u
+
+function textoTemNumeroOriginal(texto) {
+  return NUMERO_ORIGINAL_RE.test(String(texto ?? ''))
+}
+
 export default function VersiculoPopup({ versiculos, onClose }) {
   const [zoom, setZoom] = useState(100)
 
@@ -146,6 +162,11 @@ export default function VersiculoPopup({ versiculos, onClose }) {
         <Box sx={{ width: '100%', maxWidth: 820, mx: 'auto', py: { xs: 2.5, sm: 3 }, pl: 'calc(20px + env(safe-area-inset-left, 0px))', pr: 'calc(20px + env(safe-area-inset-right, 0px))' }}>
           {versiculos.map((versiculo) => {
             const numero = Number(versiculo.numero ?? versiculo.versiculo ?? 0)
+            const textoOriginal = String(versiculo.texto ?? '')
+            const temNumeroOriginal = textoTemNumeroOriginal(textoOriginal)
+            const texto = temNumeroOriginal
+              ? textoOriginal
+              : removerNumeroDuplicado(textoOriginal, numero)
             return (
               <Typography
                 key={`${versiculo.capitulo ?? 0}:${numero || 0}`}
@@ -155,12 +176,12 @@ export default function VersiculoPopup({ versiculos, onClose }) {
                   lineHeight: 1.65
                 }}
               >
-                {numero ? (
-                  <Box component="strong" sx={{ mr: 0.75, fontSize: '0.82em', color: 'text.secondary' }}>
+                {numero && !temNumeroOriginal ? (
+                  <Box component="sup" sx={{ mr: 0.5, fontSize: '0.68em', color: 'text.secondary', fontWeight: 700 }}>
                     {numero}
                   </Box>
                 ) : null}
-                {versiculo.texto}
+                {texto}
               </Typography>
             )
           })}

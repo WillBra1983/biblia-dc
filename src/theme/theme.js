@@ -62,6 +62,16 @@ const getTheme = (mode) => {
     ...palette,
   },
   components: {
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          '@media (max-width:599.95px)': {
+            paddingLeft: 8,
+            paddingRight: 8,
+          },
+        },
+      },
+    },
     MuiCard: {
       styleOverrides: {
         root: {

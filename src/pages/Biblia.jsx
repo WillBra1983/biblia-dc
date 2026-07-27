@@ -2611,7 +2611,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             pointerEvents: 'none',
           }}
         />
-        <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto', px: { xs: 0.5, sm: 2.5 }, boxSizing: 'border-box' }}>
+        <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto', px: { xs: 1, sm: 2.5 }, boxSizing: 'border-box' }}>
         {erro ? (
           <Typography color="error" align="center">
             {erro}
@@ -3467,6 +3467,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         shareUrl={payloadCompartilharVersiculos.url}
         imageQuote={payloadCompartilharVersiculos.imageQuote}
         shareDisabled={!livroAtual || !versiculosSelecionados.length}
+        onShareActionComplete={limparSelecaoVersiculos}
         onLimparSelecao={limparSelecaoVersiculos}
       />
       <Dialog open={dialogoCompartilharAberto} onClose={() => setDialogoCompartilharAberto(false)}>

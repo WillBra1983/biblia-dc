@@ -970,13 +970,17 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                             }
                           ),
                           color: corTextoItemMenuAtivo(subActive),
-                          border: subActive ? bordaCartaoMenuAtivo : `1px solid ${menuCardBorder}`,
+                          minHeight: 88,
+                          border: subActive ? bordaCartaoMenuAtivo : `2px solid ${menuCardBorder}`,
+                          boxShadow: subActive
+                            ? '0 4px 12px rgba(0, 92, 55, 0.22)'
+                            : (isDarkMode ? '0 3px 10px rgba(0,0,0,0.32)' : '0 3px 10px rgba(20,45,34,0.14)'),
                         }}
                       >
                         <CardContent
                           sx={{
-                            py: 1,
-                            px: 1.25,
+                            py: 1.25,
+                            px: 1.5,
                             display: 'flex',
                             flexDirection: 'row',
                             alignItems: 'center',
@@ -984,7 +988,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                             '& .MuiTypography-root': {
                               fontStyle: subActive ? 'italic' : 'normal',
                             },
-                            '&:last-child': { pb: 1 },
+                            '&:last-child': { pb: 1.25 },
                           }}
                         >
                           <Box
@@ -996,8 +1000,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              width: 36,
-                              height: 36,
+                              width: 42,
+                              height: 42,
                             }}
                           >
                             {sub.icon}
@@ -1007,6 +1011,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                               variant="subtitle2"
                               sx={{
                                 fontWeight: 700,
+                                fontSize: '1.08rem',
+                                lineHeight: 1.25,
                                 color: corTextoItemMenuAtivo(subActive),
                                 textShadow: subActive
                                   ? '0 1px 2px rgba(0, 0, 0, 0.35)'
@@ -1015,7 +1021,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                             >
                               {sub.text}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: corTextoItemMenuAtivo(subActive, isDarkMode ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.75)'), fontWeight: 700, display: 'block' }}>
+                            <Typography variant="body2" sx={{ mt: 0.25, color: corTextoItemMenuAtivo(subActive, isDarkMode ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.75)'), fontSize: '0.82rem', lineHeight: 1.35, fontWeight: 700, display: 'block' }}>
                               {sub.description}
                             </Typography>
                             <AdminSectionViewCounts ehAdmin={ehAdmin} keys={chavesMetricaParaPathMenu(sub.path)} />
@@ -1157,13 +1163,17 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                             }
                           ),
                           color: corTextoItemMenuAtivo(subActive),
-                          border: subActive ? bordaCartaoMenuAtivo : `1px solid ${menuCardBorder}`,
+                          minHeight: 88,
+                          border: subActive ? bordaCartaoMenuAtivo : `2px solid ${menuCardBorder}`,
+                          boxShadow: subActive
+                            ? '0 4px 12px rgba(0, 92, 55, 0.22)'
+                            : (isDarkMode ? '0 3px 10px rgba(0,0,0,0.32)' : '0 3px 10px rgba(20,45,34,0.14)'),
                         }}
                       >
                         <CardContent
                           sx={{
-                            py: 1,
-                            px: 1.25,
+                            py: 1.25,
+                            px: 1.5,
                             display: 'flex',
                             flexDirection: 'row',
                             alignItems: 'center',
@@ -1171,7 +1181,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                             '& .MuiTypography-root': {
                               fontStyle: subActive ? 'italic' : 'normal',
                             },
-                            '&:last-child': { pb: 1 },
+                            '&:last-child': { pb: 1.25 },
                           }}
                         >
                           <Box
@@ -1183,8 +1193,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              width: 36,
-                              height: 36,
+                              width: 42,
+                              height: 42,
                             }}
                           >
                             {sub.icon}
@@ -1194,6 +1204,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                               variant="subtitle2"
                               sx={{
                                 fontWeight: 700,
+                                fontSize: '1.08rem',
+                                lineHeight: 1.25,
                                 color: corTextoItemMenuAtivo(subActive),
                                 textShadow: subActive
                                   ? '0 1px 2px rgba(0, 0, 0, 0.35)'
@@ -1202,7 +1214,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                             >
                               {sub.text}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: corTextoItemMenuAtivo(subActive, isDarkMode ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.75)'), fontWeight: 700, display: 'block' }}>
+                            <Typography variant="body2" sx={{ mt: 0.25, color: corTextoItemMenuAtivo(subActive, isDarkMode ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.75)'), fontSize: '0.82rem', lineHeight: 1.35, fontWeight: 700, display: 'block' }}>
                               {sub.description}
                             </Typography>
                             <AdminSectionViewCounts ehAdmin={ehAdmin} keys={chavesMetricaParaPathMenu(sub.path)} />

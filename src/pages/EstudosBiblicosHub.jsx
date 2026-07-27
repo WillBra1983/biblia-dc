@@ -192,7 +192,7 @@ export default function EstudosBiblicosHub() {
 
   if (!isConfigured) {
     return (
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: 2 }}>
         <Alert severity="warning">Conta e base de dados não estão configuradas neste ambiente.</Alert>
       </Box>
     )
@@ -208,7 +208,7 @@ export default function EstudosBiblicosHub() {
 
   if (!user) {
     return (
-      <Box sx={{ p: 2, maxWidth: 520, mx: 'auto' }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: 2, maxWidth: 520, mx: 'auto' }}>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Faça login para criar estudos e abrir os que guardou.
         </Typography>
@@ -222,7 +222,8 @@ export default function EstudosBiblicosHub() {
   return (
     <Box
       sx={{
-        p: 2,
+        px: { xs: 1, sm: 2 },
+        py: 2,
         pb: 6,
         maxWidth: 960,
         width: '100%',

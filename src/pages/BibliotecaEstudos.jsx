@@ -272,7 +272,7 @@ export default function BibliotecaEstudos() {
         </Box>
       </Paper>
 
-      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         <TextField
           fullWidth
           size="small"
@@ -300,7 +300,7 @@ export default function BibliotecaEstudos() {
         </ToggleButtonGroup>
       </Box>
 
-      <Box sx={{ flex: 1, overflow: 'auto', px: 2, pb: 4 }}>
+      <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 1, sm: 2 }, pb: 4 }}>
         {fase === 'loading' && (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 6, gap: 2 }}>
             <CircularProgress />

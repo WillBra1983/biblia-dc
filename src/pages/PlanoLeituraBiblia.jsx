@@ -403,7 +403,7 @@ export default function PlanoLeituraBiblia() {
 
   if (!planoAtual || !instancia) {
     return (
-      <Box sx={{ ...sxFundoVerdePagina, px: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ ...sxFundoVerdePagina, px: { xs: 1, sm: 3 } }}>
         <Typography sx={{ mb: 2 }}>Nenhum plano ativo ou instância inválida.</Typography>
         <Button variant="contained" color="inherit" onClick={() => navigate('/plano')}>
           Ir aos planos de leitura
@@ -413,7 +413,7 @@ export default function PlanoLeituraBiblia() {
   }
 
   return (
-    <Box sx={{ ...sxFundoVerdePagina, px: { xs: 1.5, sm: 3 } }}>
+    <Box sx={{ ...sxFundoVerdePagina, px: { xs: 1, sm: 3 } }}>
     <Container
       maxWidth="lg"
       sx={{

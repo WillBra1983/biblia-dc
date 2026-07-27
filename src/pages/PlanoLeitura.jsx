@@ -298,7 +298,7 @@ export default function PlanoLeitura() {
   }, [dialogLimpar])
 
   return (
-    <Box sx={{ ...sxFundoVerdePagina, px: { xs: 1.5, sm: 3 } }}>
+    <Box sx={{ ...sxFundoVerdePagina, px: { xs: 1, sm: 3 } }}>
     <Container maxWidth="lg" sx={{ py: 0, minWidth: 0, overflowX: 'hidden', boxSizing: 'border-box', px: 0 }}>
       <PlanoPinchZoomShell>
         <Typography

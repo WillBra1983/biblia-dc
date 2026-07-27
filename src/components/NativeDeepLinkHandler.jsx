@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { flushSync } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Capacitor } from '@capacitor/core'
 import { App } from '@capacitor/app'
@@ -57,6 +58,10 @@ export default function NativeDeepLinkHandler() {
       if (!url || typeof url !== 'string') return
       if (lastHandledUrlRef.current === url) return
       try {
+        flushSync(() => {
+          window.dispatchEvent(new Event('salvation-native-deep-link-opening'))
+          window.dispatchEvent(new Event('salvation-biblia-fechar-selecao-versiculos'))
+        })
         const normalized = normalizeAndroidAppOpenUrl(url)
         const nat = parseNativeAppDeepLinkUrl(normalized)
         if (nat) {

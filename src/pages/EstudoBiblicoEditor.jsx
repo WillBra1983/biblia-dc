@@ -632,7 +632,7 @@ export default function EstudoBiblicoEditor() {
 
   if (!isConfigured) {
     return (
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: 2 }}>
         <Alert severity="warning">Firebase não configurado.</Alert>
       </Box>
     )
@@ -648,7 +648,7 @@ export default function EstudoBiblicoEditor() {
 
   if (!user) {
     return (
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: 2 }}>
         <Alert severity="info">Faça login para criar ou editar estudos.</Alert>
         <Button sx={{ mt: 2 }} variant="contained" onClick={() => navigate('/chat')}>
           Entrar
@@ -658,7 +658,7 @@ export default function EstudoBiblicoEditor() {
   }
 
   return (
-    <Box sx={{ p: 2, pb: 8, maxWidth: 720, mx: 'auto' }}>
+    <Box sx={{ px: { xs: 1, sm: 2 }, pt: 2, pb: 8, maxWidth: 720, mx: 'auto' }}>
       {returnTo && (
         <IconButton
           aria-label="Voltar"

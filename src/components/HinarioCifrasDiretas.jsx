@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react'
-import { Box, Chip, Divider, IconButton, Stack, Tooltip, Typography } from '@mui/material'
+import { Box, Chip, IconButton, Stack, Tooltip, Typography } from '@mui/material'
 import Add from '@mui/icons-material/Add'
 import Remove from '@mui/icons-material/Remove'
 import RestartAlt from '@mui/icons-material/RestartAlt'
-import { alpha, useTheme } from '@mui/material/styles'
+import { useTheme } from '@mui/material/styles'
+import AcordeAjudaPopover from './AcordeAjudaPopover'
 
 const NOTE_VALUES = {
   C: 0, 'C#': 1, DB: 1, D: 2, 'D#': 3, EB: 3, E: 4, F: 5,
@@ -11,10 +12,9 @@ const NOTE_VALUES = {
 }
 const SHARP_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 const CHORD_COLORS = {
-  light: { C: '#c62828', D: '#b45309', E: '#746500', F: '#087f23', G: '#1565c0', A: '#5e35b1', B: '#ad1457' },
-  dark: { C: '#ff8a80', D: '#ffb74d', E: '#e6d45a', F: '#69d17d', G: '#75b7ff', A: '#b39ddb', B: '#f48fb1' }
+  light: { C: '#c62828', D: '#a54b00', E: '#6f6500', F: '#137333', G: '#1565c0', A: '#5e35b1', B: '#ad1457' },
+  dark: { C: '#ff8a80', D: '#ffb35c', E: '#ddd36a', F: '#74cf84', G: '#79b8ff', A: '#b8a1e3', B: '#f294bd' }
 }
-
 const transposeChord = (chord, offset) => {
   const match = String(chord).match(/^([A-G](?:#|b)?)(.*?)(?:\/([A-G](?:#|b)?))?$/i)
   if (!match) return chord
@@ -29,24 +29,36 @@ const transposeChord = (chord, offset) => {
   return result
 }
 
-function ChordSequence({ chords, offset, separator = ' / ' }) {
+function ChordSequence({ chords, offset, separator = ' / ', onChordClick }) {
   const theme = useTheme()
   return chords.map((chord, index) => {
     const transposed = transposeChord(chord, offset)
     const root = transposed.match(/^([A-G])/i)?.[1]?.toUpperCase() || 'C'
-    const color = CHORD_COLORS[theme.palette.mode][root]
     return (
       <React.Fragment key={`${chord}-${index}`}>
         {index > 0 ? <Box component="span" sx={{ color: 'text.secondary' }}>{separator}</Box> : null}
         <Box
-          component="span"
+          component="button"
+          type="button"
+          onClick={(event) => onChordClick?.(event, transposed)}
+          aria-label={`Ver acorde ${transposed}`}
           sx={{
-            color,
-            bgcolor: alpha(color, theme.palette.mode === 'dark' ? 0.2 : 0.11),
-            borderRadius: '2px',
-            outline: `1px solid ${alpha(color, theme.palette.mode === 'dark' ? 0.52 : 0.3)}`,
-            outlineOffset: '-1px',
-            boxShadow: `inset -1px 0 0 ${theme.palette.background.paper}`
+            color: CHORD_COLORS[theme.palette.mode][root],
+            fontWeight: 800,
+            mr: index === chords.length - 1 ? '0.16em' : 0,
+            p: 0,
+            border: 0,
+            borderBottom: '1px dotted currentColor',
+            borderRadius: 0,
+            bgcolor: 'transparent',
+            font: 'inherit',
+            lineHeight: 'inherit',
+            cursor: 'pointer',
+            '&:focus-visible': {
+              outline: '2px solid',
+              outlineColor: 'primary.main',
+              outlineOffset: 2,
+            },
           }}
         >
           {transposed}
@@ -56,11 +68,21 @@ function ChordSequence({ chords, offset, separator = ' / ' }) {
   })
 }
 
-function ChordLyricLine({ line, offset, textSx }) {
+function LyricText({ text }) {
+  return String(text).split(/(\(\s*bis\s*\))/gi).map((part, index) => (
+    /^\(\s*bis\s*\)$/i.test(part) ? (
+      <Box component="span" key={index} sx={{ fontWeight: 800, fontStyle: 'italic', color: 'text.secondary' }}>
+        {part}
+      </Box>
+    ) : <React.Fragment key={index}>{part}</React.Fragment>
+  ))
+}
+
+function ChordLyricLine({ line, offset, textSx, onChordClick }) {
   const primary = (line.detalhes || []).filter(item => !item.alternativa)
   const alternative = (line.detalhes || []).filter(item => item.alternativa)
   const placements = primary.length ? primary : (line.detalhes || [])
-  const chunks = useMemo(() => {
+  const words = useMemo(() => {
     const grouped = new Map()
     placements.forEach(item => {
       const index = Math.max(0, Math.min(line.letra.length, Number(item.indice) || 0))
@@ -68,28 +90,44 @@ function ChordLyricLine({ line, offset, textSx }) {
       grouped.get(index).push(item.acorde)
     })
     const positions = [...grouped.keys()].sort((a, b) => a - b)
-    const result = []
-    if (positions[0] > 0) result.push({ text: line.letra.slice(0, positions[0]), chords: [] })
-    positions.forEach((position, index) => {
-      const end = positions[index + 1] ?? line.letra.length
-      result.push({ text: line.letra.slice(position, end), chords: grouped.get(position) })
+    const matches = [...line.letra.matchAll(/\S+\s*/g)]
+    if (!matches.length) return [{ chunks: [{ text: line.letra, chords: [] }] }]
+    return matches.map((match, wordIndex) => {
+      const start = match.index
+      const end = start + match[0].length
+      const isLast = wordIndex === matches.length - 1
+      const wordPositions = positions.filter(position => position >= start && (position < end || (isLast && position === end)))
+      const chunks = []
+      if (!wordPositions.length) return { chunks: [{ text: match[0], chords: [] }] }
+      if (wordPositions[0] > start) {
+        chunks.push({ text: line.letra.slice(start, wordPositions[0]), chords: [] })
+      }
+      wordPositions.forEach((position, index) => {
+        const chunkEnd = wordPositions[index + 1] ?? end
+        chunks.push({ text: line.letra.slice(position, chunkEnd), chords: grouped.get(position) })
+      })
+      return { chunks }
     })
-    if (!positions.length) result.push({ text: line.letra, chords: [] })
-    return result
   }, [line.letra, placements])
 
   return (
-    <Box sx={{ mb: 1.1 }}>
+    <Box sx={{ ...textSx, mb: '0.9em' }}>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', rowGap: 0.35 }}>
-        {chunks.map((chunk, index) => (
-          <Box component="span" key={`${index}-${chunk.text}`} sx={{ display: 'inline-flex', flexDirection: 'column', minWidth: 0 }}>
-            <Typography
-              component="span"
-              sx={{ minHeight: '1.25em', fontSize: '0.82em', lineHeight: 1.15, fontWeight: 800, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}
-            >
-              <ChordSequence chords={chunk.chords} offset={offset} />
-            </Typography>
-            <Typography component="span" sx={{ ...textSx, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{chunk.text}</Typography>
+        {words.map((word, wordIndex) => (
+          <Box component="span" key={wordIndex} sx={{ display: 'inline-flex', alignItems: 'flex-end', flexShrink: 0 }}>
+            {word.chunks.map((chunk, chunkIndex) => (
+              <Box component="span" key={`${chunkIndex}-${chunk.text}`} sx={{ display: 'inline-flex', flexDirection: 'column', flexShrink: 0 }}>
+                <Typography
+                  component="span"
+                  sx={{ minHeight: '1.2em', fontSize: '0.78em', lineHeight: 1.15, fontWeight: 800, whiteSpace: 'pre' }}
+                >
+                  <ChordSequence chords={chunk.chords} offset={offset} onChordClick={onChordClick} />
+                </Typography>
+                <Typography component="span" sx={{ font: 'inherit', lineHeight: 'inherit', whiteSpace: 'pre' }}>
+                  <LyricText text={chunk.text} />
+                </Typography>
+              </Box>
+            ))}
           </Box>
         ))}
       </Box>
@@ -97,7 +135,7 @@ function ChordLyricLine({ line, offset, textSx }) {
         <Stack direction="row" spacing={0.75} alignItems="center" sx={{ mt: 0.35, color: 'text.secondary', flexWrap: 'wrap' }}>
           <Typography variant="caption" sx={{ fontWeight: 700 }}>{line.anotacao || 'Alternativa'}:</Typography>
           <Typography variant="caption" sx={{ fontWeight: 800 }}>
-            <ChordSequence chords={alternative.map(item => item.acorde)} offset={offset} separator="  " />
+            <ChordSequence chords={alternative.map(item => item.acorde)} offset={offset} separator="  " onChordClick={onChordClick} />
           </Typography>
         </Stack>
       ) : line.anotacao ? (
@@ -109,7 +147,16 @@ function ChordLyricLine({ line, offset, textSx }) {
 
 export default function HinarioCifrasDiretas({ hino, textSx }) {
   const [offset, setOffset] = useState(0)
+  const [acordeAjuda, setAcordeAjuda] = useState({ anchorEl: null, chord: '' })
   const currentKey = transposeChord(hino.tom, offset)
+  const sectionsByLine = useMemo(() => {
+    const result = new Map()
+    ;(hino.secoes || []).forEach(section => {
+      if (!result.has(section.indiceLinha)) result.set(section.indiceLinha, [])
+      result.get(section.indiceLinha).push(section.texto)
+    })
+    return result
+  }, [hino.secoes])
 
   return (
     <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
@@ -134,22 +181,52 @@ export default function HinarioCifrasDiretas({ hino, textSx }) {
           {hino.detalhe ? <Chip size="small" variant="outlined" label={hino.detalhe} sx={{ borderRadius: 1 }} /> : null}
         </Stack>
         {hino.linhas.map((line, index) => {
-          if (line.tipo === 'cifra_letra') return <ChordLyricLine key={index} line={line} offset={offset} textSx={textSx} />
+          let content
+          if (line.tipo === 'cifra_letra') {
+            content = (
+              <ChordLyricLine
+                line={line}
+                offset={offset}
+                textSx={textSx}
+                onChordClick={(event, chord) => setAcordeAjuda({ anchorEl: event.currentTarget, chord })}
+              />
+            )
+          }
           if (line.tipo === 'cifras') {
-            return (
-              <Typography key={index} sx={{ mb: 0.75, fontWeight: 800, wordSpacing: '0.7em', overflowWrap: 'anywhere' }}>
-                <ChordSequence chords={line.cifras || []} offset={offset} separator="  " />
+            content = (
+              <Typography sx={{ ...textSx, mb: 0.75, fontWeight: 800, wordSpacing: '0.7em', overflowWrap: 'anywhere' }}>
+                <ChordSequence
+                  chords={line.cifras || []}
+                  offset={offset}
+                  separator="  "
+                  onChordClick={(event, chord) => setAcordeAjuda({ anchorEl: event.currentTarget, chord })}
+                />
                 {line.anotacao ? `  ${line.anotacao}` : ''}
               </Typography>
             )
           }
           if (line.tipo === 'secao' || line.tipo === 'subtitulo') {
-            return <React.Fragment key={index}><Divider sx={{ my: 2 }} /><Typography sx={{ mb: 1, fontWeight: 800, textAlign: 'center' }}>{line.texto}</Typography></React.Fragment>
+            content = <Typography sx={{ mt: 1.5, mb: 1, fontWeight: 800, fontStyle: 'italic' }}>{line.texto}</Typography>
           }
-          if (line.tipo === 'nota') return <Typography key={index} variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{line.texto}</Typography>
-          return <Typography key={index} sx={{ ...textSx, mb: 1.1, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{line.letra || line.texto}</Typography>
+          if (line.tipo === 'nota') content = <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{line.texto}</Typography>
+          if (!content) content = <Typography sx={{ ...textSx, mb: 1.1, whiteSpace: 'pre-wrap' }}><LyricText text={line.letra || line.texto} /></Typography>
+          return (
+            <React.Fragment key={index}>
+              {(sectionsByLine.get(index) || []).map(section => (
+                <Typography key={section} sx={{ ...textSx, mt: index === 0 ? 0 : 2, mb: 0.75, fontWeight: 800, color: 'text.primary' }}>
+                  {section}:
+                </Typography>
+              ))}
+              {content}
+            </React.Fragment>
+          )
         })}
       </Box>
+      <AcordeAjudaPopover
+        anchorEl={acordeAjuda.anchorEl}
+        chord={acordeAjuda.chord}
+        onClose={() => setAcordeAjuda({ anchorEl: null, chord: '' })}
+      />
     </Box>
   )
 }

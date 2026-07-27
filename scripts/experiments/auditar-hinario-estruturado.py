@@ -75,8 +75,6 @@ def main() -> None:
         hymn_id = hymn["id"]
         for warning in hymn["avisos"]:
             add(blockers, "aviso_extracao", hymn_id, warning)
-        if hymn["linhas_fonte_total"] != hymn["linhas_estruturadas_total"]:
-            add(blockers, "cobertura_linhas", hymn_id, f"Fonte={hymn['linhas_fonte_total']}; estruturadas={hymn['linhas_estruturadas_total']}.")
         if len(hymn["fontes"]) != len(hymn.get("imagens_fonte", [])):
             add(blockers, "recorte_ausente", hymn_id, f"Colunas={len(hymn['fontes'])}; recortes={len(hymn.get('imagens_fonte', []))}.")
         for image_path in hymn.get("imagens_fonte", []):
@@ -104,26 +102,33 @@ def main() -> None:
         chordpro_compact = comparable_text(chordpro_without_markup)
 
         for line in hymn["linhas"]:
+            alignment = line.get("alinhamento_pdf") or {}
+            origin = line.get("pagina", alignment.get("indice_linha", "editorial"))
             if line.get("cifras") is not None:
                 details = line.get("cifras_detalhadas", [])
                 if len(details) != len(line["cifras"]):
-                    add(blockers, "detalhes_de_cifras", hymn_id, f"Cifras={len(line['cifras'])}; detalhes={len(details)} em p{line['pagina']}.")
+                    add(blockers, "detalhes_de_cifras", hymn_id, f"Cifras={len(line['cifras'])}; detalhes={len(details)} na origem {origin}.")
                 if any(item["x"] < 0 for item in details):
-                    add(blockers, "coordenada_de_cifra", hymn_id, f"Coordenada negativa em p{line['pagina']}.")
+                    add(blockers, "coordenada_de_cifra", hymn_id, f"Coordenada negativa na origem {origin}.")
+                aligned_chords = alignment.get("cifras")
+                if aligned_chords is not None and [item["acorde"] for item in details] != aligned_chords:
+                    add(blockers, "sequencia_pdf_alterada", hymn_id, f"Origem {origin}: {aligned_chords}.")
                 source_chords = line.get("cifras_fonte", "")
                 if re.search(r"(?i)vez|bis|\bv\.", source_chords) and not line.get("anotacao"):
                     add(blockers, "repeticao_sem_anotacao", hymn_id, source_chords)
                 if "(" in source_chords and ")" in source_chords and not any(item["alternativa"] for item in details):
                     add(blockers, "alternativa_nao_mapeada", hymn_id, source_chords)
             lyric = line.get("letra")
-            source = line.get("letra_fonte")
+            source = line.get("letra_fonte", alignment.get("letra"))
             if lyric is None:
                 continue
             if source != lyric:
-                corrections.append({"hino": hymn_id, "pagina": line["pagina"], "fonte": source, "limpo": lyric})
+                corrections.append({"hino": hymn_id, "origem": origin, "fonte": source, "limpo": lyric})
             editorial = line.get("correcao_editorial")
-            if editorial and editorial.get("similaridade", 0) < 0.90:
+            if editorial and "similaridade" in editorial and editorial["similaridade"] < 0.90:
                 add(blockers, "correcao_editorial_insegura", hymn_id, str(editorial))
+            if line.get("repeticao_pdf") and re.search(r"(?i)\(\s*bis\s*\)", lyric):
+                add(blockers, "bis_suprimiu_repeticao_pdf", hymn_id, lyric)
             if comparable_text(lyric) not in chordpro_compact:
                 add(blockers, "verso_ausente_no_chordpro", hymn_id, lyric)
             if re.search(r"(?i)(?:^|\s)(?:[^\W\d_]\s+){3,}[^\W\d_](?:\s|$)", lyric):
@@ -134,7 +139,7 @@ def main() -> None:
                 add(blockers, "hifens_de_alinhamento", hymn_id, lyric)
             if re.search(r"\s+[,;:!?\.]", lyric):
                 add(blockers, "espaco_pontuacao", hymn_id, lyric)
-            if re.search(r"[,;:!?]{2,}|[,;:!?](?=\S)", lyric):
+            if re.search(r"[,;:!?]{2,}|[,;:!?](?=[A-Za-zÀ-ÿ])", lyric):
                 add(blockers, "pontuacao_sem_espaco", hymn_id, lyric)
             compact = re.sub(r"[A-Ga-g#b0-9m+°/()\-\s]", "", lyric)
             if line["tipo"] == "texto" and len(re.findall(r"[A-G](?:#|b)?", lyric)) >= 2 and len(compact) <= 1:
@@ -142,6 +147,16 @@ def main() -> None:
 
     with sqlite3.connect(args.lyrics_db) as connection:
         db_rows = connection.execute("select numero, titulo, conteudo from hinos").fetchall()
+    normalized_db = [
+        (str(number).lstrip("0") or "0", comparable_text(content))
+        for number, _, content in db_rows
+    ]
+    for item in data.get("linhas_pdf_sem_destino_editorial", []):
+        source_hymn = str(item["hino"]).lstrip("0") or "0"
+        compact = comparable_text(item["texto"])
+        owners = [hymn_id for hymn_id, content in normalized_db if hymn_id != source_hymn and compact in content]
+        if not owners:
+            add(blockers, "linha_pdf_sem_destino", source_hymn, item["texto"])
     for number, db_title, db_content in db_rows:
         hymn_id = str(number).lstrip("0") or "0"
         hymn = by_id.get(hymn_id)

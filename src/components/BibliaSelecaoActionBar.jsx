@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Box,
   IconButton,
@@ -96,11 +96,16 @@ export default function BibliaSelecaoActionBar({
   shareUrl,
   imageQuote,
   shareDisabled = false,
+  onShareActionComplete,
 }) {
   const [menuShareAnchor, setMenuShareAnchor] = useState(null)
 
   const abrirMenuShare = (e) => setMenuShareAnchor(e.currentTarget)
   const fecharMenuShare = () => setMenuShareAnchor(null)
+
+  useEffect(() => {
+    if (!visivel) fecharMenuShare()
+  }, [visivel])
 
   return (
     <Box
@@ -253,6 +258,7 @@ export default function BibliaSelecaoActionBar({
         onEnviarChat={onEnviarChat}
         imageQuote={imageQuote}
         disabled={shareDisabled}
+        onActionComplete={onShareActionComplete}
       />
     </Box>
   )

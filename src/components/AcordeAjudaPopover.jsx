@@ -278,6 +278,12 @@ const KEYBOARD_BLACK_NOTES = Array.from({ length: 3 }, (_, octave) => BLACK_KEYS
   })
 )).flat()
 
+const KEYBOARD_TONE_COLOR = '#FFEB3B'
+const KEYBOARD_TONE_BORDER = '#C9A800'
+const KEYBOARD_ROOT_COLOR = '#8BC34A'
+const KEYBOARD_ROOT_BORDER = '#4D7C0F'
+const KEYBOARD_HIGHLIGHT_TEXT = '#17200B'
+
 function keyboardVoicing(parsed, inversion) {
   const core = chordIntervals(parsed.suffix).map((interval) => 12 + parsed.root + interval)
   if (parsed.bass != null) return [parsed.bass, ...core]
@@ -288,7 +294,9 @@ function keyboardVoicing(parsed, inversion) {
 
 function KeyboardDiagram({ parsed, inversion }) {
   const tones = new Set(keyboardVoicing(parsed, inversion))
-  const keyColor = (note) => note % 12 === parsed.root ? 'secondary.main' : 'primary.main'
+  const isRoot = (note) => note % 12 === parsed.root
+  const keyColor = (note) => isRoot(note) ? KEYBOARD_ROOT_COLOR : KEYBOARD_TONE_COLOR
+  const keyBorder = (note) => isRoot(note) ? KEYBOARD_ROOT_BORDER : KEYBOARD_TONE_BORDER
   return (
     <Box sx={{ width: 294, height: 126, mx: 'auto', mt: 2, position: 'relative' }} aria-label={`Teclado para ${parsed.rootName}`}>
       <Box sx={{ display: 'flex', height: 120 }}>
@@ -299,9 +307,12 @@ function KeyboardDiagram({ parsed, inversion }) {
               width: 14,
               height: 120,
               border: 1,
-              borderColor: 'text.secondary',
+              borderColor: tones.has(note) ? keyBorder(note) : 'text.secondary',
               bgcolor: tones.has(note) ? keyColor(note) : 'background.paper',
-              color: tones.has(note) ? 'common.white' : 'text.primary',
+              color: tones.has(note) ? KEYBOARD_HIGHLIGHT_TEXT : 'text.primary',
+              boxShadow: tones.has(note) && isRoot(note)
+                ? `inset 0 0 0 2px ${KEYBOARD_ROOT_BORDER}`
+                : 'none',
               display: 'flex',
               alignItems: 'flex-end',
               justifyContent: 'center',
@@ -326,9 +337,12 @@ function KeyboardDiagram({ parsed, inversion }) {
             height: 74,
             zIndex: 1,
             bgcolor: tones.has(note) ? keyColor(note) : 'grey.900',
-            color: 'common.white',
+            color: tones.has(note) ? KEYBOARD_HIGHLIGHT_TEXT : 'common.white',
             border: 1,
-            borderColor: 'grey.700',
+            borderColor: tones.has(note) ? keyBorder(note) : 'grey.700',
+            boxShadow: tones.has(note) && isRoot(note)
+              ? `inset 0 0 0 2px ${KEYBOARD_ROOT_BORDER}`
+              : 'none',
             display: 'flex',
             alignItems: 'flex-end',
             justifyContent: 'center',

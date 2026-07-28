@@ -9,10 +9,6 @@ import {
   Paper,
   Stack,
   Tooltip,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -22,14 +18,10 @@ import {
 } from '@mui/material'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import AutoAwesome from '@mui/icons-material/AutoAwesome'
-import ContentCopy from '@mui/icons-material/ContentCopy'
-import EditNote from '@mui/icons-material/EditNote'
 import Edit from '@mui/icons-material/Edit'
-import IosShareIcon from '@mui/icons-material/IosShareOutlined'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks'
 import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined'
-import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt'
 import ThumbDownAltOutlinedIcon from '@mui/icons-material/ThumbDownAltOutlined'
 import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt'
 import HowToRegIcon from '@mui/icons-material/HowToReg'
@@ -78,12 +70,12 @@ import {
 import { sxCorpoTextoIa } from '../utils/iaTextoStyles'
 import { buscarIntervaloVersiculos } from '../services/bibliaService'
 import VersiculoPopup from '../components/VersiculoPopup'
-import { openNativeShareSheet } from '../utils/nativeShare'
+import CompartilharMenu from '../components/CompartilharMenu'
 import { useEhAdmin } from '../hooks/useEhAdmin'
+import { buildAppShareLink } from '../services/bibliaEstudosService'
 import { normalizarTom, TONS_IDS, TOM_PADRAO } from '../utils/iaTonalidade'
 import {
   confirmarAsync,
-  copiarParaAreaTransferencia,
   mostrarSnackbar
 } from '../utils/uiDialogs'
 
@@ -197,7 +189,6 @@ export default function EstudoBiblicoIaPassagem() {
   const [textoGerado, setTextoGerado] = useState('')
   const [metaLocal, setMetaLocal] = useState(null)
   const [referencia, setReferencia] = useState('')
-  const [menuShareAnchor, setMenuShareAnchor] = useState(null)
   const [origem, setOrigem] = useState('novo')
   const [meuVoto, setMeuVoto] = useState(null)
   const [salvandoAcao, setSalvandoAcao] = useState(false)
@@ -220,10 +211,7 @@ export default function EstudoBiblicoIaPassagem() {
     [paramsValidos, livroQ, capQ, versQ]
   )
 
-  /**
-   * O conteúdo exibido vem de geração local recente e ainda não recebeu
-   * voto: bloqueia copy/share/edit até avaliação (ver `acaoComAvaliacaoPrevia`).
-   */
+  /** O conteúdo local recém-gerado pede avaliação antes de sair para outra leitura. */
   const exigeAvaliacao = origem === 'novo' && !meuVoto && Boolean(textoGerado)
 
   const sxLeitura = useMemo(
@@ -244,13 +232,15 @@ export default function EstudoBiblicoIaPassagem() {
     return formatarReferenciaCompactaPassagem(livroQ, capQ, versQ) || ''
   }, [paramsValidos, referencia, livroQ, capQ, versQ])
 
-  const abrirBibliotecaEstudos = useCallback(() => {
-    navigate(
-      `/biblioteca-estudos?returnTo=${encodeURIComponent(
-        `${window.location.pathname}${window.location.search}`
-      )}`
-    )
-  }, [navigate])
+  const linkCompartilharComentario = useMemo(() => {
+    if (!paramsValidos) return ''
+    const q = new URLSearchParams({
+      livro: String(livroQ),
+      capitulo: String(capQ),
+      versiculos: versQ.join(','),
+    })
+    return buildAppShareLink('/estudos-biblicos/ia-passagem', q.toString())
+  }, [paramsValidos, livroQ, capQ, versQ])
 
   const abrirPopupReferencia = useCallback(async () => {
     if (!paramsValidos || !versQ.length) return
@@ -267,16 +257,6 @@ export default function EstudoBiblicoIaPassagem() {
       mostrarSnackbar({ mensagem: 'Não foi possível carregar o texto da passagem.', severidade: 'error' })
     }
   }, [paramsValidos, livroQ, capQ, versQ])
-
-  const queryEditor = useMemo(() => {
-    const q = new URLSearchParams({
-      livro: String(livroQ),
-      capitulo: String(capQ),
-      versiculos: versQ.join(','),
-      returnTo: returnToParam
-    })
-    return `/estudos-biblicos/novo?${q.toString()}`
-  }, [livroQ, capQ, versQ, returnToParam])
 
   /* ============================================================
    * GERAR — sempre chave canônica (`pastoral`); matizes só no prompt (integrado).
@@ -498,7 +478,7 @@ export default function EstudoBiblicoIaPassagem() {
   }, [user, navigate, paramsValidos, forcarRefresh, ehAdmin, livroQ, capQ, versQ, gerar, carregarPrimeiroTomDisponivel])
 
   /* ============================================================
-   * Ações compartilhadas (copiar/editar/share/voltar).
+   * Navegação e avaliação.
    * ============================================================ */
 
   const acaoComAvaliacaoPrevia = useCallback(
@@ -512,42 +492,6 @@ export default function EstudoBiblicoIaPassagem() {
     },
     [exigeAvaliacao]
   )
-
-  const copiar = useCallback(async () => {
-    if (!textoGerado) return
-    await copiarParaAreaTransferencia(textoGerado, {
-      mensagemSucesso: 'Estudo copiado.',
-      tituloFallback: 'Copie o texto do estudo'
-    })
-  }, [textoGerado])
-
-  const abrirNoEditor = useCallback(() => {
-    const temaIa = referencia ? `Estudo — ${referencia}` : 'Estudo compartilhado'
-    navigate(queryEditor, {
-      state: {
-        textoIaGerado: textoGerado,
-        temaIa,
-        metaIa: metaLocal
-      }
-    })
-  }, [referencia, navigate, queryEditor, textoGerado, metaLocal])
-
-  const compartilharNativo = useCallback(async () => {
-    const textoComCabecalho = referencia
-      ? `Estudo compartilhado — ${referencia}\n\n${textoGerado}`
-      : textoGerado
-    const titulo = referencia ? `Estudo compartilhado — ${referencia}` : 'Estudo compartilhado'
-    try {
-      const opened = await openNativeShareSheet({ title: titulo, text: textoComCabecalho })
-      if (opened) return
-    } catch {
-      /* fallback */
-    }
-    await copiarParaAreaTransferencia(textoComCabecalho, {
-      mensagemSucesso: 'Estudo copiado.',
-      tituloFallback: 'Copie o texto do estudo'
-    })
-  }, [referencia, textoGerado])
 
   const voltar = useCallback(() => {
     const indo = () => {
@@ -569,22 +513,13 @@ export default function EstudoBiblicoIaPassagem() {
     setSalvandoAcao(true)
     try {
       const tomVoto = normalizarTom(tomCarregado)
-      await registrarVoto({
-        livroId: livroQ,
-        capitulo: capQ,
-        versArr: versQ,
-        voto: 'positivo',
-        uid: user.uid,
-        tom: tomVoto
-      })
-
       const pericopeMeta = metaLocal?.pericope || null
       const pericopeKey = pericopeMeta
         ? chavePericopeCurada(livroQ, capQ, pericopeMeta.inicio, pericopeMeta.fim)
         : null
 
       if (origem === 'novo') {
-        await publicarEstudoCandidato({
+        const publicacao = await publicarEstudoCandidato({
           livroId: livroQ,
           capitulo: capQ,
           versArr: versQ,
@@ -594,8 +529,22 @@ export default function EstudoBiblicoIaPassagem() {
           uidAutor: user.uid,
           tom: tomVoto
         })
+        if (!publicacao?.ok) {
+          throw new Error(publicacao?.error || 'Não foi possível publicar este comentário.')
+        }
         setOrigem('candidato')
       }
+
+      const voto = await registrarVoto({
+        livroId: livroQ,
+        capitulo: capQ,
+        versArr: versQ,
+        voto: 'positivo',
+        uid: user.uid,
+        tom: tomVoto
+      })
+      if (!voto?.ok) throw new Error(voto?.error || 'Não foi possível registrar sua avaliação.')
+
       setMeuVoto('positivo')
       mostrarSnackbar({
         mensagem: 'Obrigado! Seu retorno foi registrado.',
@@ -606,6 +555,11 @@ export default function EstudoBiblicoIaPassagem() {
       tentativaSaidaRef.current = null
       setDialogSaidaAberto(false)
       if (typeof acaoPendente === 'function') acaoPendente()
+    } catch (erro) {
+      mostrarSnackbar({
+        mensagem: erro?.message || 'Não foi possível concluir a avaliação. Tente novamente.',
+        severidade: 'error'
+      })
     } finally {
       setSalvandoAcao(false)
     }
@@ -837,32 +791,8 @@ export default function EstudoBiblicoIaPassagem() {
   }, [ehAdmin, textoGerado, origem, livroQ, capQ, versQ, tomCarregado, gerar])
 
   /* ============================================================
-   * SHARE OVERRIDE
-   * ============================================================ */
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const override = async () => {
-      acaoComAvaliacaoPrevia(() => {
-        const alvo =
-          document.querySelector('button[aria-label="compartilhar página"]') ||
-          document.body
-        setMenuShareAnchor(alvo)
-      })
-      return true
-    }
-    window.__bibliaSharePageOverride = override
-    return () => {
-      if (window.__bibliaSharePageOverride === override) {
-        delete window.__bibliaSharePageOverride
-      }
-    }
-  }, [acaoComAvaliacaoPrevia])
-
-  /* ============================================================
    * Cabeçalho — atalhos admin.
    * ============================================================ */
-
-  const acoesDesabilitadas = exigeAvaliacao
 
   const linkEstudoPericope = useMemo(() => {
     if (!pericopeInfo) return null
@@ -906,9 +836,6 @@ export default function EstudoBiblicoIaPassagem() {
           gap: 1,
           borderBottom: 1,
           borderColor: 'divider',
-          position: 'sticky',
-          top: 0,
-          zIndex: 2,
           bgcolor: 'background.paper'
         }}
       >
@@ -951,21 +878,19 @@ export default function EstudoBiblicoIaPassagem() {
               </Typography>
             ) : null}
           </Stack>
-          {paramsValidos ? (
-            <Button
-              variant="outlined"
-              color="primary"
-              size="small"
-              startIcon={<LibraryBooksIcon />}
-              onClick={abrirBibliotecaEstudos}
-              sx={{ mt: 0.75, alignSelf: 'flex-start' }}
-            >
-              Bíblia comentada
-            </Button>
-          ) : null}
         </Box>
         {fase === 'ready' && (
           <Stack direction="row" spacing={0.25} alignItems="center" flexWrap="wrap" justifyContent="flex-end">
+            {(origem === 'candidato' || origem === 'oficial') && (
+              <CompartilharMenu
+                iconOnly
+                label="Compartilhar comentário"
+                tooltip="Compartilhar comentário"
+                linkUrl={linkCompartilharComentario}
+                linkTitle={`Bíblia comentada${referenciaExibicao ? ` — ${referenciaExibicao}` : ''}`}
+                linkText={`Leia este comentário bíblico${referenciaExibicao ? ` sobre ${referenciaExibicao}` : ''}: ${linkCompartilharComentario}`}
+              />
+            )}
             {ehAdmin && !adminCarregando && (
               <>
                 <Tooltip
@@ -1022,86 +947,9 @@ export default function EstudoBiblicoIaPassagem() {
                 )}
               </>
             )}
-            <Tooltip
-              title={
-                acoesDesabilitadas
-                  ? 'Avalie antes para usar esta opção'
-                  : ehAdmin && (origem === 'oficial' || origem === 'candidato')
-                    ? 'Corrigir texto aqui (admin) ou use o ícone de lápis'
-                    : 'Editar e salvar como seu estudo pessoal'
-              }
-            >
-              <span>
-                <Button
-                  size="small"
-                  variant="contained"
-                  color="primary"
-                  startIcon={<EditNote fontSize="small" />}
-                  onClick={() => {
-                    if (ehAdmin && (origem === 'oficial' || origem === 'candidato')) {
-                      iniciarEdicaoAdmin()
-                      return
-                    }
-                    acaoComAvaliacaoPrevia(abrirNoEditor)
-                  }}
-                  disabled={!textoGerado || editandoAdmin}
-                >
-                  {ehAdmin && (origem === 'oficial' || origem === 'candidato')
-                    ? 'Corrigir texto'
-                    : 'Editar e salvar'}
-                </Button>
-              </span>
-            </Tooltip>
           </Stack>
         )}
       </Paper>
-
-      <Menu
-        anchorEl={menuShareAnchor}
-        open={Boolean(menuShareAnchor)}
-        onClose={() => setMenuShareAnchor(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <MenuItem
-          disabled={!textoGerado}
-          onClick={() => {
-            setMenuShareAnchor(null)
-            void copiar()
-          }}
-        >
-          <ListItemIcon>
-            <ContentCopy fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Copiar texto" />
-        </MenuItem>
-        <MenuItem
-          disabled={!textoGerado}
-          onClick={() => {
-            setMenuShareAnchor(null)
-            void compartilharNativo()
-          }}
-        >
-          <ListItemIcon>
-            <IosShareIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Compartilhar com…" />
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            setMenuShareAnchor(null)
-            abrirNoEditor()
-          }}
-        >
-          <ListItemIcon>
-            <EditNote fontSize="small" />
-          </ListItemIcon>
-          <ListItemText
-            primary="Editar e salvar"
-            secondary="Salve como seu estudo para reabrir e compartilhar depois."
-          />
-        </MenuItem>
-      </Menu>
 
       <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 1, sm: 2 }, py: 2, ...sxLeitura }}>
         {fase === 'loading' && (
@@ -1148,7 +996,7 @@ export default function EstudoBiblicoIaPassagem() {
                   )}`
                 )}
               >
-                Abrir a Bíblia comentada
+                Ver comentários disponíveis
               </Button>
               <Box
                 sx={{
@@ -1177,9 +1025,8 @@ export default function EstudoBiblicoIaPassagem() {
                   Sua avaliação é importante.
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Antes de copiar, editar ou compartilhar, indique se este estudo
-                  foi útil. Sua resposta ajuda a manter o que é bom e descartar o
-                  que precisa de revisão.
+                  Indique se este comentário foi útil. Sua resposta ajuda a manter
+                  o que é bom e encaminhar para revisão o que pode melhorar.
                 </Typography>
               </Alert>
             )}
@@ -1269,7 +1116,7 @@ export default function EstudoBiblicoIaPassagem() {
               </Box>
             )}
 
-            <Paper
+            {origem === 'novo' && meuVoto !== 'positivo' && <Paper
               variant="outlined"
               sx={{
                 mt: 2,
@@ -1293,16 +1140,10 @@ export default function EstudoBiblicoIaPassagem() {
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap">
                 <Button
-                  variant={meuVoto === 'positivo' ? 'contained' : 'outlined'}
+                  variant="outlined"
                   color="primary"
                   size="medium"
-                  startIcon={
-                    meuVoto === 'positivo' ? (
-                      <ThumbUpAltIcon />
-                    ) : (
-                      <ThumbUpAltOutlinedIcon />
-                    )
-                  }
+                  startIcon={<ThumbUpAltOutlinedIcon />}
                   onClick={() => void votarUtil()}
                   disabled={salvandoAcao || !user?.uid}
                 >
@@ -1325,43 +1166,7 @@ export default function EstudoBiblicoIaPassagem() {
                   Pode melhorar
                 </Button>
               </Stack>
-            </Paper>
-
-            <Box
-              sx={{
-                mt: 2,
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                alignItems: { xs: 'stretch', sm: 'center' },
-                justifyContent: 'space-between',
-                gap: 1.5,
-                p: 2,
-                border: 1,
-                borderColor: 'divider',
-                borderRadius: 1.5,
-                bgcolor: 'action.hover',
-                opacity: acoesDesabilitadas ? 0.55 : 1
-              }}
-            >
-              <Box sx={{ minWidth: 0 }}>
-                <Typography variant="subtitle2" fontWeight={700}>
-                  Quer guardar este estudo?
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Edite o conteúdo e salve como o seu estudo. Depois de salvo,
-                  você pode compartilhar com qualquer pessoa.
-                </Typography>
-              </Box>
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<EditNote />}
-                onClick={() => acaoComAvaliacaoPrevia(abrirNoEditor)}
-                sx={{ flexShrink: 0 }}
-              >
-                Editar e salvar
-              </Button>
-            </Box>
+            </Paper>}
           </>
         )}
       </Box>

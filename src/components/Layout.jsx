@@ -74,8 +74,8 @@ function getPageTitleFromPathname(pathname) {
   if (path.startsWith('/quiz-retiro')) return 'Quiz Bíblico'
   if (path.startsWith('/biblioteca-estudos')) return 'Bíblia comentada'
   if (path === '/estudos-biblicos/gerir') return 'Gerenciar estudos'
-  /** Mesmo título do hub de estudos — o detalhe da passagem/perícope fica no cabeçalho da página. */
-  if (/^\/estudos-biblicos\/ia-(passagem|pericope)/.test(path)) return 'Estudos Compartilhados'
+  /** Comentários gerados/curados pertencem ao acervo da Bíblia comentada. */
+  if (/^\/estudos-biblicos\/ia-(passagem|pericope)/.test(path)) return 'Bíblia comentada'
   if (path.startsWith('/estudos-biblicos')) return 'Estudos Compartilhados'
   if (path.startsWith('/chat')) return 'Mensagens'
   if (path.startsWith('/admin/usuarios')) return 'Usuários'

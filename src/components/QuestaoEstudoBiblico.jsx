@@ -8,11 +8,13 @@ import {
   Radio,
   Button,
   Box,
-  Alert
+  Alert,
+  Divider
 } from '@mui/material'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import ArrowForward from '@mui/icons-material/ArrowForward'
 import CheckCircle from '@mui/icons-material/CheckCircle'
+import MenuBookOutlined from '@mui/icons-material/MenuBookOutlined'
 import TextoComReferencias from './TextoComReferencias'
 import { useApp } from '../contexts/AppContext'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
@@ -22,8 +24,6 @@ import { montarAlternativasEstudoBiblico } from '../utils/questoesAlternativas'
 export default function QuestaoEstudoBiblico({
   questao,
   numero,
-  total,
-  indice,
   lineHeight: lineHeightProp,
   onNext,
   onPrev,
@@ -31,8 +31,8 @@ export default function QuestaoEstudoBiblico({
   isLast,
   onConcluir
 }) {
-  const { textAlign, lineHeight, fontSize, fontFamily } = useApp()
-  const ta = textAlign || 'left'
+  const { lineHeight, fontSize, fontFamily } = useApp()
+  const ta = 'justify'
   const lh = readingLineHeightToCss(lineHeightProp ?? lineHeight)
   const fs = `${fontSize || 100}%`
   const ff = fontFamily || undefined
@@ -76,10 +76,10 @@ export default function QuestaoEstudoBiblico({
   }
 
   return (
-    <Paper sx={{ p: 3, mb: 2, lineHeight: lh, color: 'text.primary' }}>
-      <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-        Pergunta {indice + 1} de {total}
-      </Typography>
+    <Paper
+      variant="outlined"
+      sx={{ p: { xs: 2, sm: 3 }, mb: 2, lineHeight: lh, color: 'text.primary', borderRadius: 1 }}
+    >
       <Typography variant="subtitle1" fontWeight={600} gutterBottom sx={{ textAlign: ta }}>
         {numero ? `Questão ${numero}` : 'Questão'}
       </Typography>
@@ -134,12 +134,28 @@ export default function QuestaoEstudoBiblico({
             </Alert>
           ) : null}
           {(isVerResposta || !acertou) && questao?.respostaCerta ? (
-            <Alert severity="info" sx={{ mb: 1 }}>
-              Resposta: {String(questao.respostaCerta)}
-            </Alert>
+            <Box
+              sx={{
+                mb: 2,
+                p: { xs: 1.5, sm: 2 },
+                bgcolor: 'action.hover',
+                borderLeft: '4px solid',
+                borderColor: 'primary.main',
+                borderRadius: 1,
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, color: 'primary.main' }}>
+                <MenuBookOutlined fontSize="small" />
+                <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                  Resposta
+                </Typography>
+              </Box>
+              <TextoComReferencias texto={String(questao.respostaCerta)} style={baseTxt} />
+            </Box>
           ) : null}
           {questao?.explicacao ? (
             <>
+              {(isVerResposta || !acertou) && questao?.respostaCerta ? <Divider sx={{ mb: 1.5 }} /> : null}
               <Typography variant="subtitle2" gutterBottom>
                 Explicação
               </Typography>
@@ -171,7 +187,7 @@ export default function QuestaoEstudoBiblico({
                 setMostrar(false)
               }}
             >
-              Tentar de novo
+              {isVerResposta ? 'Ocultar resposta' : 'Tentar de novo'}
             </Button>
           )}
 
@@ -190,10 +206,10 @@ export default function QuestaoEstudoBiblico({
               color="success"
               onClick={onConcluir}
               size="small"
-              startIcon={<CheckCircle />}
+              startIcon={isVerResposta ? <MenuBookOutlined /> : <CheckCircle />}
               sx={{ minWidth: { xs: 'auto', sm: 140 } }}
             >
-              Concluir estudo
+              {isVerResposta ? 'Devocional sobre o tema' : 'Concluir estudo'}
             </Button>
           ) : (
             <Button variant="contained" onClick={onNext} size="small" endIcon={<ArrowForward />} sx={{ minWidth: { xs: 'auto', sm: 140 } }}>

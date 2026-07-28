@@ -41,6 +41,7 @@ import { ensureUserForChatExport, pushPendingChatExport } from '../utils/chatExp
 import { avisarAsync } from '../utils/uiDialogs'
 import { buildEstudoBiblicoChatExport } from '../utils/appExportPayload'
 import CompartilharMenu from '../components/CompartilharMenu'
+import LocalPinchZoom from '../components/LocalPinchZoom'
 import { urlLeitorBiblia } from '../utils/bibliaDeepLinks'
 
 export default function EstudoBiblicoVer() {
@@ -58,7 +59,15 @@ export default function EstudoBiblicoVer() {
   const leituraStyle = {
     lineHeight: lh,
     fontSize: `${fontSize || 100}%`,
+    textAlign: 'justify',
     ...(fontFamily ? { fontFamily } : {})
+  }
+  const campoDevocionalStyle = {
+    mb: 1.5,
+    textAlign: 'justify',
+    whiteSpace: 'pre-line',
+    overflowWrap: 'anywhere',
+    lineHeight: lh,
   }
 
   const [loading, setLoading] = useState(true)
@@ -87,7 +96,7 @@ export default function EstudoBiblicoVer() {
           : []
       return src
         .map((m) => ({ ...(m || {}), dia: Number(m?.dia) || 0 }))
-        .filter((m) => m.dia >= 1 && m.dia <= 7)
+        .filter((m) => m.dia >= 1)
         .sort((a, b) => Number(a.dia || 0) - Number(b.dia || 0))
     },
     [study?.meditacao]
@@ -279,6 +288,7 @@ export default function EstudoBiblicoVer() {
   }
 
   return (
+    <LocalPinchZoom resetKey={studyId} sx={{ width: '100%' }}>
     <Box sx={{ px: { xs: 1, sm: 2 }, pt: 2, pb: 8, maxWidth: 720, mx: 'auto', color: 'text.primary' }}>
       {user === null && (
         <Alert severity="info" sx={{ mb: 2 }}>
@@ -357,9 +367,6 @@ export default function EstudoBiblicoVer() {
         </Typography>
       ) : null}
 
-      <Typography variant="subtitle2" gutterBottom>
-        Texto do Estudo
-      </Typography>
       <Box sx={{ mb: 3 }}>
         <TextoComReferencias texto={textoEstudo} style={leituraStyle} />
       </Box>
@@ -367,11 +374,6 @@ export default function EstudoBiblicoVer() {
       <Typography variant="h6" sx={{ mb: 1 }}>
         {modoProva ? 'Avaliação' : 'Perguntas'}
       </Typography>
-      {totalPerguntas > 0 && meditacoesDevocional.length > 0 && !modoProva && (
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Ao concluir a última pergunta, a devocional do próprio estudo abre abaixo.
-        </Typography>
-      )}
       {totalPerguntas === 0 ? (
         <Typography variant="body2" color="text.secondary">
           Este estudo ainda não tem perguntas.
@@ -386,31 +388,72 @@ export default function EstudoBiblicoVer() {
           onToast={setToast}
         />
       ) : (
-        <QuestaoEstudoBiblico
-          key={indiceSeguro}
-          questao={perguntaAtual}
-          numero={indiceSeguro + 1}
-          total={totalPerguntas}
-          indice={indiceSeguro}
-          lineHeight={lineHeight}
-          isFirst={indiceSeguro === 0}
-          isLast={indiceSeguro === totalPerguntas - 1}
-          onPrev={() => setIdxPergunta((i) => Math.max(0, i - 1))}
-          onNext={() => setIdxPergunta((i) => Math.min(totalPerguntas - 1, i + 1))}
-          onConcluir={handleConcluirEstudo}
-        />
+        <>
+          <Box
+            aria-label={`Questão ${indiceSeguro + 1} de ${totalPerguntas}`}
+            sx={{
+              display: 'flex',
+              justifyContent: totalPerguntas > 8 ? 'flex-start' : 'center',
+              alignItems: 'center',
+              gap: 0.75,
+              mb: 2,
+              overflowX: 'auto',
+              py: 0.5,
+              px: 1,
+            }}
+          >
+            {perguntas.map((_, index) => {
+              const atual = index === indiceSeguro
+              const anterior = index < indiceSeguro
+              return (
+                <Box
+                  key={`questao-indicador-${index}`}
+                  aria-current={atual ? 'step' : undefined}
+                  sx={{
+                    flex: '0 0 auto',
+                    width: atual ? 30 : 26,
+                    height: atual ? 30 : 26,
+                    borderRadius: '50%',
+                    border: '2px solid',
+                    borderColor: atual ? 'primary.main' : anterior ? 'success.main' : 'divider',
+                    bgcolor: atual ? 'primary.main' : anterior ? 'success.main' : 'background.paper',
+                    color: atual || anterior ? 'primary.contrastText' : 'text.secondary',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 800,
+                    fontSize: '0.78rem',
+                    boxShadow: atual ? 2 : 0,
+                  }}
+                >
+                  {index + 1}
+                </Box>
+              )
+            })}
+          </Box>
+          <QuestaoEstudoBiblico
+            key={indiceSeguro}
+            questao={perguntaAtual}
+            numero={indiceSeguro + 1}
+            lineHeight={lineHeight}
+            isFirst={indiceSeguro === 0}
+            isLast={indiceSeguro === totalPerguntas - 1}
+            onPrev={() => setIdxPergunta((i) => Math.max(0, i - 1))}
+            onNext={() => setIdxPergunta((i) => Math.min(totalPerguntas - 1, i + 1))}
+            onConcluir={handleConcluirEstudo}
+          />
+        </>
       )}
 
       {mostrarDevocionalPosQuestionario && meditacaoAtual && (
         <Box sx={{ mt: 3 }}>
           <Typography variant="h6" align="center" sx={{ mb: 1.5 }}>
-            Parabéns! Você concluiu o questionário.
+            Recomendamos a meditação abaixo sobre o tema que acabamos de estudar
           </Typography>
           <Typography variant="subtitle2" color="text.secondary" align="center" sx={{ mb: 2 }}>
-            Agora siga os dias de meditação.
-          </Typography>
-          <Typography variant="subtitle2" color="text.secondary" align="center" sx={{ mb: 2 }}>
-            Jornada devocional de 7 dias deste estudo
+            {meditacoesDevocional.length === 1
+              ? '1 dia de meditação'
+              : `${meditacoesDevocional.length} dias de meditação`}
           </Typography>
 
           <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap', mb: 3 }}>
@@ -446,7 +489,7 @@ export default function EstudoBiblicoVer() {
             <Typography variant="subtitle1" align="center" sx={{ mb: 1 }}>
               Dia {meditacaoAtual.dia}: {meditacaoAtual.titulo}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, textAlign: 'justify' }}>
               Leitura:{' '}
               <TextoComReferencias
                 texto={meditacaoAtual.leitura || ''}
@@ -459,22 +502,22 @@ export default function EstudoBiblicoVer() {
               <TextoComReferencias texto={meditacaoAtual.texto || ''} style={leituraStyle} />
             </Box>
             {meditacaoAtual.reflexao ? (
-              <Typography variant="body2" sx={{ mb: 1.5 }}>
+              <Typography variant="body2" sx={campoDevocionalStyle}>
                 <strong>Reflexão:</strong> {meditacaoAtual.reflexao}
               </Typography>
             ) : null}
             {meditacaoAtual.oracao ? (
-              <Typography variant="body2" sx={{ mb: 1.5 }}>
+              <Typography variant="body2" sx={campoDevocionalStyle}>
                 <strong>Oração:</strong> {meditacaoAtual.oracao}
               </Typography>
             ) : null}
             {meditacaoAtual.conselho_pastoral ? (
-              <Typography variant="body2" sx={{ mb: 1.5 }}>
+              <Typography variant="body2" sx={campoDevocionalStyle}>
                 <strong>Conselho Pastoral:</strong> {meditacaoAtual.conselho_pastoral}
               </Typography>
             ) : null}
             {meditacaoAtual.desafio ? (
-              <Typography variant="body2">
+              <Typography variant="body2" sx={{ ...campoDevocionalStyle, mb: 0 }}>
                 <strong>Desafio:</strong> {meditacaoAtual.desafio}
               </Typography>
             ) : null}
@@ -515,5 +558,6 @@ export default function EstudoBiblicoVer() {
         </Alert>
       )}
     </Box>
+    </LocalPinchZoom>
   )
 }

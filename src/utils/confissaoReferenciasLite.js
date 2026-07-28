@@ -37,9 +37,9 @@ export function parseCapituloRomanOuArabico(raw) {
   return parseNumeroRomanOuArabico(raw, 33)
 }
 
-/** Regex unificado para CFW/CMW/CBW. */
+/** Regex unificado para CFW/CMW/CBW, incluindo citações escritas por extenso. */
 export const REGEX_CONF_LINK =
-  /\b(CFW|Confissão(?:\s+de\s+Fé)?|CMW|Catecismo\s+Maior|CBW|Breve\s+Catecismo)\s*[.:]?\s*(?:Cap(?:ítulo)?\.?\s*)?([IVXLC]{1,10}|\d{1,3})(?:\s*[.:]\s*([IVXLC]{1,10}|\d{1,3}))?/gi
+  /\b(CFW|Confissão(?:\s+de\s+Fé)?(?:\s+de\s+Westminster)?|CMW|Catecismo\s+Maior(?:\s+de\s+Westminster)?|CBW|Breve\s+Catecismo(?:\s+de\s+Westminster)?)\s*(?:[,;:]\s*)?\(?\s*(?:(?:Cap(?:ítulo)?\.?|Pergunta|Questão)\s*)?([IVXLC]{1,10}|\d{1,3})(?:\s*(?:(?:[,;:]\s*)?(?:Art(?:igo)?\.?|§)\s*|[.:]\s*)([IVXLC]{1,10}|\d{1,3}))?\)?/gi
 
 /** Compatibilidade retroativa com código existente. */
 export const REGEX_CFW_LINK = REGEX_CONF_LINK

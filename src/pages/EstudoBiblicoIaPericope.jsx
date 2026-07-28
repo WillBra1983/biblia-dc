@@ -52,6 +52,7 @@ import {
 import { sxCorpoTextoIa } from '../utils/iaTextoStyles'
 import { buscarIntervaloVersiculos } from '../services/bibliaService'
 import VersiculoPopup from '../components/VersiculoPopup'
+import TextoComReferencias from '../components/TextoComReferencias'
 import CompartilharMenu from '../components/CompartilharMenu'
 import { useEhAdmin } from '../hooks/useEhAdmin'
 import { buildAppShareLink } from '../services/bibliaEstudosService'
@@ -115,16 +116,44 @@ function renderInlineMarkdown(line) {
   let m
   let i = 0
   while ((m = regex.exec(line)) !== null) {
-    if (m.index > last) partes.push(line.slice(last, m.index))
+    if (m.index > last) {
+      partes.push(
+        <TextoComReferencias
+          key={`t-${i++}`}
+          texto={line.slice(last, m.index)}
+          inline
+          style={{ color: 'inherit', fontFamily: 'inherit', fontSize: 'inherit', lineHeight: 'inherit' }}
+        />
+      )
+    }
     partes.push(
       <Box key={`b-${i++}`} component="strong" sx={{ fontWeight: 700 }}>
-        {m[1]}
+        <TextoComReferencias
+          texto={m[1]}
+          inline
+          style={{ color: 'inherit', fontFamily: 'inherit', fontSize: 'inherit', lineHeight: 'inherit' }}
+        />
       </Box>
     )
     last = regex.lastIndex
   }
-  if (last < line.length) partes.push(line.slice(last))
-  return partes.length ? partes : line
+  if (last < line.length) {
+    partes.push(
+      <TextoComReferencias
+        key={`t-${i++}`}
+        texto={line.slice(last)}
+        inline
+        style={{ color: 'inherit', fontFamily: 'inherit', fontSize: 'inherit', lineHeight: 'inherit' }}
+      />
+    )
+  }
+  return partes.length ? partes : (
+    <TextoComReferencias
+      texto={line}
+      inline
+      style={{ color: 'inherit', fontFamily: 'inherit', fontSize: 'inherit', lineHeight: 'inherit' }}
+    />
+  )
 }
 
 function renderLinhasEstudo(texto, lineHeightCss = 1.65) {
@@ -139,7 +168,7 @@ function renderLinhasEstudo(texto, lineHeightCss = 1.65) {
           variant="h6"
           sx={{ mt: i === 0 ? 0 : 2.5, mb: 1, fontWeight: 700, textAlign: 'left' }}
         >
-          {trimmed.slice(3).trim()}
+          {renderInlineMarkdown(trimmed.slice(3).trim())}
         </Typography>
       )
     }
@@ -151,7 +180,7 @@ function renderLinhasEstudo(texto, lineHeightCss = 1.65) {
           variant="subtitle1"
           sx={{ mt: 1.5, mb: 0.5, fontWeight: 700, textAlign: 'left' }}
         >
-          {trimmed.slice(4).trim()}
+          {renderInlineMarkdown(trimmed.slice(4).trim())}
         </Typography>
       )
     }

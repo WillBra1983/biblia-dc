@@ -21,6 +21,8 @@ import {
   Alert,
   CircularProgress,
   Divider,
+  FormControlLabel,
+  Switch,
 } from '@mui/material'
 import CampaignIcon from '@mui/icons-material/Campaign'
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt'
@@ -41,6 +43,8 @@ const CFG_LOJA_VAZIA = Object.freeze({
   mensagem: '',
   urlLoja: '',
 })
+
+const URL_ATUALIZACAO_FALLBACK = 'https://foundcine.com/biblia/'
 
 function PlataformaLojaFields({ titulo, cfg, onChange }) {
   return (
@@ -81,11 +85,27 @@ function PlataformaLojaFields({ titulo, cfg, onChange }) {
 }
 
 const ROTAS_SUGERIDAS = [
+  { label: 'Bíblia (início)', value: '/' },
+  { label: 'Versículo do dia', value: '/versiculo-do-dia' },
+  { label: 'Dias anteriores', value: '/versiculos-do-dia' },
+  { label: 'Discipulado', value: '/discipulado' },
   { label: 'Devocional', value: '/devocional' },
   { label: 'Estudos Compartilhados', value: '/estudos-biblicos' },
-  { label: 'Plano de leitura', value: '/plano' },
+  { label: 'Bíblia comentada', value: '/biblioteca-estudos' },
+  { label: 'Hinário - Letra', value: '/hinario/letra' },
+  { label: 'Hinário - Cifras', value: '/hinario/cifras' },
+  { label: 'Confissão de Fé', value: '/confissao' },
+  { label: 'Catecismo Maior', value: '/catecismo-maior' },
+  { label: 'Catecismo Breve', value: '/catecismo-breve' },
+  { label: 'Plano de leitura', value: '/plano-leitura-biblia' },
   { label: 'Mais de Deus', value: '/mais-de-deus' },
-  { label: 'Bíblia (início)', value: '/' }
+  { label: 'YouTube', value: '/youtube' },
+  { label: 'Quiz', value: '/quiz-retiro' },
+  { label: 'Versículos marcados', value: '/versiculos-marcados' },
+  { label: 'Versículos compartilhados', value: '/versiculos-compartilhados' },
+  { label: 'Mensagens', value: '/chat' },
+  { label: 'Configurações', value: '/configuracoes/notificacoes' },
+  { label: 'Sobre', value: '/sobre' }
 ]
 
 export default function AdminNotificar() {
@@ -96,6 +116,9 @@ export default function AdminNotificar() {
   const [titulo, setTitulo] = useState('')
   const [mensagem, setMensagem] = useState('')
   const [url, setUrl] = useState('/')
+  const [temAtualizacaoApp, setTemAtualizacaoApp] = useState(false)
+  const [somenteTeste, setSomenteTeste] = useState(true)
+  const [confirmouTesteAtualizacao, setConfirmouTesteAtualizacao] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [ultimoEnvio, setUltimoEnvio] = useState(null)
   const [cfgAndroid, setCfgAndroid] = useState({ ...CFG_LOJA_VAZIA })
@@ -228,9 +251,18 @@ export default function AdminNotificar() {
       })
       return
     }
+    if (temAtualizacaoApp && !somenteTeste && !confirmouTesteAtualizacao) {
+      mostrarSnackbar({
+        mensagem: 'Envie primeiro para você e confirme que a loja correta foi aberta.',
+        severidade: 'warning'
+      })
+      return
+    }
     const ok = await confirmarAsync({
-      titulo: 'Enviar aviso a todos?',
-      mensagem: `“${t}” será enviado a todos os usuários inscritos. Deseja continuar?`,
+      titulo: somenteTeste ? 'Enviar teste para você?' : 'Enviar aviso a todos?',
+      mensagem: somenteTeste
+        ? `“${t}” será enviado somente para a conta de administrador com a qual você está conectado.`
+        : `“${t}” será enviado a todos os usuários inscritos. Deseja continuar?`,
       labelOk: 'Enviar'
     })
     if (!ok) return
@@ -242,17 +274,28 @@ export default function AdminNotificar() {
       if (!fns) throw new Error('Cloud Functions indisponível')
       const { httpsCallable } = await import('firebase/functions')
       const fn = httpsCallable(fns, 'enviarAvisoAdmin')
-      const res = await fn({ titulo: t, mensagem: m, url: u, topic: 'novidades' })
+      const res = await fn({
+        titulo: t,
+        mensagem: m,
+        url: temAtualizacaoApp ? URL_ATUALIZACAO_FALLBACK : u,
+        atualizacaoApp: temAtualizacaoApp,
+        somenteParaMim: somenteTeste,
+        topic: 'novidades'
+      })
       setUltimoEnvio({
         quando: Date.now(),
         titulo: t,
         mensagem: m,
         messageId: res?.data?.messageId
       })
-      setTitulo('')
-      setMensagem('')
+      if (!somenteTeste) {
+        setTitulo('')
+        setMensagem('')
+        setTemAtualizacaoApp(false)
+        setConfirmouTesteAtualizacao(false)
+      }
       mostrarSnackbar({
-        mensagem: 'Aviso enviado.',
+        mensagem: somenteTeste ? 'Teste enviado somente para você.' : 'Aviso enviado.',
         severidade: 'success'
       })
     } catch (e) {
@@ -283,11 +326,29 @@ export default function AdminNotificar() {
       </Stack>
 
       <Alert severity="info" sx={{ mb: 2 }}>
-        Será enviado para todos os aparelhos inscritos no topic <code>novidades</code>.
-        Usuários que desligaram esse switch nas Configurações não recebem.
+        {somenteTeste ? (
+          <>
+            Modo de teste: somente você receberá o aviso, na conta de administrador
+            com a qual está conectado. Outros usuários e outros administradores não receberão.
+          </>
+        ) : (
+          <>
+            Será enviado para todos os aparelhos inscritos no topic <code>novidades</code>.
+            Usuários que desligaram esse switch nas Configurações não recebem.
+          </>
+        )}
       </Alert>
 
       <Stack spacing={2}>
+        <FormControlLabel
+          control={(
+            <Switch
+              checked={somenteTeste}
+              onChange={(e) => setSomenteTeste(e.target.checked)}
+            />
+          )}
+          label="Enviar teste somente para mim"
+        />
         <TextField
           label="Título"
           value={titulo}
@@ -306,6 +367,36 @@ export default function AdminNotificar() {
           helperText={`${mensagem.length}/500`}
         />
         <Box>
+          <FormControlLabel
+            control={(
+              <Switch
+                checked={temAtualizacaoApp}
+                onChange={(e) => {
+                  setTemAtualizacaoApp(e.target.checked)
+                  setConfirmouTesteAtualizacao(false)
+                }}
+              />
+            )}
+            label="Tem atualização do aplicativo"
+          />
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+            {temAtualizacaoApp
+              ? 'Ao tocar, cada aparelho abrirá a loja correspondente: Google Play ou App Store.'
+              : 'Desligado: a notificação abrirá somente o destino normal escolhido abaixo.'}
+          </Typography>
+        </Box>
+        {temAtualizacaoApp && !somenteTeste && (
+          <FormControlLabel
+            control={(
+              <Switch
+                checked={confirmouTesteAtualizacao}
+                onChange={(e) => setConfirmouTesteAtualizacao(e.target.checked)}
+              />
+            )}
+            label="Confirmei no teste que a loja correta foi aberta"
+          />
+        )}
+        {!temAtualizacaoApp && <Box>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
             Ao tocar na notificação, abrir:
           </Typography>
@@ -328,15 +419,20 @@ export default function AdminNotificar() {
               </Button>
             ))}
           </Stack>
-        </Box>
+        </Box>}
 
         <Button
           variant="contained"
           onClick={enviar}
-          disabled={enviando || !titulo.trim() || !mensagem.trim()}
+          disabled={
+            enviando ||
+            !titulo.trim() ||
+            !mensagem.trim() ||
+            (temAtualizacaoApp && !somenteTeste && !confirmouTesteAtualizacao)
+          }
           size="large"
         >
-          {enviando ? 'Enviando…' : 'Enviar agora'}
+          {enviando ? 'Enviando…' : somenteTeste ? 'Enviar teste' : 'Enviar agora'}
         </Button>
 
         {ultimoEnvio && (

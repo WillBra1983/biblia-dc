@@ -44,7 +44,18 @@ if (cfg.projectId && cfg.messagingSenderId) {
 // Ao clicar na notificação: foca a janela existente ou abre nova.
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
-  const url = (event.notification?.data && event.notification.data.url) || '/'
+  const data = event.notification?.data || {}
+  let url = data.url || '/'
+  if (data.acao === 'atualizar_app') {
+    const ua = String(self.navigator?.userAgent || '')
+    if (/android/i.test(ua)) {
+      url = 'https://play.google.com/store/apps/details?id=com.bibliadc.app'
+    } else if (/iphone|ipad|ipod/i.test(ua)) {
+      url = 'https://apps.apple.com/br/app/biblia-do-discipulo-cristao/id6772898342'
+    } else {
+      url = 'https://foundcine.com/biblia/'
+    }
+  }
   event.waitUntil((async () => {
     const wins = await clients.matchAll({ type: 'window', includeUncontrolled: true })
     for (const w of wins) {

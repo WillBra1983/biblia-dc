@@ -74,7 +74,15 @@ export default function AvisoAtualizacaoLoja() {
   const versaoLocal = aviso.buildInstalado
     ? `${aviso.versaoInstalada} (${aviso.buildInstalado})`
     : aviso.versaoInstalada
-  const corpoPadrao = `Há uma versão mais recente (${aviso.versaoAtual}) na loja. Você está na ${versaoLocal}.`
+  const ehIos = aviso.plataforma === 'ios'
+  const nomeLoja = ehIos ? 'App Store' : 'Google Play'
+  const plataformaIncompativel = ehIos
+    ? /\b(?:Google\s*Play|Play\s*Store|Android)\b/i
+    : /\b(?:App\s*Store|Apple|iPhone|iPad|iOS)\b/i
+  const mensagemPersonalizada = plataformaIncompativel.test(aviso.mensagem || '')
+    ? ''
+    : aviso.mensagem
+  const corpoPadrao = `Há uma versão mais recente (${aviso.versaoAtual}) disponível no ${nomeLoja}. Você está na ${versaoLocal}.`
 
   function dispensar() {
     marcarAvisoVersaoDispensado(aviso.chaveAviso)
@@ -94,10 +102,10 @@ export default function AvisoAtualizacaoLoja() {
         Nova versão disponível
       </DialogTitle>
       <DialogContent>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: aviso.mensagem ? 1.5 : 0 }}>
-          {aviso.mensagem || corpoPadrao}
+        <Typography variant="body2" color="text.secondary" sx={{ mb: mensagemPersonalizada ? 1.5 : 0 }}>
+          {mensagemPersonalizada || corpoPadrao}
         </Typography>
-        {aviso.mensagem ? (
+        {mensagemPersonalizada ? (
           <Typography variant="body2" color="text.secondary">
             {corpoPadrao}
           </Typography>
@@ -105,7 +113,7 @@ export default function AvisoAtualizacaoLoja() {
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2, flexDirection: 'row', gap: 1 }}>
         <Button variant="contained" fullWidth onClick={() => void irParaLoja()}>
-          Atualizar na loja
+          Atualizar no {nomeLoja}
         </Button>
         <Button color="inherit" fullWidth onClick={dispensar}>
           Depois

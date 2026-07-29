@@ -191,6 +191,13 @@
             ".validate": "!newData.exists() || (newData.child('token').isString() && newData.child('token').val().length > 16 && newData.child('token').val().length <= 4096 && newData.child('plataforma').isString() && newData.child('plataforma').val().length <= 16 && (!newData.child('userAgent').exists() || (newData.child('userAgent').isString() && newData.child('userAgent').val().length <= 400)) && newData.child('criadoEm').exists())"
           }
         },
+        "avisosAdminEntregues": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$avisoId": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "!newData.exists() || newData.isNumber()"
+          }
+        },
         "notif": {
           ".read": "auth != null && auth.uid === $uid",
           "preferencias": {
@@ -447,6 +454,11 @@
         ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
         ".write": false
       }
+    },
+    "avisosAdmin": {
+      ".read": "auth != null",
+      ".write": false,
+      ".indexOn": ["criadoEm"]
     },
     "appConfig": {
       "lojaVersao": {

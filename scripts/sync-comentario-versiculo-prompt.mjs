@@ -30,7 +30,12 @@ function evaluateTemplate(raw, variables = {}) {
 const teologiaBase = evaluateTemplate(extractTemplate('TEOLOGIA_BASE'))
 const comentarioTemplate = extractTemplate('INSTRUCAO_COMENTARIO_VERSICULO')
 const instrucao = evaluateTemplate(comentarioTemplate, { TEOLOGIA_BASE: teologiaBase })
-if (!instrucao.includes('análise concentrada') || !instrucao.includes('Nota:')) {
+const promptIntegro =
+  instrucao.includes('análise concentrada') &&
+  instrucao.includes('Encerre naturalmente no último parágrafo do comentário.') &&
+  !instrucao.includes('observação pontual de auxílio ao estudo')
+
+if (!promptIntegro) {
   throw new Error('O prompt extraido nao passou pela verificacao de integridade.')
 }
 

@@ -24,6 +24,57 @@ import { getFirebaseApp, getFirebaseDatabase, loadFirebaseModules } from '../con
 /** Token FCM atualmente ativo (na sessão atual). */
 let tokenAtual = null
 let listenerInbound = null
+let listenerTapNativoPromise = null
+let canalPushCriado = false
+
+function idNotificacaoLocal(valor) {
+  const texto = String(valor || `${Date.now()}-${Math.random()}`)
+  let hash = 0
+  for (let i = 0; i < texto.length; i += 1) {
+    hash = ((hash << 5) - hash + texto.charCodeAt(i)) | 0
+  }
+  return Math.max(1000, Math.abs(hash % 2147482000))
+}
+
+async function garantirCanalPush(LocalNotifications) {
+  if (canalPushCriado || Capacitor.getPlatform?.() !== 'android') return
+  await LocalNotifications.createChannel({
+    id: 'principal',
+    name: 'Avisos da Bíblia DC',
+    description: 'Comunicados e novidades do aplicativo',
+    importance: 5,
+    visibility: 1,
+    sound: 'default',
+    vibration: true,
+  })
+  canalPushCriado = true
+}
+
+/** Mostra no topo do sistema uma mensagem recebida com o app aberto. */
+export async function exibirPushComoNotificacaoSistema(payload) {
+  if (!Capacitor.isNativePlatform?.()) return false
+  try {
+    const { LocalNotifications } = await import('@capacitor/local-notifications')
+    const permissao = await LocalNotifications.checkPermissions()
+    if (permissao?.display !== 'granted') return false
+    await garantirCanalPush(LocalNotifications)
+
+    const notification = payload?.notification || {}
+    const data = payload?.data || {}
+    const item = {
+      id: idNotificacaoLocal(data.avisoId),
+      title: notification.title || 'Bíblia DC',
+      body: notification.body || '',
+      sound: 'default',
+      extra: data,
+    }
+    if (Capacitor.getPlatform?.() === 'android') item.channelId = 'principal'
+    await LocalNotifications.schedule({ notifications: [item] })
+    return true
+  } catch (_) {
+    return false
+  }
+}
 
 /**
  * Converte qualquer string para uma chave segura do RTDB
@@ -57,6 +108,47 @@ function vapidKey() {
 /** Status interno do registro. */
 export function getTokenAtual() {
   return tokenAtual
+}
+
+/**
+ * Registra o listener do toque imediatamente no boot do app nativo.
+ * Ele não depende de login nem do registro de um novo token, pois o toque
+ * pode ser entregue enquanto o aplicativo ainda está restaurando a sessão.
+ */
+export function ativarListenerToquePushNativo() {
+  if (!Capacitor.isNativePlatform?.()) return Promise.resolve()
+  if (listenerTapNativoPromise) return listenerTapNativoPromise
+
+  listenerTapNativoPromise = Promise.all([
+    import('@capacitor/push-notifications'),
+    import('@capacitor/local-notifications'),
+  ]).then(async ([{ PushNotifications }, { LocalNotifications }]) => {
+    const despachar = (dataRecebida) => {
+      try {
+        const data = dataRecebida || {}
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('salvation-push-tap', {
+            detail: { url: data.url, data }
+          }))
+        }
+      } catch (_) { /* noop */ }
+    }
+    const pushHandle = await PushNotifications.addListener(
+      'pushNotificationActionPerformed',
+      (e) => despachar(e?.notification?.data)
+    )
+    const localHandle = await LocalNotifications.addListener(
+      'localNotificationActionPerformed',
+      (e) => despachar(e?.notification?.extra)
+    )
+    return { pushHandle, localHandle }
+  })
+    .catch((erro) => {
+      listenerTapNativoPromise = null
+      throw erro
+    })
+
+  return listenerTapNativoPromise
 }
 
 /**
@@ -134,8 +226,12 @@ export async function desativarPushNotifications(uid) {
     } else {
       try {
         const { PushNotifications } = await import('@capacitor/push-notifications')
+        const handles = await listenerTapNativoPromise?.catch?.(() => null)
+        await handles?.localHandle?.remove?.()
+        await handles?.pushHandle?.remove?.()
         // Não há `unregister` que apague o token; só removemos listeners.
         await PushNotifications.removeAllListeners?.()
+        listenerTapNativoPromise = null
       } catch (_) { /* tudo bem */ }
     }
   } finally {
@@ -213,6 +309,9 @@ async function ativarPushWeb({ uid, onMessage }) {
 async function ativarPushNativo({ uid, onMessage }) {
   const { PushNotifications } = await import('@capacitor/push-notifications')
 
+  // Precisa existir antes de qualquer registro/renovação do token.
+  await ativarListenerToquePushNativo()
+
   // Pede permissão (só Android 13+ exige diálogo; iOS sempre exige)
   const perm = await PushNotifications.requestPermissions()
   if (perm.receive !== 'granted') {
@@ -238,24 +337,15 @@ async function ativarPushNativo({ uid, onMessage }) {
 
   // Mensagens em foreground
   if (typeof onMessage === 'function') {
-    PushNotifications.addListener('pushNotificationReceived', (n) => {
-      onMessage({
+    PushNotifications.addListener('pushNotificationReceived', async (n) => {
+      const payload = {
         notification: { title: n.title, body: n.body },
         data: n.data || {}
-      })
+      }
+      const exibidaNoSistema = await exibirPushComoNotificacaoSistema(payload)
+      onMessage({ ...payload, exibidaNoSistema })
     })
   }
-
-  // Ao tocar na notificação enquanto app está fechado/background
-  PushNotifications.addListener('pushNotificationActionPerformed', (e) => {
-    try {
-      const url = e?.notification?.data?.url
-      if (url && typeof window !== 'undefined') {
-        // O Capacitor abre o app; navegamos para a tela certa.
-        window.dispatchEvent(new CustomEvent('salvation-push-tap', { detail: { url, data: e.notification.data } }))
-      }
-    } catch (_) { /* noop */ }
-  })
 
   return { ok: true, token }
 }

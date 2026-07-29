@@ -110,8 +110,9 @@ export default function LayoutEstudo({ children, onSelectTema }) {
           padding: 0,
           '& > *': {
             width: '100%',
-            maxWidth: '100%',
-            margin: 0,
+            maxWidth: 1180,
+            margin: '0 auto',
+            boxSizing: 'border-box',
           }
         }}
       >

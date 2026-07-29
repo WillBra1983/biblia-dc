@@ -33,6 +33,7 @@
       }
     },
     "users": {
+      ".indexOn": ["admin"],
       "$uid": {
         "chatList": {
           ".read": "auth != null && auth.uid === $uid",
@@ -135,6 +136,25 @@
           ".read": "auth != null && auth.uid === $uid",
           ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
           ".validate": "newData.child('updatedAt').isNumber() && (!newData.child('marcados').exists() || (!newData.child('marcados').isString() && !newData.child('marcados').isNumber() && !newData.child('marcados').isBoolean())) && (!newData.child('deletes').exists() || (!newData.child('deletes').isString() && !newData.child('deletes').isNumber() && !newData.child('deletes').isBoolean()))"
+        },
+        "versiculosCompartilhados": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$postId": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "!newData.exists() || (newData.hasChildren(['referencia','texto','fundoId','publico','createdAt','likesCount','sharesCount']) && newData.child('referencia').isString() && newData.child('referencia').val().length > 0 && newData.child('referencia').val().length <= 140 && newData.child('texto').isString() && newData.child('texto').val().length > 0 && newData.child('texto').val().length <= 5000 && newData.child('fundoId').isString() && newData.child('fundoId').val().length <= 60 && newData.child('publico').isBoolean() && newData.child('createdAt').isNumber() && newData.child('likesCount').isNumber() && newData.child('likesCount').val() >= 0 && newData.child('sharesCount').isNumber() && newData.child('sharesCount').val() >= 0 && (!newData.child('url').exists() || (newData.child('url').isString() && newData.child('url').val().length <= 1000)))"
+          }
+        },
+        "versiculosCompartilhadosCurtidas": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$postId": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "!newData.exists() || newData.isNumber()"
+          }
+        },
+        "versiculosCompartilhadosPrefs": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid",
+          "publicoPadrao": { ".validate": "newData.isBoolean()" }
         },
         "planoLeitura": {
           ".read": "auth != null && auth.uid === $uid",
@@ -298,6 +318,28 @@
         }
       }
     },
+    "versiculosCompartilhadosPublicos": {
+      ".read": "auth != null",
+      ".indexOn": ["createdAt"],
+      "$postId": {
+        ".write": "auth != null && (((root.child('versiculosCompartilhadosDonos').child($postId).val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true) && ((!data.exists() && newData.exists()) || (data.exists() && !newData.exists()))) || (data.exists() && newData.exists() && newData.child('referencia').val() === data.child('referencia').val() && newData.child('texto').val() === data.child('texto').val() && newData.child('fundoId').val() === data.child('fundoId').val() && newData.child('createdAt').val() === data.child('createdAt').val() && newData.child('url').val() === data.child('url').val() && newData.child('tipo').val() === data.child('tipo').val() && newData.child('data').val() === data.child('data').val() && ((newData.child('likesCount').val() === data.child('likesCount').val() + 1 && root.child('users').child(auth.uid).child('versiculosCompartilhadosCurtidas').child($postId).exists() && newData.child('sharesCount').val() === data.child('sharesCount').val()) || (newData.child('likesCount').val() === data.child('likesCount').val() - 1 && !root.child('users').child(auth.uid).child('versiculosCompartilhadosCurtidas').child($postId).exists() && newData.child('likesCount').val() >= 0 && newData.child('sharesCount').val() === data.child('sharesCount').val()) || (newData.child('sharesCount').val() === data.child('sharesCount').val() + 1 && newData.child('likesCount').val() === data.child('likesCount').val()))))",
+        ".validate": "!newData.exists() || (newData.hasChildren(['referencia','texto','fundoId','createdAt','likesCount','sharesCount']) && newData.child('referencia').isString() && newData.child('referencia').val().length > 0 && newData.child('referencia').val().length <= 140 && newData.child('texto').isString() && newData.child('texto').val().length > 0 && newData.child('texto').val().length <= 5000 && newData.child('fundoId').isString() && newData.child('fundoId').val().length <= 60 && newData.child('createdAt').isNumber() && newData.child('likesCount').isNumber() && newData.child('likesCount').val() >= 0 && newData.child('sharesCount').isNumber() && newData.child('sharesCount').val() >= 0 && (!newData.child('url').exists() || (newData.child('url').isString() && newData.child('url').val().length <= 1000)) && (!newData.child('tipo').exists() || (newData.child('tipo').isString() && newData.child('tipo').val() === 'versiculo-do-dia')) && (!newData.child('data').exists() || (newData.child('data').isString() && newData.child('data').val().length === 10)) && !newData.child('authorUid').exists() && !newData.child('authorName').exists())"
+      }
+    },
+    "versiculosCompartilhadosPorLink": {
+      "$postId": {
+        ".read": true,
+        ".write": "auth != null && (root.child('versiculosCompartilhadosDonos').child($postId).val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true)",
+        ".validate": "!newData.exists() || (newData.hasChildren(['referencia','texto','fundoId','createdAt','likesCount','sharesCount']) && newData.child('referencia').isString() && newData.child('referencia').val().length > 0 && newData.child('referencia').val().length <= 140 && newData.child('texto').isString() && newData.child('texto').val().length > 0 && newData.child('texto').val().length <= 5000 && newData.child('fundoId').isString() && newData.child('fundoId').val().length <= 60 && newData.child('createdAt').isNumber() && newData.child('likesCount').isNumber() && newData.child('likesCount').val() >= 0 && newData.child('sharesCount').isNumber() && newData.child('sharesCount').val() >= 0 && (!newData.child('url').exists() || (newData.child('url').isString() && newData.child('url').val().length <= 1000)) && !newData.child('publico').exists() && !newData.child('authorUid').exists() && !newData.child('authorName').exists())"
+      }
+    },
+    "versiculosCompartilhadosDonos": {
+      "$postId": {
+        ".read": "auth != null && (data.val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true)",
+        ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid) || (data.val() === auth.uid && !newData.exists()) || (root.child('users').child(auth.uid).child('admin').val() === true && !newData.exists()))",
+        ".validate": "!newData.exists() || newData.isString()"
+      }
+    },
     "bibliaEstudos": {
       ".read": "auth != null",
       ".indexOn": ["publico"],
@@ -333,6 +375,19 @@
         ".read": "auth != null && data.exists() && (data.child('professorUid').val() === auth.uid || data.child('alunoUid').val() === auth.uid)",
         ".write": "auth != null && !data.exists() && newData.child('alunoUid').val() === auth.uid && newData.child('professorUid').isString() && newData.child('studyId').isString() && newData.child('tema').isString() && newData.hasChildren(['itens','createdAt','pontuacaoObtida','pontuacaoMax']) && newData.child('createdAt').isNumber() && newData.child('pontuacaoObtida').isNumber() && newData.child('pontuacaoMax').isNumber() && newData.child('resultUrl').isString()"
       }
+    },
+    "versiculosDoDia": {
+      ".read": true,
+      ".write": false,
+      ".indexOn": ["publicadoEm"]
+    },
+    "versiculosDoDiaUsados": {
+      ".read": false,
+      ".write": false
+    },
+    "versiculosDoDiaLocks": {
+      ".read": false,
+      ".write": false
     },
     "estudosCurados": {
       ".read": "auth != null",

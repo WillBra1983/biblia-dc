@@ -6,6 +6,7 @@ import {
 } from './bibliaService'
 import { iaGeminiDisponivel, gerarConteudoGemini } from './strongEstudoAiService'
 import { addonTomIntegrado, normalizarTom } from '../utils/iaTonalidade'
+import { localizarEstruturaSalmo } from '../data/salmosEstrutura'
 
 export { iaGeminiDisponivel }
 
@@ -65,6 +66,11 @@ export function formatarReferenciaCompactaPericope(livroId, capitulo, inicio, fi
  * @returns {Promise<null | { titulo: string, inicio: number, fim: number }>}
  */
 async function localizarPericope(livroId, capitulo, primeiroVersiculo) {
+  if (Number(livroId) === 19) {
+    const estrutura = localizarEstruturaSalmo(capitulo, primeiroVersiculo)
+    if (estrutura) return estrutura
+  }
+
   const lista = await buscarPericopes(livroId, capitulo)
   if (!Array.isArray(lista) || !lista.length) return null
   const ordenadas = [...lista]
@@ -229,9 +235,11 @@ const TEOLOGIA_BASE = `Você é professor bíblico cristão **protestante**, **c
 
 Escreve em **português do Brasil (pt-BR)**.
 
-Fontes preferidas (domínio público em inglês ou clássicas reformadas — pode citar pelo autor, sem URLs nem nomes comerciais):
-— **João Calvino** (Commentaries); **Matthew Henry**; **John Gill**; **Charles Hodge**; **Charles Spurgeon** (Treasury of David); **Robert Haldane**; **John Owen**; **Thomas Watson**; **Wilhelmus à Brakel**; **Herman Bavinck**.
-— Símbolos confessionais: **Westminster** (CFW, CMaior, CBreve), **Confissão Belga**, **Catecismo de Heidelberg**, **Cânones de Dort**, **1689**.
+Fontes reformadas preferidas (use apenas quando realmente iluminarem este texto, sempre em síntese própria, sem URLs):
+— Expositores e teólogos: **João Calvino**, **Matthew Henry**, **John Gill**, **Charles Hodge**, **A. A. Hodge**, **Robert Haldane**, **John Murray**, **Geerhardus Vos**, **Herman Bavinck**, **Louis Berkhof**, **B. B. Warfield**, **Herman Ridderbos**, **William Hendriksen**, **Simon Kistemaker**, **Anthony Hoekema** e **J. C. Ryle**.
+— Puritanos e autores pastorais reformados: **John Owen**, **Thomas Watson**, **Thomas Boston**, **Thomas Manton**, **Stephen Charnock**, **Richard Sibbes**, **John Flavel**, **Thomas Brooks**, **Jeremiah Burroughs**, **John Bunyan**, **Jonathan Edwards**, **Wilhelmus à Brakel**, **Charles Spurgeon**, **Martyn Lloyd-Jones** e **Sinclair Ferguson**.
+— Símbolos confessionais: **Westminster** (CFW, Catecismo Maior e Catecismo Breve), **Confissão Belga**, **Catecismo de Heidelberg**, **Cânones de Dort** e **Confissão Batista de 1689**.
+— Não use **Matthew Henry** como fonte automática ou dominante. Varie as fontes conforme livro, gênero e assunto. Na maioria dos comentários, nenhuma atribuição nominal é necessária; quando agregar valor, limite-se normalmente a uma ou duas referências realmente pertinentes.
 
 Regras anti-alucinação:
 — Ancore tudo no texto fornecido; **não invente** versículos, citações ou códigos linguísticos.
@@ -399,8 +407,7 @@ Evite (especialmente):
 
 **Extensão (comentário de versículo)**: há um **teto** técnico amplo, mas **não é meta**. Muitos versículos pedem **700–1800 caracteres**; outros, um pouco mais — **pare quando a ideia estiver completa**, mesmo bem abaixo do teto. **Não** seja prolixo só para "encher" o espaço disponível. Profundidade e coerência acima de extensão.
 
-Termine com a linha separada:
-**Nota:** observação pontual de auxílio ao estudo — para a visão completa do trecho, consulte o estudo da perícope.`
+Encerre naturalmente no último parágrafo do comentário. Não acrescente notas técnicas, avisos sobre o formato do estudo ou instruções para consultar a perícope.`
 
 /* ============================================================================ *
  * GERAÇÃO — perícope completa
@@ -530,13 +537,20 @@ export async function gerarEstudoPericopeCompleto({ referencia, titulo, texto, t
  * ============================================================================ */
 
 function montarCorpoPedidoVersiculo(
-  { referenciaCompacta, textoCitacao, estudoPericopeContexto, pericopeRefHint, tom },
+  { referenciaCompacta, textoCitacao, estudoPericopeContexto, textoPericopeContexto, pericopeRefHint, tom },
   { usarGoogleSearch }
 ) {
-  const blocoContexto = estudoPericopeContexto && String(estudoPericopeContexto).trim()
+  const estudoContexto = String(estudoPericopeContexto || '').trim()
+  const textoContexto = String(textoPericopeContexto || '').trim()
+  const blocoContexto = estudoContexto
     ? `ESTUDO COMPLETO DA PERÍCOPE — referência ${pericopeRefHint || ''} (use apenas para alinhar tom e teologia; **não repita** o contexto amplo no seu comentário):
 ---
-${String(estudoPericopeContexto).trim()}
+${estudoContexto}
+---`
+    : textoContexto
+      ? `CONTEXTO BÍBLICO BRUTO DA PERÍCOPE — referência ${pericopeRefHint || ''} (use para impedir uma leitura isolada; **não gere nem reproduza** um estudo completo da perícope):
+---
+${textoContexto}
 ---`
     : ''
   const addon = addonTomIntegrado('versiculo')
@@ -575,6 +589,7 @@ export async function gerarComentarioVersiculo({
   referenciaCompacta,
   textoCitacao,
   estudoPericopeContexto = null,
+  textoPericopeContexto = '',
   pericopeRefHint = '',
   tom
 }) {
@@ -587,6 +602,7 @@ export async function gerarComentarioVersiculo({
     referenciaCompacta: ref,
     textoCitacao: t,
     estudoPericopeContexto,
+    textoPericopeContexto,
     pericopeRefHint,
     tom: normalizarTom(tom)
   }

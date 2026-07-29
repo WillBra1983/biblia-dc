@@ -23,6 +23,8 @@ import InfoIcon from '@mui/icons-material/Info'
 import EventNoteIcon from '@mui/icons-material/EventNote'
 import CampaignIcon from '@mui/icons-material/Campaign'
 import TuneIcon from '@mui/icons-material/Tune'
+import CollectionsBookmarkOutlinedIcon from '@mui/icons-material/CollectionsBookmarkOutlined'
+import BookmarkAddedOutlinedIcon from '@mui/icons-material/BookmarkAddedOutlined'
 import { getGlassCardStyles } from '../utils/glassCardStyles'
 import { useApp } from '../contexts/AppContext'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
@@ -32,13 +34,80 @@ import AdminSectionViewCounts from './AdminSectionViewCounts'
 import PeopleIcon from '@mui/icons-material/People'
 import { chavesMetricaParaPathMenu, registarVisualizacaoSecaoSeNecessario } from '../utils/sectionViewKeys'
 import { prefetchRota, prefetchRotasComuns } from '../utils/routePrefetch'
+import { urlFundoVersiculo } from '../utils/versiculoImagem'
+import { abrirVersiculoDoDia, obterVersiculoDoDia } from '../services/versiculoDoDiaService'
 
 const ICON_BOX = 44
 const ICON_SIZE = 26
 
+function VersiculoDoDiaMenu() {
+  const navigate = useNavigate()
+  const [item, setItem] = useState(null)
+  useEffect(() => {
+    let ativo = true
+    obterVersiculoDoDia({ selecionarSeAusente: true })
+      .then((valor) => {
+        if (ativo && valor) setItem(valor)
+        return abrirVersiculoDoDia()
+      })
+      .then((pronto) => { if (ativo && pronto) setItem(pronto) })
+      .catch(() => {})
+    return () => { ativo = false }
+  }, [])
+  const fundoArquivo = item?.fundoId ? `${item.fundoId}.webp` : 'amanhecer.webp'
+  return (
+    <Grid item xs={12}>
+      <Box component="button" type="button" onClick={() => navigate('/versiculo-do-dia')} sx={{
+        position: 'relative', minHeight: 142, borderRadius: 2, overflow: 'hidden', color: '#fff',
+        width: '100%', cursor: 'pointer', textAlign: 'left', font: 'inherit',
+        backgroundImage: `linear-gradient(rgba(7,22,20,.42), rgba(7,22,20,.72)), url("${urlFundoVersiculo({ arquivo: fundoArquivo })}")`,
+        backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid rgba(255,255,255,.38)',
+        boxShadow: '0 5px 18px rgba(0,0,0,.2)', px: 2, py: 1.6, boxSizing: 'border-box',
+        display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+      }}>
+        <Typography variant="overline" sx={{ fontWeight: 900, lineHeight: 1.2, textShadow: '0 1px 4px #000' }}>Versículo do dia</Typography>
+        <Typography sx={{ fontFamily: 'Georgia, serif', fontSize: '1.02rem', lineHeight: 1.45, fontWeight: 700, textShadow: '0 2px 7px #000' }}>
+          {item?.texto || 'A Palavra para o seu dia está sendo escolhida.'}
+        </Typography>
+        <Typography variant="caption" sx={{ alignSelf: 'flex-end', fontWeight: 900, textShadow: '0 1px 4px #000' }}>{item?.referencia || 'Toque para abrir'}</Typography>
+      </Box>
+    </Grid>
+  )
+}
+
 /** Cards do menu lateral: sem blur de vidro para abrir instantaneamente. */
 function estilosCartaoMenu(gradient, options = {}) {
   return getGlassCardStyles(gradient, { performance: true, ...options })
+}
+
+function urlAssetPublico(caminho) {
+  const base = String(import.meta.env.BASE_URL || '/').replace(/\/$/, '')
+  return `${base}/${String(caminho || '').replace(/^\//, '')}`
+}
+
+function urlFundoMenu(fundo) {
+  if (!fundo) return ''
+  return fundo.includes('/')
+    ? urlAssetPublico(fundo)
+    : urlFundoVersiculo({ arquivo: fundo })
+}
+
+function estilosFundoMenu(fundo, ativo = false) {
+  const url = urlFundoMenu(fundo)
+  if (!url) return {}
+  return {
+    backgroundImage: `${ativo
+      ? 'linear-gradient(rgba(0,61,47,.64), rgba(0,48,38,.82))'
+      : 'linear-gradient(rgba(6,24,22,.54), rgba(4,18,17,.8))'}, url("${url}")`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    color: '#fff',
+    minHeight: 154,
+    height: '100%',
+    width: '100%',
+    boxShadow: '0 5px 16px rgba(0,32,26,.24)',
+    '& .MuiTypography-root, & .MuiSvgIcon-root': { color: '#fff !important' },
+  }
 }
 
 // Itens do menu principal — note: o gradiente per-item foi removido porque
@@ -49,26 +118,30 @@ const menuItems = [
     text: 'Bíblia',
     icon: <BibliaIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/biblia',
-    description: 'Leia e estude a Palavra de Deus'
+    description: 'Leia e estude a Palavra de Deus',
+    fundo: 'menu-fundos/biblia.webp'
   },
   {
     text: 'Plano de leitura',
     icon: <EventNoteIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/plano-leitura-biblia',
     description: 'Sua agenda diária de leitura bíblica',
+    fundo: 'menu-fundos/plano-leitura.webp'
   },
   {
     text: 'Discipulado',
     icon: <DiscipuladoIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/discipulado',
-    description: 'Material de estudo e formação'
+    description: 'Material de estudo e formação',
+    fundo: 'menu-fundos/discipulado.webp'
   },
   {
     text: 'Estudos Compartilhados',
     icon: <EstudosBiblicosIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/estudos-biblicos',
     description: 'Crie e compartilhe estudos (acesso por link ou salvos)',
-    accentRing: 'rgba(255, 255, 255, 0.45)'
+    accentRing: 'rgba(255, 255, 255, 0.45)',
+    fundo: 'menu-fundos/estudos-compartilhados.webp'
   },
   {
     text: 'Bíblia comentada',
@@ -76,42 +149,64 @@ const menuItems = [
     path: '/biblioteca-estudos',
     description: 'Perícopes e versículos com comentários',
     requerLogin: true,
-    accentRing: 'rgba(255, 255, 255, 0.45)'
+    accentRing: 'rgba(255, 255, 255, 0.45)',
+    fundo: 'menu-fundos/biblia-comentada.webp'
   },
   {
     text: 'Devocional',
     icon: <DevocionalIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/devocional',
     description: 'Meditações diárias',
-    accentRing: 'rgba(255, 255, 255, 0.45)'
+    accentRing: 'rgba(255, 255, 255, 0.45)',
+    fundo: 'menu-fundos/devocional.webp'
   },
   {
     text: 'Mais de Deus',
     icon: <AddIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/mais-de-deus',
     description: 'Mais conteúdos teológicos',
-    accentRing: 'rgba(255, 255, 255, 0.45)'
+    accentRing: 'rgba(255, 255, 255, 0.45)',
+    fundo: 'menu-fundos/mais-de-deus.webp'
   },
   {
     text: 'YouTube',
     icon: <YouTubeIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/youtube',
     description: 'Canal Bíblia do Discípulo Cristão',
-    accentRing: 'rgba(255, 255, 255, 0.45)'
+    accentRing: 'rgba(255, 255, 255, 0.45)',
+    fundo: 'menu-fundos/youtube.webp'
   },
   {
     text: 'Quiz',
     icon: <QuizRetiroIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/quiz-retiro',
     description: 'Quiz bíblico',
-    accentRing: 'rgba(255, 255, 255, 0.45)'
+    accentRing: 'rgba(255, 255, 255, 0.45)',
+    fundo: 'menu-fundos/quiz.webp'
+  },
+  {
+    text: 'Versículos marcados',
+    icon: <BookmarkAddedOutlinedIcon sx={{ fontSize: ICON_SIZE }} />,
+    path: '/versiculos-marcados',
+    description: 'Suas marcações por cor',
+    fundo: 'menu-fundos/versiculos-marcados.webp'
+  },
+  {
+    text: 'Versículos compartilhados',
+    icon: <CollectionsBookmarkOutlinedIcon sx={{ fontSize: ICON_SIZE }} />,
+    path: '/versiculos-compartilhados',
+    description: 'Mural anônimo e seus compartilhamentos',
+    requerLogin: true,
+    accentRing: 'rgba(255, 255, 255, 0.45)',
+    fundo: 'menu-fundos/versiculos-compartilhados.webp'
   },
   {
     text: 'Sobre',
     icon: <InfoIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/sobre',
     description: 'Informações do app e créditos de uso',
-    accentRing: 'rgba(255, 255, 255, 0.45)'
+    accentRing: 'rgba(255, 255, 255, 0.45)',
+    fundo: 'menu-fundos/sobre.webp'
   },
 ]
 
@@ -165,7 +260,8 @@ const notificacoesSubItemUsuarios = Object.freeze({
 const hinarioPai = {
   text: 'Hinário Novo Cântico',
   icon: <HinarioPaiIcon sx={{ fontSize: ICON_SIZE }} />,
-  description: 'Letra e cifras — abra para escolher'
+  description: 'Letra e cifras — abra para escolher',
+  fundo: 'menu-fundos/hinario.webp'
 }
 
 const hinarioSubItens = [
@@ -186,7 +282,8 @@ const hinarioSubItens = [
 const westminsterPai = {
   text: 'Westminster',
   icon: <WestminsterIcon sx={{ fontSize: ICON_SIZE }} />,
-  description: 'Confissão de Fé | Catecismo Maior | Catecismo Breve'
+  description: 'Confissão de Fé | Catecismo Maior | Catecismo Breve',
+  fundo: 'menu-fundos/westminster-abbey.webp'
 }
 
 const westminsterSubItens = [
@@ -263,6 +360,7 @@ function nomePrefetchPorPath(path) {
   if (path.startsWith('/mais-de-deus')) return 'maisDeDeus'
   if (path.startsWith('/youtube')) return 'youtube'
   if (path.startsWith('/versiculos-marcados')) return 'versiculosMarcados'
+  if (path.startsWith('/versiculos-compartilhados')) return 'versiculosCompartilhados'
   if (path.startsWith('/quiz-retiro')) return 'quizRetiro'
   if (path.startsWith('/estudos-biblicos/gerir')) return 'estudosBiblicosGerir'
   if (path.startsWith('/estudos-biblicos/novo')) return 'estudoBiblicoEditor'
@@ -285,21 +383,17 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
   const location = useLocation()
   const { user } = useFirebaseAuth()
   const { isDarkMode } = useApp()
-  const [hinarioExpanded, setHinarioExpanded] = useState(() =>
-    location.pathname.startsWith('/hinario')
-  )
-  const [westminsterExpanded, setWestminsterExpanded] = useState(() =>
-    location.pathname.startsWith('/confissao') ||
-    location.pathname.startsWith('/catecismo-maior') ||
-    location.pathname.startsWith('/catecismo-breve')
-  )
+  const [hinarioExpanded, setHinarioExpanded] = useState(false)
+  const [westminsterExpanded, setWestminsterExpanded] = useState(false)
   const [conectarExpanded, setConectarExpanded] = useState(false)
   const [ehAdmin, setEhAdmin] = useState(false)
 
-  // Sempre recolher «Conectar» ao abrir ou fechar o menu lateral.
+  // Cada acesso ao menu começa no topo e com os grupos recolhidos.
   useEffect(() => {
     if (menuOpen === undefined) return
     setConectarExpanded(false)
+    setHinarioExpanded(false)
+    setWestminsterExpanded(false)
     if (menuOpen) prefetchRotasComuns()
   }, [menuOpen])
 
@@ -333,20 +427,6 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
   /** Cartão ativo: texto claro sobre o gradiente verde (modelo Discipulado). */
   const corTextoItemMenuAtivo = (ativo, corInativa = menuCardTextColor) =>
     ativo ? 'rgba(255, 255, 255, 0.98)' : corInativa
-
-  useEffect(() => {
-    if (location.pathname.startsWith('/hinario')) setHinarioExpanded(true)
-  }, [location.pathname])
-
-  useEffect(() => {
-    if (
-      location.pathname.startsWith('/confissao') ||
-      location.pathname.startsWith('/catecismo-maior') ||
-      location.pathname.startsWith('/catecismo-breve')
-    ) {
-      setWestminsterExpanded(true)
-    }
-  }, [location.pathname])
 
   // Garante que o drawer/menu que abriga o MenuCards feche assim que o
   // usuário clica em qualquer item — mesmo quando a navegação não muda a
@@ -404,6 +484,10 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
     <Box
       sx={{
         p: 1.5,
+        width: '100%',
+        maxWidth: 1180,
+        mx: 'auto',
+        boxSizing: 'border-box',
         background: '#004d40',
         // O Drawer cresce até a altura do viewport. Usar `100vh` em
         // celular esconde os últimos itens (Devocional, etc.) atrás da
@@ -574,6 +658,14 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                       ),
                       color: corTextoItemMenuAtivo(chatMenuActive),
                       border: chatMenuActive ? bordaCartaoMenuAtivo : `1px solid ${menuCardBorder}`,
+                      background: 'transparent !important',
+                      borderLeft: 0,
+                      borderRight: 0,
+                      borderTop: 0,
+                      borderBottom: '1px solid rgba(255,255,255,.18)',
+                      borderRadius: 0,
+                      boxShadow: 'none',
+                      '&::before, &::after': { display: 'none' },
                     }}
                   >
                     <CardContent
@@ -688,6 +780,14 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                           ),
                           color: corTextoItemMenuAtivo(subActive),
                           border: subActive ? bordaCartaoMenuAtivo : `1px solid ${menuCardBorder}`,
+                          background: 'transparent !important',
+                          borderLeft: 0,
+                          borderRight: 0,
+                          borderTop: 0,
+                          borderBottom: '1px solid rgba(255,255,255,.18)',
+                          borderRadius: 0,
+                          boxShadow: 'none',
+                          '&::before, &::after': { display: 'none' },
                         }}
                       >
                         <CardContent
@@ -747,10 +847,12 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
           </Card>
         </Grid>
 
+        <VersiculoDoDiaMenu />
+
         {menuAntesHinario.map((item, idx) => {
           const isActive = rotaCorrespondeItemMenu(item.path, location.pathname)
           return (
-            <Grid item xs={12} key={item.text}>
+            <Grid item xs={6} md={3} key={item.text} sx={{ display: 'flex' }}>
               <Card
                 onClick={() => handleClick(item)}
                 sx={{
@@ -766,6 +868,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   ),
                   color: corTextoItemMenuAtivo(isActive),
                   border: isActive ? bordaCartaoMenuAtivo : `1px solid ${menuCardBorder}`,
+                  ...estilosFundoMenu(item.fundo, isActive),
                 }}
               >
                 <CardContent
@@ -773,8 +876,10 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     py: 1.25,
                     px: 1.5,
                     display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    width: '100%',
                     gap: 1.25,
                     textAlign: 'left',
                     '& .MuiTypography-root': {
@@ -849,7 +954,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
           )
         })}
 
-        <Grid item xs={12}>
+        <Grid item xs={hinarioExpanded ? 12 : 6} md={hinarioExpanded ? 12 : 3} sx={{ display: 'flex' }}>
           <Card
             sx={{
               ...estilosCartaoMenu(
@@ -864,6 +969,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
               ),
               color: corTextoItemMenuAtivo(hinarioAtivo),
               border: hinarioAtivo ? bordaCartaoMenuAtivo : `1px solid ${menuCardBorder}`,
+              ...estilosFundoMenu(hinarioPai.fundo, hinarioAtivo),
             }}
           >
             <CardContent
@@ -880,8 +986,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                 onClick={() => setHinarioExpanded((v) => !v)}
                 sx={{
                   display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
+                  flexDirection: hinarioExpanded ? 'row' : 'column',
+                  alignItems: hinarioExpanded ? 'center' : 'flex-start',
                   gap: 1.25,
                   cursor: 'pointer',
                   textAlign: 'left',
@@ -971,10 +1077,18 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                           ),
                           color: corTextoItemMenuAtivo(subActive),
                           minHeight: 88,
+                          position: 'relative',
+                          zIndex: 4,
                           border: subActive ? bordaCartaoMenuAtivo : `2px solid ${menuCardBorder}`,
                           boxShadow: subActive
                             ? '0 4px 12px rgba(0, 92, 55, 0.22)'
                             : (isDarkMode ? '0 3px 10px rgba(0,0,0,0.32)' : '0 3px 10px rgba(20,45,34,0.14)'),
+                          '&& .MuiTypography-root': {
+                            color: `${subActive ? 'rgba(255,255,255,.98)' : menuCardTextColor} !important`,
+                          },
+                          '&& .MuiSvgIcon-root': {
+                            color: `${subActive ? '#fff' : menuCardTextColor} !important`,
+                          },
                         }}
                       >
                         <CardContent
@@ -1036,7 +1150,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
           </Card>
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid item xs={westminsterExpanded ? 12 : 6} md={westminsterExpanded ? 12 : 3} sx={{ display: 'flex' }}>
           <Card
             sx={{
               ...estilosCartaoMenu(
@@ -1054,6 +1168,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
               ),
               color: corTextoItemMenuAtivo(westminsterAtivo),
               border: westminsterAtivo ? bordaCartaoMenuAtivo : `1px solid ${menuCardBorder}`,
+              ...estilosFundoMenu(westminsterPai.fundo, westminsterAtivo),
             }}
           >
             <CardContent
@@ -1070,8 +1185,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                 onClick={() => setWestminsterExpanded((v) => !v)}
                 sx={{
                   display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
+                  flexDirection: westminsterExpanded ? 'row' : 'column',
+                  alignItems: westminsterExpanded ? 'center' : 'flex-start',
                   gap: 1.25,
                   cursor: 'pointer',
                   textAlign: 'left',
@@ -1164,10 +1279,18 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                           ),
                           color: corTextoItemMenuAtivo(subActive),
                           minHeight: 88,
+                          position: 'relative',
+                          zIndex: 4,
                           border: subActive ? bordaCartaoMenuAtivo : `2px solid ${menuCardBorder}`,
                           boxShadow: subActive
                             ? '0 4px 12px rgba(0, 92, 55, 0.22)'
                             : (isDarkMode ? '0 3px 10px rgba(0,0,0,0.32)' : '0 3px 10px rgba(20,45,34,0.14)'),
+                          '&& .MuiTypography-root': {
+                            color: `${subActive ? 'rgba(255,255,255,.98)' : menuCardTextColor} !important`,
+                          },
+                          '&& .MuiSvgIcon-root': {
+                            color: `${subActive ? '#fff' : menuCardTextColor} !important`,
+                          },
                         }}
                       >
                         <CardContent
@@ -1232,7 +1355,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
         {menuDepoisWestminster.map((item, idx) => {
           const isActive = rotaCorrespondeItemMenu(item.path, location.pathname)
           return (
-            <Grid item xs={12} key={item.text}>
+            <Grid item xs={6} md={3} key={item.text} sx={{ display: 'flex' }}>
               <Card
                 onClick={() => handleClick(item)}
                 sx={{
@@ -1248,6 +1371,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   ),
                   color: corTextoItemMenuAtivo(isActive),
                   border: isActive ? bordaCartaoMenuAtivo : `1px solid ${menuCardBorder}`,
+                  ...estilosFundoMenu(item.fundo, isActive),
                 }}
               >
                 <CardContent
@@ -1255,8 +1379,10 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     py: 1.25,
                     px: 1.5,
                     display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    width: '100%',
                     gap: 1.25,
                     textAlign: 'left',
                     '& .MuiTypography-root': {
@@ -1334,7 +1460,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
         {menuFinal.map((item, idx) => {
           const isActive = rotaCorrespondeItemMenu(item.path, location.pathname)
           return (
-            <Grid item xs={12} key={item.text}>
+            <Grid item xs={6} md={3} key={item.text} sx={{ display: 'flex' }}>
               <Card
                 onClick={() => handleClick(item)}
                 sx={{
@@ -1350,6 +1476,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   ),
                   color: corTextoItemMenuAtivo(isActive),
                   border: isActive ? bordaCartaoMenuAtivo : `1px solid ${menuCardBorder}`,
+                  ...estilosFundoMenu(item.fundo, isActive),
                 }}
               >
                 <CardContent
@@ -1357,8 +1484,10 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     py: 1.25,
                     px: 1.5,
                     display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    width: '100%',
                     gap: 1.25,
                     textAlign: 'left',
                     '& .MuiTypography-root': {

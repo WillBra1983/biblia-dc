@@ -50,6 +50,9 @@ const PlanoLeituraBiblia = lazy(() => import('./pages/PlanoLeituraBiblia'))
 const MaisDeDeus = lazy(() => import('./pages/MaisDeDeus'))
 const YouTube = lazy(() => import('./pages/YouTube'))
 const VersiculosMarcados = lazy(() => import('./pages/VersiculosMarcados'))
+const VersiculosCompartilhados = lazy(() => import('./pages/VersiculosCompartilhados'))
+const VersiculoDoDia = lazy(() => import('./pages/VersiculoDoDia'))
+const VersiculosDoDiaArquivo = lazy(() => import('./pages/VersiculosDoDiaArquivo'))
 const QuizRetiro = lazy(() => import('./pages/QuizRetiro'))
 const EstudosBiblicosHub = lazy(() => import('./pages/EstudosBiblicosHub'))
 const EstudoBiblicoEditor = lazy(() => import('./pages/EstudoBiblicoEditor'))
@@ -218,6 +221,9 @@ const appRouteTree = createRoutesFromElements(
     <Route path="mais-de-deus" element={<MaisDeDeus />} />
     <Route path="youtube" element={<YouTube />} />
     <Route path="versiculos-marcados" element={<VersiculosMarcados />} />
+    <Route path="versiculos-compartilhados" element={<VersiculosCompartilhados />} />
+    <Route path="versiculo-do-dia" element={<VersiculoDoDia />} />
+    <Route path="versiculos-do-dia" element={<VersiculosDoDiaArquivo />} />
     <Route path="quiz-retiro" element={<QuizRetiro />} />
     <Route path="estudos-biblicos/novo" element={<EstudoBiblicoEditor />} />
     <Route path="estudos-biblicos/ia-passagem" element={<EstudoBiblicoIaPassagem />} />

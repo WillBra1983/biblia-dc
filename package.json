@@ -37,7 +37,8 @@
     "apple:mobileprovision-base64": "powershell -ExecutionPolicy Bypass -File scripts/apple-mobileprovision-base64.ps1",
     "ios:setup-free": "node scripts/ios-setup-free.mjs",
     "deploy:rules": "npx firebase-tools deploy --only database",
-    "deploy:functions": "npx firebase-tools deploy --only functions",
+    "sync:comentario-prompt": "node scripts/sync-comentario-versiculo-prompt.mjs",
+    "deploy:functions": "npm run sync:comentario-prompt && cross-env FUNCTIONS_DISCOVERY_TIMEOUT=60000 npx firebase-tools deploy --only functions",
     "sync:android-version": "node scripts/sync-android-version-rtdb.mjs",
     "deploy:storage": "npx firebase-tools deploy --only storage",
     "deploy:pwa-apis": "powershell -ExecutionPolicy Bypass -File scripts/deploy-pwa-para-apis.ps1",
@@ -50,6 +51,7 @@
     "generate:strong-pron": "python scripts/generate_strong_pron_mp3.py",
     "sqlite:vacuum": "python scripts/sqlite-vacuum.py",
     "sqlite:precompress": "node scripts/sqlite-precompress.mjs",
+    "versiculo-dia:catalogo": "node scripts/build-versiculo-dia-catalog.mjs",
     "sqlite:optimize": "npm run sqlite:vacuum && npm run sqlite:precompress",
     "setup:httpvfs": "node scripts/setup-httpvfs.mjs"
   },

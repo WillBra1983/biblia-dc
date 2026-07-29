@@ -2531,6 +2531,9 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
       <Box sx={{ 
           display: 'flex', 
           flexDirection: 'column', 
+          width: '100%',
+          minWidth: 0,
+          boxSizing: 'border-box',
           // Em celulares, `100vh` inclui a área coberta pela barra do
           // navegador (URL bar / menu inferior), fazendo o rodapé da
           // leitura — e o botão "Marcar como lido" — ficar parcialmente
@@ -2611,7 +2614,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             pointerEvents: 'none',
           }}
         />
-        <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto', px: { xs: 1, sm: 2.5 }, boxSizing: 'border-box' }}>
+        <Box sx={{ width: '100%', maxWidth: 1180, mx: 'auto', px: 1, boxSizing: 'border-box' }}>
         {erro ? (
           <Typography color="error" align="center">
             {erro}

@@ -112,6 +112,7 @@ export default function VersiculoPopup({ versiculos, onClose }) {
     <Dialog 
       open={true} 
       onClose={onClose}
+      sx={{ zIndex: (theme) => theme.zIndex.modal + 220 }}
       maxWidth={false}
       fullWidth
       fullScreen

@@ -74,3 +74,10 @@ exports.sincronizarVersaoPlayStoreCron =
 
 // Proxy Gemini (chave no servidor; auth + cota por usuário)
 exports.geminiGenerateContent = require('./src/geminiProxy').geminiGenerateContent
+
+// Versiculo do dia: selecao sem repeticao e publicacao direta na Biblia comentada.
+const versiculoDoDia = require('./src/versiculoDoDia')
+exports.publicarVersiculoDoDia = versiculoDoDia.publicarVersiculoDoDia
+exports.selecionarVersiculoDoDia = versiculoDoDia.selecionarVersiculoDoDia
+exports.garantirVersiculoDoDia = versiculoDoDia.garantirVersiculoDoDia
+exports.registrarCompartilhamentoVersiculoDoDia = versiculoDoDia.registrarCompartilhamentoVersiculoDoDia

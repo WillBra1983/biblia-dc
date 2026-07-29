@@ -9,7 +9,7 @@ import {
 import MenuCards from './MenuCards'
 import MenuIcon from '@mui/icons-material/Menu'
 import ArrowBack from '@mui/icons-material/ArrowBack'
-import { useState, useEffect, useLayoutEffect } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import GlobalPinchZoom from './GlobalPinchZoom'
 import { useZoomReset } from '../contexts/ZoomResetContext'
@@ -81,6 +81,9 @@ function getPageTitleFromPathname(pathname) {
   if (path.startsWith('/admin/usuarios')) return 'Usuários'
   if (path.startsWith('/admin/notificar')) return 'Enviar aviso'
   if (path.startsWith('/versiculos-marcados')) return 'Versículos marcados'
+  if (path.startsWith('/versiculos-compartilhados')) return 'Versículos compartilhados'
+  if (path === '/versiculo-do-dia') return 'Versículo do dia'
+  if (path === '/versiculos-do-dia') return 'Versículos dos dias anteriores'
   if (path.startsWith('/biblia/apresentacao')) return 'Apresentação — Bíblia'
   if (path.startsWith('/hinario/apresentacao')) return 'Apresentação — Hinário'
   if (path.match(/^\/estudo-strong\/[^/]+\/ocorrencias$/)) return 'Ocorrências Strong'
@@ -94,6 +97,7 @@ function getPageTitleFromPathname(pathname) {
 
 export default function Layout({ title, children }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const menuPrincipalRef = useRef(null)
   const [chatUnreadCount, setChatUnreadCount] = useState(0)
   const [appBarOculta, setAppBarOculta] = useState(false)
   const location = useLocation()
@@ -106,7 +110,8 @@ export default function Layout({ title, children }) {
       : location.pathname
   const isHinarioApresentacao = pathnameNorm.startsWith('/hinario/apresentacao')
   const isBibliaApresentacao = pathnameNorm.startsWith('/biblia/apresentacao')
-  const apresentacaoTelaCheia = isHinarioApresentacao || isBibliaApresentacao
+  const isVersiculoDoDia = pathnameNorm === '/versiculo-do-dia'
+  const apresentacaoTelaCheia = isHinarioApresentacao || isBibliaApresentacao || isVersiculoDoDia
   const { version: zoomResetVersion } = useZoomReset()
 
   // Rotas onde os botões devem aparecer
@@ -173,6 +178,9 @@ export default function Layout({ title, children }) {
     p === '/quiz-retiro' ||
     p === '/chat' ||
     p === '/versiculos-marcados' ||
+    p === '/versiculos-compartilhados' ||
+    p === '/versiculo-do-dia' ||
+    p === '/versiculos-do-dia' ||
     p === '/mais-de-deus' ||
     p === '/hinario-editor' ||
     p.startsWith('/biblioteca-estudos') ||
@@ -290,7 +298,7 @@ export default function Layout({ title, children }) {
     document.title = isHome ? 'Bíblia DC' : `${section} · Bíblia DC`
   }, [location.pathname, title])
 
-  const drawerWidth = { xs: '100%', sm: 400, md: 420 }
+  const drawerWidth = '100%'
 
   const menuPrincipal = (
     <MenuCards
@@ -299,6 +307,14 @@ export default function Layout({ title, children }) {
       onItemClick={() => setDrawerOpen(false)}
     />
   )
+
+  useEffect(() => {
+    if (!drawerOpen) return
+    const frame = requestAnimationFrame(() => {
+      menuPrincipalRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [drawerOpen])
 
   const appBarEscondidaVisual = appBarOculta && !apresentacaoTelaCheia
   /** Bíblia: conteúdo sob o AppBar fixo — modo imersivo revela linhas sem faixa vazia no `main`. */
@@ -343,7 +359,11 @@ export default function Layout({ title, children }) {
           sx={{
             display: 'flex',
             alignItems: 'center',
-            px: { xs: 1.25, sm: 2 }
+            width: '100%',
+            maxWidth: 1180,
+            mx: 'auto',
+            boxSizing: 'border-box',
+            px: { xs: 1.25, sm: 1.5 }
           }}
         >
           {/* Esquerda: Menu */}
@@ -569,6 +589,7 @@ export default function Layout({ title, children }) {
             verde antes dos cards do menu aparecerem.
           */}
           <Box
+            ref={menuPrincipalRef}
             component="nav"
             aria-label="Menu principal"
             aria-hidden={!drawerOpen}

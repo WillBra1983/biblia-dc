@@ -185,6 +185,16 @@ function renderLinhasEstudo(texto, lineHeightCss = 1.65) {
   })
 }
 
+function separarNotaFinal(texto) {
+  const valor = String(texto || '').trimEnd()
+  const correspondencia = valor.match(/(?:^|\n)\s*(?:\*\*)?Nota:(?:\*\*)?\s*([\s\S]+)$/i)
+  if (!correspondencia) return { corpo: valor, nota: '' }
+  return {
+    corpo: valor.slice(0, correspondencia.index).trimEnd(),
+    nota: correspondencia[1].trim(),
+  }
+}
+
 /**
  * Página de estudo IA por versículo(s).
  *
@@ -253,6 +263,8 @@ export default function EstudoBiblicoIaPassagem() {
   )
 
   const lineHeightCss = useMemo(() => readingLineHeightToCss(lineHeight), [lineHeight])
+
+  const textoSeparado = useMemo(() => separarNotaFinal(textoGerado), [textoGerado])
 
   const referenciaExibicao = useMemo(() => {
     if (!paramsValidos) return ''
@@ -351,6 +363,7 @@ export default function EstudoBiblicoIaPassagem() {
         referenciaCompacta: pass.referenciaCompacta,
         textoCitacao: pass.textoCitacao,
         estudoPericopeContexto,
+        textoPericopeContexto: pass.pericope?.texto || '',
         pericopeRefHint,
         tom: tomAlvo
       })
@@ -1103,7 +1116,7 @@ export default function EstudoBiblicoIaPassagem() {
                   </Stack>
                 </>
               ) : (
-                renderLinhasEstudo(textoGerado, lineHeightCss)
+                renderLinhasEstudo(textoSeparado.corpo, lineHeightCss)
               )}
             </Paper>
 

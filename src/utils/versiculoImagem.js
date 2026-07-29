@@ -193,11 +193,12 @@ export function baixarImagemVersiculo(blob, referencia) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
-export async function compartilharArquivoImagem(blob, referencia, url) {
+export async function compartilharArquivoImagem(blob, referencia, url, texto = '') {
   const link = String(url || '').trim()
-  const textoCompartilhamento = link
-    ? `${referencia}\n\nAbrir este texto no aplicativo:\n${link}`
-    : String(referencia || '').trim()
+  const citacao = formatarCitacaoTextoVersiculo(texto)
+  const partes = [citacao, String(referencia || '').trim()].filter(Boolean)
+  if (link) partes.push(`Abrir este texto no aplicativo:\n${link}`)
+  const textoCompartilhamento = partes.join('\n\n')
   if (Capacitor.isNativePlatform?.()) {
     const path = `versiculo-biblico-${Date.now()}.png`
     const data = await new Promise((resolve, reject) => {

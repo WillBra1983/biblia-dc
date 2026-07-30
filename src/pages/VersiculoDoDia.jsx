@@ -1,14 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Box, Button, CircularProgress, IconButton, Skeleton, Typography } from '@mui/material'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, TextField, Tooltip, Typography } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
 import HistoryIcon from '@mui/icons-material/History'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import CompartilharVersiculoImagemDialog from '../components/CompartilharVersiculoImagemDialog'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { FUNDOS_VERSICULO, urlFundoVersiculo, urlLogoApp } from '../utils/versiculoImagem'
-import { abrirVersiculoDoDia, linkPaginaVersiculoDoDia, obterComentarioDoDia, obterVersiculoDoDia, obterVersiculoDoDiaPorData } from '../services/versiculoDoDiaService'
+import { abrirVersiculoDoDia, linkPaginaVersiculoDoDia, obterComentarioDoDia, obterVersiculoDoDia, obterVersiculoDoDiaPorData, substituirVersiculoDoDia } from '../services/versiculoDoDiaService'
 import { registrarCompartilhamentoVersiculoDoDia } from '../services/versiculosCompartilhadosService'
+import { useEhAdmin } from '../hooks/useEhAdmin'
 
 function TextoComentario({ texto }) {
   return String(texto || '').split(/\n{2,}/).map((bloco, index) => {
@@ -33,7 +35,9 @@ function TextoComentario({ texto }) {
 
 export default function VersiculoDoDia() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useFirebaseAuth()
+  const { ehAdmin } = useEhAdmin(user?.uid)
   const [searchParams] = useSearchParams()
   const dataArquivada = searchParams.get('data')
   const [item, setItem] = useState(null)
@@ -42,9 +46,74 @@ export default function VersiculoDoDia() {
   const [preparandoComentario, setPreparandoComentario] = useState(true)
   const [erro, setErro] = useState('')
   const [compartilhar, setCompartilhar] = useState(false)
+  const [trocarAberto, setTrocarAberto] = useState(false)
+  const [novaReferencia, setNovaReferencia] = useState('')
+  const [trocando, setTrocando] = useState(false)
+  const [erroTroca, setErroTroca] = useState('')
+  const fluxoCarregamentoRef = useRef(0)
+
+  const voltar = useCallback(() => {
+    const indiceHistorico = Number(window.history?.state?.idx)
+    if (location.key !== 'default' && Number.isFinite(indiceHistorico) && indiceHistorico > 0) {
+      navigate(-1)
+      return
+    }
+    navigate('/', { replace: true })
+  }, [location.key, navigate])
+
+  async function trocarVersiculo() {
+    if (!novaReferencia.trim() || trocando) return
+    const fluxo = ++fluxoCarregamentoRef.current
+    let substituido = false
+    setTrocando(true)
+    setErroTroca('')
+    setErro('')
+    try {
+      const selecionado = await substituirVersiculoDoDia(novaReferencia)
+      if (!selecionado) throw new Error('Não foi possível selecionar essa referência.')
+      substituido = true
+      if (fluxoCarregamentoRef.current !== fluxo) return
+      setItem(selecionado)
+      setComentario('')
+      setPreparandoComentario(true)
+      setTrocarAberto(false)
+      const comentarioExistente = await obterComentarioDoDia(selecionado)
+      if (comentarioExistente) {
+        if (fluxoCarregamentoRef.current !== fluxo) return
+        setComentario(comentarioExistente)
+      }
+      const pronto = await abrirVersiculoDoDia()
+      if (fluxoCarregamentoRef.current !== fluxo) return
+      if (!pronto || pronto.chave !== selecionado.chave) {
+        throw new Error('O versículo foi trocado, mas a explicação ainda não ficou pronta.')
+      }
+      const texto = await obterComentarioDoDia(pronto)
+      if (!texto) throw new Error('A explicação ainda não pôde ser carregada.')
+      if (fluxoCarregamentoRef.current !== fluxo) return
+      setItem(pronto)
+      setComentario(texto)
+    } catch (falha) {
+      if (fluxoCarregamentoRef.current !== fluxo) return
+      const mensagem = falha?.message || 'Não foi possível substituir o versículo do dia.'
+      if (substituido) {
+        setErro(mensagem)
+        setTrocarAberto(false)
+      } else {
+        setErroTroca(mensagem)
+        setTrocarAberto(true)
+      }
+    } finally {
+      if (fluxoCarregamentoRef.current === fluxo) {
+        setTrocando(false)
+        setPreparandoComentario(false)
+      }
+    }
+  }
 
   useEffect(() => {
     let ativo = true
+    const fluxo = ++fluxoCarregamentoRef.current
+    const fluxoAtivo = () => ativo && fluxoCarregamentoRef.current === fluxo
     async function carregar() {
       try {
         let valor
@@ -54,21 +123,30 @@ export default function VersiculoDoDia() {
           // Texto, referencia e fundo chegam antes da explicacao da IA.
           valor = await obterVersiculoDoDia({ selecionarSeAusente: true })
         }
-        if (!ativo || !valor) return
+        if (!fluxoAtivo() || !valor) return
         setItem(valor)
         setCarregando(false)
+
+        // A Biblia Comentada e a fonte de verdade. Se o estudo ja existe,
+        // mostre-o imediatamente mesmo enquanto a Function reconcilia o
+        // status do registro diario em segundo plano.
+        const comentarioExistente = await obterComentarioDoDia(valor)
+        if (fluxoAtivo() && comentarioExistente) setComentario(comentarioExistente)
 
         const pronto = dataArquivada || valor.status === 'pronto'
           ? valor
           : await abrirVersiculoDoDia()
-        if (!ativo || !pronto) return
-        setItem(pronto)
+        if (!fluxoAtivo() || !pronto) return
         const texto = await obterComentarioDoDia(pronto)
-        if (ativo) setComentario(texto)
+        if (!texto) throw new Error('A explicação ainda não pôde ser carregada.')
+        if (fluxoAtivo()) {
+          setItem(pronto)
+          setComentario(texto)
+        }
       } catch (falha) {
-        if (ativo) setErro(falha?.message || 'Não foi possível preparar o versículo do dia.')
+        if (fluxoAtivo()) setErro(falha?.message || 'Não foi possível preparar o versículo do dia.')
       } finally {
-        if (ativo) {
+        if (fluxoAtivo()) {
           setCarregando(false)
           setPreparandoComentario(false)
         }
@@ -96,7 +174,7 @@ export default function VersiculoDoDia() {
   if (!item) return (
     <Box sx={{ width: '100%', p: 3, textAlign: 'center' }}>
       <Typography sx={{ mb: 2 }}>{erro || 'Não foi possível abrir o versículo do dia.'}</Typography>
-      <Button onClick={() => navigate(-1)}>Voltar</Button>
+      <Button onClick={voltar}>Voltar</Button>
     </Box>
   )
 
@@ -114,8 +192,15 @@ export default function VersiculoDoDia() {
           backgroundColor: fundo.cor || '#17443a', backgroundSize: 'cover', backgroundPosition: 'center',
         }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <IconButton onClick={() => navigate(-1)} aria-label="Voltar" sx={{ color: '#fff', bgcolor: 'rgba(0,0,0,.28)' }}><ArrowBackIcon /></IconButton>
+            <IconButton onClick={voltar} aria-label="Voltar" sx={{ color: '#fff', bgcolor: 'rgba(0,0,0,.28)' }}><ArrowBackIcon /></IconButton>
             <Box>
+              {ehAdmin && !dataArquivada && (
+                <Tooltip title="Escolher outro versículo para hoje">
+                  <IconButton onClick={() => setTrocarAberto(true)} aria-label="Trocar versículo do dia" sx={{ color: '#fff', bgcolor: 'rgba(0,0,0,.28)', mr: 1 }}>
+                    <PublishedWithChangesIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
               <IconButton onClick={() => navigate('/versiculos-do-dia')} aria-label="Dias anteriores" sx={{ color: '#fff', bgcolor: 'rgba(0,0,0,.28)', mr: 1 }}><HistoryIcon /></IconButton>
               <IconButton onClick={() => setCompartilhar(true)} aria-label="Compartilhar" sx={{ color: '#fff', bgcolor: 'rgba(0,0,0,.28)' }}><IosShareOutlinedIcon /></IconButton>
             </Box>
@@ -174,6 +259,33 @@ export default function VersiculoDoDia() {
           }
         }}
       />
+      <Dialog open={trocarAberto} onClose={() => !trocando && setTrocarAberto(false)} fullWidth maxWidth="xs">
+        <DialogTitle>Escolher versículo do dia</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Digite a referência completa. Se já houver comentário na Bíblia Comentada, ele será reutilizado.
+          </Typography>
+          <TextField
+            autoFocus
+            fullWidth
+            label="Referência bíblica"
+            placeholder="João 3:16"
+            value={novaReferencia}
+            disabled={trocando}
+            onChange={(event) => setNovaReferencia(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') void trocarVersiculo()
+            }}
+          />
+          {erroTroca && <Alert severity="error" sx={{ mt: 2 }}>{erroTroca}</Alert>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setTrocarAberto(false)} disabled={trocando}>Cancelar</Button>
+          <Button variant="contained" onClick={() => void trocarVersiculo()} disabled={trocando || !novaReferencia.trim()}>
+            {trocando ? 'Substituindo...' : 'Usar este versículo'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

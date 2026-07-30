@@ -664,7 +664,6 @@ export default function Layout({ title, children }) {
             location.pathname === '/chat' ||
             location.pathname === '/' ||
             location.pathname === '/biblia' ||
-            location.pathname.startsWith('/discipulado') ||
             location.pathname.startsWith('/estudo-strong') ||
             location.pathname.startsWith('/estudos-biblicos')
           }

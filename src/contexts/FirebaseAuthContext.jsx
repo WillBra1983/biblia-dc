@@ -250,7 +250,7 @@ export function FirebaseAuthProvider({ children }) {
     if (!auth || !fns) throw new Error('Firebase não configurado')
     await aguardarAuthPronto(auth)
     const { httpsCallable } = await import('firebase/functions')
-    const { sendSignInLinkToEmail } = await import('firebase/auth')
+    const { createUserWithEmailAndPassword, sendEmailVerification, sendSignInLinkToEmail, signOut, updateProfile } = await import('firebase/auth')
     marcarRegistroEmailSenhaEmCurso(true)
     try {
       const emailTrim = val.email
@@ -264,7 +264,33 @@ export function FirebaseAuthProvider({ children }) {
         password,
         displayName: valNome.nome,
       })
-      await sendSignInLinkToEmail(auth, emailTrim, actionCodeSettings)
+      try {
+        await sendSignInLinkToEmail(auth, emailTrim, actionCodeSettings)
+      } catch (erroLink) {
+        const codigo = String(erroLink?.code || '')
+        if (!codigo.includes('operation-not-allowed')) throw erroLink
+
+        // Contingência: alguns projetos mantêm E-mail/senha ativo, mas recusam
+        // links de entrada. A conta continua bloqueada até a verificação comum.
+        const credencial = await createUserWithEmailAndPassword(auth, emailTrim, password)
+        if (valNome.nome) await updateProfile(credencial.user, { displayName: valNome.nome })
+        await sendEmailVerification(credencial.user, {
+          url: actionCodeSettings.url,
+          handleCodeInApp: false,
+        })
+        try {
+          const limpar = httpsCallable(fns, 'cancelarCadastroEmailPendente')
+          await limpar({ email: emailTrim })
+        } catch (erroLimpeza) {
+          console.warn('[auth] Cadastro confirmado; pendência será removida por expiração:', erroLimpeza?.message || erroLimpeza)
+        }
+        await signOut(auth)
+        return {
+          emailVerificationSent: true,
+          email: emailTrim,
+          message: 'Conta criada. Enviamos um e-mail de confirmação. Abra o link e depois entre com o mesmo e-mail e senha.',
+        }
+      }
       guardarEmailParaCadastroLink(emailTrim)
       const message =
         res?.data?.message || MSG_CADASTRO_LINK_ENVIADO
@@ -346,6 +372,29 @@ export function FirebaseAuthProvider({ children }) {
       if (e?.code !== ERRO_EMAIL_NAO_VERIFICADO) {
         setLastError(hintForFirebaseAuthError(e))
       }
+      throw e
+    }
+  }, [])
+
+  const requestPasswordReset = useCallback(async (email) => {
+    setLastError(null)
+    const { validarEmailParaCadastro } = await import('../utils/emailCadastro')
+    const val = validarEmailParaCadastro(email)
+    if (!val.ok) {
+      setLastError(val.mensagem)
+      throw new Error(val.mensagem)
+    }
+    await loadFirebaseModules()
+    const auth = getFirebaseAuth()
+    if (!auth) throw new Error('Firebase não configurado')
+    const { sendPasswordResetEmail } = await import('firebase/auth')
+    try {
+      await sendPasswordResetEmail(auth, val.email)
+      return {
+        message: 'Se houver uma conta com este e-mail, enviaremos um link para criar uma nova senha. Verifique também o spam.',
+      }
+    } catch (e) {
+      setLastError(hintForFirebaseAuthError(e))
       throw e
     }
   }, [])
@@ -557,6 +606,7 @@ export function FirebaseAuthProvider({ children }) {
       registerWithEmail,
       concluirCadastroPorLinkEmail,
       loginWithEmail,
+      requestPasswordReset,
       logout,
       loginWithGoogle,
       loginWithApple,
@@ -571,6 +621,7 @@ export function FirebaseAuthProvider({ children }) {
       registerWithEmail,
       concluirCadastroPorLinkEmail,
       loginWithEmail,
+      requestPasswordReset,
       logout,
       loginWithGoogle,
       loginWithApple,

@@ -214,3 +214,21 @@ exports.finalizarCadastroEmailLink = onCall(
     return { ok: true, emailVerified: true }
   }
 )
+
+exports.cancelarCadastroEmailPendente = onCall(
+  {
+    region: 'us-central1',
+    maxInstances: 10,
+    cors: true,
+  },
+  async (req) => {
+    const uid = req.auth?.uid
+    const tokenEmail = normalizeEmail(req.auth?.token?.email || '')
+    const email = normalizeEmail(req.data?.email || '')
+    if (!uid || !tokenEmail || tokenEmail !== email) {
+      throw new HttpsError('permission-denied', 'Não foi possível limpar o cadastro pendente.')
+    }
+    await admin.database().ref(`pendingEmailSignups/${encodeEmailRtdbKey(email)}`).remove()
+    return { ok: true }
+  }
+)

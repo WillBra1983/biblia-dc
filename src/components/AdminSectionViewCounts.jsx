@@ -139,8 +139,8 @@ export default function AdminSectionViewCounts({ keys, ehAdmin }) {
                   opacity: 0.92,
                 }}
               >
-                <VisibilityOutlined sx={{ fontSize: 14, verticalAlign: 'middle' }} />
-                <Typography component="span" variant="caption" sx={{ fontWeight: 700, fontSize: '0.72rem' }}>
+                <VisibilityOutlined sx={{ fontSize: 15, verticalAlign: 'middle', color: '#fff176 !important', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,.5))' }} />
+                <Typography component="span" variant="caption" sx={{ color: '#fff176 !important', fontWeight: 800, fontSize: '0.72rem', textShadow: '0 1px 1px rgba(0,0,0,.65) !important' }}>
                   {formatarNumero(hoje)}
                 </Typography>
               </Box>
@@ -155,8 +155,8 @@ export default function AdminSectionViewCounts({ keys, ehAdmin }) {
                   opacity: 0.92,
                 }}
               >
-                <VisibilityOutlined sx={{ fontSize: 14, verticalAlign: 'middle' }} />
-                <Typography component="span" variant="caption" sx={{ fontWeight: 700, fontSize: '0.72rem' }}>
+                <VisibilityOutlined sx={{ fontSize: 15, verticalAlign: 'middle', color: '#fff176 !important', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,.5))' }} />
+                <Typography component="span" variant="caption" sx={{ color: '#fff176 !important', fontWeight: 800, fontSize: '0.72rem', textShadow: '0 1px 1px rgba(0,0,0,.65) !important' }}>
                   {formatarNumero(total)}
                 </Typography>
               </Box>

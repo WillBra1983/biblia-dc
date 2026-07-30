@@ -5,6 +5,7 @@ const { randomUUID } = require('node:crypto')
 const admin = require('firebase-admin')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { onSchedule } = require('firebase-functions/v2/scheduler')
+const { onValueWritten } = require('firebase-functions/v2/database')
 const { defineSecret } = require('firebase-functions/params')
 const { logger } = require('firebase-functions/v2')
 const {
@@ -17,8 +18,9 @@ const TIMEZONE = 'America/Cuiaba'
 const MODEL = 'gemini-2.5-flash'
 const PUBLIC_APP_URL = String(process.env.PUBLIC_APP_URL || 'https://foundcine.com/biblia').replace(/\/$/, '')
 const FUNDOS = ['amanhecer', 'montanhas', 'ceu', 'rio-sereno', 'cachoeira', 'cruz', 'lago', 'caminho', 'mar']
-const LOCK_TTL_MS = 4 * 60 * 1000
-const WAIT_LIMIT_MS = 170 * 1000
+const LOCK_TTL_MS = 150 * 1000
+const WAIT_LIMIT_MS = 200 * 1000
+const GEMINI_TIMEOUT_MS = 120 * 1000
 let catalogoCache = null
 
 function dataNoFuso(date = new Date()) {
@@ -51,24 +53,71 @@ function referencia(item) {
   return `${item.bookName} ${item.chapter}:${item.verse}`
 }
 
+function normalizarLivro(valor) {
+  return String(valor || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
+
+function normalizarLivroEstrito(valor) {
+  return String(valor || '')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim()
+    .toLowerCase()
+}
+
+function encontrarPorReferencia(catalogo, valor) {
+  const entrada = String(valor || '').trim()
+  const partes = entrada.match(/^(.+?)\s+(\d+)\s*[:.]\s*(\d+)$/)
+  if (!partes) {
+    throw new HttpsError('invalid-argument', 'Informe a referência completa, por exemplo: João 3:16.')
+  }
+  const livroOriginal = normalizarLivroEstrito(partes[1])
+  const livroDigitado = normalizarLivro(partes[1])
+  const capitulo = Number(partes[2])
+  const versiculo = Number(partes[3])
+  const livros = [...new Set(catalogo.map((item) => item.bookName))]
+  let correspondencias = livros.filter((nome) => normalizarLivroEstrito(nome) === livroOriginal)
+  if (!correspondencias.length && livroDigitado.length >= 4) {
+    correspondencias = livros.filter((nome) => normalizarLivro(nome) === livroDigitado)
+  }
+  if (correspondencias.length !== 1) {
+    throw new HttpsError('invalid-argument', 'Livro bíblico não encontrado. Digite o nome completo.')
+  }
+  const nomeLivro = correspondencias[0]
+  const item = catalogo.find((valorCatalogo) => (
+    valorCatalogo.bookName === nomeLivro &&
+    Number(valorCatalogo.chapter) === capitulo &&
+    Number(valorCatalogo.verse) === versiculo
+  ))
+  if (!item) throw new HttpsError('not-found', 'Essa referência não foi encontrada no texto bíblico do aplicativo.')
+  return item
+}
+
 function idDestaqueMural(data) {
   return `versiculo-dia-${data}`
 }
 
-async function garantirDestaqueMural(db, registro) {
+async function garantirDestaqueMural(db, registro, { resetarContadores = false } = {}) {
   if (!registro?.data || !registro?.chave) return
   const destaqueRef = db.ref(`versiculosCompartilhadosPublicos/${idDestaqueMural(registro.data)}`)
-  await destaqueRef.transaction((atual) => ({
-    referencia: registro.referencia,
-    texto: registro.texto,
-    fundoId: registro.fundoId,
-    url: `${PUBLIC_APP_URL}/versiculo-do-dia?data=${encodeURIComponent(registro.data)}`,
-    createdAt: Number(registro.criadoEm || atual?.createdAt || Date.now()),
-    likesCount: Number(atual?.likesCount || 0),
-    sharesCount: Number(atual?.sharesCount || 0),
-    tipo: 'versiculo-do-dia',
-    data: registro.data,
-  }))
+  await destaqueRef.transaction((valorAtual) => {
+    const atual = resetarContadores ? null : valorAtual
+    return ({
+      referencia: registro.referencia,
+      texto: registro.texto,
+      fundoId: registro.fundoId,
+      url: `${PUBLIC_APP_URL}/versiculo-do-dia?data=${encodeURIComponent(registro.data)}`,
+      createdAt: Number(registro.criadoEm || atual?.createdAt || Date.now()),
+      likesCount: Number(atual?.likesCount || 0),
+      sharesCount: Number(atual?.sharesCount || 0),
+      tipo: 'versiculo-do-dia',
+      data: registro.data,
+    })
+  })
 }
 
 function hash(texto) {
@@ -112,10 +161,16 @@ function esperar(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function adquirirLock(ref, dono) {
+async function adquirirLock(ref, dono, chave = '') {
   const resultado = await ref.transaction((atual) => {
     const expirou = !atual || Date.now() - Number(atual.iniciadoEm || 0) >= LOCK_TTL_MS
-    return expirou ? { dono, iniciadoEm: Date.now() } : undefined
+    // Na troca manual, uma geracao do versiculo anterior pode continuar viva.
+    // O lock pertence ao versiculo, nao apenas ao dia; uma chave diferente
+    // pode substitui-lo sem esperar a expiracao completa.
+    const pertenceAOutroVersiculo = Boolean(chave) && String(atual?.chave || '') !== chave
+    return expirou || pertenceAOutroVersiculo
+      ? { dono, iniciadoEm: Date.now(), ...(chave ? { chave } : {}) }
+      : undefined
   })
   return resultado.committed
 }
@@ -225,6 +280,7 @@ O teto e maximo, nao meta. Pare quando a ideia estiver completa e coerente; prof
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`
   const response = await fetch(url, {
     method: 'POST',
+    signal: AbortSignal.timeout(GEMINI_TIMEOUT_MS),
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: INSTRUCAO_COMENTARIO_VERSICULO }] },
@@ -279,7 +335,10 @@ async function publicarExplicacao(registro, data) {
     comentarioGeradoAutomaticamente: geradoAgora,
     publicadoEm: Date.now(),
   }
-  await db.ref(`versiculosDoDia/${data}`).set(pronto)
+  const publicacao = await db.ref(`versiculosDoDia/${data}`).transaction((atual) => (
+    atual?.chave === registro.chave ? pronto : undefined
+  ))
+  if (!publicacao.committed) return publicacao.snapshot.val()
   logger.info('Explicacao do versiculo do dia publicada', {
     data,
     estudoKey: registro.chave,
@@ -289,11 +348,45 @@ async function publicarExplicacao(registro, data) {
   return pronto
 }
 
+async function vincularEstudoCuradoExistente(registro, data) {
+  const chave = String(registro?.chave || '').trim()
+  if (!chave) return null
+  const db = admin.database()
+  const estudo = await db.ref(`estudosCurados/${chave}`).get()
+  const texto = String(estudo.child('texto').val() || '').trim()
+  if (!texto) return null
+
+  const refDia = db.ref(`versiculosDoDia/${data}`)
+  const maisRecente = await refDia.get()
+  if (String(maisRecente.child('chave').val() || '') !== chave) return null
+
+  const publicacao = {
+    status: 'pronto',
+    estudoKey: chave,
+    comentarioChave: chave,
+    comentario: texto,
+    comentarioGeradoAutomaticamente: estudo.child('curadoria').val() === 'admin-automatica',
+    publicadoEm: Date.now(),
+    preparandoDesde: null,
+    erroEm: null,
+  }
+  // Atualize apenas os campos de publicacao. Uma transacao no registro inteiro
+  // entra em contencao quando varios clientes abrem a pagina ao mesmo tempo e
+  // todos renovam o estado `preparando`.
+  await refDia.update(publicacao)
+  const publicado = (await refDia.get()).val()
+  if (String(publicado?.chave || '') !== chave) return null
+  logger.info('Estudo curado vinculado ao versiculo do dia', { data, estudoKey: chave })
+  return publicado
+}
+
 async function garantirExplicacao(data = dataNoFuso()) {
   const db = admin.database()
   const refDia = db.ref(`versiculosDoDia/${data}`)
   const registro = await selecionarVersiculoDoDia(data)
   if (registro.status === 'pronto' && !comentarioIncompleto(registro.comentario)) return registro
+  const jaCurado = await vincularEstudoCuradoExistente(registro, data)
+  if (jaCurado) return jaCurado
 
   const lockRef = db.ref(`versiculosDoDiaLocks/${data}/explicacao`)
   const dono = randomUUID()
@@ -301,18 +394,35 @@ async function garantirExplicacao(data = dataNoFuso()) {
   while (Date.now() < limite) {
     const atual = await refDia.get()
     if (atual.child('status').val() === 'pronto' && !comentarioIncompleto(atual.child('comentario').val())) return atual.val()
-    if (await adquirirLock(lockRef, dono)) {
+    const curadoDuranteEspera = await vincularEstudoCuradoExistente(atual.val() || registro, data)
+    if (curadoDuranteEspera) return curadoDuranteEspera
+    const chaveAtual = String(atual.child('chave').val() || registro.chave || '')
+    if (await adquirirLock(lockRef, dono, chaveAtual)) {
+      let chaveEmPreparacao = ''
       try {
         const maisRecente = await refDia.get()
         if (maisRecente.child('status').val() === 'pronto' && !comentarioIncompleto(maisRecente.child('comentario').val())) return maisRecente.val()
+        chaveEmPreparacao = String(maisRecente.child('chave').val() || registro.chave || '')
         await refDia.update({ status: 'preparando', preparandoDesde: Date.now(), erroEm: null })
-        return await publicarExplicacao(maisRecente.val() || registro, data)
+        const publicado = await publicarExplicacao(maisRecente.val() || registro, data)
+        if (publicado?.status === 'pronto' && !comentarioIncompleto(publicado?.comentario)) {
+          return publicado
+        }
+        // O administrador pode trocar o versiculo enquanto uma explicacao
+        // anterior ainda esta sendo gerada. Nesse caso, a transacao de
+        // publicacao devolve o registro novo (ainda sem comentario). Libere o
+        // lock e repita o ciclo para preparar a explicacao correta.
       } catch (error) {
-        await refDia.update({ status: 'erro', erroEm: Date.now() }).catch(() => {})
+        await refDia.transaction((valor) => (
+          valor?.chave === chaveEmPreparacao
+            ? { ...valor, status: 'erro', erroEm: Date.now() }
+            : undefined
+        )).catch(() => {})
         throw error
       } finally {
         await liberarLock(lockRef, dono)
       }
+      continue
     }
     await esperar(1000)
   }
@@ -354,6 +464,83 @@ exports.garantirVersiculoDoDia = onCall({
   }
 })
 
+exports.substituirVersiculoDoDia = onCall({
+  region: 'us-central1',
+  maxInstances: 5,
+  timeoutSeconds: 30,
+}, async (request) => {
+  const uid = request.auth?.uid
+  if (!uid) throw new HttpsError('unauthenticated', 'Entre na conta de administrador.')
+  const db = admin.database()
+  const adminSnap = await db.ref(`users/${uid}/admin`).get()
+  if (adminSnap.val() !== true) throw new HttpsError('permission-denied', 'Apenas o administrador pode substituir o versículo do dia.')
+
+  const data = dataNoFuso()
+  const lockRef = db.ref(`versiculosDoDiaLocks/${data}/trocaManual`)
+  const dono = randomUUID()
+  if (!(await adquirirLock(lockRef, dono))) {
+    throw new HttpsError('aborted', 'Outra troca está em andamento. Aguarde alguns instantes.')
+  }
+  let registro
+  try {
+    const catalogo = carregarCatalogo()
+    const item = encontrarPorReferencia(catalogo, request.data?.referencia)
+    const chave = chaveVersiculo(item)
+    registro = {
+      status: 'selecionado',
+      data,
+      chave,
+      livroId: item.bookId,
+      livro: item.bookName,
+      capitulo: item.chapter,
+      versiculo: item.verse,
+      referencia: referencia(item),
+      texto: limparNumero(item.text),
+      fundoId: FUNDOS[hash(chave) % FUNDOS.length],
+      criadoEm: Date.now(),
+      substituidoManualmentePor: uid,
+    }
+    await db.ref().update({
+      [`versiculosDoDia/${data}`]: registro,
+      [`versiculosDoDiaUsados/${chave}`]: data,
+      [`versiculosDoDiaLocks/${data}/explicacao`]: null,
+    })
+    await garantirDestaqueMural(db, registro, { resetarContadores: true })
+    logger.info('Versiculo do dia substituido pelo administrador', { data, chave, uid })
+  } finally {
+    await liberarLock(lockRef, dono)
+  }
+
+  return (await vincularEstudoCuradoExistente(registro, data)) || registro
+})
+
+// A troca administrativa deve funcionar tambem em versoes do aplicativo que
+// ainda nao conhecem o fluxo novo. O servidor observa a selecao manual e a
+// conclui exatamente como faria com o versiculo sorteado no inicio do dia.
+exports.prepararVersiculoDoDiaSubstituido = onValueWritten({
+  ref: '/versiculosDoDia/{data}',
+  region: 'us-central1',
+  secrets: [GEMINI_API_KEY],
+  timeoutSeconds: 240,
+  maxInstances: 5,
+}, async (event) => {
+  const anterior = event.data.before.val()
+  const atual = event.data.after.val()
+  if (!atual?.substituidoManualmentePor || atual.status !== 'selecionado' || !atual.chave) return
+  if (Number(anterior?.criadoEm || 0) === Number(atual.criadoEm || 0)) return
+
+  try {
+    await garantirExplicacao(event.params.data)
+  } catch (error) {
+    logger.error('Falha ao preparar versiculo substituido pelo administrador', {
+      data: event.params.data,
+      chave: atual.chave,
+      error: error?.message,
+    })
+    throw error
+  }
+})
+
 exports.registrarCompartilhamentoVersiculoDoDia = onCall({
   region: 'us-central1',
   maxInstances: 20,
@@ -374,6 +561,9 @@ exports._test = {
   dataNoFuso,
   limparNumero,
   chaveVersiculo,
+  normalizarLivro,
+  normalizarLivroEstrito,
+  encontrarPorReferencia,
   candidatosElegiveis,
   escolher,
   comentarioIncompleto,

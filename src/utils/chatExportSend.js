@@ -18,6 +18,34 @@ const PENDING_CHAT_DRAFT_KEY = 'salvation-pending-chat-draft'
 /** Tempo máximo (ms) que uma intenção de redirecionamento fica "viva". */
 const PENDING_LOGIN_REDIRECT_TTL_MS = 10 * 60 * 1000 // 10 min
 
+function destinoLoginValido(url) {
+  return typeof url === 'string' && url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/chat')
+}
+
+export function loginPathComRetorno(url) {
+  return destinoLoginValido(url) ? `/chat?returnTo=${encodeURIComponent(url)}` : '/chat'
+}
+
+export function obterPendingLoginRedirect() {
+  try {
+    const pelaUrl = new URLSearchParams(window.location.search).get('returnTo')
+    if (destinoLoginValido(pelaUrl)) return pelaUrl
+
+    const raw = sessionStorage.getItem(PENDING_LOGIN_REDIRECT_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (
+      !destinoLoginValido(parsed?.url)
+      || (typeof parsed.ts === 'number' && (Date.now() - parsed.ts) > PENDING_LOGIN_REDIRECT_TTL_MS)
+    ) {
+      return null
+    }
+    return parsed.url
+  } catch {
+    return null
+  }
+}
+
 /** Exige usuário autenticado; caso contrário avisa e envia para o chat. */
 export function ensureUserForChatExport(user, navigate) {
   if (user === undefined) {
@@ -66,21 +94,21 @@ export function ensureUserForChatExport(user, navigate) {
  *                    redirect para login já tenha sido disparado.
  */
 export function ensureUserForFeature(user, navigate, { mensagem, redirectTo } = {}) {
+  const destino =
+    redirectTo ||
+    (typeof window !== 'undefined'
+      ? `${window.location.pathname}${window.location.search}${window.location.hash}`
+      : '/')
+
   if (user === undefined) {
     mostrarSnackbar({
       mensagem: 'Aguarde, verificando sua sessão…',
       severidade: 'info',
     })
     // /chat exibe AuthConectarForm mesmo durante a verificação (app nativo iOS).
-    navigate('/chat')
+    navigate(loginPathComRetorno(destino))
     return false
   }
-
-  const destino =
-    redirectTo ||
-    (typeof window !== 'undefined'
-      ? `${window.location.pathname}${window.location.search}${window.location.hash}`
-      : '/')
 
   const destinoPath =
     typeof destino === 'string' ? destino.split('?')[0].split('#')[0] : '/'
@@ -116,7 +144,7 @@ export function ensureUserForFeature(user, navigate, { mensagem, redirectTo } = 
       mensagem: mensagem || 'Entre na sua conta para usar este recurso.',
       severidade: 'info'
     })
-    navigate('/chat')
+    navigate(loginPathComRetorno(destino))
     return false
   }
   return true
@@ -129,22 +157,13 @@ export function ensureUserForFeature(user, navigate, { mensagem, redirectTo } = 
  * intenção tiver expirado (`PENDING_LOGIN_REDIRECT_TTL_MS`).
  */
 export function consumePendingLoginRedirect() {
+  const pendente = obterPendingLoginRedirect()
   try {
-    const raw = sessionStorage.getItem(PENDING_LOGIN_REDIRECT_KEY)
-    if (!raw) return null
     sessionStorage.removeItem(PENDING_LOGIN_REDIRECT_KEY)
-    const parsed = JSON.parse(raw)
-    if (
-      !parsed
-      || typeof parsed.url !== 'string'
-      || (typeof parsed.ts === 'number' && (Date.now() - parsed.ts) > PENDING_LOGIN_REDIRECT_TTL_MS)
-    ) {
-      return null
-    }
-    return parsed.url
   } catch (_) {
-    return null
+    /* ignore */
   }
+  return pendente
 }
 
 export function pushPendingChatDraft(navigate, text) {

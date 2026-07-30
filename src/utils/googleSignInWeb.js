@@ -49,6 +49,41 @@ export function isEmbeddedBrowser() {
   return false
 }
 
+export function isEmbeddedBrowserIos() {
+  if (typeof navigator === 'undefined') return false
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent || '')
+}
+
+/**
+ * No Android, abre a mesma rota no Chrome fora do navegador interno. Mantém
+ * query string e, quando possível, o fragmento para não perder o destino do
+ * link compartilhado. O iOS não oferece uma URL pública confiável para forçar
+ * o Safari; nesse caso a interface orienta o usuário a usar o menu do app.
+ */
+export function abrirPaginaAtualNoChrome(urlAlvo) {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false
+  if (!/Android/i.test(navigator.userAgent || '')) return false
+
+  const atual = new URL(urlAlvo || window.location.href)
+  const caminho = `${atual.host}${atual.pathname}${atual.search}`
+  const fallback = encodeURIComponent(atual.href)
+  window.location.href =
+    `intent://${caminho}#Intent;scheme=${atual.protocol.replace(':', '')};` +
+    `package=com.android.chrome;S.browser_fallback_url=${fallback};end`
+  return true
+}
+
+export async function copiarUrlAtual(urlAlvo) {
+  if (typeof window === 'undefined') return false
+  const url = String(urlAlvo || window.location.href)
+  try {
+    await navigator.clipboard.writeText(url)
+    return true
+  } catch {
+    return false
+  }
+}
+
 function marcarRedirectGooglePendente() {
   try {
     sessionStorage.setItem(GOOGLE_REDIRECT_PENDING_KEY, String(Date.now()))

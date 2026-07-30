@@ -1,35 +1,32 @@
 <#
 .SYNOPSIS
-  Mantém o site no Render acordado (evita cold start de ~30–60 s).
+  Mantem o site no Render acordado para reduzir o tempo de inicializacao.
 
 .DESCRIPTION
-  O plano gratuito do Render dorme após ~15 min sem tráfego HTTP.
-  Este script faz um ping periódico na URL do app.
+  O plano gratuito do Render dorme apos cerca de 15 minutos sem trafego HTTP.
+  Este script faz uma requisicao leve a cada 10 minutos.
 
-  Uso contínuo (deixe o PowerShell aberto):
+  Uso continuo (deixe o PowerShell aberto):
     .\scripts\render-keep-alive.ps1
 
-  Uma única visita:
+  Uma unica requisicao (ideal para o Agendador de Tarefas):
     .\scripts\render-keep-alive.ps1 -UmaVez
 
-  Agendar no Windows (a cada 10 min):
-    1. Abra "Agendador de Tarefas"
-    2. Criar Tarefa Básica → Disparador: a cada 10 minutos
-    3. Ação: Iniciar programa
-       Programa: powershell.exe
-       Argumentos: -NoProfile -ExecutionPolicy Bypass -File "C:\Salvation\scripts\render-keep-alive.ps1" -UmaVez
+  Agendar no Windows:
+    Programa: powershell.exe
+    Argumentos: -NoProfile -ExecutionPolicy Bypass -File "C:\Users\Pr Wilson Lucas\Desktop\Salvation\scripts\render-keep-alive.ps1" -UmaVez
 
 .PARAMETER Url
-  URL pública do app (com barra final opcional).
+  URL publica do servico.
 
 .PARAMETER IntervaloMinutos
-  Intervalo entre pings no modo loop (padrão 10; Render dorme após ~15 min).
+  Intervalo entre requisicoes no modo continuo. O padrao e 10 minutos.
 
 .PARAMETER UmaVez
-  Executa um único ping e encerra (ideal para o Agendador de Tarefas).
+  Executa uma unica requisicao e encerra.
 #>
 param(
-  [string]$Url = 'https://foundrine.com/biblia/',
+  [string]$Url = 'https://foundcine.com/biblia/',
   [int]$IntervaloMinutos = 10,
   [switch]$UmaVez
 )
@@ -38,13 +35,19 @@ $ErrorActionPreference = 'Continue'
 
 function Ping-Site {
   param([string]$TargetUrl)
+
   $ts = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
   try {
-    $resp = Invoke-WebRequest -Uri $TargetUrl -Method Get -TimeoutSec 90 -UseBasicParsing
+    try {
+      $resp = Invoke-WebRequest -Uri $TargetUrl -Method Head -TimeoutSec 90 -UseBasicParsing
+    } catch {
+      # Alguns proxies nao aceitam HEAD. GET preserva a compatibilidade.
+      $resp = Invoke-WebRequest -Uri $TargetUrl -Method Get -TimeoutSec 90 -UseBasicParsing
+    }
     Write-Host "$ts OK $($resp.StatusCode) $TargetUrl"
     return $true
   } catch {
-    Write-Host "$ts ERRO $TargetUrl — $($_.Exception.Message)"
+    Write-Host "$ts ERRO $TargetUrl - $($_.Exception.Message)"
     return $false
   }
 }

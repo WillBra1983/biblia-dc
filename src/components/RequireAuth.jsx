@@ -16,6 +16,7 @@ import {
   MSG_SEM_INTERNET_RECURSO,
 } from '../utils/conteudoLocalOffline'
 import { mostrarSnackbar } from '../utils/uiDialogs'
+import { loginPathComRetorno } from '../utils/chatExportSend'
 
 const PENDING_LOGIN_REDIRECT_KEY = 'salvation-pending-login-redirect'
 const AUTH_WAIT_MS = 2800
@@ -96,8 +97,8 @@ export default function RequireAuth({ children }) {
       return
     }
 
+    const target = `${pathname}${location.search}${location.hash}`
     try {
-      const target = `${pathname}${location.search}${location.hash}`
       if (target && !target.startsWith('/chat')) {
         sessionStorage.setItem(
           PENDING_LOGIN_REDIRECT_KEY,
@@ -107,7 +108,7 @@ export default function RequireAuth({ children }) {
     } catch {
       /* ignore */
     }
-    navigate('/chat', { replace: true })
+    navigate(loginPathComRetorno(target), { replace: true })
   }, [sessaoOk, user, pathname, location.search, location.hash, navigate, offline, onChat, local])
 
   useEffect(() => {

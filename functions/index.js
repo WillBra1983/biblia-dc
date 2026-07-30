@@ -43,6 +43,7 @@ exports.limparContasEmailNaoVerificadas =
 // Cadastro e-mail/senha: pendência até abrir o link (sem utilizador Auth antes disso)
 exports.iniciarCadastroEmailSenha = require('./src/cadastroEmailSenha').iniciarCadastroEmailSenha
 exports.finalizarCadastroEmailLink = require('./src/cadastroEmailSenha').finalizarCadastroEmailLink
+exports.cancelarCadastroEmailPendente = require('./src/cadastroEmailSenha').cancelarCadastroEmailPendente
 
 // Prova bíblica: gabarito só no servidor (aluno)
 exports.iniciarProvaBiblicaAluno = require('./src/provaBiblicaAluno').iniciarProvaBiblicaAluno
@@ -80,4 +81,6 @@ const versiculoDoDia = require('./src/versiculoDoDia')
 exports.publicarVersiculoDoDia = versiculoDoDia.publicarVersiculoDoDia
 exports.selecionarVersiculoDoDia = versiculoDoDia.selecionarVersiculoDoDia
 exports.garantirVersiculoDoDia = versiculoDoDia.garantirVersiculoDoDia
+exports.substituirVersiculoDoDia = versiculoDoDia.substituirVersiculoDoDia
+exports.prepararVersiculoDoDiaSubstituido = versiculoDoDia.prepararVersiculoDoDiaSubstituido
 exports.registrarCompartilhamentoVersiculoDoDia = versiculoDoDia.registrarCompartilhamentoVersiculoDoDia

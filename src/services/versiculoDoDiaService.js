@@ -60,6 +60,14 @@ export async function abrirVersiculoDoDia() {
   return resultado?.data?.chave ? resultado.data : null
 }
 
+export async function substituirVersiculoDoDia(referencia) {
+  const { fns, functionsApi } = await firebase()
+  if (!fns) throw new Error('Serviço indisponível no momento.')
+  const chamada = functionsApi.httpsCallable(fns, 'substituirVersiculoDoDia', { timeout: 30_000 })
+  const resultado = await chamada({ referencia: String(referencia || '').trim() })
+  return resultado?.data?.chave ? resultado.data : null
+}
+
 export async function obterVersiculoDoDiaPorData(data) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(data || ''))) return null
   const { db, dbApi } = await firebase()

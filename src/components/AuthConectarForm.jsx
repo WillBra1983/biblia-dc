@@ -10,6 +10,14 @@ import {
 } from '@mui/material'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { hintForFirebaseAuthError, isAuthCancelError } from '../utils/firebaseAuthErrors'
+import {
+  abrirPaginaAtualNoChrome,
+  copiarUrlAtual,
+  isEmbeddedBrowser,
+  isEmbeddedBrowserIos,
+} from '../utils/googleSignInWeb'
+import { isNativeApp } from '../utils/isNativeApp'
+import { obterPendingLoginRedirect } from '../utils/chatExportSend'
 import { mostrarLoginApple } from '../utils/mostrarLoginApple'
 
 function GoogleMark18() {
@@ -45,6 +53,7 @@ export default function AuthConectarForm({ embedded = false, titleLogin = 'Entra
     registerWithEmail,
     concluirCadastroPorLinkEmail,
     loginWithEmail,
+    requestPasswordReset,
     loginWithGoogle,
     loginWithApple,
     setLastError,
@@ -57,7 +66,17 @@ export default function AuthConectarForm({ embedded = false, titleLogin = 'Entra
   const [mode, setMode] = useState('login')
   const [busy, setBusy] = useState(false)
   const [authSuccess, setAuthSuccess] = useState('')
+  const [linkCopiado, setLinkCopiado] = useState(false)
   const cadastroLinkProcessadoRef = useRef(false)
+  const navegadorInterno = !isNativeApp() && isEmbeddedBrowser()
+  const navegadorInternoIos = navegadorInterno && isEmbeddedBrowserIos()
+
+  function urlOriginalParaNavegadorExterno() {
+    const destino = obterPendingLoginRedirect()
+    if (!destino || typeof window === 'undefined') return window?.location?.href || ''
+    const base = String(import.meta.env.BASE_URL || '/').replace(/\/$/, '')
+    return new URL(`${base}${destino}`, window.location.origin).href
+  }
 
   useEffect(() => {
     if (!isConfigured || cadastroLinkProcessadoRef.current) return
@@ -93,6 +112,36 @@ export default function AuthConectarForm({ embedded = false, titleLogin = 'Entra
       <Typography variant="h6" gutterBottom>
         {mode === 'login' ? titleLogin : titleRegister}
       </Typography>
+      {navegadorInterno ? (
+        <Alert
+          severity="warning"
+          sx={{ mb: 1.5 }}
+          action={
+            navegadorInternoIos ? (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={async () => setLinkCopiado(await copiarUrlAtual(urlOriginalParaNavegadorExterno()))}
+              >
+                Copiar link
+              </Button>
+            ) : (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => abrirPaginaAtualNoChrome(urlOriginalParaNavegadorExterno())}
+              >
+                Abrir no Chrome
+              </Button>
+            )
+          }
+        >
+          {navegadorInternoIos
+            ? 'O Google não permite entrar dentro do Instagram ou Facebook. Use o menu desta tela e escolha “Abrir no Safari”.'
+            : 'O Google não permite entrar dentro do Instagram ou Facebook. Abra esta mesma página no Chrome para continuar.'}
+          {linkCopiado ? ' Link copiado.' : ''}
+        </Alert>
+      ) : null}
       {mode === 'register' && (
         <TextField
           fullWidth
@@ -167,6 +216,27 @@ export default function AuthConectarForm({ embedded = false, titleLogin = 'Entra
         <Button size="small" onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>
           {mode === 'login' ? 'Criar nova conta' : 'Já tenho conta'}
         </Button>
+        {mode === 'login' ? (
+          <Button
+            size="small"
+            disabled={busy || !email.trim()}
+            onClick={async () => {
+              setBusy(true)
+              setLastError(null)
+              setAuthSuccess('')
+              try {
+                const res = await requestPasswordReset(email)
+                setAuthSuccess(res?.message || 'Verifique seu e-mail para criar uma nova senha.')
+              } catch (e) {
+                setLastError(hintForFirebaseAuthError(e))
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Esqueci minha senha
+          </Button>
+        ) : null}
         <Divider sx={{ my: 1 }}>ou</Divider>
         <Button
           fullWidth
@@ -174,6 +244,12 @@ export default function AuthConectarForm({ embedded = false, titleLogin = 'Entra
           disableElevation
           disabled={busy}
           onClick={async () => {
+            if (navegadorInterno) {
+              if (!navegadorInternoIos) {
+                abrirPaginaAtualNoChrome(urlOriginalParaNavegadorExterno())
+              }
+              return
+            }
             setBusy(true)
             setLastError(null)
             try {

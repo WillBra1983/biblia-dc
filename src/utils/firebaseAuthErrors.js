@@ -130,14 +130,19 @@ export function hintForFirebaseAuthError(error) {
   }
 
   if (code.includes('operation-not-allowed')) {
-    return [
-      'Este método de login está desativado no Firebase (opção bloqueada).',
-      '',
-      'Firebase Console → Authentication → Método de login — ative:',
-      '• E-mail/senha',
-      '• Link do e-mail (entrada sem senha) — necessário para «Criar conta»',
-      '• Google — necessário para «Continuar com Google» no app',
-    ].join('\n')
+    return 'O cadastro por e-mail está temporariamente indisponível. Tente novamente mais tarde ou continue com o Google.'
+  }
+
+  // Com a proteção contra enumeração de e-mails, o Firebase reúne conta
+  // inexistente e senha incorreta neste mesmo código. Não exponha detalhes
+  // sobre a existência da conta, mas oriente os dois caminhos possíveis.
+  if (
+    code.includes('invalid-credential') ||
+    code.includes('wrong-password') ||
+    code.includes('user-not-found') ||
+    code.includes('invalid-login-credentials')
+  ) {
+    return 'E-mail ou senha não conferem. Se esta conta é nova, toque em “Criar nova conta” e abra primeiro o link recebido por e-mail. Se já possui conta, confira a senha ou use “Esqueci minha senha”.'
   }
 
   if (

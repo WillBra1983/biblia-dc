@@ -3,10 +3,10 @@ import { Avatar, Box, Card, CardContent, Typography, Grid, Collapse } from '@mui
 import { useNavigate, useLocation } from 'react-router-dom'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import BibliaIcon from '@mui/icons-material/MenuBook'
-import DiscipuladoIcon from '@mui/icons-material/School'
-import EstudosBiblicosIcon from '@mui/icons-material/AutoStories'
+import DiscipuladoIcon from '@mui/icons-material/People'
+import EstudosBiblicosIcon from '@mui/icons-material/Groups'
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks'
-import WestminsterIcon from '@mui/icons-material/AccountBalance'
+import WestminsterIcon from '@mui/icons-material/Church'
 import ConfissaoIcon from '@mui/icons-material/Article'
 import CatecismoMaiorIcon from '@mui/icons-material/LibraryBooks'
 import CatecismoBreveIcon from '@mui/icons-material/Quiz'
@@ -32,9 +32,10 @@ import { abrirCanalYoutube } from '../utils/youtubeChannel'
 import { ensureUserForFeature } from '../utils/chatExportSend'
 import AdminSectionViewCounts from './AdminSectionViewCounts'
 import PeopleIcon from '@mui/icons-material/People'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { chavesMetricaParaPathMenu, registarVisualizacaoSecaoSeNecessario } from '../utils/sectionViewKeys'
 import { prefetchRota, prefetchRotasComuns } from '../utils/routePrefetch'
-import { urlFundoVersiculo } from '../utils/versiculoImagem'
+import { urlFundoVersiculo, urlLogoApp } from '../utils/versiculoImagem'
 import { abrirVersiculoDoDia, obterVersiculoDoDia } from '../services/versiculoDoDiaService'
 
 const ICON_BOX = 44
@@ -54,22 +55,57 @@ function VersiculoDoDiaMenu() {
       .catch(() => {})
     return () => { ativo = false }
   }, [])
-  const fundoArquivo = item?.fundoId ? `${item.fundoId}.webp` : 'amanhecer.webp'
+  const fundoArquivo = 'amanhecer.webp'
   return (
     <Grid item xs={12}>
       <Box component="button" type="button" onClick={() => navigate('/versiculo-do-dia')} sx={{
-        position: 'relative', minHeight: 142, borderRadius: 2, overflow: 'hidden', color: '#fff',
+        position: 'relative', minHeight: 184, borderRadius: 2, overflow: 'hidden', color: '#083e35',
         width: '100%', cursor: 'pointer', textAlign: 'left', font: 'inherit',
-        backgroundImage: `linear-gradient(rgba(7,22,20,.42), rgba(7,22,20,.72)), url("${urlFundoVersiculo({ arquivo: fundoArquivo })}")`,
-        backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid rgba(255,255,255,.38)',
+        backgroundImage: `linear-gradient(90deg, rgba(255,253,246,.99) 0%, rgba(255,253,246,.96) 48%, rgba(255,253,246,.48) 68%, rgba(255,253,246,.08) 100%), url("${urlFundoVersiculo({ arquivo: fundoArquivo })}")`,
+        backgroundSize: 'cover', backgroundPosition: 'right center', border: '1px solid rgba(222,205,165,.88)',
         boxShadow: '0 5px 18px rgba(0,0,0,.2)', px: 2, py: 1.6, boxSizing: 'border-box',
-        display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+        display: 'grid',
+        gridTemplateColumns: '24px minmax(0, 1fr)',
+        gridTemplateRows: 'auto auto auto',
+        columnGap: 1,
+        rowGap: 1.1,
       }}>
-        <Typography variant="overline" sx={{ fontWeight: 900, lineHeight: 1.2, textShadow: '0 1px 4px #000' }}>Versículo do dia</Typography>
-        <Typography sx={{ fontFamily: 'Georgia, serif', fontSize: '1.02rem', lineHeight: 1.45, fontWeight: 700, textShadow: '0 2px 7px #000' }}>
+        <Box sx={{ gridColumn: '1 / -1' }}>
+          <Typography variant="overline" sx={{ color: '#79581b', fontWeight: 900, lineHeight: 1.2, letterSpacing: 1.2 }}>Versículo do dia</Typography>
+          <Box sx={{ width: 38, height: 3, mt: 0.2, borderRadius: 2, background: '#c28a20' }} />
+        </Box>
+        <Typography
+          aria-hidden="true"
+          sx={{
+            gridColumn: 1,
+            alignSelf: 'start',
+            color: '#dfbd69',
+            fontFamily: 'Georgia, serif',
+            fontSize: '2.8rem',
+            lineHeight: 0.8,
+          }}
+        >
+          “
+        </Typography>
+        <Typography sx={{
+          gridColumn: 2,
+          maxWidth: { xs: '88%', sm: '82%' },
+          fontFamily: 'Georgia, serif',
+          fontSize: { xs: '1.06rem', sm: '1.22rem' },
+          lineHeight: 1.42,
+          fontWeight: 700,
+        }}>
           {item?.texto || 'A Palavra para o seu dia está sendo escolhida.'}
         </Typography>
-        <Typography variant="caption" sx={{ alignSelf: 'flex-end', fontWeight: 900, textShadow: '0 1px 4px #000' }}>{item?.referencia || 'Toque para abrir'}</Typography>
+        <Box sx={{ gridColumn: 2, display: 'flex', alignItems: 'center', gap: 0.75 }}>
+          <Box
+            component="img"
+            src={urlLogoApp()}
+            alt=""
+            sx={{ width: 23, height: 23, borderRadius: 0.6, objectFit: 'cover', flexShrink: 0 }}
+          />
+          <Typography variant="caption" sx={{ fontWeight: 800 }}>{item?.referencia || 'Toque para abrir'}</Typography>
+        </Box>
       </Box>
     </Grid>
   )
@@ -97,16 +133,25 @@ function estilosFundoMenu(fundo, ativo = false) {
   if (!url) return {}
   return {
     backgroundImage: `${ativo
-      ? 'linear-gradient(rgba(0,61,47,.64), rgba(0,48,38,.82))'
-      : 'linear-gradient(rgba(6,24,22,.54), rgba(4,18,17,.8))'}, url("${url}")`,
+      ? 'linear-gradient(90deg, rgba(237,246,239,.98) 0%, rgba(237,246,239,.92) 42%, rgba(237,246,239,.24) 62%, rgba(237,246,239,.02) 100%)'
+      : 'linear-gradient(90deg, rgba(255,253,246,.98) 0%, rgba(255,253,246,.92) 42%, rgba(255,253,246,.2) 62%, rgba(255,253,246,.02) 100%)'}, url("${url}")`,
     backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    color: '#fff',
-    minHeight: 154,
+    backgroundPosition: 'right center',
+    position: 'relative',
+    color: '#083e35',
+    minHeight: 116,
     height: '100%',
     width: '100%',
-    boxShadow: '0 5px 16px rgba(0,32,26,.24)',
-    '& .MuiTypography-root, & .MuiSvgIcon-root': { color: '#fff !important' },
+    borderColor: ativo ? 'rgba(190,139,34,.82) !important' : 'rgba(222,205,165,.82) !important',
+    boxShadow: ativo
+      ? '0 5px 16px rgba(0,55,44,.2), inset 0 0 0 1px rgba(190,139,34,.2)'
+      : '0 4px 14px rgba(0,40,32,.15)',
+    '& .MuiTypography-root': {
+      color: '#083e35 !important',
+      textShadow: '-1px -1px 0 rgba(255,255,255,.98), 0 -1px 0 rgba(255,255,255,.98), 1px -1px 0 rgba(255,255,255,.98), -1px 0 0 rgba(255,255,255,.98), 1px 0 0 rgba(255,255,255,.98), -1px 1px 0 rgba(255,255,255,.98), 0 1px 0 rgba(255,255,255,.98), 1px 1px 0 rgba(255,255,255,.98) !important',
+      fontStyle: 'normal !important',
+    },
+    '& .MuiSvgIcon-root': { color: '#f7e8b5 !important' },
   }
 }
 
@@ -517,6 +562,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
               ),
               color: corTextoItemMenuAtivo(conectarGrupoAtivo),
               border: conectarGrupoAtivo ? bordaCartaoMenuAtivo : `1px solid ${menuCardBorder}`,
+              background: 'linear-gradient(135deg, #052f29 0%, #001d19 100%)',
+              '& .MuiTypography-root, & .MuiSvgIcon-root': { color: '#fff !important' },
             }}
           >
             <CardContent
@@ -544,7 +591,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   sx={{
                     flexShrink: 0,
                     p: 0.75,
-                    borderRadius: 1.5,
+                    borderRadius: '50%',
                     background: 'rgba(255, 255, 255, 0.22)',
                     backdropFilter: 'blur(10px)',
                     WebkitBackdropFilter: 'blur(10px)',
@@ -589,6 +636,22 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   >
                     {user ? nomeContaCurto(user) : conectarPai.text}
                   </Typography>
+                  {user && (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: 'block',
+                        color: '#f0d994 !important',
+                        fontFamily: 'Georgia, serif',
+                        fontStyle: 'italic',
+                        fontSize: '0.72rem',
+                        fontWeight: 500,
+                        lineHeight: 1.25,
+                      }}
+                    >
+                      Que bom ter você por aqui!
+                    </Typography>
+                  )}
                   {!user && (
                     <Typography
                       variant="body2"
@@ -876,8 +939,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     py: 1.25,
                     px: 1.5,
                     display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                     justifyContent: 'flex-start',
                     width: '100%',
                     gap: 1.25,
@@ -892,10 +955,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     sx={{
                       flexShrink: 0,
                       p: 0.75,
-                      borderRadius: 1.5,
-                      background: 'rgba(255, 255, 255, 0.22)',
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(145deg, #00715f, #004d40)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -905,8 +966,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                       zIndex: 3,
                       border: item.accentRing
                         ? `1px solid ${item.accentRing}`
-                        : '1px solid rgba(255, 255, 255, 0.3)',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.35)',
+                        : '1px solid rgba(222, 205, 165, 0.92)',
+                      boxShadow: '0 3px 9px rgba(0, 55, 44, 0.2)',
                     }}
                   >
                     {item.icon}
@@ -948,6 +1009,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     </Typography>
                     <AdminSectionViewCounts ehAdmin={ehAdmin} keys={chavesMetricaParaPathMenu(item.path)} />
                   </Box>
+                  <ChevronRightIcon sx={{ position: 'absolute', right: 7, bottom: 8, zIndex: 3, fontSize: 22 }} />
                 </CardContent>
               </Card>
             </Grid>
@@ -986,8 +1048,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                 onClick={() => setHinarioExpanded((v) => !v)}
                 sx={{
                   display: 'flex',
-                  flexDirection: hinarioExpanded ? 'row' : 'column',
-                  alignItems: hinarioExpanded ? 'center' : 'flex-start',
+                  flexDirection: 'row',
+                  alignItems: 'center',
                   gap: 1.25,
                   cursor: 'pointer',
                   textAlign: 'left',
@@ -997,10 +1059,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   sx={{
                     flexShrink: 0,
                     p: 0.75,
-                    borderRadius: 1.5,
-                    background: 'rgba(255, 255, 255, 0.22)',
-                    backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(145deg, #00715f, #004d40)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1008,8 +1068,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     height: ICON_BOX,
                     position: 'relative',
                     zIndex: 3,
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.35)',
+                    border: '1px solid rgba(222, 205, 165, 0.92)',
+                    boxShadow: '0 3px 9px rgba(0, 55, 44, 0.2)',
                   }}
                 >
                   {hinarioPai.icon}
@@ -1185,8 +1245,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                 onClick={() => setWestminsterExpanded((v) => !v)}
                 sx={{
                   display: 'flex',
-                  flexDirection: westminsterExpanded ? 'row' : 'column',
-                  alignItems: westminsterExpanded ? 'center' : 'flex-start',
+                  flexDirection: 'row',
+                  alignItems: 'center',
                   gap: 1.25,
                   cursor: 'pointer',
                   textAlign: 'left',
@@ -1196,10 +1256,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   sx={{
                     flexShrink: 0,
                     p: 0.75,
-                    borderRadius: 1.5,
-                    background: 'rgba(255, 255, 255, 0.22)',
-                    backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(145deg, #00715f, #004d40)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1207,8 +1265,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     height: ICON_BOX,
                     position: 'relative',
                     zIndex: 3,
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.35)',
+                    border: '1px solid rgba(222, 205, 165, 0.92)',
+                    boxShadow: '0 3px 9px rgba(0, 55, 44, 0.2)',
                   }}
                 >
                   {westminsterPai.icon}
@@ -1379,8 +1437,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     py: 1.25,
                     px: 1.5,
                     display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                     justifyContent: 'flex-start',
                     width: '100%',
                     gap: 1.25,
@@ -1395,10 +1453,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     sx={{
                       flexShrink: 0,
                       p: 0.75,
-                      borderRadius: 1.5,
-                      background: 'rgba(255, 255, 255, 0.22)',
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(145deg, #00715f, #004d40)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -1408,8 +1464,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                       zIndex: 3,
                       border: item.accentRing
                         ? `1px solid ${item.accentRing}`
-                        : '1px solid rgba(255, 255, 255, 0.3)',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.35)',
+                        : '1px solid rgba(222, 205, 165, 0.92)',
+                      boxShadow: '0 3px 9px rgba(0, 55, 44, 0.2)',
                     }}
                   >
                     {item.icon}
@@ -1451,6 +1507,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     </Typography>
                     <AdminSectionViewCounts ehAdmin={ehAdmin} keys={chavesMetricaParaPathMenu(item.path)} />
                   </Box>
+                  <ChevronRightIcon sx={{ position: 'absolute', right: 7, bottom: 8, zIndex: 3, fontSize: 22 }} />
                 </CardContent>
               </Card>
             </Grid>
@@ -1484,8 +1541,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     py: 1.25,
                     px: 1.5,
                     display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                     justifyContent: 'flex-start',
                     width: '100%',
                     gap: 1.25,
@@ -1500,10 +1557,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     sx={{
                       flexShrink: 0,
                       p: 0.75,
-                      borderRadius: 1.5,
-                      background: 'rgba(255, 255, 255, 0.22)',
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(145deg, #00715f, #004d40)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -1513,8 +1568,8 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                       zIndex: 3,
                       border: item.accentRing
                         ? `1px solid ${item.accentRing}`
-                        : '1px solid rgba(255, 255, 255, 0.3)',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.35)',
+                        : '1px solid rgba(222, 205, 165, 0.92)',
+                      boxShadow: '0 3px 9px rgba(0, 55, 44, 0.2)',
                     }}
                   >
                     {item.icon}
@@ -1556,6 +1611,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     </Typography>
                     <AdminSectionViewCounts ehAdmin={ehAdmin} keys={chavesMetricaParaPathMenu(item.path)} />
                   </Box>
+                  <ChevronRightIcon sx={{ position: 'absolute', right: 7, bottom: 8, zIndex: 3, fontSize: 22 }} />
                 </CardContent>
               </Card>
             </Grid>

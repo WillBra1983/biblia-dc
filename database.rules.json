@@ -347,6 +347,23 @@
         ".validate": "!newData.exists() || newData.isString()"
       }
     },
+    "versiculosCompartilhadosInteracoes": {
+      "$postId": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
+        "curtidas": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && (root.child('versiculosCompartilhadosPublicos').child($postId).exists() || root.child('versiculosCompartilhadosPorLink').child($postId).exists())",
+            ".validate": "!newData.exists() || newData.isNumber()"
+          }
+        },
+        "compartilhamentos": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && (root.child('versiculosCompartilhadosPublicos').child($postId).exists() || root.child('versiculosCompartilhadosPorLink').child($postId).exists())",
+            ".validate": "!newData.exists() || (newData.child('count').isNumber() && newData.child('count').val() >= 1 && newData.child('lastAt').isNumber())"
+          }
+        }
+      }
+    },
     "bibliaEstudos": {
       ".read": "auth != null",
       ".indexOn": ["publico"],

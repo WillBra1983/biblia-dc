@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Avatar, Box, Card, CardContent, Typography, Grid, Collapse } from '@mui/material'
+import { Avatar, Box, Card, CardContent, Typography, Grid, Collapse, IconButton } from '@mui/material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import BibliaIcon from '@mui/icons-material/MenuBook'
@@ -33,17 +33,26 @@ import { ensureUserForFeature } from '../utils/chatExportSend'
 import AdminSectionViewCounts from './AdminSectionViewCounts'
 import PeopleIcon from '@mui/icons-material/People'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import FavoriteIcon from '@mui/icons-material/Favorite'
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
+import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
 import { chavesMetricaParaPathMenu, registarVisualizacaoSecaoSeNecessario } from '../utils/sectionViewKeys'
 import { prefetchRota, prefetchRotasComuns } from '../utils/routePrefetch'
 import { urlFundoVersiculo, urlLogoApp } from '../utils/versiculoImagem'
-import { abrirVersiculoDoDia, obterVersiculoDoDia } from '../services/versiculoDoDiaService'
+import { abrirVersiculoDoDia, linkPaginaVersiculoDoDia, obterVersiculoDoDia } from '../services/versiculoDoDiaService'
+import CompartilharVersiculoImagemDialog from './CompartilharVersiculoImagemDialog'
+import { alternarCurtida, obterCurtidasDoUsuario, obterDestaqueVersiculoDoDia, registrarCompartilhamentoVersiculoDoDia } from '../services/versiculosCompartilhadosService'
 
 const ICON_BOX = 44
 const ICON_SIZE = 26
 
 function VersiculoDoDiaMenu() {
   const navigate = useNavigate()
+  const { user } = useFirebaseAuth()
   const [item, setItem] = useState(null)
+  const [interacoes, setInteracoes] = useState({ likesCount: 0, sharesCount: 0 })
+  const [curtido, setCurtido] = useState(false)
+  const [compartilhar, setCompartilhar] = useState(false)
   useEffect(() => {
     let ativo = true
     obterVersiculoDoDia({ selecionarSeAusente: true })
@@ -55,10 +64,37 @@ function VersiculoDoDiaMenu() {
       .catch(() => {})
     return () => { ativo = false }
   }, [])
+  useEffect(() => {
+    let ativo = true
+    if (!item?.data) return () => { ativo = false }
+    obterDestaqueVersiculoDoDia(item.data)
+      .then((destaque) => ativo && setInteracoes({ likesCount: Number(destaque?.likesCount || 0), sharesCount: Number(destaque?.sharesCount || 0) }))
+      .catch(() => {})
+    if (user?.uid) obterCurtidasDoUsuario(user.uid).then((ids) => ativo && setCurtido(ids.has(`versiculo-dia-${item.data}`))).catch(() => {})
+    else setCurtido(false)
+    return () => { ativo = false }
+  }, [item?.data, user?.uid])
+
+  async function curtir(event) {
+    event.stopPropagation()
+    if (!user?.uid || !item?.data) return
+    const antes = curtido
+    setCurtido(!antes)
+    setInteracoes((atual) => ({ ...atual, likesCount: Math.max(0, atual.likesCount + (antes ? -1 : 1)) }))
+    try { await alternarCurtida(user.uid, `versiculo-dia-${item.data}`) } catch (_) {
+      setCurtido(antes)
+      setInteracoes((atual) => ({ ...atual, likesCount: Math.max(0, atual.likesCount + (antes ? 1 : -1)) }))
+    }
+  }
+
+  function abrirCompartilhamento(event) {
+    event.stopPropagation()
+    setCompartilhar(true)
+  }
   const fundoArquivo = 'amanhecer.webp'
   return (
     <Grid item xs={12}>
-      <Box component="button" type="button" onClick={() => navigate('/versiculo-do-dia')} sx={{
+      <Box component="div" role="button" tabIndex={0} onClick={() => navigate('/versiculo-do-dia')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') navigate('/versiculo-do-dia') }} sx={{
         position: 'relative', minHeight: 184, borderRadius: 2, overflow: 'hidden', color: '#083e35',
         width: '100%', cursor: 'pointer', textAlign: 'left', font: 'inherit',
         backgroundImage: `linear-gradient(90deg, rgba(255,253,246,.99) 0%, rgba(255,253,246,.96) 48%, rgba(255,253,246,.48) 68%, rgba(255,253,246,.08) 100%), url("${urlFundoVersiculo({ arquivo: fundoArquivo })}")`,
@@ -106,7 +142,35 @@ function VersiculoDoDiaMenu() {
           />
           <Typography variant="caption" sx={{ fontWeight: 800 }}>{item?.referencia || 'Toque para abrir'}</Typography>
         </Box>
+        <Box sx={{ gridColumn: '2 / -1', display: 'flex', alignItems: 'center', gap: 0.15, mt: -0.35 }}>
+          <IconButton size="small" onClick={curtir} disabled={!user?.uid} title={user?.uid ? (curtido ? 'Remover curtida' : 'Curtir') : 'Entre na conta para curtir'} aria-label={curtido ? 'Remover curtida' : 'Curtir'} sx={{ color: curtido ? '#d93025' : '#79581b', p: 0.45 }}>
+            {curtido ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
+          </IconButton>
+          <Typography variant="caption" sx={{ fontWeight: 900, minWidth: 18 }}>{interacoes.likesCount}</Typography>
+          <IconButton size="small" onClick={abrirCompartilhamento} title="Compartilhar" aria-label="Compartilhar versículo do dia" sx={{ color: '#79581b', p: 0.45, ml: 0.5 }}>
+            <IosShareOutlinedIcon fontSize="small" />
+          </IconButton>
+          <Typography variant="caption" sx={{ fontWeight: 900, minWidth: 18 }}>{interacoes.sharesCount}</Typography>
+        </Box>
       </Box>
+      <CompartilharVersiculoImagemDialog
+        open={compartilhar}
+        onClose={() => setCompartilhar(false)}
+        referencia={item?.referencia || ''}
+        texto={item?.texto || ''}
+        url={item ? linkPaginaVersiculoDoDia(item) : ''}
+        fundoFixoId={item?.fundoId || ''}
+        modoDireto
+        registrarEnvio={false}
+        onShared={() => {
+          if (item?.data && user?.uid) {
+            void registrarCompartilhamentoVersiculoDoDia(item.data)
+              .then((sharesCount) => setInteracoes((atual) => ({ ...atual, sharesCount })))
+              .catch(() => {})
+          }
+        }}
+        onActionComplete={() => setCompartilhar(false)}
+      />
     </Grid>
   )
 }

@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
+  Avatar,
   Box,
   Button,
   Chip,
   CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
   IconButton,
   Paper,
   Stack,
@@ -20,6 +25,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
+import { useEhAdmin } from '../hooks/useEhAdmin'
 import CompartilharVersiculoImagemDialog from '../components/CompartilharVersiculoImagemDialog'
 import { FUNDOS_VERSICULO, formatarCitacaoTextoVersiculo, urlFundoVersiculo, urlLogoApp } from '../utils/versiculoImagem'
 import { confirmarAsync, mostrarSnackbar } from '../utils/uiDialogs'
@@ -30,6 +36,7 @@ import {
   assinarMeusCompartilhamentos,
   excluirCompartilhamento,
   obterCurtidasDoUsuario,
+  obterInteracoesCompartilhamentoAdmin,
   obterCompartilhamentoPorLink,
   registrarCompartilhamentoVersiculoDoDia,
   registrarRecompartilhamento,
@@ -76,10 +83,62 @@ function CartaoImagem({ item, onClick }) {
   )
 }
 
+function DialogInteracoes({ estado, onClose }) {
+  const aberto = Boolean(estado)
+  const tipo = estado?.tipo || 'curtidas'
+  const lista = estado?.dados?.[tipo] || []
+  const identificadas = tipo === 'compartilhamentos'
+    ? lista.reduce((total, item) => total + Number(item.count || 0), 0)
+    : lista.length
+  const anterioresSemNome = Math.max(0, Number(estado?.total || 0) - identificadas)
+
+  return (
+    <Dialog open={aberto} onClose={onClose} fullWidth maxWidth="xs">
+      <DialogTitle sx={{ fontWeight: 800 }}>
+        {tipo === 'curtidas' ? 'Quem curtiu' : 'Quem compartilhou'}
+      </DialogTitle>
+      <DialogContent dividers>
+        {estado?.carregando ? (
+          <Box sx={{ py: 4, textAlign: 'center' }}><CircularProgress size={30} /></Box>
+        ) : (
+          <Stack spacing={1.25}>
+            {lista.map((item, index) => (
+              <Box key={item.uid}>
+                <Stack direction="row" spacing={1.25} alignItems="center">
+                  <Avatar src={item.foto || undefined} alt="" sx={{ width: 38, height: 38 }}>
+                    {String(item.nome || '?').charAt(0).toUpperCase()}
+                  </Avatar>
+                  <Box sx={{ minWidth: 0, flex: 1 }}>
+                    <Typography sx={{ fontWeight: 700 }} noWrap>{item.nome}</Typography>
+                    {item.handle && <Typography variant="caption" color="text.secondary">@{item.handle}</Typography>}
+                  </Box>
+                  {tipo === 'compartilhamentos' && item.count > 1 && (
+                    <Chip size="small" label={`${item.count} vezes`} />
+                  )}
+                </Stack>
+                {index < lista.length - 1 && <Divider sx={{ mt: 1.25 }} />}
+              </Box>
+            ))}
+            {lista.length === 0 && anterioresSemNome === 0 && (
+              <Typography color="text.secondary">Nenhuma interação registrada.</Typography>
+            )}
+            {anterioresSemNome > 0 && (
+              <Typography variant="body2" color="text.secondary" sx={{ pt: lista.length ? 1 : 0 }}>
+                {anterioresSemNome} {anterioresSemNome === 1 ? 'interação anterior foi registrada' : 'interações anteriores foram registradas'} apenas no contador, antes de o app guardar a identificação administrativa.
+              </Typography>
+            )}
+          </Stack>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 export default function VersiculosCompartilhados() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useFirebaseAuth()
+  const { ehAdmin } = useEhAdmin(user?.uid)
   const [aba, setAba] = useState(0)
   const [publicos, setPublicos] = useState([])
   const [meus, setMeus] = useState([])
@@ -88,6 +147,7 @@ export default function VersiculosCompartilhados() {
   const [compartilhar, setCompartilhar] = useState(null)
   const [itemDireto, setItemDireto] = useState(null)
   const [carregandoDireto, setCarregandoDireto] = useState(false)
+  const [detalhesInteracao, setDetalhesInteracao] = useState(null)
   const itemId = useMemo(() => new URLSearchParams(location.search).get('item') || '', [location.search])
 
   useEffect(() => {
@@ -176,6 +236,19 @@ export default function VersiculosCompartilhados() {
     }
   }
 
+  const abrirInteracoes = async (item, tipo) => {
+    if (!ehAdmin || !user?.uid) return
+    const total = Number(tipo === 'curtidas' ? item.likesCount : item.sharesCount || 0)
+    setDetalhesInteracao({ itemId: item.id, tipo, total, carregando: true, dados: null })
+    try {
+      const dados = await obterInteracoesCompartilhamentoAdmin(user.uid, item.id)
+      setDetalhesInteracao({ itemId: item.id, tipo, total, carregando: false, dados })
+    } catch (error) {
+      setDetalhesInteracao(null)
+      mostrarSnackbar({ mensagem: error?.message || 'Não foi possível carregar as interações.', severidade: 'error' })
+    }
+  }
+
   const renderCartao = (item) => {
     const gostei = curtidos.has(item.id)
     return (
@@ -186,9 +259,25 @@ export default function VersiculosCompartilhados() {
         />
         <Stack direction="row" alignItems="center" sx={{ minHeight: 44, mt: 0.5 }}>
           {item.publico !== false && <IconButton onClick={() => void curtir(item)} aria-label={gostei ? 'Remover curtida' : 'Curtir'} color={gostei ? 'error' : 'default'}>{gostei ? <FavoriteIcon /> : <FavoriteBorderIcon />}</IconButton>}
-          <Typography variant="caption" sx={{ fontWeight: 700 }}>{Number(item.likesCount || 0)}</Typography>
+          <Button
+            size="small"
+            color="inherit"
+            onClick={ehAdmin ? () => void abrirInteracoes(item, 'curtidas') : undefined}
+            aria-label={ehAdmin ? 'Ver quem curtiu' : undefined}
+            sx={{ minWidth: 28, px: 0.5, fontWeight: 800, cursor: ehAdmin ? 'pointer' : 'default' }}
+          >
+            {Number(item.likesCount || 0)}
+          </Button>
           <IconButton onClick={() => setCompartilhar(item)} aria-label="Compartilhar imagem"><IosShareOutlinedIcon /></IconButton>
-          <Typography variant="caption" sx={{ fontWeight: 700 }}>{Number(item.sharesCount || 0)}</Typography>
+          <Button
+            size="small"
+            color="inherit"
+            onClick={ehAdmin ? () => void abrirInteracoes(item, 'compartilhamentos') : undefined}
+            aria-label={ehAdmin ? 'Ver quem compartilhou' : undefined}
+            sx={{ minWidth: 28, px: 0.5, fontWeight: 800, cursor: ehAdmin ? 'pointer' : 'default' }}
+          >
+            {Number(item.sharesCount || 0)}
+          </Button>
         </Stack>
         {aba === 1 && (
           <Stack spacing={0.75} sx={{ px: 0.25, pb: 0.5 }}>
@@ -293,6 +382,7 @@ export default function VersiculosCompartilhados() {
           setCompartilhar(null)
         }}
       />
+      <DialogInteracoes estado={detalhesInteracao} onClose={() => setDetalhesInteracao(null)} />
     </Box>
   )
 }

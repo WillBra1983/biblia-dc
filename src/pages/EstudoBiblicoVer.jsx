@@ -42,7 +42,10 @@ import { avisarAsync } from '../utils/uiDialogs'
 import { buildEstudoBiblicoChatExport } from '../utils/appExportPayload'
 import CompartilharMenu from '../components/CompartilharMenu'
 import LocalPinchZoom from '../components/LocalPinchZoom'
+import EditorialContentHeader from '../components/EditorialContentHeader'
+import EditorialProse from '../components/EditorialProse'
 import { urlLeitorBiblia } from '../utils/bibliaDeepLinks'
+import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 
 export default function EstudoBiblicoVer() {
   const { studyId: studyIdParam } = useParams()
@@ -296,10 +299,16 @@ export default function EstudoBiblicoVer() {
         </Alert>
       )}
 
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 1, mb: 1 }}>
-        <Typography variant="h6" sx={{ flex: '1 1 auto' }}>
-          {study.tema || 'Estudo compartilhado'}
-        </Typography>
+      <EditorialContentHeader
+        title={study.tema || 'Estudo compartilhado'}
+        subtitle={study.referenciaCompacta || 'Leitura, reflexão e aplicação'}
+        eyebrow="Estudo"
+        image={EDITORIAL_IMAGES.estudosCompartilhados}
+        imagePosition="center 48%"
+        sx={{ mb: 2 }}
+      />
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', alignItems: 'flex-start', gap: 1, mb: 1 }}>
         {isAuthor && (
           <Button
             size="small"
@@ -367,9 +376,13 @@ export default function EstudoBiblicoVer() {
         </Typography>
       ) : null}
 
-      <Box sx={{ mb: 3 }}>
-        <TextoComReferencias texto={textoEstudo} style={leituraStyle} />
-      </Box>
+      <EditorialProse
+        text={textoEstudo}
+        fontSize={fontSize}
+        textAlign="justify"
+        lineHeight={lh}
+        sx={{ mb: 3 }}
+      />
 
       <Typography variant="h6" sx={{ mb: 1 }}>
         {modoProva ? 'Avaliação' : 'Perguntas'}
@@ -503,22 +516,26 @@ export default function EstudoBiblicoVer() {
             </Box>
             {meditacaoAtual.reflexao ? (
               <Typography variant="body2" sx={campoDevocionalStyle}>
-                <strong>Reflexão:</strong> {meditacaoAtual.reflexao}
+                <strong>Reflexão:</strong>{' '}
+                <TextoComReferencias texto={meditacaoAtual.reflexao} inline component="span" style={{ fontSize: 'inherit', lineHeight: 'inherit' }} />
               </Typography>
             ) : null}
             {meditacaoAtual.oracao ? (
               <Typography variant="body2" sx={campoDevocionalStyle}>
-                <strong>Oração:</strong> {meditacaoAtual.oracao}
+                <strong>Oração:</strong>{' '}
+                <TextoComReferencias texto={meditacaoAtual.oracao} inline component="span" style={{ fontSize: 'inherit', lineHeight: 'inherit' }} />
               </Typography>
             ) : null}
             {meditacaoAtual.conselho_pastoral ? (
               <Typography variant="body2" sx={campoDevocionalStyle}>
-                <strong>Conselho Pastoral:</strong> {meditacaoAtual.conselho_pastoral}
+                <strong>Conselho Pastoral:</strong>{' '}
+                <TextoComReferencias texto={meditacaoAtual.conselho_pastoral} inline component="span" style={{ fontSize: 'inherit', lineHeight: 'inherit' }} />
               </Typography>
             ) : null}
             {meditacaoAtual.desafio ? (
               <Typography variant="body2" sx={{ ...campoDevocionalStyle, mb: 0 }}>
-                <strong>Desafio:</strong> {meditacaoAtual.desafio}
+                <strong>Desafio:</strong>{' '}
+                <TextoComReferencias texto={meditacaoAtual.desafio} inline component="span" style={{ fontSize: 'inherit', lineHeight: 'inherit' }} />
               </Typography>
             ) : null}
           </Paper>

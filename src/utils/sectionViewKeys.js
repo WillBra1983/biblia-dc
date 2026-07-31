@@ -69,6 +69,7 @@ export function pathnameParaSectionKey(pathname) {
   if (p === '/youtube') return 'youtube'
   if (p.startsWith('/quiz-retiro')) return 'quiz_retiro'
   if (p.startsWith('/versiculos-marcados')) return 'versiculos_marcados'
+  if (p.startsWith('/versiculos-compartilhados')) return 'versiculos_compartilhados'
   if (p.startsWith('/biblioteca-estudos')) return 'biblioteca_estudos'
   if (p.startsWith('/chat')) return 'chat'
 

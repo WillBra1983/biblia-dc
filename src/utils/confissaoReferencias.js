@@ -4,6 +4,7 @@
 import { confissaoFeData } from '../data/confissaoFe'
 import { catecismoMaior } from '../data/catecismoMaior'
 import { breveCatecismo } from '../data/breveCatecismo'
+import { catecismoHeidelberg } from '../data/catecismoHeidelberg'
 
 import {
   parseCapituloRomanOuArabico,
@@ -62,7 +63,7 @@ export function buscarParagrafoConfissaoOuInicioCapitulo(capituloRaw, paragrafoN
 
 /**
  * Busca pergunta de catecismo por sigla.
- * @returns {{ tipo: 'CMW'|'CBW', numero: number, pergunta: string, resposta: string, referencias: string[] } | null}
+ * @returns {{ tipo: 'CMW'|'CBW'|'CH', numero: number, pergunta: string, resposta: string, referencias: string[] } | null}
  */
 export function buscarPerguntaCatecismo(siglaRaw, numeroRaw) {
   const sigla = String(siglaRaw || '').trim().toUpperCase()
@@ -86,7 +87,7 @@ export function buscarPerguntaCatecismo(siglaRaw, numeroRaw) {
     }
   }
 
-  if (sigla === 'CBW' || sigla === 'BREVE CATECISMO') {
+  if (sigla === 'CBW' || sigla === 'BCW' || sigla === 'BREVE CATECISMO' || sigla === 'CATECISMO BREVE') {
     const item = breveCatecismo.find((q) => Number(q.numero) === numero)
     if (!item) return null
     return {
@@ -103,6 +104,17 @@ export function buscarPerguntaCatecismo(siglaRaw, numeroRaw) {
     }
   }
 
+  if (sigla === 'CH' || sigla === 'CATECISMO DE HEIDELBERG') {
+    const item = catecismoHeidelberg.find((q) => Number(q.numero) === numero)
+    if (!item) return null
+    return {
+      tipo: 'CH',
+      numero,
+      pergunta: String(item.pergunta || '').trim(),
+      resposta: String(item.resposta || '').trim(),
+      referencias: Array.isArray(item.referencias) ? item.referencias : []
+    }
+  }
+
   return null
 }
-

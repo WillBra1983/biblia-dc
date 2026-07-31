@@ -18,6 +18,50 @@ function carregarConfissaoReferenciasCompleto() {
   return _confModulePromise
 }
 
+/**
+ * Aplica apenas **negrito** e *itálico*. O estado atravessa links, por isso uma
+ * referência no meio da marcação não faz os asteriscos reaparecerem na tela.
+ */
+function expandirMarcacaoEditorialNasPartes(partes) {
+  if (!partes?.length) return partes
+  const out = []
+  let negrito = false
+  let italico = false
+  let c = 0
+
+  for (const parte of partes) {
+    if (parte.isRef) {
+      out.push({ ...parte, key: parte.key ?? `ref-ed-${c++}`, negrito, italico })
+      continue
+    }
+
+    const pedacos = String(parte.conteudo ?? '').split(/(\*\*|\*)/g)
+    for (const pedaco of pedacos) {
+      if (pedaco === '**') {
+        negrito = !negrito
+      } else if (pedaco === '*') {
+        italico = !italico
+      } else if (pedaco) {
+        out.push({
+          ...parte,
+          key: `${parte.key ?? 'texto'}-ed-${c++}`,
+          conteudo: pedaco,
+          negrito,
+          italico,
+        })
+      }
+    }
+  }
+  return out
+}
+
+function renderizarEstiloEditorial(parte) {
+  let conteudo = parte.conteudo
+  if (parte.italico) conteudo = <em>{conteudo}</em>
+  if (parte.negrito) conteudo = <strong>{conteudo}</strong>
+  return conteudo
+}
+
 /** Insere links clicáveis para CFW/CMW/CBW em trechos sem referência bíblica. */
 function expandirConfessionaisNasPartes(partes) {
   if (!partes?.length) return partes
@@ -48,7 +92,8 @@ function expandirConfessionaisNasPartes(partes) {
         conteudo: m[0],
         confSiglaRaw: m[1],
         confA: m[2],
-        confB: m[3]
+        confB: m[3],
+        confFim: m[4]
       })
       ultimo = m.index + m[0].length
     }
@@ -381,7 +426,7 @@ function TextoComReferencias({
           conteudo: texto.substring(ultimoIndice)
         })
       }
-      const final = expandirConfessionaisNasPartes(resultado)
+      const final = expandirMarcacaoEditorialNasPartes(expandirConfessionaisNasPartes(resultado))
       if (PARTES_TEXTO_CACHE.size >= PARTES_TEXTO_CACHE_MAX) {
         PARTES_TEXTO_CACHE.delete(PARTES_TEXTO_CACHE.keys().next().value)
       }
@@ -535,6 +580,34 @@ function TextoComReferencias({
 
   const abrirReferenciaConfessional = useCallback((parte) => {
     const sigla = String(parte.confSiglaRaw || '').toUpperCase()
+    const abrirCatecismo = (tipo) => {
+      carregarConfissaoReferenciasCompleto()
+        .then((mod) => {
+          const inicio = Number(parte.confA)
+          const fim = Number(parte.confFim)
+          if (Number.isInteger(inicio) && Number.isInteger(fim) && fim > inicio && fim - inicio <= 30) {
+            const itens = []
+            for (let numero = inicio; numero <= fim; numero += 1) {
+              const item = mod.buscarPerguntaCatecismo(tipo, numero)
+              if (item) itens.push(item)
+            }
+            if (itens.length) {
+              setCatecismoPergunta({
+                tipo: itens[0].tipo,
+                numero: `${inicio}–${fim}`,
+                itens,
+              })
+              return
+            }
+          }
+          const d = mod.buscarPerguntaCatecismo(tipo, parte.confA)
+          if (d) setCatecismoPergunta(d)
+        })
+        .catch((err) => {
+          console.error(`[${tipo}] Falha ao carregar pergunta:`, err)
+        })
+    }
+
     if (sigla.startsWith('CFW') || sigla.startsWith('CONFISSÃO')) {
       if (!parte.confA) return
       carregarConfissaoReferenciasCompleto()
@@ -548,25 +621,20 @@ function TextoComReferencias({
       return
     }
     if (sigla.startsWith('CMW') || sigla.includes('CATECISMO MAIOR')) {
-      carregarConfissaoReferenciasCompleto()
-        .then((mod) => {
-          const d = mod.buscarPerguntaCatecismo('CMW', parte.confA)
-          if (d) setCatecismoPergunta(d)
-        })
-        .catch((err) => {
-          console.error('[CMW] Falha ao carregar pergunta:', err)
-        })
+      abrirCatecismo('CMW')
       return
     }
-    if (sigla.startsWith('CBW') || sigla.includes('BREVE CATECISMO')) {
-      carregarConfissaoReferenciasCompleto()
-        .then((mod) => {
-          const d = mod.buscarPerguntaCatecismo('CBW', parte.confA)
-          if (d) setCatecismoPergunta(d)
-        })
-        .catch((err) => {
-          console.error('[CBW] Falha ao carregar pergunta:', err)
-        })
+    if (
+      sigla.startsWith('CBW') ||
+      sigla.startsWith('BCW') ||
+      sigla.includes('BREVE CATECISMO') ||
+      sigla.includes('CATECISMO BREVE')
+    ) {
+      abrirCatecismo('CBW')
+      return
+    }
+    if (sigla === 'CH' || sigla.includes('CATECISMO DE HEIDELBERG')) {
+      abrirCatecismo('CH')
     }
   }, [])
 
@@ -620,13 +688,17 @@ function TextoComReferencias({
                 handleReferenciaClick(e, parte)
               }
             }}
-            sx={sxLinkReferencia}
+            sx={{
+              ...sxLinkReferencia,
+              ...(parte.negrito ? { fontWeight: 700 } : {}),
+              ...(parte.italico ? { fontStyle: 'italic' } : {}),
+            }}
           >
             {parte.conteudo}
           </Link>
         )
       }
-      return <span key={parte.key}>{parte.conteudo}</span>
+      return <span key={parte.key}>{renderizarEstiloEditorial(parte)}</span>
     })
   }, [partes, handleReferenciaClick, sxLinkReferencia, texto])
 

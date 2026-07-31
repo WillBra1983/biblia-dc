@@ -19,6 +19,8 @@ import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import CapitulosListaCards from '../components/CapitulosListaCards'
 import PageReadingShell from '../components/PageReadingShell'
 import { HISTORIA_CATECISMO_MAIOR } from '../data/historiasWestminster'
+import EditorialContentHeader from '../components/EditorialContentHeader'
+import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 
 export default function CatecismoMaior() {
   const location = useLocation()
@@ -143,6 +145,15 @@ export default function CatecismoMaior() {
           Voltar
         </Button>
       </Box>
+
+      <EditorialContentHeader
+        title={`Pergunta ${pergunta.numero}`}
+        subtitle="Catecismo Maior de Westminster"
+        eyebrow="Westminster"
+        image={EDITORIAL_IMAGES.westminster}
+        imagePosition="center 36%"
+        sx={{ mb: 2 }}
+      />
 
       <Box sx={{ position: 'relative', width: '100%' }} key={perguntaAtual}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', position: 'fixed', top: '50%', left: 0, right: 0, transform: 'translateY(-50%)', px: 1, zIndex: 1000 }}>

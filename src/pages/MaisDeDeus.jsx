@@ -33,6 +33,8 @@ import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { useZoomReset } from '../contexts/ZoomResetContext'
 import { getGlassCardStyles } from '../utils/glassCardStyles'
+import EditorialContentHeader from '../components/EditorialContentHeader'
+import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 
 function mesmoId(a, b) {
   return String(a) === String(b)
@@ -440,9 +442,16 @@ export default function MaisDeDeus() {
             </Typography>
           </Box>
         </Box>
+        <Box sx={{ width: '100%', maxWidth: 880, mx: 'auto', mb: 2 }}>
+          <EditorialContentHeader
+            title={item.titulo}
+            subtitle={item.referencia}
+            eyebrow="Mais de Deus"
+            image={EDITORIAL_IMAGES.maisDeDeus}
+            imagePosition="center 48%"
+          />
+        </Box>
         <Paper elevation={3} sx={{ p: { xs: 1, sm: 3, md: 4 }, mb: 2, width: '100%', maxWidth: 880, mx: 'auto', boxSizing: 'border-box', fontFamily: ff }}>
-          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1, textAlign: textAlign || 'left' }}>{item.titulo}</Typography>
-          <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'bold', textAlign: textAlign || 'left' }}>{item.referencia}</Typography>
           <Typography variant="body1" sx={{ fontStyle: 'italic', mb: 2, textAlign: textAlign || 'left' }}>
             <TextoComReferencias texto={item.texto} style={{ fontSize: `${fontSize}%`, lineHeight: lh }} />
           </Typography>
@@ -715,10 +724,7 @@ export default function MaisDeDeus() {
       </Drawer>
 
       <Container maxWidth={false} disableGutters sx={{ px: { xs: 1, sm: 3 }, pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)', mt: 0, width: '100%', minWidth: 0, touchAction: 'pan-y' }}>
-        <Box sx={{ position: 'relative', width: '100%', maxWidth: 900, mx: 'auto', minHeight: 44, mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', px: { xs: 5.5, sm: 7 } }}>
-          <Typography variant="h5" align="center" sx={{ fontWeight: 'bold', m: 0, fontSize: `${fontSize}%`, lineHeight: 1.25 }}>
-            {maisDeDeusData.title}
-          </Typography>
+        <Box sx={{ position: 'relative', width: '100%', maxWidth: 900, mx: 'auto', minHeight: 44, mb: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
           <Tooltip title="Abrir etapas">
             <IconButton
               aria-label="Abrir etapas"
@@ -765,6 +771,15 @@ export default function MaisDeDeus() {
               <NavigateNext />
             </IconButton>
           </Box>
+
+          <EditorialContentHeader
+            title={etapa?.label || maisDeDeusData.title}
+            subtitle={maisDeDeusData.title}
+            eyebrow="Mais de Deus"
+            image={EDITORIAL_IMAGES.maisDeDeus}
+            imagePosition="center 48%"
+            sx={{ mb: 2 }}
+          />
 
           <Paper elevation={2} sx={{ p: { xs: 1, sm: 3 }, mb: 2, mt: 0, bgcolor: 'background.default', width: '100%', maxWidth: '100%', boxSizing: 'border-box', fontFamily: ff, '&:hover': { bgcolor: 'background.default' } }}>
             {conteudo}

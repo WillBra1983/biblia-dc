@@ -6,6 +6,7 @@ import {
   Divider
 } from '@mui/material'
 import VersiculoLink from './VersiculoLink'
+import TextoComReferencias from './TextoComReferencias'
 
 export default function LeiturasDiarias({ leituras }) {
   if (!leituras || leituras.length === 0) {
@@ -37,28 +38,22 @@ export default function LeiturasDiarias({ leituras }) {
 
             <Divider sx={{ my: 2 }} />
 
-            <Typography variant="body1" paragraph sx={{ textAlign: 'justify' }}>
-              {meditacao.texto}
-            </Typography>
+            <TextoComReferencias texto={meditacao.texto} style={{ textAlign: 'justify', marginBottom: 16 }} />
 
             <Box sx={{ mt: 2 }}>
               <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                 Para Reflexão:
               </Typography>
-              <Typography variant="body1" paragraph sx={{ fontStyle: 'italic' }}>
-                {meditacao.reflexao}
-              </Typography>
+              <TextoComReferencias texto={meditacao.reflexao} style={{ fontStyle: 'italic', marginBottom: 16 }} />
 
               <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                 Oração:
               </Typography>
-              <Typography variant="body1" sx={{ fontStyle: 'italic' }}>
-                {meditacao.oracao}
-              </Typography>
+              <TextoComReferencias texto={meditacao.oracao} style={{ fontStyle: 'italic' }} />
             </Box>
           </CardContent>
         </Card>
       ))}
     </Box>
   )
-} 
+}

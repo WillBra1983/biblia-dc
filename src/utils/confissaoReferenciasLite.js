@@ -37,9 +37,9 @@ export function parseCapituloRomanOuArabico(raw) {
   return parseNumeroRomanOuArabico(raw, 33)
 }
 
-/** Regex unificado para CFW/CMW/CBW, incluindo citações escritas por extenso. */
+/** Regex unificado para Westminster e Heidelberg, incluindo formas por extenso. */
 export const REGEX_CONF_LINK =
-  /\b(CFW|Confissão(?:\s+de\s+Fé)?(?:\s+de\s+Westminster)?|CMW|Catecismo\s+Maior(?:\s+de\s+Westminster)?|CBW|Breve\s+Catecismo(?:\s+de\s+Westminster)?)\s*(?:[,;:]\s*)?\(?\s*(?:(?:Cap(?:ítulo)?\.?|Pergunta|Questão)\s*)?([IVXLC]{1,10}|\d{1,3})(?:\s*(?:(?:[,;:]\s*)?(?:Art(?:igo)?\.?|§)\s*|[.:]\s*)([IVXLC]{1,10}|\d{1,3}))?\)?/gi
+  /\b(CFW|Confissão(?:\s+de\s+Fé)?(?:\s+de\s+Westminster)?|CMW|Catecismo\s+Maior(?:\s+de\s+Westminster)?|CBW|BCW|Breve\s+Catecismo(?:\s+de\s+Westminster)?|Catecismo\s+Breve(?:\s+de\s+Westminster)?|CH|Catecismo\s+de\s+Heidelberg)\s*(?:[,;:]\s*)?\(?\s*(?:(?:Cap(?:ítulo)?\.?|Pergunta|Questão)\s*)?([IVXLC]{1,10}|\d{1,3})(?:\s*(?:(?:[,;:]\s*)?(?:Art(?:igo)?\.?|§)\s*|[.:]\s*)([IVXLC]{1,10}|\d{1,3}))?(?:\s*[-–—]\s*([IVXLC]{1,10}|\d{1,3}))?\)?(?![A-Za-zÀ-ÿ])/gi
 
 /** Compatibilidade retroativa com código existente. */
 export const REGEX_CFW_LINK = REGEX_CONF_LINK

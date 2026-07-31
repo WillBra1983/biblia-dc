@@ -18,6 +18,8 @@ import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import CapitulosListaCards from '../components/CapitulosListaCards'
 import PageReadingShell from '../components/PageReadingShell'
 import { HISTORIA_CONFISSAO_WESTMINSTER } from '../data/historiasWestminster'
+import EditorialContentHeader from '../components/EditorialContentHeader'
+import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 
 export default function Confissao() {
   const theme = useTheme()
@@ -193,19 +195,14 @@ export default function Confissao() {
           </IconButton>
         </Box>
 
-        <Typography
-          variant="h5"
-          gutterBottom
-          sx={{
-            color: theme.palette.text.primary,
-            fontSize: `${fontSize}%`,
-            textAlign: textAlign || 'left',
-            fontFamily: ff,
-            lineHeight: lh,
-          }}
-        >
-          Capítulo {capituloAtual.capitulo} - {capituloAtual.titulo}
-        </Typography>
+        <EditorialContentHeader
+          title={`Capítulo ${capituloAtual.capitulo} - ${capituloAtual.titulo}`}
+          subtitle="Confissão de Fé de Westminster"
+          eyebrow="Westminster"
+          image={EDITORIAL_IMAGES.westminster}
+          imagePosition="center 36%"
+          sx={{ mb: 2.5 }}
+        />
 
         {capituloAtual.paragrafos.map((paragrafo) => (
           <Typography

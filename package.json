@@ -10,6 +10,7 @@
     "icons:native": "node scripts/sync-native-icons.mjs",
     "splash:native": "node scripts/sync-native-splash.mjs",
     "dev": "vite",
+    "validate:discipulado": "node scripts/validate-discipulado.mjs",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "build:web": "cross-env VITE_BASE_URL=/biblia/ NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "build:web:lowmem": "cross-env VITE_BASE_URL=/biblia/ VITE_LOW_MEMORY_BUILD=1 NODE_OPTIONS=--max-old-space-size=1536 vite build",

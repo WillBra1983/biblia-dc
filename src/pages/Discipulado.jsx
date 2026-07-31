@@ -15,7 +15,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Divider,
   IconButton,
   Drawer,
   List,
@@ -37,7 +36,6 @@ import CheckBoxIcon from '@mui/icons-material/Check'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import BookIcon from '@mui/icons-material/Book'
 import NavigateBefore from '@mui/icons-material/NavigateBefore'
 import NavigateNext from '@mui/icons-material/NavigateNext'
 import ShareIcon from '@mui/icons-material/Share'
@@ -55,10 +53,13 @@ import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { chaveConclusaoDiscipulado, chaveLocalStorageConclusao } from '../utils/discipuladoConclusao'
 import MenuOpcoesCompartilhar from '../components/MenuOpcoesCompartilhar'
+import EditorialContentHeader from '../components/EditorialContentHeader'
+import EditorialProse, { separarIntroducaoEditorial } from '../components/EditorialProse'
 import { buildAppShareLink } from '../services/bibliaEstudosService'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { ensureUserForChatExport, pushPendingChatDraft } from '../utils/chatExportSend'
 import { montarCorpoCompartilhamento } from '../utils/compartilharOpcoes'
+import { editorialDiscipulado } from '../utils/editorialThemes'
 
 const textoTeste = `
 A Bíblia é a Palavra viva e infalível do Deus vivo. Como declara Pedro, "homens falaram da parte de Deus, movidos pelo Espírito Santo" (2 Pedro 1:21). 
@@ -265,6 +266,7 @@ export default function Discipulado() {
   // Função para obter o tema e estudo atuais (compara id normalizado: number === number)
   const tema = discipuladoData.find(t => t.id === temaSelecionado)
   const estudo = estudoSelecionado != null && tema?.estudos?.find(e => e.id == estudoSelecionado)
+  const visualEditorial = editorialDiscipulado(temaSelecionado)
   /**
    * Lista de estudos visíveis do tema atual: filtra os que estão com
    * `oculto: true` no `discipuladoData` (material em revisão / ainda não
@@ -313,6 +315,7 @@ export default function Discipulado() {
   }
 
   const conteudoAtual = getConteudoTema()
+  const introducaoEditorial = separarIntroducaoEditorial(conteudoAtual?.introducao?.texto)
 
   // Função para verificar se um dia está concluído
   const isDiaConcluido = (dia) => {
@@ -965,17 +968,39 @@ export default function Discipulado() {
           {/* Introdução do tema */}
           {tema.introducao && (
             <Box sx={{ mb: 3, color: 'text.primary', textAlign: textAlign || 'left' }}>
-              <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
-                {tema.titulo}
-              </Typography>
-              <TextoComReferencias texto={tema.introducao.texto} style={{ fontSize: `${fontSize}%`, color: 'inherit', textAlign: textAlign || 'left', lineHeight: lh }} />
-              {tema.introducao.versiculo && (
-                <TextoComReferencias 
-                  texto={tema.introducao.versiculo}
-                  variant="block"
-                  style={{ fontSize: `${fontSize}%`, marginTop: 16, fontStyle: 'italic', color: 'inherit', textAlign: textAlign || 'left', lineHeight: lh }}
-                />
-              )}
+              <EditorialContentHeader
+                title={tema.titulo}
+                subtitle={introducaoEditorial.subtitle || 'Formação cristã para leitura, reflexão e prática'}
+                eyebrow="Discipulado"
+                image={visualEditorial.image}
+                imagePosition={visualEditorial.imagePosition}
+                sx={{ mb: 0 }}
+              />
+              <EditorialProse
+                text={introducaoEditorial.body}
+                fontSize={fontSize}
+                textAlign={textAlign || 'justify'}
+                lineHeight={lh}
+                sx={{ mt: 1 }}
+              >
+                {tema.introducao.versiculo && (
+                  <Box
+                    sx={{
+                      mt: 2.4,
+                      pl: 2,
+                      py: 1,
+                      borderLeft: '3px solid #b58a2f',
+                      color: '#4d442f',
+                      fontStyle: 'italic',
+                    }}
+                  >
+                    <TextoComReferencias
+                      texto={tema.introducao.versiculo}
+                      style={{ fontSize: `${fontSize}%`, color: 'inherit', textAlign: textAlign || 'left', lineHeight: lh }}
+                    />
+                  </Box>
+                )}
+              </EditorialProse>
               {tema.introducao.audioUrl && (
                 <Box sx={{ mt: 2 }}>
                   <AudioPlayer url={tema.introducao.audioUrl} label="Ouvir introdução" />
@@ -1304,14 +1329,10 @@ export default function Discipulado() {
                                           style={{ fontSize: `${fontSize}%`, textAlign: textAlign || 'left', lineHeight: lh }}
                                     />
                               </Typography>
-                                  <Typography 
-                                    variant="body1" 
-                                    paragraph 
-                                    component="div"
-                                        sx={{ textAlign: textAlign || 'left', fontSize: `${fontSize}%`, wordBreak: 'break-word', lineHeight: lh }}
-                                  >
-                                {dia.texto}
-                              </Typography>
+                              <TextoComReferencias
+                                texto={dia.texto}
+                                style={{ textAlign: textAlign || 'left', fontSize: `${fontSize}%`, wordBreak: 'break-word', lineHeight: lh, marginBottom: 16 }}
+                              />
                                   <Typography 
                                     variant="subtitle2" 
                                     color="text.secondary" 
@@ -1319,7 +1340,8 @@ export default function Discipulado() {
                                     component="div"
                                         sx={{ fontSize: `${fontSize}%`, textAlign: textAlign || 'left', lineHeight: lh }}
                                   >
-                                Reflexão: {dia.reflexao}
+                                <strong>Reflexão:</strong>{' '}
+                                <TextoComReferencias texto={dia.reflexao} inline component="span" style={{ fontSize: 'inherit', lineHeight: 'inherit' }} />
                               </Typography>
                                   <Typography 
                                     variant="subtitle2" 
@@ -1328,7 +1350,8 @@ export default function Discipulado() {
                                     component="div"
                                         sx={{ fontSize: `${fontSize}%`, textAlign: textAlign || 'left', lineHeight: lh }}
                                   >
-                                Oração: {dia.oracao}
+                                <strong>Oração:</strong>{' '}
+                                <TextoComReferencias texto={dia.oracao} inline component="span" style={{ fontSize: 'inherit', lineHeight: 'inherit' }} />
                               </Typography>
                                   {dia.desafio && (
                                     <Typography 
@@ -1338,7 +1361,8 @@ export default function Discipulado() {
                                       component="div"
                                       sx={{ fontStyle: 'italic', mt: 1, fontSize: `${fontSize}%`, textAlign: textAlign || 'left', lineHeight: lh }}
                                     >
-                                      Desafio: {dia.desafio}
+                                      <strong>Desafio:</strong>{' '}
+                                      <TextoComReferencias texto={dia.desafio} inline component="span" style={{ fontSize: 'inherit', lineHeight: 'inherit' }} />
                                     </Typography>
                                   )}
 
@@ -1387,37 +1411,44 @@ export default function Discipulado() {
                   {/* Introdução, stepper e questões */}
                   <Box sx={{ width: '100%', mt: 0, mb: 2 }}>
                     <Box sx={{ p: { xs: 0, sm: 3 }, width: '100%' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                        <BookIcon color="primary" sx={{ mr: 1 }} />
-                        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                          {estudoSelecionado && estudo ? estudo.titulo : tema.titulo}
-                        </Typography>
-                      </Box>
-                      <Divider sx={{ mb: 2 }} />
-                      <Box sx={{ width: '100%', textAlign: textAlign || 'left' }}>
-                        <TextoComReferencias 
-                          texto={conteudoAtual.introducao.texto} 
-                          style={{ fontSize: `${fontSize}%`, textAlign: textAlign || 'left', lineHeight: lh }} 
-                        />
+                      <EditorialContentHeader
+                        title={estudoSelecionado && estudo ? estudo.titulo : tema.titulo}
+                        subtitle={introducaoEditorial.subtitle || (estudoSelecionado && estudo ? tema.titulo : 'Formação cristã')}
+                        eyebrow="Discipulado"
+                        image={visualEditorial.image}
+                        imagePosition={visualEditorial.imagePosition}
+                        sx={{ mb: 0 }}
+                      />
+                      <EditorialProse
+                        text={introducaoEditorial.body}
+                        fontSize={fontSize}
+                        textAlign={textAlign || 'justify'}
+                        lineHeight={lh}
+                        sx={{ mt: 1 }}
+                      >
                         {conteudoAtual.introducao.versiculo && (
-                          <TextoComReferencias 
-                            texto={conteudoAtual.introducao.versiculo}
-                            variant="block"
-                            style={{ 
-                              fontSize: `${fontSize}%`, 
-                              marginTop: 16, 
+                          <Box
+                            sx={{
+                              mt: 2.4,
+                              pl: 2,
+                              py: 1,
+                              borderLeft: '3px solid #b58a2f',
+                              color: '#4d442f',
                               fontStyle: 'italic',
-                              textAlign: textAlign || 'left',
-                              lineHeight: lh,
                             }}
-                          />
+                          >
+                            <TextoComReferencias
+                              texto={conteudoAtual.introducao.versiculo}
+                              style={{ fontSize: `${fontSize}%`, color: 'inherit', textAlign: textAlign || 'left', lineHeight: lh }}
+                            />
+                          </Box>
                         )}
                         {conteudoAtual.introducao.audioUrl && (
                           <Box sx={{ mt: 2 }}>
                             <AudioPlayer url={conteudoAtual.introducao.audioUrl} label="Ouvir introdução" />
                           </Box>
                         )}
-                      </Box>
+                      </EditorialProse>
                     </Box>
                   </Box>
                   {/* Stepper com círculos indicadores */}

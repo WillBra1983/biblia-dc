@@ -19,6 +19,8 @@ import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import CapitulosListaCards from '../components/CapitulosListaCards'
 import PageReadingShell from '../components/PageReadingShell'
 import { HISTORIA_CATECISMO_BREVE } from '../data/historiasWestminster'
+import EditorialContentHeader from '../components/EditorialContentHeader'
+import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 
 export default function CatecismoBreve() {
   const location = useLocation()
@@ -158,6 +160,15 @@ export default function CatecismoBreve() {
           Voltar
         </Button>
       </Box>
+
+      <EditorialContentHeader
+        title={`Pergunta ${pergunta.numero}`}
+        subtitle="Catecismo Breve de Westminster"
+        eyebrow="Westminster"
+        image={EDITORIAL_IMAGES.westminster}
+        imagePosition="center 36%"
+        sx={{ mb: 2 }}
+      />
 
       <Paper
         elevation={2}

@@ -4,13 +4,16 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
 import HistoryIcon from '@mui/icons-material/History'
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges'
+import FavoriteIcon from '@mui/icons-material/Favorite'
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import CompartilharVersiculoImagemDialog from '../components/CompartilharVersiculoImagemDialog'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { FUNDOS_VERSICULO, urlFundoVersiculo, urlLogoApp } from '../utils/versiculoImagem'
 import { abrirVersiculoDoDia, linkPaginaVersiculoDoDia, obterComentarioDoDia, obterVersiculoDoDia, obterVersiculoDoDiaPorData, substituirVersiculoDoDia } from '../services/versiculoDoDiaService'
-import { registrarCompartilhamentoVersiculoDoDia } from '../services/versiculosCompartilhadosService'
+import { alternarCurtida, obterCurtidasDoUsuario, obterDestaqueVersiculoDoDia, registrarCompartilhamentoVersiculoDoDia } from '../services/versiculosCompartilhadosService'
 import { useEhAdmin } from '../hooks/useEhAdmin'
+import TextoComReferencias from '../components/TextoComReferencias'
 
 function TextoComentario({ texto }) {
   return String(texto || '').split(/\n{2,}/).map((bloco, index) => {
@@ -27,7 +30,7 @@ function TextoComentario({ texto }) {
         lineHeight: 1.72,
         textAlign: titulo ? 'left' : 'justify',
       }}>
-        {limpo.replace(/\*\*/g, '')}
+        <TextoComReferencias texto={limpo} inline component="span" />
       </Typography>
     )
   })
@@ -50,6 +53,8 @@ export default function VersiculoDoDia() {
   const [novaReferencia, setNovaReferencia] = useState('')
   const [trocando, setTrocando] = useState(false)
   const [erroTroca, setErroTroca] = useState('')
+  const [interacoes, setInteracoes] = useState({ likesCount: 0, sharesCount: 0 })
+  const [curtido, setCurtido] = useState(false)
   const fluxoCarregamentoRef = useRef(0)
 
   const voltar = useCallback(() => {
@@ -156,6 +161,42 @@ export default function VersiculoDoDia() {
     return () => { ativo = false }
   }, [dataArquivada])
 
+  useEffect(() => {
+    let ativo = true
+    if (!item?.data) return () => { ativo = false }
+    obterDestaqueVersiculoDoDia(item.data)
+      .then((destaque) => {
+        if (!ativo) return
+        setInteracoes({
+          likesCount: Number(destaque?.likesCount || 0),
+          sharesCount: Number(destaque?.sharesCount || 0),
+        })
+      })
+      .catch(() => {})
+    if (user?.uid) {
+      obterCurtidasDoUsuario(user.uid)
+        .then((ids) => ativo && setCurtido(ids.has(`versiculo-dia-${item.data}`)))
+        .catch(() => {})
+    } else {
+      setCurtido(false)
+    }
+    return () => { ativo = false }
+  }, [item?.data, user?.uid])
+
+  const curtirVersiculo = useCallback(async () => {
+    if (!user?.uid || !item?.data) return
+    const postId = `versiculo-dia-${item.data}`
+    const antes = curtido
+    setCurtido(!antes)
+    setInteracoes((atual) => ({ ...atual, likesCount: Math.max(0, Number(atual.likesCount || 0) + (antes ? -1 : 1)) }))
+    try {
+      await alternarCurtida(user.uid, postId)
+    } catch (_) {
+      setCurtido(antes)
+      setInteracoes((atual) => ({ ...atual, likesCount: Math.max(0, Number(atual.likesCount || 0) + (antes ? 1 : -1)) }))
+    }
+  }, [curtido, item?.data, user?.uid])
+
   const fundo = useMemo(
     () => FUNDOS_VERSICULO.find((valor) => valor.id === item?.fundoId) || FUNDOS_VERSICULO[0],
     [item?.fundoId]
@@ -223,6 +264,20 @@ export default function VersiculoDoDia() {
             </Typography>
           </Box>
         </Box>
+        <Box sx={{ px: { xs: 1.5, sm: 3 }, py: 0.75, borderTop: '1px solid', borderColor: 'rgba(80,70,45,.14)', display: 'flex', alignItems: 'center', gap: 0.25 }}>
+          <Tooltip title={user?.uid ? (curtido ? 'Remover curtida' : 'Curtir') : 'Entre na conta para curtir'}>
+            <span>
+              <IconButton onClick={() => void curtirVersiculo()} disabled={!user?.uid} aria-label={curtido ? 'Remover curtida' : 'Curtir'} color={curtido ? 'error' : 'default'}>
+                {curtido ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Typography sx={{ minWidth: 28, fontWeight: 800 }}>{interacoes.likesCount}</Typography>
+          <IconButton onClick={() => setCompartilhar(true)} aria-label="Compartilhar versículo do dia">
+            <IosShareOutlinedIcon />
+          </IconButton>
+          <Typography sx={{ minWidth: 28, fontWeight: 800 }}>{interacoes.sharesCount}</Typography>
+        </Box>
         <Box sx={{ p: { xs: 2, sm: 4.5 }, color: '#171a2b' }}>
           {comentario ? (
             <TextoComentario texto={comentario} />
@@ -255,7 +310,9 @@ export default function VersiculoDoDia() {
         registrarEnvio={false}
         onShared={() => {
           if (user?.uid && item.data) {
-            void registrarCompartilhamentoVersiculoDoDia(item.data).catch(() => {})
+            void registrarCompartilhamentoVersiculoDoDia(item.data)
+              .then((sharesCount) => setInteracoes((atual) => ({ ...atual, sharesCount })))
+              .catch(() => {})
           }
         }}
       />

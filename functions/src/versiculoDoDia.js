@@ -554,6 +554,11 @@ exports.registrarCompartilhamentoVersiculoDoDia = onCall({
   await garantirDestaqueMural(db, registro)
   const contadorRef = db.ref(`versiculosCompartilhadosPublicos/${idDestaqueMural(data)}/sharesCount`)
   const resultado = await contadorRef.transaction((valor) => Number(valor || 0) + 1)
+  await db.ref(`versiculosCompartilhadosInteracoes/${idDestaqueMural(data)}/compartilhamentos/${request.auth.uid}`)
+    .transaction((atual) => ({
+      count: Number(atual?.count || 0) + 1,
+      lastAt: Date.now(),
+    }))
   return { sharesCount: Number(resultado.snapshot.val() || 0) }
 })
 

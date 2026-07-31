@@ -30,6 +30,7 @@ const STATIC_KEYS = new Set([
   'youtube',
   'quiz_retiro',
   'versiculos_marcados',
+  'versiculos_compartilhados',
   'biblioteca_estudos',
   'chat',
   'config_notificacoes',

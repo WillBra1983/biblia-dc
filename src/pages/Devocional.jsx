@@ -31,6 +31,9 @@ import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { buildDevocionalExport } from '../utils/appExportPayload'
 import { ensureUserForChatExport, pushPendingChatExport } from '../utils/chatExportSend'
 import { avisarAsync } from '../utils/uiDialogs'
+import EditorialContentHeader from '../components/EditorialContentHeader'
+import EditorialProse from '../components/EditorialProse'
+import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 
 export default function Devocional() {
   const { id } = useParams()
@@ -150,18 +153,13 @@ export default function Devocional() {
               }}
             >
               <Box sx={{ width: '100%', maxWidth: 920, mx: 'auto', display: 'grid', gap: 1.25 }}>
-                <Typography
-                  variant="h5"
-                  sx={{
-                    fontSize: { xs: '1.12rem', sm: '1.35rem' },
-                    fontWeight: 800,
-                    textAlign: 'center',
-                    wordBreak: 'break-word',
-                    lineHeight: 1.25,
-                  }}
-                >
-                  {devocionalAtual.titulo}
-                </Typography>
+                <EditorialContentHeader
+                  title={devocionalAtual.titulo}
+                  subtitle="Meditação bíblica para a vida cristã"
+                  eyebrow="Devocional"
+                  image={EDITORIAL_IMAGES.devocional}
+                  imagePosition="center 50%"
+                />
 
                 <Box
                   sx={{
@@ -247,23 +245,13 @@ export default function Devocional() {
               }}
             >
               <Box sx={{ width: '100%', maxWidth: 860, mx: 'auto' }}>
-              <Card
-                variant="outlined"
-                sx={{
-                  mb: 2,
-                  width: '100%',
-                  borderRadius: 2,
-                  boxShadow: 'none',
-                  bgcolor: 'background.paper',
-                  borderColor: 'divider',
-                }}
-              >
-                <CardContent sx={{ px: { xs: 2, sm: 2.5 }, py: { xs: 2, sm: 2.5 } }}>
-                  <Typography variant="body1" sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
-                    {devocionalAtual.introducao.texto}
-                  </Typography>
-                </CardContent>
-              </Card>
+              <EditorialProse
+                text={devocionalAtual.introducao.texto}
+                fontSize={fontSize}
+                textAlign="justify"
+                lineHeight={lh}
+                sx={{ mb: 2 }}
+              />
 
               {/* Meditação */}
               {devocionalAtual.meditacao.map((meditacao, index) => (
@@ -291,27 +279,19 @@ export default function Devocional() {
                     <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
                       Reflexão:
                     </Typography>
-                    <Typography variant="body1" paragraph sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
-                      {meditacao.reflexao}
-                    </Typography>
+                    <TextoComReferencias texto={meditacao.reflexao} style={{ fontSize: `${fontSize}%`, lineHeight: lh, marginBottom: 16 }} />
                     <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
                       Oração:
                     </Typography>
-                    <Typography variant="body1" paragraph sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
-                      {meditacao.oracao}
-                    </Typography>
+                    <TextoComReferencias texto={meditacao.oracao} style={{ fontSize: `${fontSize}%`, lineHeight: lh, marginBottom: 16 }} />
                     <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
                       Conselho Pastoral:
                     </Typography>
-                    <Typography variant="body1" paragraph sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
-                      {meditacao.conselho_pastoral}
-                    </Typography>
+                    <TextoComReferencias texto={meditacao.conselho_pastoral} style={{ fontSize: `${fontSize}%`, lineHeight: lh, marginBottom: 16 }} />
                     <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
                       Desafio:
                     </Typography>
-                    <Typography variant="body1" sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
-                      {meditacao.desafio}
-                    </Typography>
+                    <TextoComReferencias texto={meditacao.desafio} style={{ fontSize: `${fontSize}%`, lineHeight: lh }} />
                   </CardContent>
                 </Card>
               ))}

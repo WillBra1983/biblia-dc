@@ -542,7 +542,42 @@ export const discipuladoData = [
         id: 2,
         titulo: "Predestinação",
         introducao: {
-          texto: "A doutrina da predestinação afirma que Deus, em Seu eterno decreto, ordenou tudo o que acontece, incluindo o destino final de todas as pessoas, para a manifestação de Sua glória. Esta doutrina está intimamente ligada à eleição, mas é mais ampla, abrangendo todo o propósito eterno de Deus.\n\nDEFINIÇÕES\n\n\"A predestinação é o decreto eterno de Deus pelo qual Ele determinou o destino de todas as Suas criaturas racionais, para a manifestação de Sua glória.\"\n\n\"A predestinação inclui tanto a eleição quanto a reprovação, manifestando a soberania absoluta de Deus sobre todas as Suas criaturas.\"\n\n\"Chamamos predestinação o eterno decreto de Deus pelo qual Ele determinou o que queria fazer de cada homem.\"\n\nFUNDAMENTAÇÃO BÍBLICA\n\nRomanos 8:29-30 — \"Porque os que dantes conheceu também os predestinou...\"\n\nEfésios 1:11 — \"Nele, digo, em quem também fomos feitos herança, havendo sido predestinados...\"\n\nAtos 4:27-28 — \"Para fazerem tudo o que a tua mão e o teu propósito predestinaram...\"\n\nCONFISSÃO DE FÉ DE WESTMINSTER\n\nCapítulo 3.3-4:\n\"Pelo decreto de Deus, para a manifestação de sua glória, alguns homens e anjos são predestinados para a vida eterna, e outros preordenados para a morte eterna. Estes anjos e homens, assim predestinados e preordenados, são particular e imutavelmente designados...\"\n\nOBJETIVO DO ESTUDO\n- Compreender a amplitude do decreto eterno de Deus\n- Reconhecer a soberania absoluta de Deus\n- Humilhar-se diante do mistério divino\n- Glorificar a Deus por Seu sábio propósito"
+          texto: `A doutrina da predestinação afirma que Deus, em seu eterno, sábio e santo decreto, ordenou tudo quanto acontece para a manifestação de sua glória, sem ser autor do pecado, sem violentar a vontade das criaturas e sem retirar a realidade das causas secundárias (Efésios 1:11; CFW III.1). Essa doutrina está intimamente ligada à eleição, mas é mais ampla, pois contempla o propósito eterno de Deus e o destino final das criaturas racionais.
+
+**Predestinação e eleição**
+
+Na linguagem bíblica, predestinação aparece especialmente como o propósito gracioso de Deus de conformar os eleitos à imagem de Cristo, recebê-los como filhos e conduzi-los à glória (Romanos 8:29-30; Efésios 1:5,11). A eleição destaca a escolha soberana de um povo em Cristo; a predestinação contempla o destino que Deus determinou para esse povo. Ambas procedem do beneplácito divino, não de fé prevista, obras futuras ou mérito humano.
+
+A Confissão de Fé de Westminster também distingue a predestinação para a vida da preordenação dos demais para a justa manifestação da glória de Deus. Essa verdade deve ser tratada com a sobriedade da própria Confissão: não autoriza especulação sobre indivíduos, frieza evangelística ou prazer na condenação. A eleição é proclamada em Cristo, e o evangelho deve ser oferecido sinceramente a todos.
+
+**Fundamento da salvação, não etapa aplicada ao pecador**
+
+A predestinação fundamenta a Ordem da Salvação, mas não é uma transformação realizada dentro da pessoa. Chamado eficaz, regeneração, conversão, justificação, adoção e santificação são benefícios aplicados no tempo. A reprovação pertence à doutrina do decreto e não deve ser apresentada como benefício nem como etapa da aplicação da redenção aos eleitos.
+
+Essa distinção evita confundir o propósito eterno com sua execução histórica. Deus escolheu antes da fundação do mundo; chama e justifica no tempo; glorificará seu povo na consumação. O mesmo propósito une esses momentos sem torná-los idênticos.
+
+**Soberania sem fatalismo**
+
+Predestinação não é destino cego, força impessoal ou negação da responsabilidade humana. É o governo do Deus pessoal, sábio, santo e justo. Atos 4:27-28 ensina que a morte de Cristo ocorreu segundo o determinado conselho de Deus, enquanto Herodes, Pilatos e os demais agentes permaneceram moralmente responsáveis por seus atos. A soberania divina e a responsabilidade humana não competem como se fossem forças do mesmo nível.
+
+Deus ordena não apenas os fins, mas também os meios. Ele determinou salvar por meio da proclamação do evangelho, do chamado eficaz, da fé e da perseverança. Por isso, Paulo suportava tudo por causa dos eleitos, “para que também eles obtenham a salvação que está em Cristo Jesus” (2 Timóteo 2:10), e permaneceu pregando em Corinto porque Deus tinha naquela cidade um povo (Atos 18:9-10).
+
+**Presciência e amor de aliança**
+
+Em Romanos 8:29, conhecer de antemão não deve ser reduzido a prever escolhas humanas futuras. Na Escritura, conhecer pessoas pode expressar relacionamento, amor e reconhecimento pactual. O texto não diz que Deus predestinou porque previu fé; apresenta uma cadeia cujo início está no propósito amoroso de Deus e cujo fim certo é a glória.
+
+Todos os que Deus conheceu de antemão, também predestinou; todos os predestinados, chamou; todos os chamados, justificou; e todos os justificados, glorificou. Paulo escreve isso para consolar crentes em sofrimento, assegurando que nada pode frustrar o propósito de conformá-los ao Filho (Romanos 8:28-39).
+
+**Fundamentação bíblica e confessional**
+
+- Romanos 8:29-30 — os conhecidos de antemão são predestinados para a conformidade a Cristo e conduzidos à glória.
+- Efésios 1:4-11 — eleição, adoção e predestinação procedem do beneplácito da vontade de Deus e resultam no louvor de sua graça.
+- Atos 4:27-28 — o propósito soberano de Deus não elimina a responsabilidade dos agentes humanos.
+- 2 Timóteo 1:9 — o chamado repousa no propósito e na graça concedida em Cristo antes dos tempos eternos.
+
+A Confissão de Fé de Westminster III deve ser lida juntamente com os capítulos V, IX e X, que tratam da providência, da vontade humana e do chamado eficaz. Os Cânones de Dort I preservam tanto a eleição incondicional quanto a responsabilidade de proclamar o evangelho. Para aprofundar, consulte João Calvino, *Institutas*, livro III; Herman Bavinck, *Dogmática Reformada*; Louis Berkhof, *Teologia Sistemática*; John Murray, *Redenção Consumada e Aplicada*; e R. C. Sproul, *Eleitos de Deus*.
+
+O objetivo pastoral desta doutrina é humilhar o orgulho, exaltar a graça, fortalecer a segurança, sustentar a oração e impulsionar a missão. Quem a utiliza para indiferença, presunção ou especulação perdeu o propósito com que Paulo a apresenta: conduzir a igreja à adoração, à perseverança e à confiança no amor inseparável de Deus em Cristo.`
     },
     questoes: [
       {
@@ -722,10 +757,10 @@ export const discipuladoData = [
             dia: 4,
             titulo: "A Justiça Divina",
             leitura: "Romanos 3:21-26",
-            texto: "Deus é justo e justo é Deus. Ele não vê as pessoas pelo que fazem, mas pelo que são. Ele vê o coração e o pensamento. Isso nos dá esperança e confiança em nossas lutas.",
-            reflexao: "Como a justiça divina afeta sua vida cristã?",
-            oracao: "Pai, ensina-me a viver como um justo, para que eu possa ser justo como Tu.",
-            desafio: "Liste três situações em que você sente falta de justiça em sua vida."
+            texto: "Deus é perfeitamente justo: julga sem parcialidade, conhece o coração e jamais chama o mal de bem. O evangelho não suspende essa justiça; revela que Cristo satisfez plenamente suas exigências em favor do seu povo. Em Romanos 3:21-26, Deus permanece justo e, ao mesmo tempo, justifica aquele que tem fé em Jesus. Nossa esperança não está em produzir justiça própria, mas em sermos revestidos da justiça de Cristo, da qual procede uma vida comprometida com aquilo que é reto.",
+            reflexao: "Em quais áreas você ainda tenta apresentar sua própria justiça, em vez de descansar na justiça de Cristo e praticar o que é reto por gratidão?",
+            oracao: "Pai justo e santo, livra-me da justiça própria. Faz-me descansar na obediência perfeita de Cristo e, pelo teu Espírito, amar e praticar aquilo que é justo diante de ti.",
+            desafio: "Identifique uma situação de injustiça e responda a ela com verdade, misericórdia e confiança no Juiz de toda a terra."
           },
           {
             dia: 5,
@@ -738,21 +773,21 @@ export const discipuladoData = [
           },
           {
             dia: 6,
-            titulo: "A Predisposição Divina",
+            titulo: "A Graça que Renova a Vontade",
             leitura: "Romanos 8:28",
-            texto: "Deus nos criou com uma predisposição para viver de acordo com a vontade dele. Isso nos dá uma tendência natural para agir de acordo com a vontade de Deus.",
-            reflexao: "Como a predisposição divina afeta sua vida cristã?",
-            oracao: "Pai, ensina-me a reconhecer e seguir a tua vontade em todas as coisas.",
-            desafio: "Liste três situações em que você sentiu que Deus estava guiando sua vida."
+            texto: "Depois da queda, o ser humano não possui uma inclinação natural para submeter-se a Deus; a mente da carne é hostil a Ele e não pode agradá-lo (Romanos 8:7-8). A esperança do cristão está na graça soberana que chama, vivifica e renova a vontade. Deus não apenas aponta o caminho: pelo Espírito, concede novo coração e produz em seus filhos tanto o querer quanto o realizar segundo a sua boa vontade (Ezequiel 36:26-27; Filipenses 2:13).",
+            reflexao: "Que desejos e decisões recentes evidenciam sua dependência da graça renovadora de Deus?",
+            oracao: "Pai, reconheço que não posso transformar meu próprio coração. Renova meus afetos pelo teu Espírito e faz-me desejar e praticar aquilo que te agrada.",
+            desafio: "Escolha uma área de resistência à Palavra, ore por renovação e dê hoje um passo concreto de obediência."
           },
           {
             dia: 7,
-            titulo: "A Admissão Divina",
+            titulo: "Da Predestinação à Glória",
             leitura: "Romanos 8:30",
-            texto: "Deus nos aduz para a vida eterna. Ele nos dá a oportunidade de viver de acordo com a vontade dele. Isso nos dá esperança e confiança em nossas lutas.",
-            reflexao: "Como a admissão divina afeta sua vida cristã?",
-            oracao: "Pai, ensina-me a confiar em Teu plano eterno, mesmo quando não entendo o que está por vir.",
-            desafio: "Liste três situações em que você sentiu falta de admissão divina em sua vida."
+            texto: "Romanos 8:30 apresenta a firmeza do propósito redentor de Deus: os que Ele predestinou, também chamou; os que chamou, justificou; e os que justificou, glorificou. Paulo fala da glorificação futura com a certeza de uma obra já assegurada pelo propósito e pelo mérito de Cristo. Não se trata de mera oportunidade oferecida ao acaso, mas da graça eficaz que conduz os eleitos, por meios reais como a Palavra, a fé e a perseverança, até a glória.",
+            reflexao: "Como a certeza da obra de Deus fortalece sua perseverança sem transformá-la em passividade?",
+            oracao: "Pai, ensina-me a confiar em teu propósito eterno e a usar com diligência os meios pelos quais preservas teu povo até a glória.",
+            desafio: "Anote três evidências da fidelidade de Deus em sua caminhada e agradeça por cada uma delas."
           }
         ]
       },
@@ -1648,7 +1683,7 @@ export const discipuladoData = [
       dia: 6,
       titulo: "O Ímpio que Crê",
       leitura: "Romanos 4:5",
-      texto: "Deus justifica não os bons, mas os ímpios. O que O agrada não é nosso esforço, mas nossa fé em Seu Filho. Isso é escândalo para o orgulhoso, e consolo para o humilde.",
+      texto: "Deus justifica não os que se apresentam como bons, mas o ímpio que abandona toda confiança em si e recebe Cristo pela fé. A fé não é a virtude que compra o agrado de Deus nem a justiça que substitui nossas obras; ela é o instrumento vazio pelo qual recebemos Cristo e sua justiça perfeita. O fundamento da aceitação é somente a obediência e o sacrifício do Filho. Isso é escândalo para o orgulhoso e consolo para o humilde (Romanos 4:5; Filipenses 3:9).",
       reflexao: "Agradeça hoje pela justificação de pecadores como você — e interceda por outros que ainda não creram.",
       oracao: "Senhor, fui ímpio, e Tu me justificaste. Jamais me esqueça de quem eu era, e do que Tu fizeste."
     },
@@ -1666,7 +1701,49 @@ export const discipuladoData = [
   id: 7,
   titulo: "Adoção",
   introducao: {
-    texto: `A adoção dos cristãos não é um gesto meramente afetivo, mas o decreto soberano e gracioso do Deus Triuno pelo qual o Pai, "em amor", escolhe aqueles que foram redimidos pelo sangue de Cristo, concedendo-lhes pleno acesso à sua família (Efésios 1:3-6; Gálatas 4:4-5). Não é fruto de nossa fé ou decisão — embora nossa fé em Cristo seja o canal pelo qual experimentamos essa graça — mas sim o ato legal e relacional que transfere o crente da condição de réu para a de filho legítimo, com todos os direitos e as bênçãos inerentes ao primogênito do Criador.\n\nAssim, a adoção divina engloba tanto o estabelecimento de um novo status jurídico perante o Juiz Santo, quanto a beleza de um vínculo íntimo com o Pai que nos chama de "Aba, Pai" (Romanos 8:15). É a expressão máxima do amor de Deus, resplandecendo em nossa filiação e preparando-nos para a glória futura.\n\nDistinções importantes:\n- **Justificação**: decreto judicial pelo qual Deus declara o pecador justo, com base na imputação da justiça de Cristo.  \n- **Adoção**: ato relacional e legal que estabelece o justo como filho pleno de Deus, dotado de todos os direitos de herdeiro.  \n- **Santificação**: processo contínuo de renovação moral e espiritual, pelo poder do Espírito, à semelhança de Cristo.\n\nNatureza da Adoção:\n- **Ato soberano do Pai** — não decorre de méritos humanos, mas é conferida a quem está unido a Cristo (Jo 1.12-13; Ef 1.5).  \n- **Fundamentada na união com Cristo** — o redimido participa do Filho como Primogênito, tornando-se co-herdeiro das promessas (Gl 4.4-5; Rm 8.17).  \n- **Privilegios espirituais** — inclusão no pacto de graça, acesso confiante ao trono da graça, disciplina paternal, e selo do Espírito, que assegura nossa herança (Rm 8.15-17; Ef 1.13-14).  \n- **Identidade e intimidade** — o crente passa de órfão a filho, desfrutando não apenas de direitos jurídicos, mas de uma comunhão de amor e confiança com Deus ("Aba, Pai") e com os irmãos em Cristo.\n\nConfissão de Fé de Westminster — Capítulo 12  \n> "Todos os que são justificados, Deus se apraz em fazer participantes da graça da adoção, por meio de Jesus Cristo; eles são recebidos no número dos filhos de Deus, têm o Seu nome sobre eles, recebem o Espírito de adoção, têm acesso ao trono da graça com ousadia, e são feitos herdeiros de todas as promessas."\n\nSíntese Reformada da Adoção:\n- É **ato simultaneamente legal e relacional**, estabelecendo-nos como filhos legítimos de Deus.  \n- É tão **graciosa e gratuita** quanto a justificação, fruto do amor trinitário.  \n- Gera **confiança** diante de Deus, **identidade** como herdeiros e **esperança** na consumação futura da glória.  \n- Concedida exclusivamente aos **que estão em Cristo**, é sinal e selo da aliança eterna.`
+    texto: `A adoção dos cristãos não é um gesto meramente afetivo, mas um ato da livre e soberana graça do Deus triúno. Nela, o Pai recebe como filhos, por meio de Jesus Cristo, aqueles que foram redimidos pelo sangue do Filho e regenerados pelo Espírito Santo, concedendo-lhes o nome, a condição e os privilégios dos filhos de Deus (Efésios 1:3-6; Gálatas 4:4-7).
+
+A adoção não tem sua origem na fé ou na decisão humana, embora seja recebida e desfrutada mediante a fé em Cristo. Também não deve ser confundida com a justificação. Na justificação, Deus, como Juiz, perdoa os pecados do crente e o declara justo com base na justiça de Cristo. Na adoção, Deus, como Pai, recebe o crente em sua família e lhe concede todos os privilégios pertencentes aos filhos de Deus.
+
+Assim, a adoção divina estabelece um novo relacionamento entre Deus e o crente. Aquele que antes era, por natureza, filho da ira e estranho às promessas da aliança passa a ser recebido como filho amado, podendo aproximar-se de Deus com confiança. Pelo Espírito de adoção, não apenas somos chamados filhos, mas também clamamos: “Aba, Pai” (Romanos 8:15-17; Gálatas 4:6).
+
+Os crentes não recebem os direitos que pertencem inerentemente a Cristo como o Filho unigênito e eterno do Pai. Cristo é Filho por natureza; nós somos filhos por graça e adoção. Contudo, unidos a ele, tornamo-nos coerdeiros com Cristo e participantes das bênçãos que Deus preparou para seus filhos.
+
+A adoção é, portanto, uma das mais sublimes manifestações do amor de Deus. Por ela, recebemos o nome de filhos, desfrutamos do cuidado, da disciplina, da proteção e do acesso paternal de Deus, somos selados pelo Espírito e aguardamos a plena manifestação de nossa filiação na glória futura (1 João 3:1-2; Romanos 8:23).
+
+Como ensina a Confissão de Fé de Westminster, todos os que são justificados recebem, em Cristo, a graça da adoção, pela qual são contados entre os filhos de Deus, desfrutam das liberdades e dos privilégios dessa condição e se tornam herdeiros das promessas e da salvação eterna (CFW XII; Breve Catecismo de Westminster, pergunta 34).
+
+Distinções importantes:
+
+**Justificação**: decreto judicial pelo qual Deus declara o pecador justo, com base na imputação da justiça de Cristo.
+
+**Adoção**: ato relacional e legal que estabelece o justo como filho pleno de Deus, dotado de todos os direitos de herdeiro.
+
+**Santificação**: processo contínuo de renovação moral e espiritual, pelo poder do Espírito, à semelhança de Cristo.
+
+Natureza da Adoção:
+
+**Ato soberano do Pai** — não decorre de méritos humanos, mas é conferida a quem está unido a Cristo (Jo 1.12-13; Ef 1.5).
+
+**Fundamentada na união com Cristo** — o redimido participa do Filho como Primogênito, tornando-se co-herdeiro das promessas (Gl 4.4-5; Rm 8.17).
+
+**Privilegios espirituais** — inclusão no pacto de graça, acesso confiante ao trono da graça, disciplina paternal, e selo do Espírito, que assegura nossa herança (Rm 8.15-17; Ef 1.13-14).
+
+**Identidade e intimidade** — o crente passa de órfão a filho, desfrutando não apenas de direitos jurídicos, mas de uma comunhão de amor e confiança com Deus ("Aba, Pai") e com os irmãos em Cristo.
+
+Confissão de Fé de Westminster — Capítulo 12
+
+"Todos os que são justificados, Deus se apraz em fazer participantes da graça da adoção, por meio de Jesus Cristo; eles são recebidos no número dos filhos de Deus, têm o Seu nome sobre eles, recebem o Espírito de adoção, têm acesso ao trono da graça com ousadia, e são feitos herdeiros de todas as promessas."
+
+Síntese Reformada da Adoção:
+
+É **ato simultaneamente legal e relacional**, estabelecendo-nos como filhos legítimos de Deus.
+
+É tão **graciosa e gratuita** quanto a justificação, fruto do amor trinitário.
+
+Gera **confiança** diante de Deus, **identidade** como herdeiros e **esperança** na consumação futura da glória.
+
+Concedida exclusivamente aos **que estão em Cristo**, é sinal e selo da aliança eterna.`
   },
   questoes: [
     {
@@ -1891,7 +1968,7 @@ export const discipuladoData = [
       dia: 7,
       titulo: "Adoção Plena no Porvir",
       leitura: "Romanos 8:23",
-      texto: "A adoção será plenamente manifesta quando nossos corpos forem glorificados. Até lá, vivemos como filhos esperando o retorno do Pai.",
+      texto: "A adoção será plenamente manifesta quando nossos corpos forem glorificados. Já somos verdadeiramente filhos de Deus, mas ainda aguardamos a redenção do corpo e a revelação pública dessa filiação. Até lá, vivemos como filhos que esperam a volta de Jesus Cristo, o Filho enviado pelo Pai, e a consumação de nossa herança (Romanos 8:23; Filipenses 3:20-21).",
       reflexao: "Viva hoje como quem espera a glória futura com alegria e esperança.",
       oracao: "Senhor, anseio pelo dia da redenção completa. Até lá, guarda-me firme como Teu filho."
     }
@@ -1901,7 +1978,34 @@ export const discipuladoData = [
   id: 8,
   titulo: "Santificação",
   introducao: {
-    texto: "Santificação é a obra contínua da graça de Deus na vida do crente, pela qual ele é transformado, renovado e conformado à imagem de Cristo. Ao contrário da justificação (que é um ato único), a santificação é um processo progressivo, que dura toda a vida cristã.\n\nA santificação:\n\nTem início na regeneração\n\nProssegue pela ação do Espírito e da Palavra\n\nCoopera com o crente, mas depende inteiramente da graça\n\nSerá consumada apenas na glorificação\n\nCaracterísticas da Santificação\nObra de Deus no homem — É Deus quem santifica, mas com participação ativa do crente (Filipenses 2:12-13).\n\nProgressiva — O crente é cada vez mais separado do pecado e dedicado a Deus (2 Coríntios 3:18).\n\nDistinta da justificação — Justificação remove a culpa; santificação remove o poder do pecado.\n\nInterna e externa — Muda tanto o coração quanto os frutos visíveis da vida.\n\nConduz à obediência e ao temor de Deus — Não é apenas moralidade, mas consagração.\n\nConfissão de Fé de Westminster — Capítulo 13\n\"Aqueles que são chamados e regenerados, têm um novo coração e um novo espírito criado neles, são santificados real e pessoalmente, pelo poder da morte e ressurreição de Cristo, e pela operação do Espírito, aplicando a eles a virtude da morte e ressurreição de Cristo.\"\n\nSíntese Reformada da Santificação\nÉ obra da Trindade: o Pai decreta, o Filho realiza, o Espírito aplica.\n\nÉ uma transformação progressiva, não instantânea.\n\nDepende da Palavra, oração, sacramentos e disciplina espiritual.\n\nExige mortificação do pecado e vivificação da graça.\n\nO crente jamais será perfeito nesta vida, mas é chamado à perfeição futura."
+    texto: `Santificação é a obra contínua da livre graça de Deus na vida do crente, pela qual ele é renovado no homem inteiro e conformado progressivamente à imagem de Cristo. Ao contrário da justificação, que é um ato único e completo de Deus em nosso favor, a santificação é uma obra real em nós, iniciada na regeneração, desenvolvida durante toda a vida cristã e consumada somente na glória (Romanos 6:1-14; 2 Coríntios 3:18; CFW XIII; Breve Catecismo de Westminster 35).
+
+**A prioridade da graça e a atividade do crente**
+
+A santificação tem início na regeneração e prossegue pela ação do Espírito Santo por meio da Palavra. Não é correto dizer que “a santificação coopera com o crente”, como se a graça e a pessoa fossem duas forças independentes. Deus é o autor da obra: Ele opera em seus filhos tanto o querer quanto o realizar. Ao mesmo tempo, a graça renova a vontade em vez de anulá-la; por isso, o crente age responsavelmente, desenvolve sua salvação com temor, mortifica o pecado e pratica a obediência (Filipenses 2:12-13; Romanos 8:13). A atividade humana é verdadeira, mas é fruto e efeito da graça que a sustenta.
+
+**Características da santificação**
+
+- **Obra de Deus no homem** — é Deus quem santifica, aplicando pelo Espírito a eficácia da morte e da ressurreição de Cristo; o crente renovado participa ativamente mediante fé e obediência.
+- **Progressiva** — o crente é cada vez mais separado do domínio do pecado e dedicado a Deus, sendo transformado de glória em glória (2 Coríntios 3:18).
+- **Distinta da justificação** — a justificação remove a culpa e muda nossa condição diante de Deus; a santificação combate a corrupção e renova nossa vida. A santidade jamais se torna o fundamento de nossa aceitação.
+- **Interna e externa** — alcança mente, afetos e vontade e produz frutos visíveis de amor, justiça, domínio próprio e serviço.
+- **Marcada por mortificação e vivificação** — pelo Espírito fazemos morrer as obras do corpo e aprendemos a viver para Deus em novidade de vida (Romanos 6:11; Romanos 8:13; Colossenses 3:1-10).
+- **Imperfeita nesta vida** — permanece conflito entre carne e Espírito. Isso não autoriza acomodação com o pecado, mas conduz à vigilância, ao arrependimento e à dependência contínua de Cristo (Gálatas 5:16-25; 1 João 1:8-9).
+
+**Os meios de graça**
+
+O Espírito normalmente amadurece os santos pela leitura e pregação da Palavra, pela oração, pelos sacramentos e pela comunhão e disciplina da igreja (João 17:17; Atos 2:42). Essas práticas não compram crescimento espiritual; são meios ordenados por Deus mediante os quais a fé é alimentada. A santificação não é mero moralismo, técnica de autocontrole ou busca de experiências: é vida em união com Cristo, no poder do Espírito e para a glória do Pai.
+
+**Confissão de Fé de Westminster — Capítulo 13**
+
+A Confissão ensina que os chamados e regenerados, tendo novo coração e novo espírito, são santificados real e pessoalmente pela virtude da morte e ressurreição de Cristo, por sua Palavra e por seu Espírito. O domínio do pecado é destruído, suas concupiscências são progressivamente enfraquecidas e mortificadas, e os crentes são vivificados e fortalecidos para a prática da verdadeira santidade.
+
+**Síntese reformada da santificação**
+
+É obra da Trindade: o Pai nos escolheu para sermos santos, o Filho conquistou nossa purificação e o Espírito aplica essa obra. É transformação progressiva, não uma segunda justificação nem perfeição instantânea. Exige mortificação do pecado e vivificação para a justiça, sem jamais deslocar de Cristo o fundamento da salvação. O crente não alcançará impecabilidade nesta vida, mas aquele que Deus justificou não permanecerá estéril: será preservado e amadurecido até que a imagem do Filho resplandeça plenamente na glorificação.
+
+Para aprofundar, consulte John Owen, *A Mortificação do Pecado*; J. C. Ryle, *Santidade*; Sinclair B. Ferguson, *Devoted to God*; João Calvino, *Institutas*, livro III; Herman Bavinck, *Dogmática Reformada*; e Louis Berkhof, *Teologia Sistemática*.`
   },
   questoes: [
     {
@@ -2371,7 +2475,44 @@ export const discipuladoData = [
   id: 10,
   titulo: "Glorificação",
   introducao: {
-    texto: "Glorificação é o ato final da obra redentora de Deus na vida dos Seus eleitos. É a consumação da salvação, quando os crentes serão plenamente libertos da presença do pecado, receberão corpos incorruptíveis e viverão eternamente na presença gloriosa de Deus.\n\nEssa doutrina abrange:\n\n1. A ressurreição corporal dos crentes\n2. A transformação final da alma\n3. A perfeita conformidade com Cristo\n4. A entrada definitiva na comunhão eterna com Deus\n\nCaracterísticas da Glorificação:\n\n1. É futura e escatológica — ocorrerá na volta de Cristo.\n2. É completa — envolve corpo e alma.\n3. É irreversível — estado eterno e definitivo.\n4. É fruto da graça soberana — resultado final da eleição e da perseverança.\n5. É centrada em Cristo — veremos a Cristo e seremos como Ele.\n\nConfissão de Fé de Westminster — Capítulo 32 e 33\n\n\"No último dia, os corpos de todos os santos, sendo unidos à alma, serão glorificados. Então, os eleitos entrarão na posse plena e eterna da bem-aventurança.\"\n\nSíntese Reformada da Glorificação:\n\n1. É a esperança suprema dos crentes.\n2. É resultado certo da salvação iniciada por Deus.\n3. Os crentes serão glorificados como Cristo, em corpo, alma e comunhão.\n4. Essa verdade consola, anima e fortalece os que sofrem nesta vida.\n5. Tudo converge para a glória de Deus — glorificação é o ápice da graça."
+    texto: `Glorificação é a consumação da obra redentora de Deus em seus eleitos. Quando Jesus Cristo voltar, os mortos serão ressuscitados, os crentes que estiverem vivos serão transformados e todo o povo de Deus será plenamente liberto da presença do pecado, revestido de incorruptibilidade e introduzido na comunhão perfeita e eterna com o Senhor (1 Coríntios 15:42-57; 1 Tessalonicenses 4:13-18; Filipenses 3:20-21).
+
+**O estado intermediário e a ressurreição**
+
+É importante distinguir dois momentos que por vezes são confundidos. Na morte, a alma do crente é aperfeiçoada em santidade e recebida na presença de Cristo, enquanto o corpo retorna ao pó aguardando a ressurreição (Lucas 23:43; Filipenses 1:21-23; CFW XXXII.1). Essa bem-aventurança é real, mas ainda não é a consumação completa da esperança cristã.
+
+No último dia, o mesmo corpo que morreu será ressuscitado e unido novamente à alma, agora transformado, incorruptível, glorioso e plenamente adequado à nova criação. A esperança bíblica não é a fuga eterna da alma para longe do corpo, mas a redenção da pessoa inteira. Por isso, Paulo chama a ressurreição do corpo de adoção aguardada e redenção final (Romanos 8:23).
+
+**Essa doutrina abrange**
+
+1. A ressurreição corporal dos crentes.
+2. A transformação e perfeita conformidade de corpo e alma à imagem de Cristo.
+3. A libertação definitiva de toda culpa, corrupção, sofrimento e morte.
+4. A entrada pública e irreversível na herança da nova criação.
+5. A comunhão imediata, santa e jubilosa com o Deus triúno e com todo o povo redimido.
+
+**Características da glorificação**
+
+- **É futura e escatológica** — sua consumação ocorrerá na volta visível de Jesus Cristo, não em uma evolução gradual da humanidade.
+- **É completa** — envolve corpo e alma; nenhuma dimensão da pessoa redimida permanecerá sob os efeitos do pecado.
+- **É irreversível** — a morte será vencida para sempre, e os santos jamais voltarão ao estado de corrupção.
+- **É fruto da graça soberana** — os que Deus conheceu, predestinou, chamou e justificou certamente serão glorificados (Romanos 8:29-30).
+- **É centrada em Cristo** — veremos o Filho como Ele é e seremos semelhantes a Ele em santidade e glória criada, sem nos tornarmos divinos (1 João 3:2).
+- **É corporativa e cósmica** — a igreja inteira será apresentada gloriosa, e a própria criação será libertada do cativeiro da corrupção (Romanos 8:19-23; Efésios 5:25-27).
+
+**Continuidade e transformação do corpo**
+
+O corpo ressuscitado será verdadeiramente nosso corpo, preservando a identidade pessoal, mas transformado pelo poder de Deus. Paulo usa a imagem da semente: há continuidade entre o que é semeado e o que ressuscita, mas também transformação profunda entre corrupção e incorruptibilidade, desonra e glória, fraqueza e poder (1 Coríntios 15:35-44). Cristo ressuscitado é as primícias e o padrão da ressurreição de seu povo.
+
+**Confissão de Fé de Westminster — Capítulos 32 e 33**
+
+A Confissão ensina que, depois da morte, as almas dos justos são aperfeiçoadas em santidade e recebidas nos mais altos céus, onde contemplam a face de Deus enquanto aguardam a plena redenção do corpo. No último dia, os mortos ressuscitarão com os mesmos corpos, embora com qualidades diferentes, e os justos entrarão na vida eterna e na plenitude da alegria na presença do Senhor.
+
+**Síntese reformada da glorificação**
+
+A glorificação é a esperança suprema dos crentes e o resultado certo da salvação iniciada por Deus. Não é mera sobrevivência da alma, mas ressurreição, transformação e comunhão perfeita. Ela consola os enlutados, fortalece os perseguidos, relativiza o sofrimento presente e chama a igreja à santidade: todo aquele que tem essa esperança purifica-se assim como Cristo é puro (1 João 3:3).
+
+Tudo converge para a glória de Deus. A graça que elegeu, chamou, justificou, adotou, santificou e preservou seu povo será publicamente vindicada quando Cristo for admirado em seus santos. Para aprofundar, consulte João Calvino, *Institutas*, livro III; Herman Bavinck, *Dogmática Reformada*, volume 4; Geerhardus Vos, *A Escatologia Paulina*; Anthony Hoekema, *A Bíblia e o Futuro*; e o Catecismo Maior de Westminster 86-90.`
   },
   questoes: [
     {
@@ -2943,7 +3084,35 @@ export const discipuladoData = [
       id: 3,
       titulo: "O abismo: culpa, justiça e por que mediadores humanos não bastam",
       introducao: {
-        texto: "Entre a santidade infinita de Deus e o pecador há um problema que religião superficial não resolve — \"As vossas iniqüidades fazem separação entre vós e o vosso Deus\" (Isaías 59:2). A ira \"se revela do céu contra toda impiedade e injustiça dos homens que detêm injustamente a verdade\" (Romanos 1:18). Tentativas típicas de \"resolver\" como se Deus não fosse ofendido — autoperdão fingido, fichas espirituais com boas ações, negar falta própria, ou inventar outro intermediário — batem contra o texto. \"Porquanto há um só Deus e um só Mediador entre Deus e os homens, Cristo Jesus, homem\" (1 Timóteo 2:5). Pedro, sobre Jesus: \"Salvação nenhuma há em outro algum\" — \"nem outro há, debaixo do céu, dado entre os homens, pelo qual devamos ser salvos\" (Atos 4:12). Hebreus adverte com seriedade: \"Horrível coisa é cair nas mãos do Deus vivo\" (10:31). Davi volta o foco onde importa primeiro: \"Pequei contra ti, contra ti somente, e fiz o que é mau perante os teus olhos\" (Salmos 51:4).\n\nÉ por isso que os próximos passos já apontam para Cristo como único que cumpriu a lei, morreu em nosso lugar e vive como advogado e Rei. Este estudo fecha o espaço para qualquer Salvador \"caseiro\" antes de saborearmos a obra terminada na lição seguinte."
+        texto: `Entre a santidade infinita de Deus e o pecador existe um problema que nenhuma religião superficial consegue resolver: “As vossas iniquidades fazem separação entre vós e o vosso Deus” (Isaías 59:2). A ira de Deus “se revela do céu contra toda impiedade e injustiça dos homens que detêm injustamente a verdade” (Romanos 1:18). O pecado não é somente fraqueza, ignorância ou desajuste emocional. É transgressão da lei, rebelião contra o Criador e culpa real diante de seu tribunal (1 João 3:4; Romanos 3:19).
+
+**Culpa e corrupção**
+
+A corrupção descreve a desordem moral que alcança nossa natureza: mente, afetos e vontade foram atingidos pela queda. A culpa descreve nossa responsabilidade jurídica diante do Deus santo. Precisamos, portanto, de mais que instrução, inspiração ou melhora de comportamento. Precisamos que a culpa seja removida, a justiça de Deus satisfeita, a comunhão restaurada e o coração renovado.
+
+Davi reconhece essa dimensão vertical ao confessar: “Pequei contra ti, contra ti somente, e fiz o que é mau perante os teus olhos” (Salmos 51:4). Isso não elimina o dano causado ao próximo; mostra que todo pecado contra a criatura é, em última instância, cometido diante de Deus. O arrependimento bíblico não procura apenas aliviar a consciência, mas concorda com o veredito divino e busca misericórdia naquele que foi ofendido.
+
+**A justiça de Deus não pode ser negociada**
+
+Deus não seria bom se tratasse o mal como irrelevante. Sua justiça não é um obstáculo desagradável ao amor, mas uma perfeição de seu ser. Ele não absolve o culpado mediante simples indiferença judicial (Êxodo 34:6-7; Provérbios 17:15). Por isso, autoperdão, boas ações usadas como compensação, negação da culpa ou comparação com pessoas aparentemente piores não podem reconciliar o pecador com Deus.
+
+Nossas obras posteriores também não apagam transgressões anteriores. Mesmo a melhor obediência de uma criatura já pertence ao Criador e não constitui crédito excedente capaz de pagar uma dívida moral. A lei exige amor perfeito a Deus e ao próximo; ela revela o pecado, mas não fornece ao pecador caído o poder de justificar a si mesmo (Romanos 3:20; Gálatas 3:21-24).
+
+**Por que mediadores meramente humanos não bastam**
+
+Nenhum profeta, sacerdote, pastor, santo, anjo ou autoridade religiosa pode ocupar o lugar do Redentor. Todos os seres humanos descendentes de Adão necessitam de salvação e não possuem justiça ou vida infinitas para oferecer em favor de outros. Um mediador somente humano compartilharia nossa obrigação e, sendo pecador, nossa culpa; uma criatura celestial não poderia assumir verdadeiramente nossa natureza nem obedecer e sofrer como representante da humanidade.
+
+A Escritura, por isso, é exclusiva: “Há um só Deus e um só Mediador entre Deus e os homens, Cristo Jesus, homem” (1 Timóteo 2:5). Pedro declara acerca de Jesus: “Salvação nenhuma há em nenhum outro; porque abaixo do céu não existe nenhum outro nome, dado entre os homens, pelo qual importa que sejamos salvos” (Atos 4:12). A exclusividade de Cristo não nasce de arrogância eclesiástica, mas da singularidade de sua pessoa e de sua obra.
+
+**A necessidade do Deus-homem**
+
+O Mediador precisava ser verdadeiro homem para representar os que seriam salvos, obedecer à lei em nossa natureza, sofrer a penalidade devida e compadecer-se de nossas fraquezas. Também precisava ser verdadeiro Deus para sustentar o peso da ira divina, conferir valor e eficácia suficientes à sua obediência e morte e vencer definitivamente o pecado e a morte (Hebreus 2:14-18; Hebreus 4:15; CFW VIII.2-3; Catecismo Maior de Westminster 38-40).
+
+Essa necessidade não significa que alguma força externa obrigou Deus a salvar. A redenção procede de sua livre misericórdia. Contudo, tendo Deus determinado salvar pecadores de modo coerente com sua santidade e justiça, somente o Filho encarnado poderia realizar a reconciliação. Na cruz, Deus não escolhe entre amor e justiça: demonstra ambos ao apresentar Cristo como propiciação, para ser justo e justificador daquele que tem fé em Jesus (Romanos 3:25-26).
+
+Hebreus adverte com seriedade: “Horrível coisa é cair nas mãos do Deus vivo” (Hebreus 10:31). Essa palavra não pretende conduzir ao desespero sem saída, mas destruir falsas seguranças e levar-nos ao único refúgio suficiente. O abismo é profundo demais para nossos esforços, porém não é profundo demais para a graça de Deus em Cristo.
+
+A Confissão de Fé de Westminster VI descreve a culpa e a corrupção decorrentes da queda; os capítulos VII e VIII apresentam o pacto da graça e o único Mediador. O Catecismo de Heidelberg 12-18 desenvolve pastoralmente a necessidade de um Mediador verdadeiro homem, perfeitamente justo e, ao mesmo tempo, verdadeiro Deus. Para aprofundar, consulte João Calvino, *Institutas*, livro II; John Murray, *Redenção Consumada e Aplicada*; John Stott, *A Cruz de Cristo*; R. C. Sproul, *A Santidade de Deus*; e Herman Bavinck, *Dogmática Reformada*.`
       },
       questoes: [
         {
@@ -3082,7 +3251,41 @@ export const discipuladoData = [
       id: 4,
       titulo: "Jesus Cristo, único Mediador: obra e vida na presença de Deus",
       introducao: {
-        texto: "Cristo é verdadeiro Deus e verdadeiro homem em uma só pessoa — duas naturezas sem se confundir (CFW VIII.2; leia o capítulo VIII todo). Ele exerce ofícios de Profeta, Sacerdote e Rei: revela o Pai, oferece sacrifício que realmente satisfaz a justiça divina, e governa para salvar até o fim. \"Sendo justificado gratuitamente pela sua graça, mediante a redenção que há em Cristo Jesus, a qual Deus propôs para propiciação mediante a fé\" (Romanos 3:24-25; continue lendo até o v. 26 sobre demonstrar a justiça de Deus). João diz de Jesus: \"Eis o Cordeiro de Deus, que tira o pecado do mundo!\" (João 1:29). Romanos diz que \"os que recebem a abundância da graça e o dom da justiça reinarão em vida por meio de um só, a saber, Jesus Cristo\" (5:17).\n\nTrês coisas práticas sadias:\n\n- Ler Escrituras como Palavra do Profeta supremo (\"nestes últimos dias, nos falou pelo Filho\" — Hebreus 1:2; leia 1:1-2 inteiro).\n- Orar e viver culto lembrando que não há outro mediador salvífico — pastores e liderança ajudam, mas não substituem Cristo (1 Timóteo 2:5).\n- Obedecer crescentemente porque o Rei ressuscitado reina — e esperar seu retorno com alegria limpa.\n\n\"Mas vós sois dele, em Cristo Jesus, o qual se nos tornou, da parte de Deus, sabedoria, e justiça, e santificação, e redenção\" (1 Coríntios 1:30), \"para que, como está escrito: Aquele que se gloria, glorie-se no Senhor\" (1:31). Teologia que não cai nos joelhos vira arquivo morto — deixemos o Espírito unir doutrina e adoração."
+        texto: `Jesus Cristo é o único Mediador entre Deus e os homens porque é verdadeiro Deus e verdadeiro homem em uma só pessoa. As duas naturezas, divina e humana, permanecem distintas, sem confusão, mudança, divisão ou separação, unidas para sempre na pessoa do Filho (João 1:1,14; Lucas 1:35; Hebreus 4:15; CFW VIII.2). Ele não é uma criatura elevada à divindade nem Deus apenas aparentando ser homem. É o Filho eterno que assumiu nossa natureza para realizar, como último Adão, aquilo que nenhum filho de Adão poderia cumprir.
+
+**Profeta, Sacerdote e Rei**
+
+Como **Profeta**, Cristo revela plenamente a vontade de Deus para nossa salvação. Todos os profetas anteriores apontavam para Ele; nestes últimos dias, Deus nos falou pelo Filho (Hebreus 1:1-2). Cristo não apenas transmite informações sobre o Pai: Ele é a revelação pessoal do Pai e, por sua Palavra e Espírito, ilumina nossa mente para recebê-la (João 1:18; João 14:9).
+
+Como **Sacerdote**, Cristo obedeceu em lugar de seu povo, ofereceu a si mesmo como sacrifício único e suficiente e permanece intercedendo pelos que se aproximam de Deus por meio dele (Hebreus 7:23-28; Hebreus 9:11-14). Diferentemente dos sacerdotes levíticos, Ele não oferece repetidamente vítimas incapazes de remover pecados. Seu sangue sela a nova aliança, sua oferta é perfeita e sua intercessão garante que nenhum dos seus seja finalmente perdido.
+
+Como **Rei**, Cristo vence os inimigos de seu povo, governa a igreja por sua Palavra e Espírito, restringe e derrota os poderes do mal e conduzirá todas as coisas à consumação de seu reino (Salmos 2; 1 Coríntios 15:24-28). Sua autoridade não é ameaça para o redimido, mas segurança: o mesmo que morreu por nós reina para nos preservar.
+
+**Obediência e sacrifício substitutivos**
+
+Toda a vida de Cristo pertence à sua obra mediadora. Ele nasceu sob a lei e cumpriu perfeitamente tudo o que o Pai requeria. Sua obediência ativa não foi preparação dispensável para a cruz; constitui a justiça do último Adão, imputada aos que estão unidos a Ele. Em sua obediência passiva, culminando na morte, suportou voluntariamente a penalidade do pecado. “Por meio da obediência de um só, muitos se tornarão justos” (Romanos 5:19; Gálatas 4:4-5; Filipenses 2:5-8).
+
+Na cruz, Cristo foi nosso substituto e propiciação. Ele carregou pecados que não eram seus e satisfez a justiça divina, não convencendo um Pai relutante a amar, mas cumprindo o propósito amoroso do Deus triúno. Romanos 3:24-26 apresenta a redenção em Cristo como demonstração da justiça de Deus: Ele é justo e justificador daquele que tem fé em Jesus. João Batista o anuncia como “o Cordeiro de Deus, que tira o pecado do mundo” (João 1:29).
+
+A expiação é suficiente porque a dignidade do Mediador é infinita e eficaz porque Ele ofereceu a vida por seu povo e aplica a redenção pelo Espírito. Não há complemento humano, penitência ou sacrifício adicional que aperfeiçoe sua obra. Na cruz, Cristo declarou: “Está consumado” (João 19:30).
+
+**Ressurreição, ascensão e intercessão**
+
+A mediação não terminou no sepulcro. O Pai ressuscitou o Filho, vindicando sua pessoa e confirmando a aceitação de sua obra. Cristo ascendeu, assentou-se à direita da Majestade e intercede continuamente pelos santos (Romanos 4:25; Hebreus 1:3; Hebreus 7:25). A igreja não vive da lembrança de um herói morto, mas da comunhão com o Senhor vivo.
+
+Sua intercessão não significa que o Filho precisa persuadir um Pai hostil. Pai, Filho e Espírito são um em vontade e propósito redentor. O Filho apresenta permanentemente o mérito de sua obra consumada e assegura todos os benefícios da aliança aos que lhe foram dados.
+
+**União com Cristo e vida na presença de Deus**
+
+Os benefícios da salvação não são recebidos à parte do Salvador. Pela fé, o crente é unido a Cristo e nele recebe justificação, adoção, santificação e esperança de glória. “Vós sois dele, em Cristo Jesus, o qual se nos tornou, da parte de Deus, sabedoria, justiça, santificação e redenção” (1 Coríntios 1:30). A união com Cristo impede que o evangelho seja reduzido a uma coleção impessoal de dádivas.
+
+Essa verdade transforma a prática cristã. Lemos as Escrituras ouvindo o Profeta supremo; oramos ao Pai por meio do Sacerdote perfeito; obedecemos ao Rei ressuscitado e aguardamos sua volta. Pastores, presbíteros e irmãos servem como instrumentos legítimos, mas nenhum deles substitui Cristo ou se torna mediador salvífico (1 Timóteo 2:5).
+
+Descansar no único Mediador também produz liberdade de consciência. Não precisamos construir acesso a Deus por desempenho, promessas humanas ou aprovação religiosa. Aproximamo-nos com confiança porque temos um grande Sumo Sacerdote, sem transformar confiança em irreverência ou graça em licença para pecar (Hebreus 4:14-16).
+
+A Confissão de Fé de Westminster VIII apresenta a pessoa, os ofícios, a humilhação, a exaltação e a eficácia da obra de Cristo. O Catecismo Maior de Westminster 36-56 desenvolve sua mediação, seus ofícios e estados. Para aprofundar, consulte João Calvino, *Institutas*, livro II; John Murray, *Redenção Consumada e Aplicada*; Geerhardus Vos, *A Pessoa e a Obra de Cristo*; John Owen, *A Morte da Morte na Morte de Cristo*; Sinclair Ferguson, *The Whole Christ*; e Herman Bavinck, *Dogmática Reformada*.
+
+Conhecer o Mediador não termina em informação. Conduz à adoração, ao arrependimento, à segurança e à obediência: “Aquele que se gloria, glorie-se no Senhor” (1 Coríntios 1:31).`
       },
       questoes: [
         {

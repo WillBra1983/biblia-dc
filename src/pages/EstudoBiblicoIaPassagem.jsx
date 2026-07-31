@@ -33,6 +33,9 @@ import { useApp } from '../contexts/AppContext'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { sxMinViewportHeight } from '../utils/viewportHeight'
+import EditorialContentHeader from '../components/EditorialContentHeader'
+import EditorialProse from '../components/EditorialProse'
+import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 import {
   iaGeminiDisponivel,
   montarPassagemLida,
@@ -994,6 +997,16 @@ export default function EstudoBiblicoIaPassagem() {
       </Paper>
 
       <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 1, sm: 2 }, py: 2, ...sxLeitura }}>
+        {paramsValidos && referenciaExibicao ? (
+          <EditorialContentHeader
+            title={referenciaExibicao}
+            subtitle="Comentário bíblico para leitura e aprofundamento"
+            eyebrow="Bíblia comentada"
+            image={EDITORIAL_IMAGES.bibliaComentada}
+            imagePosition="center 48%"
+            sx={{ mb: 2, maxWidth: 920, mx: 'auto' }}
+          />
+        ) : null}
         {fase === 'loading' && (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 6, gap: 2 }}>
             <CircularProgress />
@@ -1116,7 +1129,12 @@ export default function EstudoBiblicoIaPassagem() {
                   </Stack>
                 </>
               ) : (
-                renderLinhasEstudo(textoSeparado.corpo, lineHeightCss)
+                <EditorialProse
+                  text={textoSeparado.corpo}
+                  fontSize={fontSize}
+                  textAlign="justify"
+                  lineHeight={lineHeightCss}
+                />
               )}
             </Paper>
 

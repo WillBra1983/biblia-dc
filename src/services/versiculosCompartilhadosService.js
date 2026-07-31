@@ -25,6 +25,15 @@ export async function registrarCompartilhamentoVersiculoDoDia(data) {
   return Number(resultado?.data?.sharesCount || 0)
 }
 
+export async function obterDestaqueVersiculoDoDia(data) {
+  await loadFirebaseModules()
+  const db = getFirebaseDatabase()
+  const chave = String(data || '').trim()
+  if (!db || !/^\d{4}-\d{2}-\d{2}$/.test(chave)) return null
+  const item = await get(ref(db, `versiculosCompartilhadosPublicos/versiculo-dia-${chave}`))
+  return item.exists() ? { id: `versiculo-dia-${chave}`, ...item.val() } : null
+}
+
 async function contexto(uid) {
   await loadFirebaseModules()
   const db = getFirebaseDatabase()
@@ -56,6 +65,10 @@ export async function registrarVersiculoCompartilhado(uid, dados) {
   await set(ref(db, `users/${uid}/versiculosCompartilhados/${postId}`), item)
   const { publico, ...anonimo } = item
   await set(ref(db, `versiculosCompartilhadosPorLink/${postId}`), anonimo)
+  await set(ref(db, `versiculosCompartilhadosInteracoes/${postId}/compartilhamentos/${uid}`), {
+    count: 1,
+    lastAt: agora,
+  })
   if (item.publico) {
     try {
       await set(ref(db, `versiculosCompartilhadosPublicos/${postId}`), anonimo)
@@ -111,8 +124,13 @@ export async function alternarCurtida(uid, postId) {
   const likeRef = ref(db, `users/${uid}/versiculosCompartilhadosCurtidas/${postId}`)
   const atual = await get(likeRef)
   const curtido = atual.exists()
-  if (curtido) await remove(likeRef)
-  else await set(likeRef, Date.now())
+  const interacaoRef = ref(db, `versiculosCompartilhadosInteracoes/${postId}/curtidas/${uid}`)
+  if (curtido) {
+    await Promise.all([remove(likeRef), remove(interacaoRef)])
+  } else {
+    const agora = Date.now()
+    await Promise.all([set(likeRef, agora), set(interacaoRef, agora)])
+  }
   await runTransaction(ref(db, `versiculosCompartilhadosPublicos/${postId}/likesCount`), (n) =>
     Math.max(0, Number(n || 0) + (curtido ? -1 : 1))
   )
@@ -129,6 +147,10 @@ export async function registrarRecompartilhamento(uid, postId) {
   const db = await contexto(uid)
   const itemUsuarioRef = ref(db, `users/${uid}/versiculosCompartilhados/${postId}`)
   const itemUsuario = await get(itemUsuarioRef)
+  await runTransaction(
+    ref(db, `versiculosCompartilhadosInteracoes/${postId}/compartilhamentos/${uid}`),
+    (atual) => ({ count: Number(atual?.count || 0) + 1, lastAt: Date.now() })
+  )
 
   if (itemUsuario.exists()) {
     const item = itemUsuario.val()
@@ -154,6 +176,46 @@ export async function registrarRecompartilhamento(uid, postId) {
     ref(db, `versiculosCompartilhadosPublicos/${postId}/sharesCount`),
     (n) => Number(n || 0) + 1
   )
+}
+
+export async function obterInteracoesCompartilhamentoAdmin(uid, postId) {
+  const db = await contexto(uid)
+  const id = String(postId || '').trim().slice(0, 120)
+  if (!id) return { curtidas: [], compartilhamentos: [] }
+
+  const snap = await get(ref(db, `versiculosCompartilhadosInteracoes/${id}`))
+  const valor = snap.val() || {}
+  const curtidas = Object.entries(valor.curtidas || {}).map(([userUid, at]) => ({
+    uid: userUid,
+    count: 1,
+    lastAt: Number(at || 0),
+  }))
+  const compartilhamentos = Object.entries(valor.compartilhamentos || {}).map(([userUid, registro]) => ({
+    uid: userUid,
+    count: Number(registro?.count || 0),
+    lastAt: Number(registro?.lastAt || 0),
+  }))
+  const uids = [...new Set([...curtidas, ...compartilhamentos].map((item) => item.uid))]
+  const perfis = new Map()
+
+  await Promise.all(uids.map(async (userUid) => {
+    const perfilSnap = await get(ref(db, `users/${userUid}/profile`))
+    const perfil = perfilSnap.val() || {}
+    perfis.set(userUid, {
+      nome: String(perfil.displayName || perfil.name || perfil.handle || 'Usuário sem nome público'),
+      handle: String(perfil.handle || ''),
+      foto: String(perfil.photoURL || ''),
+    })
+  }))
+
+  const completar = (lista) => lista
+    .map((item) => ({ ...item, ...(perfis.get(item.uid) || {}) }))
+    .sort((a, b) => b.lastAt - a.lastAt)
+
+  return {
+    curtidas: completar(curtidas),
+    compartilhamentos: completar(compartilhamentos),
+  }
 }
 
 export async function alterarPrivacidadeCompartilhamento(uid, postId, publico) {

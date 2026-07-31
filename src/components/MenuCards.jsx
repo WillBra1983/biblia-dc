@@ -1003,12 +1003,12 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     py: 1.25,
                     px: 1.5,
                     display: 'flex',
-                    flexDirection: 'row',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'flex-start',
+                    justifyContent: 'center',
                     width: '100%',
-                    gap: 1.25,
-                    textAlign: 'left',
+                    gap: 0.75,
+                    textAlign: 'center',
                     '& .MuiTypography-root': {
                       fontStyle: isActive ? 'italic' : 'normal',
                     },
@@ -1036,7 +1036,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   >
                     {item.icon}
                   </Box>
-                  <Box sx={{ flex: 1, minWidth: 0, position: 'relative', zIndex: 3 }}>
+                  <Box sx={{ width: '100%', minWidth: 0, position: 'relative', zIndex: 3, textAlign: 'center' }}>
                     <Typography
                       variant="subtitle1"
                       sx={{
@@ -1112,11 +1112,11 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                 onClick={() => setHinarioExpanded((v) => !v)}
                 sx={{
                   display: 'flex',
-                  flexDirection: 'row',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  gap: 1.25,
+                  gap: 0.75,
                   cursor: 'pointer',
-                  textAlign: 'left',
+                  textAlign: 'center',
                 }}
               >
                 <Box
@@ -1138,7 +1138,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                 >
                   {hinarioPai.icon}
                 </Box>
-                <Box sx={{ flex: 1, minWidth: 0, position: 'relative', zIndex: 3 }}>
+                <Box sx={{ width: '100%', minWidth: 0, position: 'relative', zIndex: 3, textAlign: 'center' }}>
                   <Typography
                     variant="subtitle1"
                     sx={{
@@ -1309,11 +1309,11 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                 onClick={() => setWestminsterExpanded((v) => !v)}
                 sx={{
                   display: 'flex',
-                  flexDirection: 'row',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  gap: 1.25,
+                  gap: 0.75,
                   cursor: 'pointer',
-                  textAlign: 'left',
+                  textAlign: 'center',
                 }}
               >
                 <Box
@@ -1335,7 +1335,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                 >
                   {westminsterPai.icon}
                 </Box>
-                <Box sx={{ flex: 1, minWidth: 0, position: 'relative', zIndex: 3 }}>
+                <Box sx={{ width: '100%', minWidth: 0, position: 'relative', zIndex: 3, textAlign: 'center' }}>
                   <Typography
                     variant="subtitle1"
                     sx={{
@@ -1501,12 +1501,12 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     py: 1.25,
                     px: 1.5,
                     display: 'flex',
-                    flexDirection: 'row',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'flex-start',
+                    justifyContent: 'center',
                     width: '100%',
-                    gap: 1.25,
-                    textAlign: 'left',
+                    gap: 0.75,
+                    textAlign: 'center',
                     '& .MuiTypography-root': {
                       fontStyle: isActive ? 'italic' : 'normal',
                     },
@@ -1534,7 +1534,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   >
                     {item.icon}
                   </Box>
-                  <Box sx={{ flex: 1, minWidth: 0, position: 'relative', zIndex: 3 }}>
+                  <Box sx={{ width: '100%', minWidth: 0, position: 'relative', zIndex: 3, textAlign: 'center' }}>
                     <Typography
                       variant="subtitle1"
                       sx={{
@@ -1605,12 +1605,12 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     py: 1.25,
                     px: 1.5,
                     display: 'flex',
-                    flexDirection: 'row',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'flex-start',
+                    justifyContent: 'center',
                     width: '100%',
-                    gap: 1.25,
-                    textAlign: 'left',
+                    gap: 0.75,
+                    textAlign: 'center',
                     '& .MuiTypography-root': {
                       fontStyle: isActive ? 'italic' : 'normal',
                     },
@@ -1638,7 +1638,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   >
                     {item.icon}
                   </Box>
-                  <Box sx={{ flex: 1, minWidth: 0, position: 'relative', zIndex: 3 }}>
+                  <Box sx={{ width: '100%', minWidth: 0, position: 'relative', zIndex: 3, textAlign: 'center' }}>
                     <Typography
                       variant="subtitle1"
                       sx={{

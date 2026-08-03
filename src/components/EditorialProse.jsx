@@ -1,4 +1,10 @@
+import { useState } from 'react'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
 import TextoComReferencias from './TextoComReferencias'
 
 const RE_HEADING = /^(?:#{1,3}\s+|\d+[.)]\s+|conclus[aã]o$|introdu[cç][aã]o$|s[ií]ntese\b)/i
@@ -22,11 +28,67 @@ function pareceSubtitulo(bloco) {
 
 function pareceTituloSecao(bloco) {
   if (!bloco || bloco.includes('\n')) return false
+  // Separadores Markdown nao sao titulos: evita aplicar o marcador de secao a `---`.
+  if (pareceSeparador(bloco)) return false
+  // Citacoes curtas tambem podem parecer titulos pelo tamanho; preserve o bloco `>`.
+  if (pareceCitacao(bloco)) return false
   return RE_HEADING.test(bloco) || (bloco.length <= 72 && !/[.!?;:]$/.test(bloco))
+}
+
+function nivelTitulo(bloco) {
+  const valor = String(bloco || '')
+  if (/^###\s+/.test(valor)) return 3
+  if (/^##\s+/.test(valor)) return 2
+  if (/^#\s+/.test(valor)) return 1
+  if (/^\d+[.)]\s+/.test(valor)) return 2
+  return 3
+}
+
+function tituloComMarcador(bloco) {
+  // Use o losango somente em secoes de segundo nivel (`##`), reduzindo o ruido visual.
+  return /^##\s+/.test(String(bloco || ''))
+}
+
+function linhasDoBloco(bloco) {
+  return String(bloco || '')
+    .split('\n')
+    .map((linha) => linha.trim())
+    .filter(Boolean)
+}
+
+function pareceCitacao(bloco) {
+  const linhas = linhasDoBloco(bloco)
+  return linhas.length > 0 && linhas.every((linha) => /^>\s?/.test(linha))
+}
+
+function pareceLista(bloco) {
+  const linhas = linhasDoBloco(bloco)
+  return linhas.length > 0 && linhas.every((linha) => /^(?:[-*]|\d+[.)])\s+/.test(linha))
+}
+
+function pareceSeparador(bloco) {
+  return /^[-*_]{3,}$/.test(String(bloco || '').trim())
+}
+
+function textoSemMarcador(linha) {
+  return String(linha || '').replace(/^>\s?/, '').replace(/^(?:[-*]|\d+[.)])\s+/, '').trim()
 }
 
 export function separarIntroducaoEditorial(texto) {
   const blocos = blocosDoTexto(texto)
+
+  // No discipulado, o titulo principal ja aparece no cabeçalho ilustrado.
+  // Retiramos sua repetição do corpo e promovemos o segundo nivel a subtitulo.
+  if (/^#\s+/.test(blocos[0] || '')) {
+    blocos.shift()
+    if (/^##\s+/.test(blocos[0] || '')) {
+      return {
+        subtitle: blocos.shift().replace(/^##\s+/, ''),
+        body: blocos.join('\n\n'),
+      }
+    }
+  }
+
   if (pareceSubtitulo(blocos[0])) {
     return { subtitle: blocos[0], body: blocos.slice(1).join('\n\n') }
   }
@@ -39,11 +101,15 @@ export default function EditorialProse({
   textAlign = 'justify',
   lineHeight = 1.72,
   dropCap = true,
+  glossary,
   children,
   sx,
 }) {
+  const [verbeteAberto, setVerbeteAberto] = useState(null)
   const blocos = blocosDoTexto(text)
-  const primeiroParagrafo = blocos.findIndex((bloco) => !pareceTituloSecao(bloco))
+  const primeiroParagrafo = blocos.findIndex((bloco) => (
+    !pareceTituloSecao(bloco) && !pareceCitacao(bloco) && !pareceLista(bloco) && !pareceSeparador(bloco)
+  ))
 
   return (
     <Box
@@ -76,19 +142,26 @@ export default function EditorialProse({
         const titulo = pareceTituloSecao(bloco)
         if (titulo) {
           const textoTitulo = bloco.replace(/^#{1,3}\s+/, '')
+          const comMarcador = tituloComMarcador(bloco)
+          const nivel = nivelTitulo(bloco)
           return (
             <Box
               key={`${index}-${bloco.slice(0, 24)}`}
-              component="h2"
+              component={nivel === 3 ? 'h3' : 'h2'}
               sx={{
                 position: 'relative',
                 m: 0,
-                mt: index === 0 ? 0 : 3.2,
-                mb: 1.35,
-                pl: 2.2,
+                mt: index === 0 ? 0 : nivel === 3 ? 2.2 : 3.2,
+                mb: nivel === 3 ? 1 : 1.35,
+                pl: comMarcador ? 2.2 : 0,
                 color: '#173d31',
                 fontFamily: 'Georgia, "Times New Roman", serif',
-                fontSize: { xs: '1.08rem', sm: '1.22rem' },
+                fontSize: nivel === 1
+                  ? { xs: '1.24rem', sm: '1.42rem' }
+                  : nivel === 2
+                    ? { xs: '1.08rem', sm: '1.22rem' }
+                    : { xs: '1rem', sm: '1.1rem' },
+                fontWeight: nivel === 3 ? 700 : 800,
                 lineHeight: 1.3,
                 letterSpacing: 0,
                 '&::before': {
@@ -100,6 +173,7 @@ export default function EditorialProse({
                   height: 8,
                   border: '2px solid #b58a2f',
                   transform: 'rotate(45deg)',
+                  display: comMarcador ? 'block' : 'none',
                 },
               }}
             >
@@ -119,15 +193,102 @@ export default function EditorialProse({
           )
         }
 
+        if (pareceCitacao(bloco)) {
+          return (
+            <Box
+              key={`${index}-${bloco.slice(0, 24)}`}
+              component="blockquote"
+              sx={{
+                m: 0,
+                mt: index === 0 ? 0 : 1.5,
+                pl: 2,
+                py: 0.35,
+                borderLeft: '3px solid rgba(181,138,47,0.52)',
+                color: '#4d442f',
+                fontStyle: 'italic',
+              }}
+            >
+              {linhasDoBloco(bloco).map((linha, linhaIndex) => (
+                <TextoComReferencias
+                  key={`${index}-quote-${linhaIndex}`}
+                  texto={textoSemMarcador(linha)}
+                  component="div"
+                  style={{
+                    margin: 0,
+                    fontFamily: 'inherit',
+                    fontSize: `${fontSize}%`,
+                    lineHeight,
+                    textAlign,
+                  }}
+                />
+              ))}
+            </Box>
+          )
+        }
+
+        if (pareceSeparador(bloco)) {
+          return (
+            <Box
+              key={`${index}-${bloco}`}
+              aria-hidden="true"
+              sx={{
+                height: 1,
+                my: { xs: 2, sm: 2.5 },
+                background: 'linear-gradient(90deg, transparent, rgba(181,138,47,0.68), transparent)',
+              }}
+            />
+          )
+        }
+
+        if (pareceLista(bloco)) {
+          const listaOrdenada = linhasDoBloco(bloco).every((linha) => /^\d+[.)]\s+/.test(linha))
+          return (
+            <Box
+              key={`${index}-${bloco.slice(0, 24)}`}
+              component={listaOrdenada ? 'ol' : 'ul'}
+              sx={{
+                mt: index === 0 ? 0 : 1.15,
+                mb: 0,
+                pl: { xs: 3.2, sm: 3.6 },
+                color: 'inherit',
+                fontFamily: 'inherit',
+                fontSize: `${fontSize}%`,
+                lineHeight,
+                textAlign,
+                listStylePosition: 'outside',
+                listStyleType: listaOrdenada ? 'decimal' : 'disc',
+                '& li': { display: 'list-item', pl: 0.35, mb: 0.35 },
+                '& li::marker': {
+                  color: '#a7791f',
+                  fontWeight: 700,
+                },
+              }}
+            >
+              {linhasDoBloco(bloco).map((linha, linhaIndex) => (
+                <Box component="li" key={`${index}-list-${linhaIndex}`}>
+                  <TextoComReferencias
+                    texto={textoSemMarcador(linha)}
+                    inline
+                    component="span"
+                    style={{
+                      color: 'inherit',
+                      fontFamily: 'inherit',
+                      fontSize: 'inherit',
+                      lineHeight: 'inherit',
+                      textAlign: 'inherit',
+                    }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          )
+        }
+
         const capitular = dropCap && index === primeiroParagrafo
-        return (
-          <TextoComReferencias
-            key={`${index}-${bloco.slice(0, 24)}`}
-            texto={bloco}
-            component="p"
-            style={{
+        const blocoCurto = bloco.length <= 120
+        const estiloParagrafo = {
               margin: 0,
-              marginTop: index === primeiroParagrafo ? 0 : '1.15em',
+              marginTop: index === primeiroParagrafo ? 0 : blocoCurto ? '0.72em' : '1.05em',
               color: 'inherit',
               fontFamily: 'inherit',
               fontSize: `${fontSize}%`,
@@ -152,11 +313,86 @@ export default function EditorialProse({
                     },
                   }
                 : {}),
-            }}
+            }
+
+        const partesGlossario = glossary
+          ? bloco.split(/(\[\[[^\]]+\]\])/g).filter(Boolean)
+          : [bloco]
+        const contemVerbete = partesGlossario.some((parte) => /^\[\[[^\]]+\]\]$/.test(parte))
+
+        if (contemVerbete) {
+          return (
+            <Box key={`${index}-${bloco.slice(0, 24)}`} component="p" sx={estiloParagrafo}>
+              {partesGlossario.map((parte, parteIndex) => {
+                const correspondencia = parte.match(/^\[\[([^|\]]+)(?:\|([^\]]+))?\]\]$/)
+                if (!correspondencia) {
+                  return (
+                    <TextoComReferencias
+                      key={`${index}-texto-${parteIndex}`}
+                      texto={parte}
+                      inline
+                      component="span"
+                      style={{ color: 'inherit', fontFamily: 'inherit', fontSize: 'inherit', lineHeight: 'inherit' }}
+                    />
+                  )
+                }
+
+                const chave = correspondencia[1].trim().toLowerCase()
+                const rotulo = (correspondencia[2] || correspondencia[1]).trim()
+                if (!glossary[chave]) return rotulo
+
+                return (
+                  <Box
+                    key={`${index}-verbete-${parteIndex}`}
+                    component="button"
+                    type="button"
+                    onClick={() => setVerbeteAberto(glossary[chave])}
+                    aria-label={`Abrir explicação de ${rotulo}`}
+                    sx={{
+                      display: 'inline',
+                      p: 0,
+                      border: 0,
+                      borderBottom: '1px dotted currentColor',
+                      color: '#075c3b',
+                      bgcolor: 'transparent',
+                      font: 'inherit',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {rotulo}
+                  </Box>
+                )
+              })}
+            </Box>
+          )
+        }
+
+        return (
+          <TextoComReferencias
+            key={`${index}-${bloco.slice(0, 24)}`}
+            texto={bloco}
+            component="p"
+            style={estiloParagrafo}
           />
         )
       })}
       {children}
+      <Dialog open={Boolean(verbeteAberto)} onClose={() => setVerbeteAberto(null)} fullWidth maxWidth="sm">
+        <DialogTitle sx={{ fontFamily: 'Georgia, serif', fontWeight: 800, color: '#173d31' }}>
+          {verbeteAberto?.titulo}
+        </DialogTitle>
+        <DialogContent>
+          <TextoComReferencias
+            texto={verbeteAberto?.texto || ''}
+            component="div"
+            style={{ fontFamily: 'Georgia, serif', fontSize: `${fontSize}%`, lineHeight: 1.65 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setVerbeteAberto(null)} sx={{ fontWeight: 800 }}>Fechar</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

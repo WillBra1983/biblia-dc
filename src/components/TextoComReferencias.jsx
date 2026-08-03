@@ -32,6 +32,12 @@ function expandirMarcacaoEditorialNasPartes(partes) {
   for (const parte of partes) {
     if (parte.isRef) {
       out.push({ ...parte, key: parte.key ?? `ref-ed-${c++}`, negrito, italico })
+      // O regex confessional pode consumir o asterisco de fechamento que
+      // fica entre o nome do catecismo e "Perguntas". Reabre o estado aqui
+      // para que a marcacao editorial continue correta depois do link.
+      const estrelas = (String(parte.ref ?? '').match(/\*/g) || []).length
+      if (estrelas >= 2) negrito = !negrito
+      else if (estrelas === 1) italico = !italico
       continue
     }
 
@@ -193,7 +199,12 @@ function TextoComReferencias({
     }
 
     // Pré-processa o texto para garantir espaços após parênteses seguidos de números
-    const textoProcessado = texto.replace(/\((?=\d)/g, '( ')
+    const textoProcessado = texto
+      .replace(/\((?=\d)/g, '( ')
+      .replace(
+        /((?:[1-3]\s+)?[A-Za-zÀ-ÿ]+(?:\s+[A-Za-zÀ-ÿ]+){0,3}\s+\d+):(\d+(?:-\d+)?),\s*(\d+(?:-\d+)?)/g,
+        '$1:$2, $1:$3'
+      )
 
     const processarTexto = () => {
       const livrosComNumeros = [
@@ -380,9 +391,14 @@ function TextoComReferencias({
         '(?:[Aa][Pp](?:\\.)?|AP(?:\\.)?|[Aa][Pp][Cc](?:\\.)?|APC(?:\\.)?|[Aa][Pp][Oo][Cc](?:[Aa][Ll][Ii][Pp][Ss][Ee])?|APOCALIPSE)'
       ].join('|')
 
+      // Nomes numerados por extenso tambem precisam ser reconhecidos quando
+      // a referencia termina apenas no capitulo, como "2 Timoteo 3".
+      const livrosNumeradosPorExtenso =
+        '(?:[1-3]\\s+(?:Cor(?:í|i)ntios|Jo(?:ã|a)o|Pedro|Tessalonicenses|Tim(?:ó|o)teo|Cr(?:ô|o)nicas|Samuel|Reis))'
+
       // Regex principal que combina todos os padrões
       const regexReferencia = new RegExp(
-        `(?<![a-zA-ZÀ-ú])(?:${livrosComNumeros}|${livrosAT}|${livrosNT})(?![a-zA-ZÀ-ú])` + // Nome do livro
+        `(?<![a-zA-ZÀ-ú])(?:${livrosNumeradosPorExtenso}|${livrosComNumeros}|${livrosAT}|${livrosNT})(?![a-zA-ZÀ-ú])` + // Nome do livro
         '\\s*\\.?\\s*' + // Espaço opcional e ponto opcional
         '(\\d+)(?:-\\d+)?' + // Capítulo (ou faixa de capítulos, ex: 29-30)
         '(?:[:.](\\d+)(?:-(\\d+))?(?:\\s*;\\s*\\d+(?:-\\d+)?(?!\\s*[A-Za-zÀ-ú]))*)?', // Aceita "; 17", mas não "; 1 Coríntios..."
@@ -394,13 +410,20 @@ function TextoComReferencias({
       let contador = 0
 
       let match
-      while ((match = regexReferencia.exec(texto)) !== null) {
+      while ((match = regexReferencia.exec(textoProcessado)) !== null) {
+        // "os 66 livros" e linguagem comum, nao a abreviacao de Oseias.
+        if (
+          /^os\s+\d+$/i.test(match[0]) &&
+          /^\s+livros\b/i.test(textoProcessado.slice(match.index + match[0].length))
+        ) {
+          continue
+        }
         // Texto antes da referência
         if (match.index > ultimoIndice) {
           resultado.push({
             key: `texto-${contador}`,
             isRef: false,
-            conteudo: texto.substring(ultimoIndice, match.index)
+            conteudo: textoProcessado.substring(ultimoIndice, match.index)
           })
           contador++
         }
@@ -419,11 +442,11 @@ function TextoComReferencias({
       }
 
       // Texto restante após a última referência
-      if (ultimoIndice < texto.length) {
+      if (ultimoIndice < textoProcessado.length) {
         resultado.push({
           key: `texto-${contador}`,
           isRef: false,
-          conteudo: texto.substring(ultimoIndice)
+          conteudo: textoProcessado.substring(ultimoIndice)
         })
       }
       const final = expandirMarcacaoEditorialNasPartes(expandirConfessionaisNasPartes(resultado))

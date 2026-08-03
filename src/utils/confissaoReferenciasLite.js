@@ -39,7 +39,7 @@ export function parseCapituloRomanOuArabico(raw) {
 
 /** Regex unificado para Westminster e Heidelberg, incluindo formas por extenso. */
 export const REGEX_CONF_LINK =
-  /\b(CFW|Confissão(?:\s+de\s+Fé)?(?:\s+de\s+Westminster)?|CMW|Catecismo\s+Maior(?:\s+de\s+Westminster)?|CBW|BCW|Breve\s+Catecismo(?:\s+de\s+Westminster)?|Catecismo\s+Breve(?:\s+de\s+Westminster)?|CH|Catecismo\s+de\s+Heidelberg)\s*(?:[,;:]\s*)?\(?\s*(?:(?:Cap(?:ítulo)?\.?|Pergunta|Questão)\s*)?([IVXLC]{1,10}|\d{1,3})(?:\s*(?:(?:[,;:]\s*)?(?:Art(?:igo)?\.?|§)\s*|[.:]\s*)([IVXLC]{1,10}|\d{1,3}))?(?:\s*[-–—]\s*([IVXLC]{1,10}|\d{1,3}))?\)?(?![A-Za-zÀ-ÿ])/gi
+  /\b(CFW|Confissão(?:\s+de\s+Fé)?(?:\s+de\s+Westminster)?|CMW|Catecismo\s+Maior(?:\s+de\s+Westminster)?|CBW|BCW|Breve\s+Catecismo(?:\s+de\s+Westminster)?|Catecismo\s+Breve(?:\s+de\s+Westminster)?|CH|Catecismo\s+de\s+Heidelberg)\*{0,2}\s*(?:[,;:]\s*)?\(?\s*(?:(?:Cap(?:ítulo)?\.?|Perguntas?|Quest(?:ão|ões)?)\s*)?([IVXLC]{1,10}|\d{1,3})(?:\s*(?:(?:[,;:]\s*)?(?:Art(?:igo)?\.?|§)\s*|[.:]\s*)([IVXLC]{1,10}|\d{1,3}))?(?:\s*[-–—]\s*([IVXLC]{1,10}|\d{1,3}))?\)?(?![A-Za-zÀ-ÿ])/gi
 
 /** Compatibilidade retroativa com código existente. */
 export const REGEX_CFW_LINK = REGEX_CONF_LINK

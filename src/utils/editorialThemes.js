@@ -12,6 +12,7 @@ const DISCIPULADO_POR_TEMA = Object.freeze({
   1: { image: EDITORIAL_IMAGES.biblia, imagePosition: 'center 52%' },
   2: { image: EDITORIAL_IMAGES.discipulado, imagePosition: 'center 42%' },
   3: { image: EDITORIAL_IMAGES.maisDeDeus, imagePosition: 'center 48%' },
+  4: { image: EDITORIAL_IMAGES.discipulado, imagePosition: 'center 42%' },
 })
 
 export function editorialDiscipulado(temaId) {

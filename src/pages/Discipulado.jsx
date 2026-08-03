@@ -20,8 +20,7 @@ import {
   List,
   ListItemButton,
   ListItemText,
-  Grid,
-  Collapse
+  Grid
 } from '@mui/material'
 import { discipuladoData, obterEstudosVisiveis } from '../data/discipulado'
 import { embaralharQuestoesDiscipulado } from '../utils/discipuladoAlternativas'
@@ -35,10 +34,15 @@ import HandIcon from '@mui/icons-material/TouchApp'
 import CheckBoxIcon from '@mui/icons-material/Check'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import NavigateBefore from '@mui/icons-material/NavigateBefore'
 import NavigateNext from '@mui/icons-material/NavigateNext'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ShareIcon from '@mui/icons-material/Share'
+import SchoolIcon from '@mui/icons-material/School'
+import MenuBookIcon from '@mui/icons-material/MenuBook'
+import AutoStoriesIcon from '@mui/icons-material/AutoStories'
+import GroupsIcon from '@mui/icons-material/Groups'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import CloseIcon from '@mui/icons-material/Close'
@@ -60,6 +64,20 @@ import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { ensureUserForChatExport, pushPendingChatDraft } from '../utils/chatExportSend'
 import { montarCorpoCompartilhamento } from '../utils/compartilharOpcoes'
 import { editorialDiscipulado } from '../utils/editorialThemes'
+
+const GLOSSARIO_VIDA_DISCIPULO = {
+  legalismo: {
+    titulo: 'Legalismo',
+    texto: 'É o erro de transformar a obediência, as práticas religiosas ou o desempenho pessoal em fundamento da aceitação diante de Deus. A teologia reformada preserva a ordem do evangelho: somos justificados somente pela graça, mediante a fé, por causa da justiça de Cristo; as boas obras são fruto da salvação, nunca sua causa ou seu mérito.',
+  },
+  antinomianismo: {
+    titulo: 'Antinomianismo',
+    texto: 'É o erro de usar a gratuidade da graça como se a lei moral de Deus, a santidade e a obediência fossem irrelevantes para o cristão. A obediência não nos justifica, mas a graça que salva também renova o coração e produz uma vida de gratidão, santificação e submissão ao senhorio de Cristo.',
+  },
+}
+
+const TITULO_LICAO_VIDA_DISCIPULO = 'O que significa ser discípulo de Jesus'
+const SUBTITULO_LICAO_VIDA_DISCIPULO = 'Chamado, identidade, aprendizado, obediência e perseverança em Cristo'
 
 const textoTeste = `
 A Bíblia é a Palavra viva e infalível do Deus vivo. Como declara Pedro, "homens falaram da parte de Deus, movidos pelo Espírito Santo" (2 Pedro 1:21). 
@@ -85,6 +103,18 @@ function parseEstudoIdParam(raw) {
   return Number.isFinite(n) ? n : raw
 }
 
+function parseModuloMenuParam(search) {
+  const params = new URLSearchParams(search || '')
+  const id = parseInt(params.get('modulo'), 10)
+  return Number.isFinite(id) ? id : null
+}
+
+function parseLicaoMenuParam(search) {
+  const params = new URLSearchParams(search || '')
+  const id = parseInt(params.get('licao'), 10)
+  return Number.isFinite(id) ? id : null
+}
+
 function parseAlvoCompartilhado(search) {
   const params = new URLSearchParams(search || '')
   const parte = String(params.get('parte') || '').toLowerCase()
@@ -103,16 +133,40 @@ function parseAlvoCompartilhado(search) {
 function persistirUltimaLicao(temaId, estudoId = null) {
   if (!temaId) return
   try {
-    localStorage.setItem(
-      'discipulado_ultima_licao',
-      JSON.stringify({
-        temaId,
-        estudoId: estudoId ?? null,
-      })
-    )
+    const pagina = {
+      temaId,
+      estudoId: estudoId ?? null,
+    }
+    localStorage.setItem('discipulado_ultima_licao', JSON.stringify(pagina))
+    localStorage.setItem(`discipulado_ultima_pagina_${temaId}`, JSON.stringify(pagina))
   } catch {
     // ignore
   }
+}
+
+function obterUltimaPaginaModulo(temaId) {
+  if (!temaId) return null
+  try {
+    const pagina = JSON.parse(localStorage.getItem(`discipulado_ultima_pagina_${temaId}`) || 'null')
+    return pagina?.temaId === temaId ? (pagina.estudoId ?? null) : null
+  } catch {
+    return null
+  }
+}
+
+function obterResumoPagina(texto) {
+  const linha = String(texto || '')
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .find((item) => item && !/^#{1,6}\s+/.test(item) && !/^---+$/.test(item))
+
+  return String(linha || 'Abra para continuar a leitura.')
+    .replace(/^>\s*/, '')
+    .replace(/\[\[([^|\]]+)\|([^\]]+)\]\]/g, '$2')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[*_`]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 export default function Discipulado() {
@@ -148,7 +202,14 @@ export default function Discipulado() {
   // ESTADOS PARA FLUXO DE CARDS (URL na carga inicial evita portal/AppBar um frame atrasados)
   const [temaSelecionado, setTemaSelecionado] = useState(() => parseTemaIdParam(temaId))
   const [estudoSelecionado, setEstudoSelecionado] = useState(() => parseEstudoIdParam(estudoId))
+  const [moduloExpandido, setModuloExpandido] = useState(() => parseModuloMenuParam(location.search))
   const [showReiniciarDialog, setShowReiniciarDialog] = useState(false)
+  const [showDiscipuladoInfo, setShowDiscipuladoInfo] = useState(false)
+
+  useEffect(() => {
+    if (temaId || parseLicaoMenuParam(location.search)) return
+    setModuloExpandido(parseModuloMenuParam(location.search))
+  }, [location.search, temaId])
 
   // Sincroniza estado com a URL (permite botão voltar do dispositivo e links diretos)
   // estudoId da URL é string - normaliza para number quando for numérico (ids no data são numbers)
@@ -238,11 +299,7 @@ export default function Discipulado() {
   // Salvar última lição visitada para "Ir para onde parou"
   useEffect(() => {
     if (temaSelecionado) {
-      const payload = {
-        temaId: temaSelecionado,
-        estudoId: estudoSelecionado ?? null
-      }
-      localStorage.setItem('discipulado_ultima_licao', JSON.stringify(payload))
+      persistirUltimaLicao(temaSelecionado, estudoSelecionado)
     }
   }, [temaSelecionado, estudoSelecionado])
 
@@ -274,6 +331,23 @@ export default function Discipulado() {
    * sido compartilhado, mas some dos menus/cards.
    */
   const estudosVisiveis = obterEstudosVisiveis(tema)
+  const paginasLeitura = useMemo(() => {
+    if (!tema?.estudos) return []
+    const leituras = obterEstudosVisiveis(tema).filter((item) => item.tipo === 'leitura')
+    if (!leituras.length) return []
+    const paginas = leituras.map((item) => ({ id: item.id, titulo: item.titulo }))
+    return tema.id === 4 ? paginas : [{ id: null, titulo: 'Introdução' }, ...paginas]
+  }, [tema])
+
+  const paginaLeituraIndex = paginasLeitura.findIndex((pagina) => (
+    pagina.id == null ? estudoSelecionado == null : pagina.id == estudoSelecionado
+  ))
+
+  const navegarPaginaLeitura = (direcao) => {
+    const destino = paginasLeitura[paginaLeituraIndex + direcao]
+    if (!destino || !temaSelecionado) return
+    handleSelectTema(temaSelecionado, destino.id)
+  }
 
   const questoesEmbaralhadas = useMemo(() => {
     if (!tema) return []
@@ -531,7 +605,6 @@ export default function Discipulado() {
 
   // Estado para Drawer dos subtemas
   const [drawerSubtemasAberto, setDrawerSubtemasAberto] = useState(false)
-  const [modulosExpandidos, setModulosExpandidos] = useState({})
   const [discAppBarMenuSlot, setDiscAppBarMenuSlot] = useState(null)
   const [discAppBarBackSlot, setDiscAppBarBackSlot] = useState(null)
   const appBarSlotsRafRef = useRef(null)
@@ -588,8 +661,7 @@ export default function Discipulado() {
     }, 100);
   }, [estudoSelecionado])
 
-  // Concluir lição manualmente (última questão) — grava conclusão de imediato no contexto
-  const handleConcluirLicao = () => {
+  const marcarConclusaoAtual = () => {
     const conclusaoKey = chaveConclusaoDiscipulado(temaSelecionado, estudoSelecionado)
     if (conclusaoKey) {
       setDiscipuladoConcluidos((prev) => ({ ...prev, [conclusaoKey]: true }))
@@ -597,6 +669,11 @@ export default function Discipulado() {
       if (legacyKey) localStorage.setItem(legacyKey, 'true')
     }
     setJaConcluiu(true)
+  }
+
+  // Concluir lição manualmente (última questão) — grava conclusão de imediato no contexto
+  const handleConcluirLicao = () => {
+    marcarConclusaoAtual()
     setFinalizado(true)
     setQuestaoAtual(getQuestoes().length + 1)
   }
@@ -733,9 +810,13 @@ export default function Discipulado() {
                 size="small"
                 color="inherit"
                 edge="start"
-                aria-label="Voltar ao menu do Discipulado"
+                aria-label="Voltar ao menu deste módulo"
                 onClick={() => {
-                  navigate('/discipulado')
+                  if (temaSelecionado === 4 && estudoSelecionado != null) {
+                    navigate('/discipulado?modulo=4&licao=1')
+                    return
+                  }
+                  navigate(`/discipulado?modulo=${temaSelecionado}`)
                 }}
                 sx={sxDiscAppBarIcon}
               >
@@ -749,23 +830,228 @@ export default function Discipulado() {
 
   // Renderização dos cards dos temas
   if (!temaSelecionado) {
-    const menuCardGradient = isDarkMode
-      ? 'linear-gradient(135deg, #000000 0%, #000000 100%)'
-      : 'linear-gradient(135deg, #ffffff 0%, #ffffff 100%)'
-    const menuCardTextColor = isDarkMode ? 'white' : '#111'
-    const menuCardBorder = isDarkMode ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.12)'
+    const moduloMenuId = parseModuloMenuParam(location.search)
+    const licaoMenuId = parseLicaoMenuParam(location.search)
+    const moduloMenuTema = licaoMenuId === 1
+      ? discipuladoData.find((item) => item.id === moduloMenuId) || null
+      : null
+    const rotulosModulo = ['Abertura', ...discipuladoData.slice(1).map((_, index) => `Módulo ${index + 1}`)]
+    const iconesModulo = [
+      <MenuBookIcon key="abertura" />,
+      <SchoolIcon key="ordem" />,
+      <AutoStoriesIcon key="mediacao" />,
+      <GroupsIcon key="vida" />,
+    ]
+
+    const itensDoModulo = moduloMenuTema?.id === 4
+      ? obterEstudosVisiveis(moduloMenuTema).map((estudo) => ({
+            id: estudo.id,
+            titulo: estudo.titulo,
+            descricao: obterResumoPagina(estudo.introducao?.texto),
+          }))
+      : []
+
+    if (moduloMenuTema) {
+      const moduloIndex = discipuladoData.findIndex((item) => item.id === moduloMenuTema.id)
+      const visualModulo = editorialDiscipulado(moduloMenuTema.id)
+      const rotuloModulo = `${rotulosModulo[moduloIndex] || `Módulo ${moduloIndex}`} · Lição 1`
+      const moduloSomenteLeitura = obterEstudosVisiveis(moduloMenuTema).every((item) => item.tipo === 'leitura')
+      const ultimaPaginaModuloId = obterUltimaPaginaModulo(moduloMenuTema.id)
+      const paginaAtualModuloIndex = itensDoModulo.findIndex((item) => (
+        item.id == null ? ultimaPaginaModuloId == null : item.id == ultimaPaginaModuloId
+      ))
+      const concluidosNoModulo = itensDoModulo.filter((item) => isConclusaoMarcada(moduloMenuTema.id, item.id)).length
+      const progressoModulo = itensDoModulo.length
+        ? Math.round(((moduloSomenteLeitura ? Math.max(0, paginaAtualModuloIndex) : concluidosNoModulo) / itensDoModulo.length) * 100)
+        : 0
+
+      return (
+        <LayoutEstudo>
+          <Box
+            sx={{
+              overflowX: 'hidden',
+              touchAction: 'pan-y',
+              bgcolor: isDarkMode ? '#101714' : '#f4f6f3',
+              px: { xs: 1, sm: 2.5 },
+              pt: { xs: 1, sm: 2 },
+              pb: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
+              fontFamily: ff,
+            }}
+          >
+            <Box sx={{ width: '100%', maxWidth: 1180, mx: 'auto' }}>
+              <Button
+                startIcon={<ArrowBackIcon />}
+                onClick={() => navigate(`/discipulado?modulo=${moduloMenuTema.id}`)}
+                sx={{ mb: 1.25, color: isDarkMode ? '#d8e8df' : '#0f5c3a', fontWeight: 800 }}
+              >
+                Voltar ao módulo
+              </Button>
+
+              <Box
+                sx={{
+                  position: 'relative',
+                  minHeight: { xs: 230, sm: 280 },
+                  mb: 2,
+                  overflow: 'hidden',
+                  borderRadius: 2,
+                  border: '1px solid rgba(207, 174, 92, 0.72)',
+                  color: 'white',
+                  backgroundImage: `linear-gradient(90deg, rgba(5, 38, 29, 0.90) 0%, rgba(5, 38, 29, 0.70) 52%, rgba(5, 38, 29, 0.30) 100%), url("${visualModulo.image}")`,
+                  backgroundPosition: visualModulo.imagePosition,
+                  backgroundSize: 'cover',
+                  boxShadow: '0 14px 34px rgba(5, 38, 29, 0.20)',
+                }}
+              >
+                <Box
+                  sx={{
+                    minHeight: 'inherit',
+                    maxWidth: 720,
+                    p: { xs: 2.25, sm: 3.5 },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-end',
+                  }}
+                >
+                  <Typography variant="overline" sx={{ color: '#f6d77d', fontWeight: 900, letterSpacing: 0 }}>
+                    {rotuloModulo}
+                  </Typography>
+                  <Typography
+                    component="h1"
+                    sx={{
+                      mt: 0.4,
+                      fontFamily: 'Georgia, serif',
+                      fontSize: { xs: '1.7rem', sm: '2.35rem' },
+                      fontWeight: 800,
+                      lineHeight: 1.12,
+                      textShadow: '0 2px 5px rgba(0,0,0,0.75)',
+                    }}
+                  >
+                    {TITULO_LICAO_VIDA_DISCIPULO}
+                  </Typography>
+                  <Typography sx={{ mt: 1, color: 'rgba(255,255,255,0.9)', fontWeight: 650 }}>
+                    {SUBTITULO_LICAO_VIDA_DISCIPULO}
+                  </Typography>
+                  <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                    <Box sx={{ height: 5, flex: 1, maxWidth: 360, bgcolor: 'rgba(255,255,255,0.28)', borderRadius: 1, overflow: 'hidden' }}>
+                      <Box sx={{ width: `${progressoModulo}%`, height: '100%', bgcolor: '#f4cf68' }} />
+                    </Box>
+                    <Typography variant="caption" sx={{ color: 'white', fontWeight: 800 }}>
+                      {moduloSomenteLeitura
+                        ? `Página ${Math.max(1, paginaAtualModuloIndex + 1)} de ${itensDoModulo.length}`
+                        : `${concluidosNoModulo}/${itensDoModulo.length}`}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Typography
+                component="h2"
+                sx={{
+                  mb: 1.5,
+                  color: isDarkMode ? '#eef7f1' : '#123c2d',
+                  fontFamily: 'Georgia, serif',
+                  fontSize: { xs: '1.35rem', sm: '1.6rem' },
+                  fontWeight: 800,
+                  textAlign: 'center',
+                }}
+              >
+                Páginas da lição
+              </Typography>
+
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(3, minmax(0, 1fr))' },
+                  gap: { xs: 0.8, sm: 1 },
+                }}
+              >
+                {itensDoModulo.map((item, index) => {
+                  const concluido = isConclusaoMarcada(moduloMenuTema.id, item.id)
+                  const paginaAtual = moduloSomenteLeitura && (
+                    item.id == null ? ultimaPaginaModuloId == null : item.id == ultimaPaginaModuloId
+                  )
+                  return (
+                    <Card
+                      key={item.id == null ? 'introducao' : item.id}
+                      component="button"
+                      onClick={() => handleSelectTema(moduloMenuTema.id, item.id)}
+                      aria-label={`Abrir ${item.titulo}`}
+                      sx={{
+                        width: '100%',
+                        minHeight: { xs: 78, sm: 76 },
+                        p: 0,
+                        appearance: 'none',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        color: isDarkMode ? '#f2f6f3' : '#15372b',
+                        bgcolor: isDarkMode ? '#18221e' : '#fff',
+                        border: concluido ? '1px solid rgba(27, 121, 75, 0.78)' : '1px solid rgba(20, 70, 49, 0.17)',
+                        borderRadius: 2,
+                        boxShadow: '0 5px 16px rgba(15, 58, 29, 0.08)',
+                        transition: 'transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          borderColor: '#2d8159',
+                          boxShadow: '0 10px 24px rgba(15, 58, 29, 0.15)',
+                        },
+                      }}
+                    >
+                      <CardContent sx={{ height: '100%', p: 1.1, '&:last-child': { pb: 1.1 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box
+                            sx={{
+                              width: 34,
+                              height: 34,
+                              flexShrink: 0,
+                              borderRadius: '50%',
+                              display: 'grid',
+                              placeItems: 'center',
+                              bgcolor: isDarkMode ? '#283b32' : '#e7f0eb',
+                              color: '#17623d',
+                              fontWeight: 900,
+                            }}
+                          >
+                            {index + 1}
+                          </Box>
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
+                            <Typography sx={{ fontSize: '1rem', fontWeight: 850, lineHeight: 1.18 }}>
+                              {item.titulo}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              noWrap
+                              sx={{ mt: 0.25, color: isDarkMode ? '#b9c8c0' : '#617269', lineHeight: 1.25 }}
+                            >
+                              {item.descricao}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, flexShrink: 0 }}>
+                            {concluido && <CheckIcon fontSize="small" sx={{ color: '#2f9865' }} />}
+                            <NavigateNext sx={{ color: paginaAtual || concluido ? '#2f9865' : '#7d8a83' }} />
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </Box>
+            </Box>
+          </Box>
+        </LayoutEstudo>
+      )
+    }
 
     return (
       <LayoutEstudo>
-        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: { xs: 1, sm: 3 }, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
+        <Box sx={{ pt: { xs: 0, sm: 1 }, pb: 'calc(env(safe-area-inset-bottom, 0px) + 12px)', px: { xs: 1, sm: 2.5 }, bgcolor: isDarkMode ? '#101714' : '#f4f6f3', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
           <Box
             sx={{
               position: 'relative',
               overflow: 'hidden',
-              maxWidth: 760,
+              maxWidth: 1180,
               mx: 'auto',
-              mb: 2,
-              p: { xs: 2.25, sm: 3 },
+              mb: 1.25,
+              p: { xs: 1.15, sm: 1.5 },
               borderRadius: 2,
               color: 'white',
               background: 'linear-gradient(135deg, #0f3a1d 0%, #14532d 58%, #1e3a5f 100%)',
@@ -782,18 +1068,40 @@ export default function Discipulado() {
               },
             }}
           >
-            <Box sx={{ position: 'relative', zIndex: 1 }}>
-              <Typography variant="overline" sx={{ color: 'rgba(255,255,255,0.72)', fontWeight: 800 }}>
-                Formação cristã
-              </Typography>
-              <Typography variant="h4" component="h1" sx={{ fontWeight: 800, lineHeight: 1.05, mb: 1 }}>
+            <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+              <Typography variant="h5" component="h1" sx={{ fontWeight: 800, lineHeight: 1.05 }}>
                 Discipulado
               </Typography>
-              <Typography variant="subtitle1" sx={{ color: 'rgba(255,255,255,0.88)', maxWidth: 620, lineHeight: 1.45 }}>
-                Escolha um módulo para estudar com leitura, meditação, perguntas e acompanhamento de progresso.
-              </Typography>
+              <Tooltip title="Sobre o Discipulado">
+                <IconButton
+                  type="button"
+                  aria-label="Sobre o Discipulado"
+                  onClick={() => setShowDiscipuladoInfo(true)}
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    color: 'white',
+                    border: '1px solid rgba(255,255,255,0.62)',
+                  }}
+                >
+                  <Typography component="span" sx={{ fontFamily: 'Georgia, serif', fontSize: '1.25rem', fontWeight: 800, fontStyle: 'italic' }}>
+                    i
+                  </Typography>
+                </IconButton>
+              </Tooltip>
             </Box>
           </Box>
+          <Dialog open={showDiscipuladoInfo} onClose={() => setShowDiscipuladoInfo(false)} maxWidth="xs" fullWidth>
+            <DialogTitle>Sobre o Discipulado</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Escolha um módulo para estudar com leitura, meditação, perguntas e acompanhamento de progresso.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setShowDiscipuladoInfo(false)}>Fechar</Button>
+            </DialogActions>
+          </Dialog>
           {ultimaLicao && (
             <Card
               onClick={() => handleSelectTema(ultimaLicao.tema.id, ultimaLicao.estudo?.id ?? null)}
@@ -806,7 +1114,7 @@ export default function Discipulado() {
                   performance: true,
                 }),
                 width: '100%',
-                maxWidth: 760,
+                maxWidth: 1180,
                 mx: 'auto',
                 mb: 2,
                 color: 'white',
@@ -848,112 +1156,225 @@ export default function Discipulado() {
               </CardContent>
             </Card>
           )}
-          {discipuladoData.map((tema, index) => {
-            const temSubitens = Array.isArray(tema.estudos) && tema.estudos.length > 0
-            const expandido = Boolean(modulosExpandidos[tema.id])
-            return (
-              <Box key={tema.id} sx={{ width: '100%', maxWidth: 760, mx: 'auto', mb: 1.5 }}>
-                <Card
-                  onClick={() => {
-                    if (temSubitens) {
-                      setModulosExpandidos((prev) => ({ ...prev, [tema.id]: !prev[tema.id] }))
-                    } else {
-                      handleSelectTema(tema.id)
-                    }
-                  }}
-                  aria-label={temSubitens ? `Expandir ${tema.titulo}` : `Abrir ${tema.titulo}`}
-                  sx={{
-                    ...getGlassCardStyles(menuCardGradient, {
-                      hover: true,
-                      shimmer: false,
-                      borderRadius: 2,
-                      performance: true,
-                    }),
-                    color: menuCardTextColor,
-                    border: `1px solid ${menuCardBorder}`,
-                  }}
-                >
-                  <CardContent sx={{ pt: 2, px: 2, pb: 2, '&:last-child': { pb: 2 } }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                      <Box sx={{ minWidth: 0, flex: 1 }}>
-                        <Typography
-                          variant="subtitle1"
-                          sx={{ color: menuCardTextColor, fontWeight: 800, mb: 0.35 }}
-                        >
-                          {index === 0 ? 'Abertura' : `Módulo ${index}`}
-                        </Typography>
-                        <Typography
-                          variant="h6"
-                          sx={{ color: menuCardTextColor, fontWeight: 700, lineHeight: 1.25 }}
-                        >
-                          {tema.titulo}
-                        </Typography>
-                      </Box>
-                      {temSubitens && (
-                        <ExpandMoreIcon
-                          sx={{
-                            color: menuCardTextColor,
-                            transition: 'transform 0.2s ease',
-                            transform: expandido ? 'rotate(180deg)' : 'rotate(0deg)',
-                          }}
-                        />
-                      )}
-                    </Box>
-                  </CardContent>
-                </Card>
+          <Box
+            sx={{
+              width: '100%',
+              maxWidth: 1180,
+              mx: 'auto',
+              display: 'grid',
+              gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' },
+              gap: { xs: 1.1, sm: 1.5 },
+            }}
+          >
+            {discipuladoData.map((tema, index) => {
+              const estudos = obterEstudosVisiveis(tema)
+              const opcoesModulo = tema.id === 4
+                ? [
+                    {
+                      key: 'introducao',
+                      titulo: 'Introdução',
+                      descricao: 'Visão geral de A Vida do Discípulo',
+                      concluidoId: null,
+                      abrir: () => handleSelectTema(tema.id, null),
+                    },
+                    {
+                      key: 'licao-1',
+                      titulo: 'Lição 1',
+                      descricao: 'O que significa ser discípulo de Jesus',
+                      concluidoId: 8,
+                      abrir: () => navigate('/discipulado?modulo=4&licao=1'),
+                    },
+                  ]
+                : [
+                    {
+                      key: 'introducao',
+                      titulo: 'Introdução',
+                      descricao: 'Visão geral e fundamentos do módulo',
+                      concluidoId: null,
+                      abrir: () => handleSelectTema(tema.id, null),
+                    },
+                    ...estudos.map((item) => ({
+                      key: `estudo-${item.id}`,
+                      titulo: item.titulo,
+                      descricao: 'Leitura, reflexão, perguntas e meditação',
+                      concluidoId: item.id,
+                      abrir: () => handleSelectTema(tema.id, item.id),
+                    })),
+                  ]
+              const totalUnidades = opcoesModulo.length
+              const concluidas = opcoesModulo.map((item) => item.concluidoId)
+                .filter((id) => isConclusaoMarcada(tema.id, id)).length
+              const progresso = Math.round((concluidas / totalUnidades) * 100)
+              const visualModulo = editorialDiscipulado(tema.id)
+              const rotuloModulo = rotulosModulo[index] || `Módulo ${index}`
+              const expandido = moduloExpandido === tema.id
 
-                {temSubitens && (
-                  <Collapse in={expandido} timeout="auto" unmountOnExit={false}>
-                    <Box sx={{ mt: 1, pl: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      <Card
-                        onClick={() => handleSelectTema(tema.id)}
+              return (
+                <Box key={tema.id} sx={{ display: 'contents' }}>
+                  <Card
+                    component="button"
+                    onClick={() => {
+                      const proximo = expandido ? null : tema.id
+                      setModuloExpandido(proximo)
+                      navigate(proximo ? `/discipulado?modulo=${proximo}` : '/discipulado', { replace: true })
+                    }}
+                    aria-expanded={expandido}
+                    aria-label={`${expandido ? 'Fechar' : 'Abrir'} ${rotuloModulo}: ${tema.titulo}`}
+                    sx={{
+                      position: 'relative',
+                      minWidth: 0,
+                      minHeight: { xs: 238, sm: 260 },
+                      p: 0,
+                      appearance: 'none',
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      color: 'white',
+                      border: expandido ? '2px solid #f4cf68' : '1px solid rgba(224, 196, 119, 0.68)',
+                      borderRadius: 2,
+                      backgroundImage: `linear-gradient(180deg, rgba(3, 25, 18, 0.18) 0%, rgba(3, 25, 18, 0.48) 38%, rgba(3, 25, 18, 0.95) 100%), url("${visualModulo.image}")`,
+                      backgroundPosition: visualModulo.imagePosition,
+                      backgroundSize: 'cover',
+                      boxShadow: '0 8px 22px rgba(5, 38, 29, 0.16)',
+                      transition: 'transform 170ms ease, box-shadow 170ms ease',
+                      '&:hover': {
+                        transform: 'translateY(-3px)',
+                        boxShadow: '0 14px 30px rgba(5, 38, 29, 0.25)',
+                      },
+                    }}
+                  >
+                    <CardContent
+                      sx={{
+                        minHeight: 'inherit',
+                        p: { xs: 1.4, sm: 1.8 },
+                        display: 'flex',
+                        flexDirection: 'column',
+                        '&:last-child': { pb: { xs: 1.4, sm: 1.8 } },
+                      }}
+                    >
+                      <Box
                         sx={{
-                          ...getGlassCardStyles(menuCardGradient, {
-                            hover: true,
-                            shimmer: false,
-                            borderRadius: 2,
-                            performance: true,
-                          }),
-                          color: menuCardTextColor,
-                          border: `1px solid ${menuCardBorder}`,
-                          cursor: 'pointer',
+                          width: 48,
+                          height: 48,
+                          mb: 'auto',
+                          borderRadius: 1.5,
+                          display: 'grid',
+                          placeItems: 'center',
+                          bgcolor: 'rgba(245, 238, 213, 0.90)',
+                          color: '#0b5a3a',
+                          boxShadow: '0 5px 13px rgba(0,0,0,0.22)',
+                          '& .MuiSvgIcon-root': { fontSize: 27 },
                         }}
                       >
-                        <CardContent sx={{ py: 1.25, px: 1.5, '&:last-child': { pb: 1.25 } }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                            Introdução
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                      {obterEstudosVisiveis(tema).map((sub) => (
-                        <Card
-                          key={`${tema.id}-${sub.id}`}
-                          onClick={() => handleSelectTema(tema.id, sub.id)}
-                          sx={{
-                            ...getGlassCardStyles(menuCardGradient, {
-                              hover: true,
-                              shimmer: false,
-                              borderRadius: 2,
-                              performance: true,
-                            }),
-                            color: menuCardTextColor,
-                            border: `1px solid ${menuCardBorder}`,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          <CardContent sx={{ py: 1.25, px: 1.5, '&:last-child': { pb: 1.25 } }}>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                              {sub.titulo}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      ))}
+                        {iconesModulo[index] || <SchoolIcon />}
+                      </Box>
+                      <Typography variant="overline" sx={{ mt: 2, color: '#f5d77e', fontWeight: 900, letterSpacing: 0 }}>
+                        {rotuloModulo}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          mt: 0.2,
+                          fontFamily: 'Georgia, serif',
+                          fontSize: { xs: '1.05rem', sm: '1.22rem' },
+                          fontWeight: 850,
+                          lineHeight: 1.18,
+                          overflowWrap: 'anywhere',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+                        }}
+                      >
+                        {tema.titulo}
+                      </Typography>
+                      {tema.subtitulo && (
+                        <Typography variant="caption" sx={{ mt: 0.55, color: 'rgba(255,255,255,0.88)', fontWeight: 650, lineHeight: 1.3 }}>
+                          {tema.subtitulo}
+                        </Typography>
+                      )}
+                      <Box sx={{ mt: 1.4, display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                        <Box sx={{ height: 4, flex: 1, bgcolor: 'rgba(255,255,255,0.28)', borderRadius: 1, overflow: 'hidden' }}>
+                          <Box sx={{ width: `${progresso}%`, height: '100%', bgcolor: '#f4cf68' }} />
+                        </Box>
+                        <Typography variant="caption" sx={{ color: 'white', fontWeight: 800 }}>
+                          {concluidas}/{totalUnidades}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ mt: 0.8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.84)', fontWeight: 650 }}>
+                          {totalUnidades} {totalUnidades === 1 ? 'unidade' : 'unidades'}
+                        </Typography>
+                        {expandido ? <ExpandLessIcon aria-hidden sx={{ color: '#f5d77e' }} /> : <ExpandMoreIcon aria-hidden sx={{ color: '#f5d77e' }} />}
+                      </Box>
+                    </CardContent>
+                  </Card>
+
+                  {expandido && (
+                    <Box
+                      sx={{
+                        gridColumn: '1 / -1',
+                        display: 'grid',
+                        gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' },
+                        gap: 1,
+                        p: { xs: 1.2, sm: 1.5 },
+                        bgcolor: isDarkMode ? '#15221c' : '#edf3ef',
+                        border: '1px solid rgba(26, 105, 68, 0.28)',
+                        borderRadius: 2,
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.45)',
+                      }}
+                    >
+                      {opcoesModulo.map((opcao, opcaoIndex) => {
+                        const concluida = isConclusaoMarcada(tema.id, opcao.concluidoId)
+                        return (
+                          <Button
+                            key={opcao.key}
+                            onClick={opcao.abrir}
+                            endIcon={<NavigateNext />}
+                            sx={{
+                              minHeight: 72,
+                              justifyContent: 'space-between',
+                              px: 1.5,
+                              py: 1.15,
+                              textAlign: 'left',
+                              textTransform: 'none',
+                              color: isDarkMode ? '#edf6f0' : '#123c2d',
+                              bgcolor: isDarkMode ? '#1d2d25' : '#fff',
+                              border: concluida ? '1px solid #2c8b5c' : '1px solid rgba(20,70,49,0.16)',
+                              borderRadius: 1.5,
+                              '&:hover': { bgcolor: isDarkMode ? '#263a30' : '#f8fbf9' },
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0 }}>
+                              <Box
+                                sx={{
+                                  width: 36,
+                                  height: 36,
+                                  flexShrink: 0,
+                                  borderRadius: '50%',
+                                  display: 'grid',
+                                  placeItems: 'center',
+                                  bgcolor: concluida ? '#17623d' : (isDarkMode ? '#31483c' : '#e3eee8'),
+                                  color: concluida ? '#fff' : '#17623d',
+                                  fontWeight: 900,
+                                }}
+                              >
+                                {concluida ? <CheckIcon fontSize="small" /> : opcaoIndex + 1}
+                              </Box>
+                              <Box sx={{ minWidth: 0 }}>
+                                <Typography sx={{ fontWeight: 850, lineHeight: 1.25 }}>
+                                  {opcao.titulo}
+                                </Typography>
+                                <Typography variant="caption" sx={{ display: 'block', mt: 0.35, color: isDarkMode ? '#b9c8c0' : '#617269', lineHeight: 1.3 }}>
+                                  {opcao.descricao}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Button>
+                        )
+                      })}
                     </Box>
-                  </Collapse>
-                )}
-              </Box>
-            )
-          })}
+                  )}
+                </Box>
+              )
+            })}
+          </Box>
         </Box>
       </LayoutEstudo>
     )
@@ -964,7 +1385,7 @@ export default function Discipulado() {
     return (
       <LayoutEstudo>
         {discAppBarPortals}
-        <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: { xs: 1, sm: 2 }, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
+        <Box sx={{ pt: 1, pb: 'calc(env(safe-area-inset-bottom, 0px) + 12px)', px: { xs: 1, sm: 2 }, bgcolor: 'background.default', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
           {/* Introdução do tema */}
           {tema.introducao && (
             <Box sx={{ mb: 3, color: 'text.primary', textAlign: textAlign || 'left' }}>
@@ -981,6 +1402,7 @@ export default function Discipulado() {
                 fontSize={fontSize}
                 textAlign={textAlign || 'justify'}
                 lineHeight={lh}
+                glossary={temaSelecionado === 4 ? GLOSSARIO_VIDA_DISCIPULO : undefined}
                 sx={{ mt: 1 }}
               >
                 {tema.introducao.versiculo && (
@@ -1006,6 +1428,29 @@ export default function Discipulado() {
                   <AudioPlayer url={tema.introducao.audioUrl} label="Ouvir introdução" />
                 </Box>
               )}
+              <Box sx={{ mt: 2.5, display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: 1 }}>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  startIcon={<ShareIcon />}
+                  onClick={(event) => abrirCompartilhamentoDiscipulado(event, 'completo')}
+                >
+                  Compartilhar
+                </Button>
+              </Box>
+              {paginasLeitura.length > 0 && (
+                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
+                  <Button type="button" startIcon={<NavigateBefore />} disabled={paginaLeituraIndex <= 0} onClick={() => navegarPaginaLeitura(-1)}>
+                    Anterior
+                  </Button>
+                  <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
+                    {paginaLeituraIndex + 1} de {paginasLeitura.length}
+                  </Typography>
+                  <Button type="button" endIcon={<NavigateNext />} disabled={paginaLeituraIndex >= paginasLeitura.length - 1} onClick={() => navegarPaginaLeitura(1)}>
+                    Próxima
+                  </Button>
+                </Box>
+              )}
             </Box>
           )}
           {/* Drawer dos subtemas - na tela de intro do tema */}
@@ -1025,9 +1470,8 @@ export default function Discipulado() {
               <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: 1, borderColor: 'divider' }}>
                 <IconButton onClick={() => {
                   setDrawerSubtemasAberto(false)
-                  setTemaSelecionado(null)
-                  setEstudoSelecionado(null)
-                  navigate('/discipulado')
+                  setDrawerSubtemasAberto(false)
+                  navigate(`/discipulado?modulo=${temaSelecionado}`)
                 }} sx={{ mr: 1 }}>
                   <ArrowBackIcon />
                 </IconButton>
@@ -1125,13 +1569,12 @@ export default function Discipulado() {
         onEnviarChat={enviarCompartilhamentoDiscipuladoNoChat}
         chatLabel="Enviar no chat interno"
       />
-      <Box sx={{ pt: 2, pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)', px: { xs: 1, sm: 2 }, bgcolor: 'background.default', minHeight: '100%', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
+      <Box sx={{ pt: 1, pb: 'calc(env(safe-area-inset-bottom, 0px) + 12px)', px: { xs: 1, sm: 2 }, bgcolor: 'background.default', overflowX: 'hidden', touchAction: 'pan-y', fontFamily: ff }}>
         {temaSelecionado && (
           <Paper 
             elevation={0} 
             sx={{ 
               p: 0,
-              minHeight: '100%',
               width: '100%'
             }}
           >
@@ -1412,8 +1855,12 @@ export default function Discipulado() {
                   <Box sx={{ width: '100%', mt: 0, mb: 2 }}>
                     <Box sx={{ p: { xs: 0, sm: 3 }, width: '100%' }}>
                       <EditorialContentHeader
-                        title={estudoSelecionado && estudo ? estudo.titulo : tema.titulo}
-                        subtitle={introducaoEditorial.subtitle || (estudoSelecionado && estudo ? tema.titulo : 'Formação cristã')}
+                        title={temaSelecionado === 4 && estudoSelecionado && estudo
+                          ? TITULO_LICAO_VIDA_DISCIPULO
+                          : (estudoSelecionado && estudo ? estudo.titulo : tema.titulo)}
+                        subtitle={temaSelecionado === 4 && estudoSelecionado && estudo
+                          ? SUBTITULO_LICAO_VIDA_DISCIPULO
+                          : (introducaoEditorial.subtitle || (estudoSelecionado && estudo ? tema.titulo : 'Formação cristã'))}
                         eyebrow="Discipulado"
                         image={visualEditorial.image}
                         imagePosition={visualEditorial.imagePosition}
@@ -1424,6 +1871,7 @@ export default function Discipulado() {
                         fontSize={fontSize}
                         textAlign={textAlign || 'justify'}
                         lineHeight={lh}
+                        glossary={temaSelecionado === 4 ? GLOSSARIO_VIDA_DISCIPULO : undefined}
                         sx={{ mt: 1 }}
                       >
                         {conteudoAtual.introducao.versiculo && (
@@ -1454,6 +1902,37 @@ export default function Discipulado() {
                   {/* Stepper com círculos indicadores */}
                   {getQuestoes()?.length > 0 && (
                     <>
+                      {temaSelecionado === 4 && paginaLeituraIndex >= 0 && (
+                        <Box
+                          sx={{
+                            mx: { xs: 1, sm: 3 },
+                            mb: 2,
+                            pt: 2,
+                            borderTop: '1px solid rgba(181, 138, 47, 0.36)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: 1,
+                          }}
+                        >
+                          <Button
+                            type="button"
+                            startIcon={<NavigateBefore />}
+                            disabled={paginaLeituraIndex <= 0}
+                            onClick={() => navegarPaginaLeitura(-1)}
+                          >
+                            Página anterior
+                          </Button>
+                          <Box sx={{ textAlign: 'right' }}>
+                            <Typography sx={{ color: isDarkMode ? '#eef7f1' : '#123c2d', fontWeight: 850 }}>
+                              Questões da Lição 1
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              Página {paginaLeituraIndex + 1} de {paginasLeitura.length}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      )}
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1.5, px: { xs: 1, sm: 2 } }}>
                         <Button
                           type="button"
@@ -1573,6 +2052,40 @@ export default function Discipulado() {
                       )}
                     </>
                   )}
+                  {getQuestoes()?.length === 0 && (
+                    <Box
+                      sx={{
+                        px: { xs: 1, sm: 3 },
+                        pb: 3,
+                        display: 'grid',
+                        gap: 2,
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button
+                          type="button"
+                          variant="outlined"
+                          startIcon={<ShareIcon />}
+                          onClick={(event) => abrirCompartilhamentoDiscipulado(event, 'completo')}
+                        >
+                          Compartilhar
+                        </Button>
+                      </Box>
+                      {paginasLeitura.length > 0 && (
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
+                          <Button type="button" startIcon={<NavigateBefore />} disabled={paginaLeituraIndex <= 0} onClick={() => navegarPaginaLeitura(-1)}>
+                            Anterior
+                          </Button>
+                          <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
+                            {paginaLeituraIndex + 1} de {paginasLeitura.length}
+                          </Typography>
+                          <Button type="button" endIcon={<NavigateNext />} disabled={paginaLeituraIndex >= paginasLeitura.length - 1} onClick={() => navegarPaginaLeitura(1)}>
+                            Próxima
+                          </Button>
+                        </Box>
+                      )}
+                    </Box>
+                  )}
                 </>
               )}
           </Box>
@@ -1595,9 +2108,8 @@ export default function Discipulado() {
               <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: 1, borderColor: 'divider' }}>
                 <IconButton onClick={() => {
                   setDrawerSubtemasAberto(false)
-                  setTemaSelecionado(null)
-                  setEstudoSelecionado(null)
-                  navigate('/discipulado')
+                  setDrawerSubtemasAberto(false)
+                  navigate(`/discipulado?modulo=${temaSelecionado}`)
                 }} sx={{ mr: 1 }}>
                   <ArrowBackIcon />
                 </IconButton>

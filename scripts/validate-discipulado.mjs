@@ -5,7 +5,7 @@ import { catecismoHeidelberg } from '../src/data/catecismoHeidelberg.js'
 import { devocionalData } from '../src/data/devocional.js'
 import { REGEX_CONF_LINK, parseNumeroRomanOuArabico } from '../src/utils/confissaoReferenciasLite.js'
 
-const EXPECTED = Object.freeze({ temas: 3, unidades: 15, questoes: 167, meditacoes: 105 })
+const EXPECTED = Object.freeze({ temas: 4, unidades: 23, questoes: 177, meditacoes: 105 })
 const erros = []
 const unidades = []
 const perguntasBreve = new Set(breveCatecismo.map((item) => Number(item.numero)))
@@ -15,7 +15,14 @@ const perguntasHeidelberg = new Set(catecismoHeidelberg.map((item) => Number(ite
 function validarMarcacaoEditorial(texto, contexto) {
   let negrito = false
   let italico = false
-  for (const marcador of String(texto || '').match(/\*\*|\*/g) || []) {
+  // O asterisco que inicia uma lista Markdown (`* item`) não é itálico.
+  // Removemos somente esse marcador no início de cada linha antes de auditar
+  // os pares de negrito/itálico do conteúdo.
+  const textoSemMarcadoresDeLista = String(texto || '')
+    .split('\n')
+    .map((linha) => linha.replace(/^\s*\*\s+(?=\S)/, ''))
+    .join('\n')
+  for (const marcador of textoSemMarcadoresDeLista.match(/\*\*|\*/g) || []) {
     if (marcador === '**') negrito = !negrito
     else italico = !italico
   }
@@ -74,9 +81,10 @@ for (const tema of discipuladoData) {
   for (const estudo of estudos) {
     unidades.push(estudo)
     const contexto = `tema ${tema.id}, estudo ${estudo.id} (${estudo.titulo})`
+    const apenasLeitura = estudo.tipo === 'leitura'
 
     if (!estudo.introducao?.texto?.trim()) erros.push(`${contexto}: introducao vazia`)
-    if (!Array.isArray(estudo.questoes) || estudo.questoes.length === 0) {
+    if (!apenasLeitura && (!Array.isArray(estudo.questoes) || estudo.questoes.length === 0)) {
       erros.push(`${contexto}: sem questoes`)
     }
 
@@ -94,7 +102,7 @@ for (const tema of discipuladoData) {
       if (!questao.explicacao?.trim()) erros.push(`${contexto}, questao ${questao.id}: explicacao vazia`)
     }
 
-    if (!Array.isArray(estudo.meditacao) || estudo.meditacao.length !== 7) {
+    if (!apenasLeitura && (!Array.isArray(estudo.meditacao) || estudo.meditacao.length !== 7)) {
       erros.push(`${contexto}: esperadas sete meditacoes`)
     }
   }

@@ -5,6 +5,7 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
+import { useTheme } from '@mui/material/styles'
 import TextoComReferencias from './TextoComReferencias'
 
 const RE_HEADING = /^(?:#{1,3}\s+|\d+[.)]\s+|conclus[aã]o$|introdu[cç][aã]o$|s[ií]ntese\b)/i
@@ -105,6 +106,17 @@ export default function EditorialProse({
   children,
   sx,
 }) {
+  const theme = useTheme()
+  const darkMode = theme.palette.mode === 'dark'
+  const colors = darkMode
+    ? {
+        text: '#f3ead8', surface: '#18211d', heading: '#f2d48d', muted: '#d8ccb4',
+        accent: '#d6ad52', link: '#8bd8ad', dropCap: '#a9dfbf', dropCapBg: 'rgba(7, 18, 13, 0.52)',
+      }
+    : {
+        text: '#17271f', surface: '#fffaf0', heading: '#173d31', muted: '#4d442f',
+        accent: '#a7791f', link: '#075c3b', dropCap: '#315b43', dropCapBg: 'rgba(255,255,255,0.42)',
+      }
   const [verbeteAberto, setVerbeteAberto] = useState(null)
   const blocos = blocosDoTexto(text)
   const primeiroParagrafo = blocos.findIndex((bloco) => (
@@ -120,11 +132,11 @@ export default function EditorialProse({
         py: { xs: 2.5, sm: 3.5 },
         border: '1px solid rgba(166, 128, 47, 0.28)',
         borderRadius: 2,
-        color: '#17271f',
-        backgroundColor: '#fffaf0',
+        color: colors.text,
+        backgroundColor: colors.surface,
         backgroundImage: 'radial-gradient(circle at 18% 12%, rgba(173,132,48,0.045) 0 1px, transparent 1.4px), linear-gradient(90deg, rgba(173,132,48,0.025), transparent 22%, transparent 78%, rgba(173,132,48,0.025))',
         backgroundSize: '22px 22px, 100% 100%',
-        boxShadow: '0 5px 16px rgba(52, 41, 20, 0.07)',
+        boxShadow: darkMode ? '0 5px 18px rgba(0,0,0,.26)' : '0 5px 16px rgba(52, 41, 20, 0.07)',
         fontFamily: 'Georgia, "Times New Roman", serif',
         '&::after': {
           content: '""',
@@ -133,8 +145,9 @@ export default function EditorialProse({
           height: 1,
           mx: 'auto',
           mt: 3,
-          background: 'linear-gradient(90deg, transparent, #b58a2f 28%, #b58a2f 72%, transparent)',
+          background: `linear-gradient(90deg, transparent, ${colors.accent} 28%, ${colors.accent} 72%, transparent)`,
         },
+        '& a, & .MuiLink-root': { color: colors.link },
         ...sx,
       }}
     >
@@ -154,7 +167,7 @@ export default function EditorialProse({
                 mt: index === 0 ? 0 : nivel === 3 ? 2.2 : 3.2,
                 mb: nivel === 3 ? 1 : 1.35,
                 pl: comMarcador ? 2.2 : 0,
-                color: '#173d31',
+                color: colors.heading,
                 fontFamily: 'Georgia, "Times New Roman", serif',
                 fontSize: nivel === 1
                   ? { xs: '1.24rem', sm: '1.42rem' }
@@ -171,7 +184,7 @@ export default function EditorialProse({
                   top: '0.18em',
                   width: 8,
                   height: 8,
-                  border: '2px solid #b58a2f',
+                  border: `2px solid ${colors.accent}`,
                   transform: 'rotate(45deg)',
                   display: comMarcador ? 'block' : 'none',
                 },
@@ -204,7 +217,7 @@ export default function EditorialProse({
                 pl: 2,
                 py: 0.35,
                 borderLeft: '3px solid rgba(181,138,47,0.52)',
-                color: '#4d442f',
+                color: colors.muted,
                 fontStyle: 'italic',
               }}
             >
@@ -259,7 +272,7 @@ export default function EditorialProse({
                 listStyleType: listaOrdenada ? 'decimal' : 'disc',
                 '& li': { display: 'list-item', pl: 0.35, mb: 0.35 },
                 '& li::marker': {
-                  color: '#a7791f',
+                  color: colors.accent,
                   fontWeight: 700,
                 },
               }}
@@ -300,7 +313,7 @@ export default function EditorialProse({
                 ? {
                     '&::first-letter': {
                       float: 'left',
-                      color: '#315b43',
+                      color: colors.dropCap,
                       fontFamily: 'Georgia, "Times New Roman", serif',
                       fontSize: '3.45em',
                       fontWeight: 700,
@@ -309,7 +322,7 @@ export default function EditorialProse({
                       marginTop: '0.09em',
                       padding: '0.08em 0.11em',
                       border: '1px solid rgba(181,138,47,0.48)',
-                      backgroundColor: 'rgba(255,255,255,0.42)',
+                      backgroundColor: colors.dropCapBg,
                     },
                   }
                 : {}),
@@ -353,7 +366,7 @@ export default function EditorialProse({
                       p: 0,
                       border: 0,
                       borderBottom: '1px dotted currentColor',
-                      color: '#075c3b',
+                      color: colors.link,
                       bgcolor: 'transparent',
                       font: 'inherit',
                       fontWeight: 700,
@@ -379,7 +392,7 @@ export default function EditorialProse({
       })}
       {children}
       <Dialog open={Boolean(verbeteAberto)} onClose={() => setVerbeteAberto(null)} fullWidth maxWidth="sm">
-        <DialogTitle sx={{ fontFamily: 'Georgia, serif', fontWeight: 800, color: '#173d31' }}>
+        <DialogTitle sx={{ fontFamily: 'Georgia, serif', fontWeight: 800, color: darkMode ? '#f2d48d' : '#173d31' }}>
           {verbeteAberto?.titulo}
         </DialogTitle>
         <DialogContent>

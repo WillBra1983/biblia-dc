@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Typography,
   Box,
-  Paper,
   Divider,
   IconButton,
   Button
@@ -20,6 +19,7 @@ import CapitulosListaCards from '../components/CapitulosListaCards'
 import PageReadingShell from '../components/PageReadingShell'
 import { HISTORIA_CATECISMO_BREVE } from '../data/historiasWestminster'
 import EditorialContentHeader from '../components/EditorialContentHeader'
+import EditorialPageSurface from '../components/EditorialPageSurface'
 import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 
 export default function CatecismoBreve() {
@@ -170,10 +170,8 @@ export default function CatecismoBreve() {
         sx={{ mb: 2 }}
       />
 
-      <Paper
-        elevation={2}
+      <EditorialPageSurface
         sx={{
-          bgcolor: 'background.paper',
           width: '100%',
           boxSizing: 'border-box',
           p: { xs: 2, sm: 3, md: 4 }
@@ -234,7 +232,7 @@ export default function CatecismoBreve() {
               sx={{
                 fontWeight: 'bold',
                 mb: 3,
-                color: 'text.primary',
+                color: 'inherit',
                 fontSize: `${fontSize}%`,
                 textAlign: textAlign || 'left',
                 fontFamily: ff,
@@ -249,7 +247,7 @@ export default function CatecismoBreve() {
               sx={{ 
                 textAlign: textAlign || 'left',
                 mt: 2, 
-                color: 'text.primary',
+                color: 'inherit',
                 fontFamily: ff,
                 lineHeight: lh,
               }}
@@ -262,7 +260,7 @@ export default function CatecismoBreve() {
                 <Divider sx={{ my: 1 }} />
                 <Typography 
                   variant="body2" 
-                  sx={{ textAlign: textAlign || 'left', color: 'text.primary', fontFamily: ff, lineHeight: lh }}
+                  sx={{ textAlign: textAlign || 'left', color: 'inherit', fontFamily: ff, lineHeight: lh }}
                 >
                   <TextoComReferencias 
                     texto={formatarReferencias(pergunta.referencias).join('; ')}
@@ -273,7 +271,7 @@ export default function CatecismoBreve() {
               </Box>
             )}
           </Box>
-        </Paper>
+        </EditorialPageSurface>
     </PageReadingShell>
   )
 }

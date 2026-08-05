@@ -23,9 +23,6 @@ Marque cada um após criar:
 - [ ] `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - [ ] `VITE_FIREBASE_APP_ID` (app **Web** do Firebase — o workflow usa no bundle JS)
 - [ ] `VITE_FIREBASE_VAPID_KEY` (recomendado)
-- [ ] `VITE_GEMINI_API_KEY_WEB`
-- [ ] `VITE_GEMINI_API_KEY_ANDROID`
-- [ ] `VITE_GEMINI_API_KEY_IOS`
 
 Valores `VITE_*`: copie do `.env` local (não commitar `.env`).
 

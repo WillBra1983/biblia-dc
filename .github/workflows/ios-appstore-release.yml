@@ -114,9 +114,6 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_FIREBASE_VAPID_KEY: ${{ secrets.VITE_FIREBASE_VAPID_KEY }}
-          VITE_GEMINI_API_KEY_WEB: ${{ secrets.VITE_GEMINI_API_KEY_WEB }}
-          VITE_GEMINI_API_KEY_ANDROID: ${{ secrets.VITE_GEMINI_API_KEY_ANDROID }}
-          VITE_GEMINI_API_KEY_IOS: ${{ secrets.VITE_GEMINI_API_KEY_IOS }}
         run: |
           npm run native:prepare
           npx cap sync ios

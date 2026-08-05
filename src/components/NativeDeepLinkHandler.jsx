@@ -9,6 +9,8 @@ import {
   getPublicWebPathPrefix
 } from '../services/bibliaEstudosService'
 
+let launchUrlChecked = false
+
 /**
  * Remove o path público do site (ex.: /biblia) e o BASE_URL do Vite do pathname de um URL https.
  * Sem isto, no APK (BASE_URL=/), um App Link como .../biblia/?livro=1 ia para a rota `/biblia/` — inexistente → tela branca.
@@ -38,19 +40,25 @@ export function parsePublicUrlToRoute(urlString) {
 export default function NativeDeepLinkHandler() {
   const navigate = useNavigate()
   const location = useLocation()
+  const locationRef = useRef(location)
   const lastHandledUrlRef = useRef('')
+
+  useEffect(() => {
+    locationRef.current = location
+  }, [location])
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return undefined
 
     const isSameTarget = (target) => {
       const normalize = (s) => String(s || '').replace(/\/+$/, '') || '/'
-      const currentPath = normalize(location.pathname)
+      const current = locationRef.current
+      const currentPath = normalize(current.pathname)
       const targetPath = normalize(target.pathname)
       return (
         currentPath === targetPath &&
-        (location.search || '') === (target.search || '') &&
-        (location.hash || '') === (target.hash || '')
+        (current.search || '') === (target.search || '') &&
+        (current.hash || '') === (target.hash || '')
       )
     }
 
@@ -67,12 +75,16 @@ export default function NativeDeepLinkHandler() {
         if (nat) {
           if (isSameTarget(nat)) {
             lastHandledUrlRef.current = url
+            navigate(
+              { pathname: nat.pathname, search: nat.search, hash: nat.hash || undefined },
+              { replace: true, state: { fromExternalDeepLink: true } }
+            )
             return
           }
           lastHandledUrlRef.current = url
           navigate(
             { pathname: nat.pathname, search: nat.search, hash: nat.hash || undefined },
-            { replace: true }
+            { replace: true, state: { fromExternalDeepLink: true } }
           )
           return
         }
@@ -80,10 +92,17 @@ export default function NativeDeepLinkHandler() {
         const { pathname, search, hash } = parsePublicUrlToRoute(normalized)
         if (isSameTarget({ pathname, search, hash })) {
           lastHandledUrlRef.current = url
+          navigate(
+            { pathname, search, hash: hash || undefined },
+            { replace: true, state: { fromExternalDeepLink: true } }
+          )
           return
         }
         lastHandledUrlRef.current = url
-        navigate({ pathname, search, hash: hash || undefined }, { replace: true })
+        navigate(
+          { pathname, search, hash: hash || undefined },
+          { replace: true, state: { fromExternalDeepLink: true } }
+        )
       } catch (e) {
         console.warn('NativeDeepLinkHandler:', e)
       }
@@ -94,16 +113,19 @@ export default function NativeDeepLinkHandler() {
       handle = h
     })
 
-    App.getLaunchUrl()
-      .then((ret) => {
-        if (ret?.url) go(ret.url)
-      })
-      .catch(() => {})
+    if (!launchUrlChecked) {
+      launchUrlChecked = true
+      App.getLaunchUrl()
+        .then((ret) => {
+          if (ret?.url) go(ret.url)
+        })
+        .catch(() => {})
+    }
 
     return () => {
       handle?.remove?.()
     }
-  }, [navigate, location.pathname, location.search, location.hash])
+  }, [navigate])
 
   return null
 }

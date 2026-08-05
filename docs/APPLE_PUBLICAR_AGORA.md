@@ -66,7 +66,6 @@ Settings → Secrets and variables → Actions → **New repository secret**
 | `KEYCHAIN_PASSWORD` | qualquer senha forte (só no CI) |
 | `GOOGLE_SERVICE_INFO_PLIST_BASE64` | plist em base64 |
 | `VITE_FIREBASE_*` | copiar do seu `.env` |
-| `VITE_GEMINI_API_KEY_*` | copiar do seu `.env` |
 | `APPSTORE_ISSUER_ID` | App Store Connect → Integrações |
 | `APPSTORE_API_KEY_ID` | id da chave API |
 | `APPSTORE_API_PRIVATE_KEY` | conteúdo do `.p8` |

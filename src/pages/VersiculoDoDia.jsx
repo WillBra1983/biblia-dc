@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, TextField, Tooltip, Typography } from '@mui/material'
+import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, TextField, Tooltip, Typography, useTheme } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
 import HistoryIcon from '@mui/icons-material/History'
@@ -39,6 +39,8 @@ function TextoComentario({ texto }) {
 export default function VersiculoDoDia() {
   const navigate = useNavigate()
   const location = useLocation()
+  const theme = useTheme()
+  const darkMode = theme.palette.mode === 'dark'
   const { user } = useFirebaseAuth()
   const { ehAdmin } = useEhAdmin(user?.uid)
   const [searchParams] = useSearchParams()
@@ -58,13 +60,17 @@ export default function VersiculoDoDia() {
   const fluxoCarregamentoRef = useRef(0)
 
   const voltar = useCallback(() => {
+    if (location.state?.fromExternalDeepLink) {
+      navigate('/', { replace: true })
+      return
+    }
     const indiceHistorico = Number(window.history?.state?.idx)
     if (location.key !== 'default' && Number.isFinite(indiceHistorico) && indiceHistorico > 0) {
       navigate(-1)
       return
     }
     navigate('/', { replace: true })
-  }, [location.key, navigate])
+  }, [location.key, location.state, navigate])
 
   async function trocarVersiculo() {
     if (!novaReferencia.trim() || trocando) return
@@ -220,11 +226,12 @@ export default function VersiculoDoDia() {
   )
 
   return (
-    <Box sx={{ width: '100%', bgcolor: '#f3efe6', minHeight: '100%', p: { xs: 1, sm: 2.5 }, boxSizing: 'border-box' }}>
+    <Box sx={{ width: '100%', bgcolor: darkMode ? '#101613' : '#f3efe6', minHeight: '100%', p: { xs: 1, sm: 2.5 }, boxSizing: 'border-box' }}>
       <Box sx={{
         maxWidth: 820, mx: 'auto', overflow: 'hidden', borderRadius: 1,
-        bgcolor: '#fffdf7', boxShadow: '0 12px 34px rgba(39,35,25,.18)',
-        border: '1px solid rgba(80,70,45,.18)',
+        color: darkMode ? '#f3ead8' : '#171a2b',
+        bgcolor: darkMode ? '#18211d' : '#fffdf7', boxShadow: '0 12px 34px rgba(39,35,25,.18)',
+        border: `1px solid ${darkMode ? 'rgba(214,183,111,.24)' : 'rgba(80,70,45,.18)'}`,
       }}>
         <Box sx={{
           minHeight: { xs: 390, sm: 460 }, p: { xs: 2, sm: 4 }, color: '#fff', boxSizing: 'border-box',
@@ -278,7 +285,7 @@ export default function VersiculoDoDia() {
           </IconButton>
           <Typography sx={{ minWidth: 28, fontWeight: 800 }}>{interacoes.sharesCount}</Typography>
         </Box>
-        <Box sx={{ p: { xs: 2, sm: 4.5 }, color: '#171a2b' }}>
+        <Box sx={{ p: { xs: 2, sm: 4.5 }, color: 'inherit' }}>
           {comentario ? (
             <TextoComentario texto={comentario} />
           ) : preparandoComentario ? (

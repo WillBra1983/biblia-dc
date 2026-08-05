@@ -2,11 +2,9 @@ import { limparResumoLexicalParaExibicao, limparTextoStepBible, resumoLexicalPar
 import { textoBdbExibicao, textoCurtoLexicalPt, textoStepBibleDefPt, textoStepBibleGlossPt } from '../utils/strongTextoPt'
 import {
   iaGeminiChaveConfigurada,
-  mensagemErroChaveGeminiAusente,
-  obterChaveGeminiApi
+  mensagemErroChaveGeminiAusente
 } from '../utils/geminiApiKey'
-import { chamarGeminiViaProxy, geminiProxyAtivo } from './geminiProxyService'
-import { obterCabecalhosGeminiApi } from '../utils/geminiFetchHeaders'
+import { chamarGeminiViaProxy } from './geminiProxyService'
 import { buscarBdbHebraico, buscarOcorrenciasStrongHebraico, contarOcorrenciasStrongHebraico } from './otStrongService'
 import { buscarLexiconPtBr } from './lexiconPtBrService'
 import { buscarOcorrenciasStrongGrego, contarOcorrenciasStrongGrego } from './ntStrongProvaService'
@@ -694,53 +692,16 @@ function extrairFinishReasonGemini(data) {
  * @returns {Promise<{ ok: boolean, data?: object, status?: number, msg?: string, code?: string }>}
  */
 async function invocarGeminiApi(model, body) {
-  if (geminiProxyAtivo()) {
-    const proxy = await chamarGeminiViaProxy(model, body)
-    if (!proxy.ok) {
-      return {
-        ok: false,
-        status: proxy.status || 500,
-        msg: proxy.error || 'Falha no proxy de IA.',
-        code: proxy.code || 'PROXY'
-      }
-    }
-    return { ok: true, status: proxy.status || 200, data: proxy.data }
-  }
-
-  const apiKey = obterChaveGeminiApi()
-  if (!apiKey) {
+  const proxy = await chamarGeminiViaProxy(model, body)
+  if (!proxy.ok) {
     return {
       ok: false,
-      status: 0,
-      msg: mensagemErroChaveGeminiAusente(),
-      code: 'NO_KEY'
+      status: proxy.status || 500,
+      msg: proxy.error || 'Falha no proxy de IA.',
+      code: proxy.code || 'PROXY'
     }
   }
-
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-    model
-  )}:generateContent?key=${encodeURIComponent(apiKey)}`
-  const headers = await obterCabecalhosGeminiApi()
-
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body)
-    })
-    const data = await res.json().catch(() => ({}))
-    if (!res.ok) {
-      return {
-        ok: false,
-        status: res.status,
-        msg: data?.error?.message || res.statusText || 'Erro da API Gemini',
-        data
-      }
-    }
-    return { ok: true, status: res.status, data }
-  } catch (e) {
-    return { ok: false, status: 0, msg: e?.message || 'Falha de rede ao chamar a IA.', code: 'NETWORK' }
-  }
+  return { ok: true, status: proxy.status || 200, data: proxy.data }
 }
 
 async function chamarGeminiGenerateContent(model, body) {

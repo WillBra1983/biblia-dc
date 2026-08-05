@@ -34,6 +34,7 @@ import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { useZoomReset } from '../contexts/ZoomResetContext'
 import { getGlassCardStyles } from '../utils/glassCardStyles'
 import EditorialContentHeader from '../components/EditorialContentHeader'
+import EditorialPageSurface from '../components/EditorialPageSurface'
 import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 
 function mesmoId(a, b) {
@@ -451,7 +452,7 @@ export default function MaisDeDeus() {
             imagePosition="center 48%"
           />
         </Box>
-        <Paper elevation={3} sx={{ p: { xs: 1, sm: 3, md: 4 }, mb: 2, width: '100%', maxWidth: 880, mx: 'auto', boxSizing: 'border-box', fontFamily: ff }}>
+        <EditorialPageSurface sx={{ p: { xs: 1.5, sm: 3, md: 4 }, mb: 2, width: '100%', maxWidth: 880, mx: 'auto', fontFamily: ff }}>
           <Typography variant="body1" sx={{ fontStyle: 'italic', mb: 2, textAlign: textAlign || 'left' }}>
             <TextoComReferencias texto={item.texto} style={{ fontSize: `${fontSize}%`, lineHeight: lh }} />
           </Typography>
@@ -461,7 +462,7 @@ export default function MaisDeDeus() {
           <Box sx={{ mt: 2, textAlign: 'right' }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: 'primary.main' }}>{item.autor}</Typography>
           </Box>
-        </Paper>
+        </EditorialPageSurface>
       </Box>
     )
   }
@@ -781,9 +782,9 @@ export default function MaisDeDeus() {
             sx={{ mb: 2 }}
           />
 
-          <Paper elevation={2} sx={{ p: { xs: 1, sm: 3 }, mb: 2, mt: 0, bgcolor: 'background.default', width: '100%', maxWidth: '100%', boxSizing: 'border-box', fontFamily: ff, '&:hover': { bgcolor: 'background.default' } }}>
+          <EditorialPageSurface sx={{ p: { xs: 1.5, sm: 3 }, mb: 2, mt: 0, width: '100%', maxWidth: '100%', fontFamily: ff }}>
             {conteudo}
-          </Paper>
+          </EditorialPageSurface>
         </Box>
       </Container>
     </Box>

@@ -33,6 +33,7 @@ import { ensureUserForChatExport, pushPendingChatExport } from '../utils/chatExp
 import { avisarAsync } from '../utils/uiDialogs'
 import EditorialContentHeader from '../components/EditorialContentHeader'
 import EditorialProse from '../components/EditorialProse'
+import EditorialPageSurface from '../components/EditorialPageSurface'
 import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 
 export default function Devocional() {
@@ -255,18 +256,14 @@ export default function Devocional() {
 
               {/* Meditação */}
               {devocionalAtual.meditacao.map((meditacao, index) => (
-                <Card
+                <EditorialPageSurface
                   key={index}
-                  variant="outlined"
                   sx={{
                     mb: 2,
-                    borderRadius: 2,
-                    boxShadow: 'none',
-                    bgcolor: 'background.paper',
-                    borderColor: 'divider',
+                    px: { xs: 2, sm: 2.5 },
+                    py: { xs: 2, sm: 2.5 },
                   }}
                 >
-                  <CardContent sx={{ px: { xs: 2, sm: 2.5 }, py: { xs: 2, sm: 2.5 } }}>
                     <Typography variant="h6" gutterBottom sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
                       {meditacao.titulo}
                     </Typography>
@@ -292,8 +289,7 @@ export default function Devocional() {
                       Desafio:
                     </Typography>
                     <TextoComReferencias texto={meditacao.desafio} style={{ fontSize: `${fontSize}%`, lineHeight: lh }} />
-                  </CardContent>
-                </Card>
+                </EditorialPageSurface>
               ))}
               </Box>
             </Box>

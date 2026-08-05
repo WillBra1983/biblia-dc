@@ -100,8 +100,7 @@ if (info.includes('ITSAppUsesNonExemptEncryption')) {
 if (env.APPLE_TEAM_ID === 'BDAN6452VU') ok('.env: APPLE_TEAM_ID')
 else falta('.env: APPLE_TEAM_ID=BDAN6452VU')
 
-if (env.VITE_GEMINI_API_KEY_IOS?.startsWith('AIza')) ok('.env: VITE_GEMINI_API_KEY_IOS')
-else falta('.env: VITE_GEMINI_API_KEY_IOS (Gemini iOS)')
+ok('Gemini: chave protegida no servidor (Cloud Functions)')
 
 if (env.VITE_FIREBASE_API_KEY?.startsWith('AIza')) ok('.env: Firebase web (build CI)')
 else falta('.env: variáveis VITE_FIREBASE_*')

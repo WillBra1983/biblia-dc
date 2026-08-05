@@ -11,7 +11,6 @@ import NavigateBefore from '@mui/icons-material/NavigateBefore'
 import NavigateNext from '@mui/icons-material/NavigateNext'
 import TextoComReferencias from '../components/TextoComReferencias'
 import { confissaoFeData } from '../data/confissaoFe'
-import { useTheme } from '@mui/material'
 import { useApp } from '../contexts/AppContext'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
@@ -19,10 +18,10 @@ import CapitulosListaCards from '../components/CapitulosListaCards'
 import PageReadingShell from '../components/PageReadingShell'
 import { HISTORIA_CONFISSAO_WESTMINSTER } from '../data/historiasWestminster'
 import EditorialContentHeader from '../components/EditorialContentHeader'
+import EditorialPageSurface from '../components/EditorialPageSurface'
 import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 
 export default function Confissao() {
-  const theme = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
   const { fontSize, textAlign, fontFamily, lineHeight } = useApp()
@@ -204,13 +203,14 @@ export default function Confissao() {
           sx={{ mb: 2.5 }}
         />
 
+        <EditorialPageSurface>
         {capituloAtual.paragrafos.map((paragrafo) => (
           <Typography
             key={paragrafo.numero}
             component="p"
             sx={{
               mb: 2,
-              color: theme.palette.text.primary,
+              color: 'inherit',
               fontSize: `${fontSize}%`,
               textAlign: textAlign || 'left',
               fontFamily: ff,
@@ -224,6 +224,7 @@ export default function Confissao() {
             />
           </Typography>
         ))}
+        </EditorialPageSurface>
       </Box>
     </PageReadingShell>
   )

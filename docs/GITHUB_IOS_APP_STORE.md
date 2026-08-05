@@ -113,9 +113,6 @@ O `.env` **não vai** para o GitHub. Copie cada valor para **Repository secrets*
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | `.env` |
 | `VITE_FIREBASE_APP_ID` | `.env` |
 | `VITE_FIREBASE_VAPID_KEY` | `.env` (opcional mas recomendado) |
-| `VITE_GEMINI_API_KEY_WEB` | `.env` |
-| `VITE_GEMINI_API_KEY_ANDROID` | `.env` |
-| `VITE_GEMINI_API_KEY_IOS` | `.env` |
 
 Plist em base64:
 

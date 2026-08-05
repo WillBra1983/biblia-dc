@@ -1,15 +1,9 @@
 import { getFirebaseFunctions } from '../config/firebaseRuntime'
 import { isFirebaseConfigured } from '../config/firebaseEnv'
 
-/**
- * Em produção, a chave Gemini fica no servidor (Cloud Function).
- * Dev local: defina VITE_GEMINI_USE_PROXY=1 para testar o proxy ou use chave no .env.
- */
+/** A chave Gemini fica exclusivamente no servidor (Cloud Function). */
 export function geminiProxyAtivo() {
-  const v = String(import.meta.env.VITE_GEMINI_USE_PROXY ?? '').trim().toLowerCase()
-  if (v === '1' || v === 'true' || v === 'yes') return true
-  if (v === '0' || v === 'false' || v === 'no') return false
-  return import.meta.env.PROD === true
+  return true
 }
 
 export function geminiProxyConfigurado() {

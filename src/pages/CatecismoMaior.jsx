@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Typography,
   Box,
-  Paper,
   Divider,
   IconButton,
   Button
@@ -20,6 +19,7 @@ import CapitulosListaCards from '../components/CapitulosListaCards'
 import PageReadingShell from '../components/PageReadingShell'
 import { HISTORIA_CATECISMO_MAIOR } from '../data/historiasWestminster'
 import EditorialContentHeader from '../components/EditorialContentHeader'
+import EditorialPageSurface from '../components/EditorialPageSurface'
 import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 
 export default function CatecismoMaior() {
@@ -205,10 +205,8 @@ export default function CatecismoMaior() {
               <NavigateNext />
             </IconButton>
           </Box>
-          <Paper
-            elevation={2}
+          <EditorialPageSurface
             sx={{
-              bgcolor: 'background.paper',
               width: '100%',
               boxSizing: 'border-box',
               p: { xs: 2, sm: 3, md: 4 }
@@ -218,7 +216,7 @@ export default function CatecismoMaior() {
               variant="h6"
               gutterBottom
               sx={{
-                color: 'text.primary',
+                color: 'inherit',
                 fontSize: `${fontSize}%`,
                 textAlign: textAlign || 'left',
                 fontFamily: ff,
@@ -233,7 +231,7 @@ export default function CatecismoMaior() {
               sx={{ 
                 textAlign: textAlign || 'left',
                 mt: 2,
-                color: 'text.primary',
+                color: 'inherit',
                 fontFamily: ff,
                 lineHeight: lh,
               }}
@@ -247,7 +245,7 @@ export default function CatecismoMaior() {
                 <Typography 
                   variant="body2" 
                   sx={{
-                    color: 'text.primary',
+                    color: 'inherit',
                     textAlign: textAlign || 'left',
                     fontFamily: ff,
                     lineHeight: lh,
@@ -268,7 +266,7 @@ export default function CatecismoMaior() {
                 </Typography>
               </Box>
             )}
-          </Paper>
+          </EditorialPageSurface>
       </Box>
     </PageReadingShell>
   )

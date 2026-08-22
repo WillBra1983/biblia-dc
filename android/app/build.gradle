@@ -13,8 +13,8 @@ android {
         applicationId "com.bibliadc.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 32
-        versionName "1.3.2"
+        versionCode 33
+        versionName "1.3.3"
         // Android App Links: host canônico do site (sem www — www redireciona e não passa na verificação).
         manifestPlaceholders = [
             appLinkHost: "foundcine.com",

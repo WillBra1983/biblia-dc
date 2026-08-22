@@ -24,6 +24,9 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
         continue-on-error: true
 
+      - name: Validar conteudo do discipulado
+        run: npm run validate:discipulado
+
       - name: Build web (lowmem)
         run: npm run build:web:lowmem
         env:

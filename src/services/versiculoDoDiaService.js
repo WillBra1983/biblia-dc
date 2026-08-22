@@ -79,11 +79,14 @@ export async function obterVersiculoDoDiaPorData(data) {
 export async function obterComentarioDoDia(item) {
   const publicado = String(item?.comentario || '').trim()
   const estudoKey = String(item?.estudoKey || item?.chave || '').trim()
+  const estudoColecao = item?.estudoColecao === 'estudosCandidatos'
+    ? 'estudosCandidatos'
+    : 'estudosCurados'
   if (!estudoKey) return publicado
 
   try {
     const { db, dbApi } = await firebase()
-    const snap = await dbApi.get(dbApi.ref(db, `estudosCurados/${estudoKey}`))
+    const snap = await dbApi.get(dbApi.ref(db, `${estudoColecao}/${estudoKey}`))
     const atual = String(snap.child('texto').val() || '').trim()
     // A Biblia Comentada e a fonte atual. O registro diario conserva apenas
     // uma copia de contingencia para continuar abrindo durante falhas de rede.

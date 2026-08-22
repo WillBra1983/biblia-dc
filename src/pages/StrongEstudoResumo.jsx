@@ -454,7 +454,7 @@ export default function StrongEstudoResumo() {
         `?rid=${encodeURIComponent(rid)}`
       )
       const title = `Resumo lexical ${code}`
-      const text = `Acesse este conteúdo: ${url}`
+      const text = 'Acesse este conteúdo no Bíblia DC.'
       try {
         const opened = await openNativeShareSheet({ title, text, url })
         if (opened) return

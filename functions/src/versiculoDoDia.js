@@ -21,6 +21,7 @@ const FUNDOS = ['amanhecer', 'montanhas', 'ceu', 'rio-sereno', 'cachoeira', 'cru
 const LOCK_TTL_MS = 150 * 1000
 const WAIT_LIMIT_MS = 200 * 1000
 const GEMINI_TIMEOUT_MS = 120 * 1000
+const TONS_LEGADOS = ['', '~contemplativo', '~academico', '~conciso']
 let catalogoCache = null
 
 function dataNoFuso(date = new Date()) {
@@ -256,6 +257,55 @@ async function encontrarAdminUid() {
   return uid
 }
 
+async function encontrarEstudoPersistido(db, chaveBase) {
+  const chaves = TONS_LEGADOS.map((sufixo) => `${chaveBase}${sufixo}`)
+  const leituras = await Promise.all(chaves.flatMap((chave) => ([
+    db.ref(`estudosCurados/${chave}`).get(),
+    db.ref(`estudosCandidatos/${chave}`).get(),
+  ])))
+
+  for (let indice = 0; indice < chaves.length; indice += 1) {
+    const chave = chaves[indice]
+    let oficial = leituras[indice * 2]
+    const candidato = leituras[indice * 2 + 1]
+    const textoOficial = String(oficial.child('texto').val() || '').trim()
+    const textoCandidato = String(candidato.child('texto').val() || '').trim()
+
+    // Versoes anteriores do versiculo do dia podiam criar um oficial automatico
+    // por cima de um candidato que a Biblia comentada ja exibia. Recupere esse
+    // texto anterior sem tocar em qualquer curadoria manual do administrador.
+    if (
+      textoCandidato &&
+      textoOficial &&
+      oficial.child('curadoria').val() === 'admin-automatica' &&
+      Number(candidato.child('atualizadoEm').val() || 0) <= Number(oficial.child('atualizadoEm').val() || 0)
+    ) {
+      const oficialRef = db.ref(`estudosCurados/${chave}`)
+      const restauracao = await oficialRef.transaction((atual) => {
+        if (atual?.curadoria !== 'admin-automatica') return undefined
+        return {
+          ...atual,
+          ...candidato.val(),
+          versao: Number(atual?.versao || 0) + 1,
+          atualizadoEm: Date.now(),
+          curadoria: 'recuperada-de-candidato',
+          recuperadoEm: Date.now(),
+        }
+      })
+      if (restauracao.committed) oficial = restauracao.snapshot
+    }
+
+    const textoRestaurado = String(oficial.child('texto').val() || '').trim()
+    if (textoRestaurado) {
+      return { snapshot: oficial, chave, colecao: 'estudosCurados', texto: textoRestaurado }
+    }
+    if (textoCandidato) {
+      return { snapshot: candidato, chave, colecao: 'estudosCandidatos', texto: textoCandidato }
+    }
+  }
+  return null
+}
+
 async function gerarComentario(item, contexto) {
   const apiKey = String(GEMINI_API_KEY.value() || '').trim()
   if (!apiKey) throw new Error('Secret GEMINI_API_KEY nao configurado.')
@@ -303,35 +353,57 @@ async function publicarExplicacao(registro, data) {
   const db = admin.database()
   const catalogo = carregarCatalogo()
   const estudoRef = db.ref(`estudosCurados/${registro.chave}`)
-  let estudo = await estudoRef.get()
+  let persistido = await encontrarEstudoPersistido(db, registro.chave)
+  let estudo = persistido?.snapshot || await estudoRef.get()
   let geradoAgora = false
-  const textoExistente = String(estudo.child('texto').val() || '').trim()
-  const regenerarAutomatico = estudo.child('curadoria').val() === 'admin-automatica' && comentarioIncompleto(textoExistente)
-  if (!textoExistente || regenerarAutomatico) {
+  const textoExistente = String(persistido?.texto || estudo.child('texto').val() || '').trim()
+  // O versiculo do dia apenas reaproveita a Biblia comentada. Mesmo um texto
+  // curto ou gerado anteriormente e conteudo valido e nunca deve ser trocado
+  // automaticamente. Regeneracao continua sendo uma decisao explicita do admin.
+  if (!textoExistente) {
     const item = catalogo.find((valor) => chaveVersiculo(valor) === registro.chave)
     if (!item) throw new Error(`Versiculo ${registro.chave} nao encontrado no catalogo.`)
     const [texto, adminUid] = await Promise.all([
       gerarComentario(item, contextoDoVersiculo(catalogo, item)),
       encontrarAdminUid(),
     ])
-    await estudoRef.set({
-      texto,
-      referenciaCompacta: registro.referencia,
-      pericopeKey: null,
-      atualizadoEm: Date.now(),
-      autorUid: adminUid,
-      versao: Number(estudo.child('versao').val() || 0) + 1,
-      curadoria: 'admin-automatica',
-      promptFingerprint: PROMPT_FINGERPRINT,
-    })
-    estudo = await estudoRef.get()
-    geradoAgora = true
+    // A geracao leva alguns segundos. Nesse intervalo o admin pode salvar uma
+    // explicacao ou outro processo pode criar o estudo. A transacao grava apenas
+    // se o texto continuar vazio e preserva quaisquer metadados ja existentes.
+    // Confira novamente os candidatos imediatamente antes da gravacao, pois um
+    // usuario pode ter aprovado o estudo enquanto a IA preparava a resposta.
+    persistido = await encontrarEstudoPersistido(db, registro.chave)
+    if (persistido?.texto) {
+      estudo = persistido.snapshot
+    } else {
+      const gravacao = await estudoRef.transaction((atual) => {
+        const registroAtual = atual && typeof atual === 'object' ? atual : {}
+        if (String(registroAtual.texto || '').trim()) return undefined
+        return {
+          ...registroAtual,
+          texto,
+          referenciaCompacta: registro.referencia,
+          pericopeKey: registroAtual.pericopeKey || null,
+          atualizadoEm: Date.now(),
+          autorUid: adminUid,
+          versao: Number(registroAtual.versao || 0) + 1,
+          curadoria: 'admin-automatica',
+          promptFingerprint: PROMPT_FINGERPRINT,
+        }
+      })
+      estudo = gravacao.snapshot
+      geradoAgora = gravacao.committed
+    }
   }
+  const comentarioPublicado = String(estudo.child('texto').val() || '').trim()
+  if (!comentarioPublicado) throw new Error('A explicacao nao foi salva nem encontrada na Biblia comentada.')
   const pronto = {
     ...registro,
     status: 'pronto',
-    estudoKey: registro.chave,
-    comentario: String(estudo.child('texto').val() || '').trim(),
+    estudoKey: persistido?.chave || registro.chave,
+    estudoColecao: persistido?.colecao || 'estudosCurados',
+    comentarioChave: persistido?.chave || registro.chave,
+    comentario: comentarioPublicado,
     comentarioGeradoAutomaticamente: geradoAgora,
     publicadoEm: Date.now(),
   }
@@ -352,9 +424,10 @@ async function vincularEstudoCuradoExistente(registro, data) {
   const chave = String(registro?.chave || '').trim()
   if (!chave) return null
   const db = admin.database()
-  const estudo = await db.ref(`estudosCurados/${chave}`).get()
-  const texto = String(estudo.child('texto').val() || '').trim()
-  if (!texto) return null
+  const persistido = await encontrarEstudoPersistido(db, chave)
+  if (!persistido?.texto) return null
+  const estudo = persistido.snapshot
+  const texto = persistido.texto
 
   const refDia = db.ref(`versiculosDoDia/${data}`)
   const maisRecente = await refDia.get()
@@ -362,8 +435,9 @@ async function vincularEstudoCuradoExistente(registro, data) {
 
   const publicacao = {
     status: 'pronto',
-    estudoKey: chave,
-    comentarioChave: chave,
+    estudoKey: persistido.chave,
+    estudoColecao: persistido.colecao,
+    comentarioChave: persistido.chave,
     comentario: texto,
     comentarioGeradoAutomaticamente: estudo.child('curadoria').val() === 'admin-automatica',
     publicadoEm: Date.now(),
@@ -384,9 +458,9 @@ async function garantirExplicacao(data = dataNoFuso()) {
   const db = admin.database()
   const refDia = db.ref(`versiculosDoDia/${data}`)
   const registro = await selecionarVersiculoDoDia(data)
-  if (registro.status === 'pronto' && !comentarioIncompleto(registro.comentario)) return registro
   const jaCurado = await vincularEstudoCuradoExistente(registro, data)
   if (jaCurado) return jaCurado
+  if (registro.status === 'pronto' && !comentarioIncompleto(registro.comentario)) return registro
 
   const lockRef = db.ref(`versiculosDoDiaLocks/${data}/explicacao`)
   const dono = randomUUID()

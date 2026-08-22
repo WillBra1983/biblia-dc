@@ -251,11 +251,14 @@ export default function VersiculosCompartilhados() {
 
   const renderCartao = (item) => {
     const gostei = curtidos.has(item.id)
+    const abrirCartao = item.tipo === 'versiculo-do-dia'
+      ? () => navigate(`/versiculo-do-dia${item.data ? `?data=${encodeURIComponent(item.data)}` : ''}`)
+      : () => navigate(`/versiculos-compartilhados?item=${encodeURIComponent(item.id)}`)
     return (
       <Paper key={item.id} variant="outlined" sx={{ p: 0.75, minWidth: 0, overflow: 'hidden' }}>
         <CartaoImagem
           item={item}
-          onClick={item.tipo === 'versiculo-do-dia' ? () => navigate('/versiculo-do-dia') : undefined}
+          onClick={abrirCartao}
         />
         <Stack direction="row" alignItems="center" sx={{ minHeight: 44, mt: 0.5 }}>
           {item.publico !== false && <IconButton onClick={() => void curtir(item)} aria-label={gostei ? 'Remover curtida' : 'Curtir'} color={gostei ? 'error' : 'default'}>{gostei ? <FavoriteIcon /> : <FavoriteBorderIcon />}</IconButton>}
@@ -349,14 +352,14 @@ export default function VersiculosCompartilhados() {
             {versiculosPublicosOrdenados.length === 0 ? (
               <Typography color="text.secondary">Ainda não há outros versículos públicos no mural.</Typography>
             ) : (
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(3, minmax(0, 1fr))' }, gap: { xs: 1, sm: 2 } }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))' }, gap: { xs: 1.5, sm: 2 } }}>
                 {versiculosPublicosOrdenados.map(renderCartao)}
               </Box>
             )}
           </Paper>
         </Stack>
       ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(3, minmax(0, 1fr))' }, gap: { xs: 1, sm: 2 } }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))' }, gap: { xs: 1.5, sm: 2 } }}>
           {lista.map(renderCartao)}
         </Box>
       )}

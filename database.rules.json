@@ -61,8 +61,14 @@
           }
         },
         "profile": {
-          ".read": "auth != null",
-          ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true"
+          ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('admin').val() === true)",
+          ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+          "displayName": { ".read": "auth != null" },
+          "handle": { ".read": "auth != null" },
+          "photoURL": { ".read": "auth != null" },
+          "city": { ".read": "auth != null" },
+          "professionOrStudy": { ".read": "auth != null" },
+          "church": { ".read": "auth != null" }
         },
         "favorites": {
           ".read": "auth != null && auth.uid === $uid",
@@ -219,19 +225,39 @@
       }
     },
     "profileEmails": {
-      ".read": "auth != null",
       ".indexOn": [".key"],
       "$encodedEmail": {
-        ".read": "auth != null",
+        ".read": "auth != null && (!data.exists() || data.val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true)",
         ".write": "auth != null && auth.token.email_verified == true && (!data.exists() || data.val() === auth.uid) && (!newData.exists() || newData.val() === auth.uid)"
       }
     },
     "userSearch": {
-      ".read": "auth != null",
       "$uid": {
-        ".read": "auth != null",
+        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('admin').val() === true)",
         ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
         ".validate": "!newData.exists() || ((!newData.child('email').exists() || (newData.child('email').isString() && newData.child('email').val().length <= 320)) && (!newData.child('displayName').exists() || (newData.child('displayName').isString() && newData.child('displayName').val().length <= 200)) && (!newData.child('handle').exists() || (newData.child('handle').isString() && newData.child('handle').val().length <= 30)))"
+      }
+    },
+    "publicProfiles": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+        "displayName": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 120)" },
+        "handle": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
+        "photoURL": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2048)" },
+        "city": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 80)" },
+        "professionOrStudy": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 120)" },
+        "church": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 120)" },
+        "$other": { ".validate": false }
+      }
+    },
+    "publicDirectory": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid && auth.token.email_verified == true",
+        "displayName": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)" },
+        "handle": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)" },
+        "$other": { ".validate": false }
       }
     },
     "planoLeituraRanking": {

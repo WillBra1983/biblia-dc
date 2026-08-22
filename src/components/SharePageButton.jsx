@@ -18,7 +18,7 @@ export default function SharePageButton({ hidden = false }) {
 
   const url = getShareUrl(location)
   const title = typeof document !== 'undefined' ? document.title || 'Bíblia DC' : 'Bíblia DC'
-  const text = `Acesse este conteúdo: ${url}`
+  const text = 'Acesse este conteúdo no Bíblia DC.'
 
   const abrirMenu = async (anchor) => {
     try {

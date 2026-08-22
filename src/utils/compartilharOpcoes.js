@@ -40,8 +40,17 @@ export function abrirTelegram({ text, url } = {}) {
   if (!corpo || typeof window === 'undefined') return
   const u = String(url || '').trim()
   if (u) {
+    const texto = String(text || '').trim()
+    if (texto.includes(u)) {
+      window.open(
+        `https://t.me/share/url?text=${encodeURIComponent(corpo)}`,
+        '_blank',
+        'noopener,noreferrer'
+      )
+      return
+    }
     window.open(
-      `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(text || corpo)}`,
+      `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(texto || corpo)}`,
       '_blank',
       'noopener,noreferrer'
     )

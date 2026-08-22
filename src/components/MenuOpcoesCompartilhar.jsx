@@ -131,7 +131,9 @@ export default function MenuOpcoesCompartilhar({
 
   const shareNativo = async () => {
     concluirAcaoSincrona()
-    const opened = await compartilharNativo({ title, text: corpo || text, url })
+    // A folha nativa recebe texto e URL separadamente. `corpo` já contém a URL
+    // e faria alguns aplicativos mostrarem o mesmo link duas vezes.
+    const opened = await compartilharNativo({ title, text, url })
     if (opened) return
     if (corpo) {
       try {

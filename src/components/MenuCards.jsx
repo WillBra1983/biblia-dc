@@ -41,7 +41,7 @@ import { prefetchRota, prefetchRotasComuns } from '../utils/routePrefetch'
 import { urlFundoVersiculo, urlLogoApp } from '../utils/versiculoImagem'
 import { abrirVersiculoDoDia, linkPaginaVersiculoDoDia, obterVersiculoDoDia } from '../services/versiculoDoDiaService'
 import CompartilharVersiculoImagemDialog from './CompartilharVersiculoImagemDialog'
-import { alternarCurtida, obterCurtidasDoUsuario, obterDestaqueVersiculoDoDia, registrarCompartilhamentoVersiculoDoDia } from '../services/versiculosCompartilhadosService'
+import { alternarCurtida, assinarDestaqueVersiculoDoDia, obterCurtidasDoUsuario, registrarCompartilhamentoVersiculoDoDia } from '../services/versiculosCompartilhadosService'
 
 const ICON_BOX = 44
 const ICON_SIZE = 26
@@ -67,12 +67,26 @@ function VersiculoDoDiaMenu() {
   useEffect(() => {
     let ativo = true
     if (!item?.data) return () => { ativo = false }
-    obterDestaqueVersiculoDoDia(item.data)
-      .then((destaque) => ativo && setInteracoes({ likesCount: Number(destaque?.likesCount || 0), sharesCount: Number(destaque?.sharesCount || 0) }))
+    let unsubscribe = () => {}
+    assinarDestaqueVersiculoDoDia(
+      item.data,
+      (destaque) => ativo && setInteracoes({
+        likesCount: Number(destaque?.likesCount || 0),
+        sharesCount: Number(destaque?.sharesCount || 0),
+      }),
+      () => {}
+    )
+      .then((parar) => {
+        if (ativo) unsubscribe = parar
+        else parar?.()
+      })
       .catch(() => {})
     if (user?.uid) obterCurtidasDoUsuario(user.uid).then((ids) => ativo && setCurtido(ids.has(`versiculo-dia-${item.data}`))).catch(() => {})
     else setCurtido(false)
-    return () => { ativo = false }
+    return () => {
+      ativo = false
+      unsubscribe?.()
+    }
   }, [item?.data, user?.uid])
 
   async function curtir(event) {

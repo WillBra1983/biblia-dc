@@ -76,12 +76,27 @@ exports.sincronizarIndiceBuscaAdmin = onCall(
           if (email) payload.email = email.slice(0, 320)
           if (displayName) payload.displayName = displayName.slice(0, 200)
           if (handle) payload.handle = handle.slice(0, 30)
+          const publicPayload = {}
+          if (displayName) publicPayload.displayName = displayName.slice(0, 200)
+          if (handle) publicPayload.handle = handle.slice(0, 30)
+          const publicProfile = {}
+          for (const field of ['displayName', 'handle', 'photoURL', 'city', 'professionOrStudy', 'church']) {
+            if (typeof prof[field] === 'string') publicProfile[field] = prof[field]
+          }
 
           if (Object.keys(payload).length > 0) {
             await admin.database().ref(`userSearch/${u.uid}`).set(payload)
             indexados += 1
           } else {
             await admin.database().ref(`userSearch/${u.uid}`).remove().catch(() => {})
+          }
+          if (Object.keys(publicPayload).length > 0) {
+            await admin.database().ref(`publicDirectory/${u.uid}`).set(publicPayload)
+          } else {
+            await admin.database().ref(`publicDirectory/${u.uid}`).remove().catch(() => {})
+          }
+          if (Object.keys(publicProfile).length > 0) {
+            await admin.database().ref(`publicProfiles/${u.uid}`).set(publicProfile)
           }
 
           if (email.includes('@')) {

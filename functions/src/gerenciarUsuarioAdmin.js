@@ -71,6 +71,8 @@ async function limparIndicesBusca(uid) {
   }
 
   await db.ref(`userSearch/${uid}`).remove().catch(() => {})
+  await db.ref(`publicDirectory/${uid}`).remove().catch(() => {})
+  await db.ref(`publicProfiles/${uid}`).remove().catch(() => {})
 }
 
 exports.gerenciarUsuarioAdmin = onCall(

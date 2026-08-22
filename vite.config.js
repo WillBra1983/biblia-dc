@@ -34,7 +34,7 @@ export default defineConfig({
       workbox: {
         /** Predefinição Workbox 2 MiB — o bundle principal ultrapassa (ex.: ~2,17 MB). */
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,wasm}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,jpg,jpeg,webp,svg,woff2,wasm}'],
         // Limpa caches de versões antigas do SW pra liberar storage do usuário
         // (caso contrário acumula deploy após deploy).
         cleanupOutdatedCaches: true,

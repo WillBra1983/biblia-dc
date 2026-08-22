@@ -2,6 +2,20 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import TextoComReferencias from './TextoComReferencias'
 
+function camadasImagem(image) {
+  if (!image) return undefined
+
+  const principal = String(image)
+  const indiceMenuFundos = principal.indexOf('/menu-fundos/')
+  const alternativaRaiz = indiceMenuFundos >= 0 ? principal.slice(indiceMenuFundos) : ''
+
+  // O site roda sob /biblia/, enquanto os apps nativos usam a raiz. A segunda
+  // camada preserva a imagem em servidores antigos que ainda expõem os assets na raiz.
+  return alternativaRaiz && alternativaRaiz !== principal
+    ? `url("${principal}"), url("${alternativaRaiz}")`
+    : `url("${principal}")`
+}
+
 export default function EditorialContentHeader({
   title,
   subtitle,
@@ -23,7 +37,7 @@ export default function EditorialContentHeader({
         border: '1px solid',
         borderColor: 'divider',
         bgcolor: '#e8e5dc',
-        backgroundImage: image ? `url("${image}")` : undefined,
+        backgroundImage: camadasImagem(image),
         backgroundSize: 'cover',
         backgroundPosition: imagePosition,
         boxShadow: '0 6px 18px rgba(17, 51, 38, 0.1)',

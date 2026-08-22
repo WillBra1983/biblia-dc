@@ -25,6 +25,8 @@ async function limparIndicesBusca(uid, prof = {}) {
   const email = typeof prof.email === 'string' ? prof.email.trim() : ''
   if (email) updates[`profileEmails/${encodeEmailRtdbKey(email)}`] = null
   updates[`userSearch/${uid}`] = null
+  updates[`publicDirectory/${uid}`] = null
+  updates[`publicProfiles/${uid}`] = null
   if (Object.keys(updates).length) {
     await db.ref().update(updates).catch(() => {})
   }

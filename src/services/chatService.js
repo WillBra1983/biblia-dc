@@ -49,10 +49,6 @@ export function encodeEmailRtdbKey(email) {
   return e.replace(/\./g, ',')
 }
 
-export function decodeEmailRtdbKey(encoded) {
-  return String(encoded ?? '').replace(/,/g, '.')
-}
-
 /** Mesma ideia do filtro da caixa de entrada do chat (sem acentos, minúsculas). */
 export function normalizePeopleSearchTerm(raw) {
   return String(raw ?? '')
@@ -60,6 +56,45 @@ export function normalizePeopleSearchTerm(raw) {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .trim()
+}
+
+const PUBLIC_PROFILE_FIELDS = [
+  'displayName',
+  'handle',
+  'photoURL',
+  'city',
+  'professionOrStudy',
+  'church'
+]
+
+function publicProfilePayload(profile = {}) {
+  const payload = {}
+  for (const field of PUBLIC_PROFILE_FIELDS) {
+    if (typeof profile[field] === 'string') payload[field] = profile[field]
+  }
+  return payload
+}
+
+async function syncPublicProfile(uid, profile) {
+  const db = getFirebaseDatabase()
+  if (!db || !uid) return
+  await set(ref(db, `publicProfiles/${uid}`), publicProfilePayload(profile))
+}
+
+export async function fetchPublicProfile(uid) {
+  const db = getFirebaseDatabase()
+  if (!db || !uid) return null
+  const publicSnap = await get(ref(db, `publicProfiles/${uid}`))
+  if (publicSnap.exists()) return publicSnap.val() || null
+
+  const values = await Promise.all(
+    PUBLIC_PROFILE_FIELDS.map(async (field) => {
+      const snap = await get(ref(db, `users/${uid}/profile/${field}`))
+      return [field, snap.val()]
+    })
+  )
+  const profile = Object.fromEntries(values.filter(([, value]) => typeof value === 'string'))
+  return Object.keys(profile).length ? profile : null
 }
 
 function looksLikeEmailQuery(term) {
@@ -112,9 +147,13 @@ export async function lookupUidByEmail(emailRaw, { allowCloudFallback = true } =
 
   const key = encodeEmailRtdbKey(email)
   if (key) {
-    const snap = await get(ref(db, `profileEmails/${key}`))
-    const uid = snap.val()
-    if (typeof uid === 'string' && uid.length > 0) return uid
+    try {
+      const snap = await get(ref(db, `profileEmails/${key}`))
+      const uid = snap.val()
+      if (typeof uid === 'string' && uid.length > 0) return uid
+    } catch {
+      // O índice completo é privado; a Cloud Function resolve e-mails exatos.
+    }
   }
 
   if (!allowCloudFallback) return null
@@ -130,7 +169,6 @@ export async function lookupUidByEmail(emailRaw, { allowCloudFallback = true } =
     const res = await fn({ email })
     const uid = res.data?.uid
     if (typeof uid === 'string' && uid.length > 0) {
-      invalidateProfileEmailsCache()
       invalidateUserSearchCache()
       return uid
     }
@@ -172,7 +210,6 @@ export async function syncProfileEmailIndex(uid, email, previousEmail) {
   if (!committed) {
     throw new Error('Este e-mail já está associado a outra conta.')
   }
-  invalidateProfileEmailsCache()
 }
 
 /**
@@ -197,16 +234,28 @@ export async function syncUserSearchFromProfile(uid, profile) {
   if (displayName) payload.displayName = displayName.slice(0, 200)
   if (handle) payload.handle = handle
 
+  const publicPayload = {}
+  if (displayName) publicPayload.displayName = displayName.slice(0, 200)
+  if (handle) publicPayload.handle = handle
+
   if (!payload.email && !payload.displayName && !payload.handle) {
     try {
-      await remove(ref(db, `userSearch/${uid}`))
+      await Promise.all([
+        remove(ref(db, `userSearch/${uid}`)),
+        remove(ref(db, `publicDirectory/${uid}`))
+      ])
     } catch {
       /* ignore */
     }
     return
   }
 
-  await set(ref(db, `userSearch/${uid}`), payload)
+  await Promise.all([
+    set(ref(db, `userSearch/${uid}`), payload),
+    Object.keys(publicPayload).length
+      ? set(ref(db, `publicDirectory/${uid}`), publicPayload)
+      : remove(ref(db, `publicDirectory/${uid}`))
+  ])
 }
 
 /**
@@ -278,91 +327,18 @@ export async function searchHandlesByTerm(rawTerm, limit = 30) {
     .slice(0, Math.max(1, Math.min(200, Number(limit) || 30)))
 }
 
-let profileEmailsCache = { ts: 0, rows: [] }
-
-export function invalidateProfileEmailsCache() {
-  profileEmailsCache = { ts: 0, rows: [] }
-}
-
 /**
  * Busca e-mails no índice `profileEmails` por prefixo (útil ao digitar `joao@hot…`).
  */
-export async function searchEmailsByPrefix(rawPrefix, limit = 30) {
-  const db = getFirebaseDatabase()
-  if (!db) return []
-  const norm = normalizeEmailForSearch(String(rawPrefix ?? '').replace(/^@+/, ''))
-  if (norm.length < 2) return []
-
-  const prefixKey = encodeEmailRtdbKey(norm)
-  if (!prefixKey) return []
-
-  try {
-    const qref = query(
-      ref(db, 'profileEmails'),
-      orderByKey(),
-      startAt(prefixKey),
-      endAt(`${prefixKey}\uf8ff`),
-      limitToFirst(Math.min(50, limit))
-    )
-    const snap = await get(qref)
-    const v = snap.val()
-    if (!v || typeof v !== 'object') return []
-    return Object.entries(v).map(([encoded, uid]) => ({
-      email: decodeEmailRtdbKey(encoded),
-      uid: typeof uid === 'string' ? uid : String(uid ?? ''),
-    }))
-  } catch {
-    return []
-  }
-}
-
 /**
  * Busca e-mails por trecho (contains) — ex.: "hotmail" ou parte do nome antes do @.
  */
-export async function searchEmailsByTerm(rawTerm, limit = 30) {
-  const db = getFirebaseDatabase()
-  if (!db) return []
-  const term = normalizeEmailForSearch(String(rawTerm ?? '').replace(/^@+/, ''))
-  if (term.length < 2) return []
-
-  const now = Date.now()
-  const ttlMs = 2 * 60 * 1000
-  let rows = profileEmailsCache.rows
-
-  if (!rows.length || now - profileEmailsCache.ts > ttlMs) {
-    try {
-      const snap = await get(ref(db, 'profileEmails'))
-      const v = snap.val()
-      rows =
-        !v || typeof v !== 'object'
-          ? []
-          : Object.entries(v).map(([encoded, uid]) => ({
-              email: decodeEmailRtdbKey(encoded),
-              uid: typeof uid === 'string' ? uid : String(uid ?? ''),
-            }))
-      profileEmailsCache = { ts: now, rows }
-    } catch {
-      rows = []
-    }
-  }
-
-  return rows
-    .filter((r) => r.uid && r.email.includes(term))
-    .sort((a, b) => {
-      const ia = a.email.indexOf(term)
-      const ib = b.email.indexOf(term)
-      if (ia !== ib) return ia - ib
-      return a.email.localeCompare(b.email, 'pt-BR')
-    })
-    .slice(0, Math.max(1, Math.min(200, Number(limit) || 30)))
-}
-
 let userSearchCache = { ts: 0, rows: [] }
 
 function directoryRowMatchesTerm(row, termNorm) {
   if (!termNorm || !row?.uid) return false
   const hay = normalizePeopleSearchTerm(
-    [row.email, row.displayName, row.handle].filter(Boolean).join(' ')
+    [row.displayName, row.handle].filter(Boolean).join(' ')
   )
   return hay.includes(termNorm)
 }
@@ -381,14 +357,13 @@ export async function searchUserDirectoryByTerm(rawTerm, limit = 30) {
   let rows = userSearchCache.rows
 
   if (!rows.length || now - userSearchCache.ts > ttlMs) {
-    const snap = await get(ref(db, 'userSearch'))
+    const snap = await get(ref(db, 'publicDirectory'))
     const v = snap.val()
     rows =
       !v || typeof v !== 'object'
         ? []
         : Object.entries(v).map(([uid, data]) => ({
             uid,
-            email: normalizeEmailForSearch(data?.email),
             displayName:
               typeof data?.displayName === 'string' ? normalizePeopleSearchTerm(data.displayName) : '',
             handle: typeof data?.handle === 'string' ? data.handle : '',
@@ -400,7 +375,7 @@ export async function searchUserDirectoryByTerm(rawTerm, limit = 30) {
     .filter((r) => directoryRowMatchesTerm(r, termNorm))
     .sort((a, b) => {
       const score = (row) => {
-        const fields = [row.email, row.displayName, row.handle]
+        const fields = [row.displayName, row.handle]
         let best = 999
         for (const f of fields) {
           if (!f) continue
@@ -412,8 +387,8 @@ export async function searchUserDirectoryByTerm(rawTerm, limit = 30) {
       const sa = score(a)
       const sb = score(b)
       if (sa !== sb) return sa - sb
-      return (a.displayName || a.email || a.handle || '').localeCompare(
-        b.displayName || b.email || b.handle || '',
+      return (a.displayName || a.handle || '').localeCompare(
+        b.displayName || b.handle || '',
         'pt-BR'
       )
     })
@@ -451,16 +426,11 @@ export async function searchPeopleByTerm(rawTerm, limit = 30) {
 
   const cap = Math.max(1, Math.min(200, Number(limit) || 30))
 
-  const [handleRows, handlePrefixRows, emailPrefixRows, emailContainsRows, directoryRows] =
+  const [handleRows, handlePrefixRows, directoryRows] =
     await Promise.all([
       buscaParcialSegura(() => searchHandlesByTerm(term, cap), 'apelidos'),
       buscaParcialSegura(() => searchHandlesByPrefix(term, cap), 'apelidos-prefixo'),
-      buscaParcialSegura(
-        () => (termNorm.length >= 2 ? searchEmailsByPrefix(term, cap) : Promise.resolve([])),
-        'email-prefixo'
-      ),
-      buscaParcialSegura(() => searchEmailsByTerm(term, cap), 'email-trecho'),
-      buscaParcialSegura(() => searchUserDirectoryByTerm(term, cap), 'userSearch'),
+      buscaParcialSegura(() => searchUserDirectoryByTerm(term, cap), 'diretorio-publico'),
     ])
 
   const byUid = new Map()
@@ -487,8 +457,6 @@ export async function searchPeopleByTerm(rawTerm, limit = 30) {
 
   for (const row of handleRows) addHandle(row)
   for (const row of handlePrefixRows) addHandle(row)
-  for (const row of emailPrefixRows) addEmail(row)
-  for (const row of emailContainsRows) addEmail(row)
   for (const row of directoryRows) {
     addPerson({
       uid: row.uid,
@@ -575,21 +543,28 @@ export function subscribeUserProfile(uid, callback) {
 export async function fetchUserProfile(uid) {
   const db = getFirebaseDatabase()
   if (!db || !uid) return null
-  const snap = await get(ref(db, `users/${uid}/profile`))
-  return snap.val() || null
+  try {
+    const snap = await get(ref(db, `users/${uid}/profile`))
+    return snap.val() || null
+  } catch {
+    return fetchPublicProfile(uid)
+  }
 }
 
 /** Atualizações em tempo real do perfil público de outro usuário (foto, e-mail, etc.). */
 export function subscribePeerPublicProfile(uid, callback) {
   const db = getFirebaseDatabase()
   if (!db || !uid) return () => {}
-  const r = ref(db, `users/${uid}/profile`)
+  const r = ref(db, `publicProfiles/${uid}`)
   return onValue(
     r,
     (snap) => {
       const v = snap.val() || {}
-      if (v && snapshotEhEcoDoMesmoCliente(v.clientId)) return
-      callback(v)
+      if (snap.exists()) {
+        callback(v)
+        return
+      }
+      fetchPublicProfile(uid).then((profile) => callback(profile || {})).catch(() => callback({}))
     },
     () => {
       callback({})
@@ -882,7 +857,7 @@ export async function sendChatMessage({
   const [unreadSnap, myRowSnap, peerProfSnap] = await Promise.all([
     get(ref(db, `chats/${chatId}/unread/${peerUid}`)),
     get(ref(db, `users/${myUid}/chatList/${chatId}`)),
-    get(ref(db, `users/${peerUid}/profile`)).catch(() => ({ val: () => null }))
+    fetchPublicProfile(peerUid).then((profile) => ({ val: () => profile })).catch(() => ({ val: () => null }))
   ])
   const prevU =
     typeof unreadSnap.val() === 'number' && !Number.isNaN(unreadSnap.val()) ? unreadSnap.val() : 0
@@ -1106,6 +1081,7 @@ export async function ensurePublicProfileMirrorAuth(uid, { email, photoURL, disp
   if (Object.keys(updates).length === 0) {
     if (em) await syncProfileEmailIndex(uid, em, cur.email).catch(() => {})
     await syncUserSearchFromProfile(uid, cur).catch(() => {})
+    await syncPublicProfile(uid, cur).catch(() => {})
     invalidateUserSearchCache()
     return
   }
@@ -1113,6 +1089,7 @@ export async function ensurePublicProfileMirrorAuth(uid, { email, photoURL, disp
   updates.clientId = getRtdbClientId()
   await update(ref(db, `users/${uid}/profile`), updates)
   const merged = { ...cur, ...updates }
+  await syncPublicProfile(uid, merged).catch(() => {})
   const finalEmail =
     typeof updates.email === 'string' && updates.email.trim()
       ? updates.email.trim()
@@ -1271,7 +1248,7 @@ export async function writeUserProfilePublic(uid, {
   const prevSnap = await get(ref(db, `users/${uid}/profile`))
   const prevEmail = prevSnap.val()?.email
   const emailStr = email != null ? String(email).trim().slice(0, 320) : ''
-  await set(ref(db, `users/${uid}/profile`), {
+  const fullProfile = {
     displayName: displayName || '',
     email: emailStr,
     handle: handle != null ? String(handle) : '',
@@ -1282,7 +1259,9 @@ export async function writeUserProfilePublic(uid, {
     church: churchS,
     updatedAt: serverTimestamp(),
     clientId: getRtdbClientId()
-  })
+  }
+  await set(ref(db, `users/${uid}/profile`), fullProfile)
+  await syncPublicProfile(uid, fullProfile)
   if (emailStr) {
     await syncProfileEmailIndex(uid, emailStr, prevEmail).catch(() => {})
   }

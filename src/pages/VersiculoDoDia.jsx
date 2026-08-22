@@ -11,7 +11,7 @@ import CompartilharVersiculoImagemDialog from '../components/CompartilharVersicu
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { FUNDOS_VERSICULO, urlFundoVersiculo, urlLogoApp } from '../utils/versiculoImagem'
 import { abrirVersiculoDoDia, linkPaginaVersiculoDoDia, obterComentarioDoDia, obterVersiculoDoDia, obterVersiculoDoDiaPorData, substituirVersiculoDoDia } from '../services/versiculoDoDiaService'
-import { alternarCurtida, obterCurtidasDoUsuario, obterDestaqueVersiculoDoDia, registrarCompartilhamentoVersiculoDoDia } from '../services/versiculosCompartilhadosService'
+import { alternarCurtida, assinarDestaqueVersiculoDoDia, obterCurtidasDoUsuario, registrarCompartilhamentoVersiculoDoDia } from '../services/versiculosCompartilhadosService'
 import { useEhAdmin } from '../hooks/useEhAdmin'
 import TextoComReferencias from '../components/TextoComReferencias'
 
@@ -170,13 +170,22 @@ export default function VersiculoDoDia() {
   useEffect(() => {
     let ativo = true
     if (!item?.data) return () => { ativo = false }
-    obterDestaqueVersiculoDoDia(item.data)
-      .then((destaque) => {
-        if (!ativo) return
-        setInteracoes({
-          likesCount: Number(destaque?.likesCount || 0),
-          sharesCount: Number(destaque?.sharesCount || 0),
-        })
+    let unsubscribe = () => {}
+    assinarDestaqueVersiculoDoDia(
+      item.data,
+      (destaque) => {
+        if (ativo) {
+          setInteracoes({
+            likesCount: Number(destaque?.likesCount || 0),
+            sharesCount: Number(destaque?.sharesCount || 0),
+          })
+        }
+      },
+      () => {}
+    )
+      .then((parar) => {
+        if (ativo) unsubscribe = parar
+        else parar?.()
       })
       .catch(() => {})
     if (user?.uid) {
@@ -186,7 +195,10 @@ export default function VersiculoDoDia() {
     } else {
       setCurtido(false)
     }
-    return () => { ativo = false }
+    return () => {
+      ativo = false
+      unsubscribe?.()
+    }
   }, [item?.data, user?.uid])
 
   const curtirVersiculo = useCallback(async () => {

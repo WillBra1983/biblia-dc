@@ -47,7 +47,7 @@ foreach ($n in $names) {
   }
 }
 [void]$sb.AppendLine('')
-[void]$sb.AppendLine('KEYCHAIN_PASSWORD = invente uma senha qualquer (ex: BibliaDC2026!)')
+[void]$sb.AppendLine('KEYCHAIN_PASSWORD = invente uma senha exclusiva para o chaveiro temporario')
 [void]$sb.AppendLine('')
 [void]$sb.AppendLine('APPSTORE_ISSUER_ID = (App Store Connect - Usuarios e acesso - Integracoes - Chaves)')
 [void]$sb.AppendLine('APPSTORE_API_KEY_ID = ')

@@ -34,6 +34,19 @@ export async function obterDestaqueVersiculoDoDia(data) {
   return item.exists() ? { id: `versiculo-dia-${chave}`, ...item.val() } : null
 }
 
+export async function assinarDestaqueVersiculoDoDia(data, callback, onError) {
+  await loadFirebaseModules()
+  const db = getFirebaseDatabase()
+  const chave = String(data || '').trim()
+  if (!db || !/^\d{4}-\d{2}-\d{2}$/.test(chave)) return () => {}
+  const postId = `versiculo-dia-${chave}`
+  return onValue(
+    ref(db, `versiculosCompartilhadosPublicos/${postId}`),
+    (snap) => callback(snap.exists() ? { id: postId, ...snap.val() } : null),
+    onError
+  )
+}
+
 async function contexto(uid) {
   await loadFirebaseModules()
   const db = getFirebaseDatabase()

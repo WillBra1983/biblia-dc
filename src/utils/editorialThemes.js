@@ -1,11 +1,17 @@
+const BASE_PUBLICA = String(import.meta.env.BASE_URL || '/').replace(/\/+$/, '')
+
+export function urlEditorialPublica(arquivo) {
+  return `${BASE_PUBLICA}/${String(arquivo || '').replace(/^\/+/, '')}`
+}
+
 export const EDITORIAL_IMAGES = Object.freeze({
-  biblia: '/menu-fundos/biblia.webp',
-  discipulado: '/menu-fundos/discipulado.webp',
-  estudosCompartilhados: '/menu-fundos/estudos-compartilhados.webp',
-  bibliaComentada: '/menu-fundos/biblia-comentada.webp',
-  devocional: '/menu-fundos/devocional.webp',
-  westminster: '/menu-fundos/westminster-abbey.webp',
-  maisDeDeus: '/menu-fundos/mais-de-deus.webp',
+  biblia: urlEditorialPublica('menu-fundos/biblia.webp'),
+  discipulado: urlEditorialPublica('menu-fundos/discipulado.webp'),
+  estudosCompartilhados: urlEditorialPublica('menu-fundos/estudos-compartilhados.webp'),
+  bibliaComentada: urlEditorialPublica('menu-fundos/biblia-comentada.webp'),
+  devocional: urlEditorialPublica('menu-fundos/devocional.webp'),
+  westminster: urlEditorialPublica('menu-fundos/westminster-abbey.webp'),
+  maisDeDeus: urlEditorialPublica('menu-fundos/mais-de-deus.webp'),
 })
 
 const DISCIPULADO_POR_TEMA = Object.freeze({

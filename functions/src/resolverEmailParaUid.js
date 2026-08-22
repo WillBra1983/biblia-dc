@@ -45,6 +45,12 @@ async function upsertUserSearch(uid, { email, displayName, handle }) {
   if (h) payload.handle = h.slice(0, 30)
   if (!Object.keys(payload).length) return
   await admin.database().ref(`userSearch/${uid}`).set(payload)
+  const publicPayload = {}
+  if (dn) publicPayload.displayName = dn.slice(0, 200)
+  if (h) publicPayload.handle = h.slice(0, 30)
+  if (Object.keys(publicPayload).length) {
+    await admin.database().ref(`publicDirectory/${uid}`).set(publicPayload)
+  }
 }
 
 exports.resolverEmailParaUid = onCall(

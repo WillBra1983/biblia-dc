@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   AppBar,
@@ -18,6 +18,7 @@ import BookIcon from '@mui/icons-material/Book'
 import SchoolIcon from '@mui/icons-material/School'
 import LyricsIcon from '@mui/icons-material/Lyrics'
 import PianoIcon from '@mui/icons-material/Piano'
+import QueueMusicIcon from '@mui/icons-material/QueueMusic'
 import ArticleIcon from '@mui/icons-material/Article'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
@@ -41,6 +42,7 @@ function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [hinarioOpen, setHinarioOpen] = useState(false)
   const navigate = useNavigate()
+  const hinarioItemRef = useRef(null)
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.pathname.startsWith('/hinario')) {
@@ -89,9 +91,9 @@ function Navbar() {
               <ListItemText primary={item.text} />
             </ListItem>
           ))}
-          <ListItem button onClick={() => setHinarioOpen(!hinarioOpen)}>
+          <ListItem ref={hinarioItemRef} button onClick={() => setHinarioOpen(!hinarioOpen)} sx={{ scrollMarginTop: 8 }}>
             <ListItemIcon><MusicNoteIcon /></ListItemIcon>
-            <ListItemText primary="Hinário Novo Cântico" />
+            <ListItemText primary="Cânticos" />
             <ExpandMore
               sx={{
                 transform: hinarioOpen ? 'rotate(180deg)' : 'none',
@@ -99,15 +101,24 @@ function Navbar() {
               }}
             />
           </ListItem>
-          <Collapse in={hinarioOpen} timeout="auto" unmountOnExit>
+          <Collapse
+            in={hinarioOpen}
+            timeout="auto"
+            unmountOnExit
+            onEntered={() => hinarioItemRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          >
             <List component="div" disablePadding>
               <ListItem button sx={{ pl: 4 }} onClick={() => handleNavigation('/hinario/letra')}>
                 <ListItemIcon><LyricsIcon /></ListItemIcon>
-                <ListItemText primary="Letra" />
+                <ListItemText primary="Hinos" secondary="Letra e cifras" />
               </ListItem>
-              <ListItem button sx={{ pl: 4 }} onClick={() => handleNavigation('/hinario/cifras')}>
+              <ListItem button sx={{ pl: 4 }} onClick={() => handleNavigation('/hinario/salmos')}>
+                <ListItemIcon><QueueMusicIcon /></ListItemIcon>
+                <ListItemText primary="Salmos" secondary="Comissão Brasileira de Salmodia" />
+              </ListItem>
+              <ListItem button sx={{ pl: 4 }} onClick={() => handleNavigation('/hinario/outras-cancoes')}>
                 <ListItemIcon><PianoIcon /></ListItemIcon>
-                <ListItemText primary="Cifras" />
+                <ListItemText primary="Outras canções" secondary="Cifras coladas" />
               </ListItem>
             </List>
           </Collapse>

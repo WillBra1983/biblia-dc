@@ -38,6 +38,7 @@ const StrongEstudoResumo = lazy(() => import('./pages/StrongEstudoResumo'))
 const StrongEstudoOcorrencias = lazy(() => import('./pages/StrongEstudoOcorrencias'))
 const Discipulado = lazy(() => import('./pages/Discipulado'))
 const Hinario = lazy(() => import('./pages/Hinario'))
+const Canticos = lazy(() => import('./pages/Canticos'))
 const HinarioApresentacao = lazy(() => import('./pages/HinarioApresentacao'))
 const BibliaApresentacao = lazy(() => import('./pages/BibliaApresentacao'))
 const Confissao = lazy(() => import('./pages/Confissao'))
@@ -201,8 +202,11 @@ const appRouteTree = createRoutesFromElements(
     <Route path="discipulado" element={<Discipulado />} />
     <Route path="discipulado/:temaId" element={<Discipulado />} />
     <Route path="discipulado/:temaId/:estudoId" element={<Discipulado />} />
-    <Route path="hinario/letra" element={<Hinario />} />
-    <Route path="hinario/cifras" element={<Hinario />} />
+    <Route path="hinario/letra" element={<Hinario key="letra" />} />
+    <Route path="hinario/cifras" element={<Hinario key="cifras" />} />
+    <Route path="hinario/salmos" element={<Canticos />} />
+    <Route path="hinario/outras-cancoes" element={<Canticos key="outras-cancoes" />} />
+    <Route path="hinario/canticos" element={<Navigate to="/hinario/salmos" replace />} />
     <Route
       path="hinario/apresentacao"
       element={

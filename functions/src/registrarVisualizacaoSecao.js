@@ -89,11 +89,21 @@ exports.registrarVisualizacaoSecao = onCall(
     const dia = dataHojeBr()
     const refTotal = db.ref(`adminMetrics/sectionViews/total/${sectionKey}`)
     const refDaily = db.ref(`adminMetrics/sectionViews/daily/${dia}/${sectionKey}`)
+    const refUserDaily = db.ref(`adminMetrics/userAccess/daily/${dia}/${uid}`)
+    const agora = Date.now()
 
     try {
       await Promise.all([
         refTotal.transaction((c) => (typeof c === 'number' && c >= 0 ? c : 0) + 1),
         refDaily.transaction((c) => (typeof c === 'number' && c >= 0 ? c : 0) + 1),
+        refUserDaily.transaction((atual) => {
+          const anterior = atual && typeof atual === 'object' ? atual : {}
+          return {
+            firstAccessAt:
+              typeof anterior.firstAccessAt === 'number' ? anterior.firstAccessAt : agora,
+            lastAccessAt: agora,
+          }
+        }),
       ])
       logger.info('Visualização secção', { uid, sectionKey, dia })
       return { ok: true }

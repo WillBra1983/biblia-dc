@@ -21,6 +21,8 @@ import LibraryMusic from '@mui/icons-material/LibraryMusic'
 import SearchIcon from '@mui/icons-material/Search'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import Close from '@mui/icons-material/Close'
+import Fullscreen from '@mui/icons-material/Fullscreen'
+import FullscreenExit from '@mui/icons-material/FullscreenExit'
 import Slideshow from '@mui/icons-material/Slideshow'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { hinarioService } from '../services/hinarioService'
@@ -33,6 +35,7 @@ import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { formatarNotasRodapeHinario } from '../utils/hinarioNotasFormat'
 import { usePodeUsarModoApresentacao } from '../utils/modoApresentacaoDispositivo'
+import { useLeituraTelaCheia } from '../hooks/useLeituraTelaCheia'
 
 export default function Hinario() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -59,6 +62,7 @@ export default function Hinario() {
   const lh = readingLineHeightToCss(lineHeight)
   const ff = resolveFontFamily(fontFamily)
   const apresentacaoNoComputador = usePodeUsarModoApresentacao()
+  const { telaCheia, entrarTelaCheia, sairTelaCheia } = useLeituraTelaCheia()
   const sxTextoLeitura = {
     fontSize: `${fontSize}%`,
     lineHeight: lh,
@@ -290,7 +294,7 @@ export default function Hinario() {
       {/* Ações principais do hinário */}
       <Box
         sx={{
-          display: 'flex',
+          display: telaCheia ? 'none' : 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           px: 1,
@@ -309,6 +313,18 @@ export default function Hinario() {
         >
           Início
         </Button>
+        <ToggleButtonGroup
+          exclusive
+          size="small"
+          value={modoCifras ? 'cifras' : 'letra'}
+          onChange={(_, value) => {
+            if (value) navigate(value === 'cifras' ? '/hinario/cifras' : '/hinario/letra')
+          }}
+          aria-label="Escolher letra ou cifras do hinário"
+        >
+          <ToggleButton value="letra" aria-label="Ver letra">Letra</ToggleButton>
+          <ToggleButton value="cifras" aria-label="Ver cifras">Cifras</ToggleButton>
+        </ToggleButtonGroup>
         <Button
           color="primary"
           onClick={() => setMenuAberto(true)}
@@ -474,6 +490,9 @@ export default function Hinario() {
               >
                 {hinoAtual.numero}. {hinoAtual.titulo}
               </Typography>
+              <IconButton size="small" color="primary" onClick={telaCheia ? sairTelaCheia : entrarTelaCheia} aria-label={telaCheia ? 'Sair da tela cheia' : 'Abrir em tela cheia'}>
+                {telaCheia ? <FullscreenExit /> : <Fullscreen />}
+              </IconButton>
             </Stack>
           ) : (
             <Box
@@ -502,17 +521,16 @@ export default function Hinario() {
               >
                 {hinoAtual.numero}. {hinoAtual.titulo}
               </Typography>
-              {apresentacaoNoComputador ? (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<Slideshow />}
-                  onClick={abrirModoApresentacao}
-                  sx={{ gridColumn: 3, justifySelf: 'end', flexShrink: 0 }}
-                >
-                  Apresentação
-                </Button>
-              ) : null}
+              <Stack direction="row" spacing={0.5} sx={{ gridColumn: 3, justifySelf: 'end', flexShrink: 0 }}>
+                {apresentacaoNoComputador && !telaCheia ? (
+                  <Button size="small" variant="outlined" startIcon={<Slideshow />} onClick={abrirModoApresentacao}>
+                    Apresentação
+                  </Button>
+                ) : null}
+                <IconButton size="small" color="primary" onClick={telaCheia ? sairTelaCheia : entrarTelaCheia} aria-label={telaCheia ? 'Sair da tela cheia' : 'Abrir em tela cheia'}>
+                  {telaCheia ? <FullscreenExit /> : <Fullscreen />}
+                </IconButton>
+              </Stack>
             </Box>
           )}
 

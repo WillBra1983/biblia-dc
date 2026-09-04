@@ -4,6 +4,7 @@ import BookIcon from '@mui/icons-material/Book'
 import SchoolIcon from '@mui/icons-material/School'
 import HinarioLetraIcon from '@mui/icons-material/Lyrics'
 import HinarioCifrasIcon from '@mui/icons-material/Piano'
+import CanticosIcon from '@mui/icons-material/QueueMusic'
 import ArticleIcon from '@mui/icons-material/Article'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import DevotionalIcon from '@mui/icons-material/AutoStories'
@@ -33,7 +34,7 @@ const menuItems = [
     path: '/discipulado'
   },
   {
-    title: 'Hinário Novo Cântico',
+    title: 'Cânticos',
     icon: <HinarioPaiIcon />,
     description: 'Letra ou cifras',
     path: null,
@@ -132,17 +133,27 @@ export default function NavigationBar() {
                   selected={currentPath === '/hinario/letra'}
                 >
                   <ListItemIcon><HinarioLetraIcon fontSize="small" /></ListItemIcon>
-                  <ListItemText primary="Letra" />
+                  <ListItemText primary="Hinos" secondary="Letra e cifras" />
                 </MenuItem>
                 <MenuItem
                   onClick={() => {
-                    navigate('/hinario/cifras')
+                    navigate('/hinario/salmos')
                     setHinarioAnchor(null)
                   }}
-                  selected={currentPath === '/hinario/cifras'}
+                  selected={currentPath === '/hinario/salmos'}
+                >
+                  <ListItemIcon><CanticosIcon fontSize="small" /></ListItemIcon>
+                  <ListItemText primary="Salmos" secondary="Comissão Brasileira de Salmodia" />
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    navigate('/hinario/outras-cancoes')
+                    setHinarioAnchor(null)
+                  }}
+                  selected={currentPath === '/hinario/outras-cancoes'}
                 >
                   <ListItemIcon><HinarioCifrasIcon fontSize="small" /></ListItemIcon>
-                  <ListItemText primary="Cifras" />
+                  <ListItemText primary="Outras canções" secondary="Cifras coladas" />
                 </MenuItem>
               </Menu>
             </Paper>

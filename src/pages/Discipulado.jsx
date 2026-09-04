@@ -203,6 +203,7 @@ export default function Discipulado() {
   const [temaSelecionado, setTemaSelecionado] = useState(() => parseTemaIdParam(temaId))
   const [estudoSelecionado, setEstudoSelecionado] = useState(() => parseEstudoIdParam(estudoId))
   const [moduloExpandido, setModuloExpandido] = useState(() => parseModuloMenuParam(location.search))
+  const moduloCardRefs = useRef(new Map())
   const [showReiniciarDialog, setShowReiniciarDialog] = useState(false)
   const [showDiscipuladoInfo, setShowDiscipuladoInfo] = useState(false)
 
@@ -210,6 +211,27 @@ export default function Discipulado() {
     if (temaId || parseLicaoMenuParam(location.search)) return
     setModuloExpandido(parseModuloMenuParam(location.search))
   }, [location.search, temaId])
+
+  useLayoutEffect(() => {
+    if (moduloExpandido == null) return undefined
+    let segundoFrame = 0
+    const primeiroFrame = window.requestAnimationFrame(() => {
+      segundoFrame = window.requestAnimationFrame(() => {
+        const card = moduloCardRefs.current.get(moduloExpandido)
+        if (!card) return
+        const reduzirMovimento = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+        card.scrollIntoView({
+          behavior: reduzirMovimento ? 'auto' : 'smooth',
+          block: 'start',
+          inline: 'nearest',
+        })
+      })
+    })
+    return () => {
+      window.cancelAnimationFrame(primeiroFrame)
+      if (segundoFrame) window.cancelAnimationFrame(segundoFrame)
+    }
+  }, [moduloExpandido])
 
   // Sincroniza estado com a URL (permite botão voltar do dispositivo e links diretos)
   // estudoId da URL é string - normaliza para number quando for numérico (ids no data são numbers)
@@ -1212,6 +1234,10 @@ export default function Discipulado() {
               return (
                 <Box key={tema.id} sx={{ display: 'contents' }}>
                   <Card
+                    ref={(elemento) => {
+                      if (elemento) moduloCardRefs.current.set(tema.id, elemento)
+                      else moduloCardRefs.current.delete(tema.id)
+                    }}
                     component="button"
                     onClick={() => {
                       const proximo = expandido ? null : tema.id
@@ -1222,6 +1248,7 @@ export default function Discipulado() {
                     aria-label={`${expandido ? 'Fechar' : 'Abrir'} ${rotuloModulo}: ${tema.titulo}`}
                     sx={{
                       position: 'relative',
+                      scrollMarginTop: 12,
                       minWidth: 0,
                       minHeight: { xs: 238, sm: 260 },
                       p: 0,

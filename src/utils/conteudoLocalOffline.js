@@ -10,6 +10,9 @@ const PREFIXOS_CONTA_OU_NUVEM = [
   '/estudos-biblicos',
   '/biblioteca-estudos',
   '/hinario-editor',
+  '/hinario/salmos',
+  '/hinario/canticos',
+  '/hinario/outras-cancoes',
 ]
 
 const PREFIXOS_CONTEUDO_LOCAL = [

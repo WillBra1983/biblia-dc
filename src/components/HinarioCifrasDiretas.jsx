@@ -5,30 +5,12 @@ import Remove from '@mui/icons-material/Remove'
 import RestartAlt from '@mui/icons-material/RestartAlt'
 import { useTheme } from '@mui/material/styles'
 import AcordeAjudaPopover from './AcordeAjudaPopover'
+import { transposeChord } from '../utils/chordTranspose'
 
-const NOTE_VALUES = {
-  C: 0, 'C#': 1, DB: 1, D: 2, 'D#': 3, EB: 3, E: 4, F: 5,
-  'F#': 6, GB: 6, G: 7, 'G#': 8, AB: 8, A: 9, 'A#': 10, BB: 10, B: 11
-}
-const SHARP_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 const CHORD_COLORS = {
   light: { C: '#c62828', D: '#a54b00', E: '#6f6500', F: '#137333', G: '#1565c0', A: '#5e35b1', B: '#ad1457' },
   dark: { C: '#ff8a80', D: '#ffb35c', E: '#ddd36a', F: '#74cf84', G: '#79b8ff', A: '#b8a1e3', B: '#f294bd' }
 }
-const transposeChord = (chord, offset) => {
-  const match = String(chord).match(/^([A-G](?:#|b)?)(.*?)(?:\/([A-G](?:#|b)?))?$/i)
-  if (!match) return chord
-  const [, root, suffix, bass] = match
-  const rootValue = NOTE_VALUES[root.toUpperCase()]
-  if (rootValue == null) return chord
-  let result = `${SHARP_NOTES[(rootValue + offset + 120) % 12]}${suffix}`
-  if (bass) {
-    const bassValue = NOTE_VALUES[bass.toUpperCase()]
-    if (bassValue != null) result += `/${SHARP_NOTES[(bassValue + offset + 120) % 12]}`
-  }
-  return result
-}
-
 function ChordSequence({ chords, offset, separator = ' / ', onChordClick }) {
   const theme = useTheme()
   return chords.map((chord, index) => {

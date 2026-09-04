@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Avatar, Box, Card, CardContent, Typography, Grid, Collapse, IconButton } from '@mui/material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -16,6 +16,7 @@ import YouTubeIcon from '@mui/icons-material/YouTube'
 import HinarioLetraIcon from '@mui/icons-material/Lyrics'
 import HinarioCifrasIcon from '@mui/icons-material/Piano'
 import HinarioPaiIcon from '@mui/icons-material/MusicNote'
+import CanticosIcon from '@mui/icons-material/QueueMusic'
 import QuizRetiroIcon from '@mui/icons-material/EmojiEvents'
 import ChatIcon from '@mui/icons-material/Chat'
 import PersonIcon from '@mui/icons-material/Person'
@@ -381,24 +382,30 @@ const notificacoesSubItemUsuarios = Object.freeze({
 })
 
 const hinarioPai = {
-  text: 'Hinário Novo Cântico',
+  text: 'Cânticos',
   icon: <HinarioPaiIcon sx={{ fontSize: ICON_SIZE }} />,
-  description: 'Letra e cifras — abra para escolher',
+  description: 'Hinos, Salmos e Outras canções',
   fundo: 'menu-fundos/hinario.webp'
 }
 
 const hinarioSubItens = [
   {
-    text: 'Letra',
+    text: 'Hinos',
     icon: <HinarioLetraIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/hinario/letra',
-    description: 'Letras dos hinos para cantar'
+    description: 'Letras e cifras do Hinário Novo Cântico'
   },
   {
-    text: 'Cifras',
+    text: 'Salmos',
+    icon: <CanticosIcon sx={{ fontSize: ICON_SIZE }} />,
+    path: '/hinario/salmos',
+    description: 'Comissão Brasileira de Salmodia'
+  },
+  {
+    text: 'Outras canções',
     icon: <HinarioCifrasIcon sx={{ fontSize: ICON_SIZE }} />,
-    path: '/hinario/cifras',
-    description: 'Cifras com transposição de tom'
+    path: '/hinario/outras-cancoes',
+    description: 'Cole e guarde cifras encontradas na internet'
   }
 ]
 
@@ -473,6 +480,8 @@ function nomePrefetchPorPath(path) {
   if (path === '/chat') return 'chat'
   if (path.startsWith('/discipulado')) return 'discipulado'
   if (path.startsWith('/hinario/editor') || path.startsWith('/hinario-editor')) return 'hinarioEditor'
+  if (path.startsWith('/hinario/salmos') || path.startsWith('/hinario/canticos')) return 'canticos'
+  if (path.startsWith('/hinario/outras-cancoes')) return 'canticos'
   if (path.startsWith('/hinario')) return 'hinario'
   if (path.startsWith('/confissao')) return 'confissao'
   if (path.startsWith('/catecismo-maior')) return 'catecismoMaior'
@@ -510,6 +519,20 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
   const [westminsterExpanded, setWestminsterExpanded] = useState(false)
   const [conectarExpanded, setConectarExpanded] = useState(false)
   const [ehAdmin, setEhAdmin] = useState(false)
+  const conectarCardRef = useRef(null)
+  const hinarioCardRef = useRef(null)
+  const westminsterCardRef = useRef(null)
+
+  const trazerOpcoesParaTela = (refDoGrupo) => {
+    const elemento = refDoGrupo.current
+    if (!elemento) return
+    const reduzirMovimento = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    elemento.scrollIntoView({
+      behavior: reduzirMovimento ? 'auto' : 'smooth',
+      block: 'start',
+      inline: 'nearest',
+    })
+  }
 
   // Cada acesso ao menu começa no topo e com os grupos recolhidos.
   useEffect(() => {
@@ -627,7 +650,9 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <Card
+            ref={conectarCardRef}
             sx={{
+              scrollMarginTop: 12,
               ...estilosCartaoMenu(
                 conectarGrupoAtivo ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                 {
@@ -778,7 +803,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   }}
                 />
               </Box>
-              <Collapse in={conectarExpanded} timeout="auto" unmountOnExit={false}>
+              <Collapse in={conectarExpanded} timeout="auto" unmountOnExit={false} onEntered={() => trazerOpcoesParaTela(conectarCardRef)}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1.5, pl: 0.5 }}>
                   {/* Chat */}
                   <Card
@@ -1096,7 +1121,9 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
 
         <Grid item xs={hinarioExpanded ? 12 : 6} md={hinarioExpanded ? 12 : 3} sx={{ display: 'flex' }}>
           <Card
+            ref={hinarioCardRef}
             sx={{
+              scrollMarginTop: 12,
               ...estilosCartaoMenu(
                 hinarioAtivo ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                 {
@@ -1183,7 +1210,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   >
                     {hinarioPai.description}
                   </Typography>
-                  <AdminSectionViewCounts ehAdmin={ehAdmin} keys={['hinario_letra', 'hinario_cifras']} />
+                  <AdminSectionViewCounts ehAdmin={ehAdmin} keys={['hinario_letra', 'hinario_cifras', 'salmos', 'outras_cancoes']} />
                 </Box>
                 <ExpandMore
                   sx={{
@@ -1194,7 +1221,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   }}
                 />
               </Box>
-              <Collapse in={hinarioExpanded} timeout="auto" unmountOnExit={false}>
+              <Collapse in={hinarioExpanded} timeout="auto" unmountOnExit={false} onEntered={() => trazerOpcoesParaTela(hinarioCardRef)}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1.5, pl: 0.5 }}>
                   {hinarioSubItens.map((sub, subIdx) => {
                     const subActive = location.pathname === sub.path
@@ -1290,7 +1317,9 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
 
         <Grid item xs={westminsterExpanded ? 12 : 6} md={westminsterExpanded ? 12 : 3} sx={{ display: 'flex' }}>
           <Card
+            ref={westminsterCardRef}
             sx={{
+              scrollMarginTop: 12,
               ...estilosCartaoMenu(
                 westminsterAtivo ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                 {
@@ -1394,7 +1423,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   }}
                 />
               </Box>
-              <Collapse in={westminsterExpanded} timeout="auto" unmountOnExit={false}>
+              <Collapse in={westminsterExpanded} timeout="auto" unmountOnExit={false} onEntered={() => trazerOpcoesParaTela(westminsterCardRef)}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1.5, pl: 0.5 }}>
                   {westminsterSubItens.map((sub, subIdx) => {
                     const subActive = location.pathname === sub.path

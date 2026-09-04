@@ -36,6 +36,11 @@ exports.registrarVisualizacaoSecao =
 // Lista utilizadores Auth (paginado) — só admin
 exports.listarUsuariosAdmin = require('./src/listarUsuariosAdmin').listarUsuariosAdmin
 
+// Presença diária imutável por data — evita reconstruir o passado pelo último acesso.
+exports.registrarEntradaDiaria = require('./src/registrarEntradaDiaria').registrarEntradaDiaria
+exports.listarAcessosDiariosAdmin =
+  require('./src/listarAcessosDiariosAdmin').listarAcessosDiariosAdmin
+
 // Apaga contas e-mail/senha sem verificação após 48 h (cron diário)
 exports.limparContasEmailNaoVerificadas =
   require('./src/limparContasEmailNaoVerificadas').limparContasEmailNaoVerificadas

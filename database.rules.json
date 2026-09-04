@@ -492,8 +492,20 @@
         }
       }
     },
+    "canticosCompartilhados": {
+      ".read": "auth != null",
+      ".indexOn": ["updatedAt"],
+      "$canticoId": {
+        ".write": "auth != null && ((!data.exists() && newData.exists() && newData.child('authorUid').val() === auth.uid) || (data.exists() && data.child('authorUid').val() === auth.uid && (!newData.exists() || (newData.child('authorUid').val() === data.child('authorUid').val() && newData.child('authorName').val() === data.child('authorName').val() && newData.child('createdAt').val() === data.child('createdAt').val()))))",
+        ".validate": "!newData.exists() || (newData.hasChildren(['titulo','textoOriginal','authorUid','authorName','createdAt','updatedAt']) && newData.child('titulo').isString() && newData.child('titulo').val().length > 0 && newData.child('titulo').val().length <= 160 && (!newData.child('artista').exists() || (newData.child('artista').isString() && newData.child('artista').val().length <= 160)) && newData.child('textoOriginal').isString() && newData.child('textoOriginal').val().length > 0 && newData.child('textoOriginal').val().length <= 50000 && newData.child('authorUid').isString() && newData.child('authorUid').val() === auth.uid && newData.child('authorName').isString() && newData.child('authorName').val().length > 0 && newData.child('authorName').val().length <= 80 && newData.child('createdAt').isNumber() && newData.child('updatedAt').isNumber())"
+      }
+    },
     "adminMetrics": {
       "sectionViews": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
+        ".write": false
+      },
+      "userAccess": {
         ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
         ".write": false
       }

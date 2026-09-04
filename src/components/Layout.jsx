@@ -64,6 +64,8 @@ function getPageTitleFromPathname(pathname) {
   }
   if (path.startsWith('/discipulado')) return 'Discipulado'
   if (path.startsWith('/hinario-editor')) return 'Editor do hinário'
+  if (path.startsWith('/hinario/salmos') || path.startsWith('/hinario/canticos')) return 'Salmos — Comissão Brasileira de Salmodia'
+  if (path.startsWith('/hinario/outras-cancoes')) return 'Outras canções'
   if (path.startsWith('/hinario')) return 'Hinário Novo Cântico'
   if (path.startsWith('/confissao')) return 'Confissão de Fé'
   if (path.startsWith('/catecismo-maior')) return 'Catecismo Maior'
@@ -110,8 +112,9 @@ export default function Layout({ title, children }) {
       : location.pathname
   const isHinarioApresentacao = pathnameNorm.startsWith('/hinario/apresentacao')
   const isBibliaApresentacao = pathnameNorm.startsWith('/biblia/apresentacao')
+  const isLeituraHinarioTelaCheia = pathnameNorm.startsWith('/hinario') && new URLSearchParams(location.search).get('telaCheia') === '1'
   const isVersiculoDoDia = pathnameNorm === '/versiculo-do-dia'
-  const apresentacaoTelaCheia = isHinarioApresentacao || isBibliaApresentacao || isVersiculoDoDia
+  const apresentacaoTelaCheia = isHinarioApresentacao || isBibliaApresentacao || isVersiculoDoDia || isLeituraHinarioTelaCheia
   const { version: zoomResetVersion } = useZoomReset()
 
   // Rotas onde os botões devem aparecer

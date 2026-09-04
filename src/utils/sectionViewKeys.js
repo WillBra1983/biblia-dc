@@ -53,6 +53,8 @@ export function pathnameParaSectionKey(pathname) {
 
   if (p.startsWith('/hinario/letra')) return 'hinario_letra'
   if (p.startsWith('/hinario/cifras')) return 'hinario_cifras'
+  if (p.startsWith('/hinario/salmos') || p.startsWith('/hinario/canticos')) return 'salmos'
+  if (p.startsWith('/hinario/outras-cancoes')) return 'outras_cancoes'
   if (p === '/hinario') return 'hinario_letra'
 
   if (p.startsWith('/confissao')) return 'confissao'

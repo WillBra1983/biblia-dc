@@ -17,7 +17,7 @@ import {
   limitToFirst
 } from 'firebase/database'
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
-import { getFirebaseDatabase, getFirebaseStorage } from '../config/firebase'
+import { getFirebaseDatabase, getFirebaseFunctions, getFirebaseStorage } from '../config/firebase'
 import { getRtdbClientId, snapshotEhEcoDoMesmoCliente } from '../utils/rtdbClientId'
 
 /** Apelido público: min 3, max 30, só a-z 0-9 e _ */
@@ -1104,14 +1104,34 @@ export async function ensurePublicProfileMirrorAuth(uid, { email, photoURL, disp
 }
 
 const SESSION_ENTRADA_KEY = 'salvation_user_entry_registered'
+const DAILY_ENTRADA_KEY = 'salvation_user_daily_entry_registered'
 const ENTRADA_MIN_INTERVAL_MS = 5 * 60 * 1000
+
+function dataEntradaHojeBr() {
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date())
+  } catch {
+    return new Date().toISOString().slice(0, 10)
+  }
+}
 
 function entradaRegistadaRecentemente(uid, minIntervalMs = ENTRADA_MIN_INTERVAL_MS) {
   if (!uid || typeof sessionStorage === 'undefined') return false
   try {
     const raw = sessionStorage.getItem(`${SESSION_ENTRADA_KEY}:${uid}`)
-    const last = Number(raw)
-    return Number.isFinite(last) && last > 0 && Date.now() - last < minIntervalMs
+    const parsed = JSON.parse(raw || '{}')
+    const last = Number(parsed?.ts)
+    return (
+      parsed?.dia === dataEntradaHojeBr() &&
+      Number.isFinite(last) &&
+      last > 0 &&
+      Date.now() - last < minIntervalMs
+    )
   } catch {
     return false
   }
@@ -1120,7 +1140,28 @@ function entradaRegistadaRecentemente(uid, minIntervalMs = ENTRADA_MIN_INTERVAL_
 function marcarEntradaRegistadaAgora(uid) {
   if (!uid || typeof sessionStorage === 'undefined') return
   try {
-    sessionStorage.setItem(`${SESSION_ENTRADA_KEY}:${uid}`, String(Date.now()))
+    sessionStorage.setItem(
+      `${SESSION_ENTRADA_KEY}:${uid}`,
+      JSON.stringify({ ts: Date.now(), dia: dataEntradaHojeBr() })
+    )
+  } catch {
+    /* ignore */
+  }
+}
+
+function entradaDiariaRegistadaHoje(uid) {
+  if (!uid || typeof localStorage === 'undefined') return false
+  try {
+    return localStorage.getItem(`${DAILY_ENTRADA_KEY}:${uid}`) === dataEntradaHojeBr()
+  } catch {
+    return false
+  }
+}
+
+function marcarEntradaDiariaRegistadaHoje(uid) {
+  if (!uid || typeof localStorage === 'undefined') return
+  try {
+    localStorage.setItem(`${DAILY_ENTRADA_KEY}:${uid}`, dataEntradaHojeBr())
   } catch {
     /* ignore */
   }
@@ -1139,6 +1180,22 @@ export async function registrarEntradaUsuario(
   const db = getFirebaseDatabase()
   if (!db) return
 
+  let entradaDiariaRegistrada = entradaDiariaRegistadaHoje(uid)
+  try {
+    if (!entradaDiariaRegistrada) {
+      const fns = getFirebaseFunctions()
+      if (fns) {
+        const { httpsCallable } = await import('firebase/functions')
+        await httpsCallable(fns, 'registrarEntradaDiaria')()
+        entradaDiariaRegistrada = true
+        marcarEntradaDiariaRegistadaHoje(uid)
+      }
+    }
+  } catch {
+    /* permite nova tentativa no próximo foco se a função estiver indisponível */
+  }
+
+  let perfilAtualizado = false
   try {
     await ensurePublicProfileHasEmail(uid, email)
     await ensurePublicProfileMirrorAuth(uid, { email, photoURL, displayName })
@@ -1146,10 +1203,12 @@ export async function registrarEntradaUsuario(
       lastAccessAt: serverTimestamp(),
       clientId: getRtdbClientId(),
     })
-    marcarEntradaRegistadaAgora(uid)
+    perfilAtualizado = true
   } catch {
     /* permissão / rede — nova tentativa na próxima montagem ou login */
   }
+
+  if (entradaDiariaRegistrada && perfilAtualizado) marcarEntradaRegistadaAgora(uid)
 }
 
 export function subscribeMessages(chatId, callback) {

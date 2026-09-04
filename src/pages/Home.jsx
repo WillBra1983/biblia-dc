@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { Box, Container, Grid, Paper, Typography, Button, Stack, Collapse } from '@mui/material'
 import BookIcon from '@mui/icons-material/Book'
 import SchoolIcon from '@mui/icons-material/School'
@@ -24,9 +24,9 @@ const menuItems = [
     path: '/discipulado'
   },
   {
-    title: 'Hinário Novo Cântico',
+    title: 'Cânticos',
     icon: <HinarioPaiIcon sx={{ fontSize: 40 }} />,
-    description: 'Escolha letra ou cifras',
+    description: 'Hinos, Salmos e Outras canções',
     path: null,
     hinarioGroup: true
   },
@@ -86,6 +86,7 @@ export default function Home() {
   const navigate = useNavigate()
   const [menuUsage, setMenuUsage] = useState(() => readMenuUsage())
   const [westminsterAberto, setWestminsterAberto] = useState(false)
+  const westminsterCardRef = useRef(null)
 
   const registrarAcesso = useCallback((item, overridePath = null) => {
     const effectivePath = overridePath || item.path
@@ -186,23 +187,35 @@ export default function Home() {
                       navigate('/hinario/letra')
                     }}
                   >
-                    Letra
+                    Hinos
                   </Button>
                   <Button
                     fullWidth
                     variant="outlined"
                     onClick={() => {
-                      registrarAcesso(item, '/hinario/cifras')
-                      navigate('/hinario/cifras')
+                      registrarAcesso(item, '/hinario/salmos')
+                      navigate('/hinario/salmos')
                     }}
                   >
-                    Cifras
+                    Salmos
+                  </Button>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    onClick={() => {
+                      registrarAcesso(item, '/hinario/outras-cancoes')
+                      navigate('/hinario/outras-cancoes')
+                    }}
+                  >
+                    Outras canções
                   </Button>
                 </Stack>
               </Paper>
             ) : item.westminsterGroup ? (
               <Paper
+                ref={westminsterCardRef}
                 sx={{
+                  scrollMarginTop: 12,
                   p: 3,
                   height: '100%',
                   display: 'flex',
@@ -253,7 +266,11 @@ export default function Home() {
                   {westminsterAberto ? 'Ocultar opções' : 'Abrir opções'}
                 </Button>
 
-                <Collapse in={westminsterAberto} sx={{ width: '100%', mt: 1 }}>
+                <Collapse
+                  in={westminsterAberto}
+                  sx={{ width: '100%', mt: 1 }}
+                  onEntered={() => westminsterCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                >
                   <Stack spacing={1}>
                     {item.subItems?.map((subItem) => (
                       <Button
@@ -321,4 +338,3 @@ export default function Home() {
     </Container>
   )
 }
-

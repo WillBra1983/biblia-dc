@@ -14,6 +14,8 @@ const LABEL_CURTO = {
   admin_notificar: 'Aviso',
   hinario_letra: 'Letra',
   hinario_cifras: 'Cifras',
+  salmos: 'Salmos',
+  outras_cancoes: 'Outras canções',
   confissao: 'CFW',
   catecismo_maior: 'Maior',
   catecismo_breve: 'Breve',

@@ -21,6 +21,14 @@ const importers = {
     void hinarioService.precarregar().catch(() => {})
     return pagina
   },
+  canticos: async () => {
+    const [pagina, { canticosService }] = await Promise.all([
+      import('../pages/Canticos'),
+      import('../services/canticosService'),
+    ])
+    void canticosService.precarregar().catch(() => {})
+    return pagina
+  },
   hinarioEditor: () => import('../pages/HinarioEditor'),
   confissao: () => import('../pages/Confissao'),
   catecismoMaior: () => import('../pages/CatecismoMaior'),
@@ -73,6 +81,7 @@ export function prefetchRotasComuns() {
     'planoLeituraBiblia',
     'discipulado',
     'hinario',
+    'canticos',
     'estudosBiblicosHub',
     'devocional',
     'maisDeDeus',

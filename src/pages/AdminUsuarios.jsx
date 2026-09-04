@@ -57,6 +57,19 @@ function ordenarUsuariosPorAcesso(rows) {
   })
 }
 
+function dataHojeBr() {
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date())
+  } catch {
+    return new Date().toISOString().slice(0, 10)
+  }
+}
+
 export default function AdminUsuarios() {
   const { user } = useFirebaseAuth()
   const navigate = useNavigate()
@@ -68,6 +81,8 @@ export default function AdminUsuarios() {
   const [erro, setErro] = useState('')
   const [filtro, setFiltro] = useState('')
   const [acaoUid, setAcaoUid] = useState(null)
+  const [dataAcessos, setDataAcessos] = useState(() => dataHojeBr())
+  const [listaDoDia, setListaDoDia] = useState('')
 
   useEffect(() => {
     let cancelado = false
@@ -128,12 +143,35 @@ export default function AdminUsuarios() {
       const novos = Array.isArray(data.users) ? data.users : []
       setRows((prev) => ordenarUsuariosPorAcesso(pageToken ? [...prev, ...novos] : novos))
       setNextPageToken(data.pageToken || null)
+      setListaDoDia('')
     } catch (e) {
       setErro(e?.message || 'Falha ao carregar utilizadores.')
     } finally {
       setLoading(false)
     }
   }, [])
+
+  const carregarAcessosDoDia = useCallback(async () => {
+    if (!dataAcessos) return
+    setLoading(true)
+    setErro('')
+    try {
+      await loadFirebaseModules()
+      const fns = getFirebaseFunctions()
+      if (!fns) throw new Error('Cloud Functions indisponível')
+      const { httpsCallable } = await import('firebase/functions')
+      const fn = httpsCallable(fns, 'listarAcessosDiariosAdmin')
+      const res = await fn({ data: dataAcessos })
+      const data = res.data || {}
+      setRows(Array.isArray(data.users) ? data.users : [])
+      setNextPageToken(null)
+      setListaDoDia(dataAcessos)
+    } catch (e) {
+      setErro(e?.message || 'Falha ao carregar os acessos do dia.')
+    } finally {
+      setLoading(false)
+    }
+  }, [dataAcessos])
 
   useEffect(() => {
     if (!ehAdmin || checandoAdmin) return
@@ -212,7 +250,7 @@ export default function AdminUsuarios() {
           variant="outlined"
           startIcon={loading ? <CircularProgress size={16} /> : <RefreshIcon />}
           disabled={loading}
-          onClick={() => void carregarPagina(null)}
+          onClick={() => void (listaDoDia ? carregarAcessosDoDia() : carregarPagina(null))}
         >
           Atualizar
         </Button>
@@ -223,6 +261,36 @@ export default function AdminUsuarios() {
         no perfil), não o nome de exibição. Quem entrou só com Google costuma ter e-mail já verificado;
         cadastro por senha exige confirmação por link se você ativar essa opção no Firebase.
       </Alert>
+
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={1}
+        alignItems={{ xs: 'stretch', sm: 'center' }}
+        sx={{ mb: 2 }}
+      >
+        <TextField
+          size="small"
+          type="date"
+          label="Acessos em"
+          value={dataAcessos}
+          onChange={(e) => setDataAcessos(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+        />
+        <Button variant="contained" disabled={loading || !dataAcessos} onClick={() => void carregarAcessosDoDia()}>
+          Mostrar usuários do dia
+        </Button>
+        {listaDoDia ? (
+          <Button variant="outlined" disabled={loading} onClick={() => void carregarPagina(null)}>
+            Mostrar todos
+          </Button>
+        ) : null}
+      </Stack>
+
+      {listaDoDia ? (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          Relação preservada de quem acessou em {new Date(`${listaDoDia}T12:00:00`).toLocaleDateString('pt-BR')}.
+        </Alert>
+      ) : null}
 
       {erro ? (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -256,8 +324,8 @@ export default function AdminUsuarios() {
               <TableCell align="center">Conta</TableCell>
               <TableCell>Criação</TableCell>
               <TableCell>
-                <Tooltip title="Última abertura do app (RTDB) ou último login, o que for mais recente">
-                  <span>Último acesso</span>
+                <Tooltip title={listaDoDia ? 'Última abertura registrada nessa data' : 'Última abertura do app (RTDB) ou último login, o que for mais recente'}>
+                  <span>{listaDoDia ? 'Acesso no dia' : 'Último acesso'}</span>
                 </Tooltip>
               </TableCell>
               <TableCell align="center" sx={{ width: 88 }}>
@@ -309,8 +377,8 @@ export default function AdminUsuarios() {
                     {r.creationTime ? new Date(r.creationTime).toLocaleString('pt-BR') : '—'}
                   </TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap', fontSize: '0.8rem' }}>
-                    {(r.ultimoAcesso || r.lastAccessAt || r.lastSignInTime)
-                      ? new Date(r.ultimoAcesso || r.lastAccessAt || r.lastSignInTime).toLocaleString('pt-BR')
+                    {(listaDoDia ? r.acessoNoDiaLastAt : (r.ultimoAcesso || r.lastAccessAt || r.lastSignInTime))
+                      ? new Date(listaDoDia ? r.acessoNoDiaLastAt : (r.ultimoAcesso || r.lastAccessAt || r.lastSignInTime)).toLocaleString('pt-BR')
                       : '—'}
                   </TableCell>
                   <TableCell align="center">
@@ -377,7 +445,7 @@ export default function AdminUsuarios() {
 
       <Stack direction="row" spacing={2} alignItems="center">
         <Typography variant="body2" color="text.secondary">
-          {rows.length} utilizador(es) carregado(s)
+          {rows.length} {listaDoDia ? 'usuário(s) que acessaram no dia' : 'utilizador(es) carregado(s)'}
           {nextPageToken ? ' — há mais páginas.' : ''}
         </Typography>
         {nextPageToken ? (

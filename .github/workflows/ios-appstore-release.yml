@@ -250,3 +250,6 @@ jobs:
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          # O upload já foi concluído antes da consulta que pode expirar com 401.
+          # O App Store Connect continuará processando o build em segundo plano.
+          wait-for-processing: 'false'

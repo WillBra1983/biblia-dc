@@ -34,6 +34,7 @@ export function pathnameParaSectionKey(pathname) {
   if (p !== '/' && p.endsWith('/')) p = p.slice(0, -1)
 
   if (p === '/' || p === '/biblia') return 'biblia'
+  if (p.startsWith('/biblia/apresentacao')) return 'biblia_apresentacao'
 
   if (p === '/plano-leitura-biblia') return 'plano_leitura_biblia'
   if (p === '/plano' || p.startsWith('/plano/')) return 'plano_leitura'
@@ -55,6 +56,7 @@ export function pathnameParaSectionKey(pathname) {
   if (p.startsWith('/hinario/cifras')) return 'hinario_cifras'
   if (p.startsWith('/hinario/salmos') || p.startsWith('/hinario/canticos')) return 'salmos'
   if (p.startsWith('/hinario/outras-cancoes')) return 'outras_cancoes'
+  if (p.startsWith('/hinario/apresentacao')) return 'hinario_apresentacao'
   if (p === '/hinario') return 'hinario_letra'
 
   if (p.startsWith('/confissao')) return 'confissao'
@@ -72,6 +74,8 @@ export function pathnameParaSectionKey(pathname) {
   if (p.startsWith('/quiz-retiro')) return 'quiz_retiro'
   if (p.startsWith('/versiculos-marcados')) return 'versiculos_marcados'
   if (p.startsWith('/versiculos-compartilhados')) return 'versiculos_compartilhados'
+  if (p === '/versiculo-do-dia') return 'versiculo_do_dia'
+  if (p === '/versiculos-do-dia') return 'versiculos_do_dia'
   if (p.startsWith('/biblioteca-estudos')) return 'biblioteca_estudos'
   if (p.startsWith('/chat')) return 'chat'
 
@@ -84,6 +88,7 @@ export function pathnameParaSectionKey(pathname) {
   if (p === '/estudos-biblicos/novo') return 'estudos_biblicos_novo'
   if (p === '/estudos-biblicos/gerir') return 'estudos_biblicos_gerir'
   if (p.startsWith('/estudos-biblicos/abrir')) return 'estudos_biblicos_abrir'
+  if (/^\/estudos-biblicos\/[^/]+\/edit$/.test(p)) return 'estudos_biblicos_editar'
   if (
     p.startsWith('/estudos-biblicos/avaliacao-resultado') ||
     p.startsWith('/estudos-biblicos/prova-resultado')
@@ -110,6 +115,8 @@ export function pathnameParaSectionKey(pathname) {
   }
   if (p === '/estudos-biblicos') return 'estudos_biblicos'
 
+  const mStrongOcorrencias = p.match(/^\/estudo-strong\/([^/]+)\/ocorrencias$/)
+  if (mStrongOcorrencias) return 'estudo_strong_ocorrencias'
   const mStrong = p.match(/^\/estudo-strong\/([^/]+)\/resumo$/)
   if (mStrong) {
     const c = sanitizarSegmento(mStrong[1])
@@ -123,6 +130,7 @@ export function pathnameParaSectionKey(pathname) {
 
   if (p.startsWith('/hinario-editor')) return 'hinario_editor'
   if (p === '/sobre') return 'sobre'
+  if (p === '/privacidade') return 'privacidade'
 
   return null
 }

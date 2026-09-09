@@ -14,6 +14,7 @@ import {
   ListItem,
   ListItemText,
   Paper,
+  Popover,
   Stack,
   TextField,
   Typography,
@@ -24,12 +25,14 @@ import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import Fullscreen from '@mui/icons-material/Fullscreen'
 import FullscreenExit from '@mui/icons-material/FullscreenExit'
+import HeadphonesOutlined from '@mui/icons-material/HeadphonesOutlined'
 import LibraryMusic from '@mui/icons-material/LibraryMusic'
 import NavigateBefore from '@mui/icons-material/NavigateBefore'
 import NavigateNext from '@mui/icons-material/NavigateNext'
 import PublishOutlined from '@mui/icons-material/PublishOutlined'
 import Search from '@mui/icons-material/Search'
 import { useLocation, useNavigate } from 'react-router-dom'
+import AudioPlayer from '../components/AudioPlayer'
 import HinarioCifrasDiretas from '../components/HinarioCifrasDiretas'
 import ListaVirtualizada from '../components/ListaVirtualizada'
 import LocalPinchZoom from '../components/LocalPinchZoom'
@@ -49,6 +52,12 @@ import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 
 const PERSONAL_STORAGE_KEY = 'salvation-canticos-cifrados-pessoais-v1'
+const SALTERIO_BASE_URL = 'https://salterio.com.br/salmos'
+
+const salmoAudioUrl = (id, tipo) => {
+  const salmoId = encodeURIComponent(String(id || '').trim().replace(/[.-]/g, '_'))
+  return `${SALTERIO_BASE_URL}/${salmoId}/salmo_${salmoId}_${tipo}.mp3`
+}
 
 const readPersonalSongs = () => {
   try {
@@ -102,6 +111,8 @@ export default function Canticos() {
   const [pasteText, setPasteText] = useState('')
   const [pasteError, setPasteError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [audioType, setAudioType] = useState('')
+  const [audioMenuAnchor, setAudioMenuAnchor] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const initialSelectionRef = useRef(false)
@@ -195,11 +206,12 @@ export default function Canticos() {
 
   useEffect(() => {
     if (!setBackButtonHandler) return
-    if (pasteOpen) setBackButtonHandler(() => setPasteOpen(false))
+    if (audioMenuAnchor) setBackButtonHandler(() => setAudioMenuAnchor(null))
+    else if (pasteOpen) setBackButtonHandler(() => setPasteOpen(false))
     else if (drawerOpen) setBackButtonHandler(() => setDrawerOpen(false))
     else setBackButtonHandler(null)
     return () => setBackButtonHandler(null)
-  }, [drawerOpen, pasteOpen, setBackButtonHandler])
+  }, [audioMenuAnchor, drawerOpen, pasteOpen, setBackButtonHandler])
 
   const selectSong = song => {
     setCurrentSong(song)
@@ -366,6 +378,17 @@ export default function Canticos() {
               </Typography>
             </Box>
             <Stack direction="row" spacing={0.25}>
+              {!outrasCancoes ? (
+                <IconButton
+                  size="small"
+                  color={audioType ? 'primary' : 'default'}
+                  onClick={event => setAudioMenuAnchor(event.currentTarget)}
+                  aria-label="Ouvir este Salmo"
+                  aria-haspopup="dialog"
+                >
+                  <HeadphonesOutlined fontSize="small" />
+                </IconButton>
+              ) : null}
               <IconButton size="small" color="primary" onClick={telaCheia ? sairTelaCheia : entrarTelaCheia} aria-label={telaCheia ? 'Sair da tela cheia' : 'Abrir em tela cheia'}>
                 {telaCheia ? <FullscreenExit /> : <Fullscreen />}
               </IconButton>
@@ -378,6 +401,50 @@ export default function Canticos() {
               ) : null}
             </Stack>
           </Stack>
+
+          {!outrasCancoes ? (
+            <Popover
+              open={Boolean(audioMenuAnchor)}
+              anchorEl={audioMenuAnchor}
+              onClose={() => setAudioMenuAnchor(null)}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              keepMounted
+              PaperProps={{ sx: { width: 340, maxWidth: 'calc(100vw - 16px)', p: 1 } }}
+            >
+              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mb: audioType ? 0.75 : 0 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ flex: 1, fontWeight: 700 }}>
+                  Ouvir Salmo
+                </Typography>
+                <Button
+                  size="small"
+                  variant={audioType === 'cantado' ? 'contained' : 'text'}
+                  onClick={() => setAudioType(value => value === 'cantado' ? '' : 'cantado')}
+                  aria-pressed={audioType === 'cantado'}
+                  sx={{ minWidth: 0, px: 0.75, fontSize: '0.7rem' }}
+                >
+                  Cantado
+                </Button>
+                <Button
+                  size="small"
+                  variant={audioType === 'instrumental' ? 'contained' : 'text'}
+                  onClick={() => setAudioType(value => value === 'instrumental' ? '' : 'instrumental')}
+                  aria-pressed={audioType === 'instrumental'}
+                  sx={{ minWidth: 0, px: 0.75, fontSize: '0.7rem' }}
+                >
+                  Instrumental
+                </Button>
+              </Stack>
+              {audioType ? (
+                <AudioPlayer
+                  key={`${currentSong.id}-${audioType}`}
+                  url={salmoAudioUrl(currentSong.id, audioType)}
+                  label={`${audioType === 'cantado' ? 'Cantado' : 'Instrumental'} • Comissão Brasileira de Salmodia`}
+                  compact
+                />
+              ) : null}
+            </Popover>
+          ) : null}
 
           <HinarioCifrasDiretas key={currentSong.id} hino={currentSong} textSx={textSx} />
 

@@ -141,7 +141,9 @@ export default function StrongLexiconAttributions() {
           by Tyndale House, Cambridge. Licensed under CC BY 4.0.&quot;
         </Typography>
         <Typography component="p" sx={{ fontFamily: 'inherit', fontSize: 'inherit', m: 0, mt: 0.35, opacity: 0.9 }}>
-          Dados incorporados via build a partir do pacote npm que referencia STEPBible-Data; licença:{' '}
+          O vínculo de cada ocorrência do Novo Testamento ao respectivo código Strong usa também o TAGNT
+          (Translators Amalgamated Greek New Testament), distribuído no STEPBible-Data. Dados incorporados via
+          build; licença:{' '}
           <Link
             href="https://creativecommons.org/licenses/by/4.0/"
             target="_blank"

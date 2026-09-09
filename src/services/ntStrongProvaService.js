@@ -6,6 +6,10 @@ let SQL = null
 let disponibilidadeCache = null
 let initPromise = null
 
+// Altere quando a estrutura ou o conteúdo de nt_prova.sqlite mudar. Isso evita
+// que instalações existentes continuem usando no IndexedDB um banco incompatível.
+const NT_PROVA_ASSET_REV = 'tagnt-strong-v2'
+
 function urlBase() {
   return (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/'
 }
@@ -17,7 +21,8 @@ async function initNtProvaDB() {
   initPromise = (async () => {
     try {
       const base = urlBase()
-      const rev = String(import.meta.env?.VITE_SQLITE_ASSET_REV || '').trim()
+      const revGlobal = String(import.meta.env?.VITE_SQLITE_ASSET_REV || '').trim()
+      const rev = [revGlobal, NT_PROVA_ASSET_REV].filter(Boolean).join('-')
       const url = `${base}nt_prova.sqlite${rev ? `?v=${encodeURIComponent(rev)}` : ''}`
 
       SQL =
@@ -73,7 +78,7 @@ export async function buscarTokensNt(bookNum, chapter, verse) {
   const dbi = await initNtProvaDB()
   const stmt = dbi.prepare(
     `
-      SELECT token_idx, pos, parsing, text, word, normalized_word, lemma, lemma_norm
+      SELECT token_idx, pos, parsing, text, word, normalized_word, lemma, lemma_norm, strong_code
       FROM nt_tokens
       WHERE book_num = ? AND chapter = ? AND verse = ?
       ORDER BY token_idx
@@ -90,7 +95,7 @@ export async function buscarTokensNtCapitulo(bookNum, chapter) {
   const dbi = await initNtProvaDB()
   const stmt = dbi.prepare(
     `
-      SELECT verse, token_idx, pos, parsing, text, word, normalized_word, lemma, lemma_norm
+      SELECT verse, token_idx, pos, parsing, text, word, normalized_word, lemma, lemma_norm, strong_code
       FROM nt_tokens
       WHERE book_num = ? AND chapter = ?
       ORDER BY verse, token_idx
@@ -118,13 +123,12 @@ export async function buscarOcorrenciasStrongGrego(strongCode, limit = 20, offse
     `
       SELECT t.book_num, t.chapter, t.verse, t.token_idx, t.text, t.lemma, t.lemma_norm
       FROM nt_tokens t
-      JOIN strong_greek_lemma_index i ON i.lemma_norm = t.lemma_norm
-      WHERE i.strong = ?
+      WHERE t.strong_code = ? OR ('|' || t.strong_code || '|') LIKE ('%|' || ? || '|%')
       ORDER BY t.book_num, t.chapter, t.verse, t.token_idx
       LIMIT ?
     `
   )
-  stmt.bind([normalized, Math.max(50, (off + lim) * 12)])
+  stmt.bind([normalized, normalized, Math.max(50, (off + lim) * 12)])
   const out = []
   const seen = new Set()
   let pulados = 0
@@ -160,11 +164,10 @@ export async function contarOcorrenciasStrongGrego(strongCode) {
     `
       SELECT COUNT(DISTINCT t.book_num || ':' || t.chapter || ':' || t.verse) AS total
       FROM nt_tokens t
-      JOIN strong_greek_lemma_index i ON i.lemma_norm = t.lemma_norm
-      WHERE i.strong = ?
+      WHERE t.strong_code = ? OR ('|' || t.strong_code || '|') LIKE ('%|' || ? || '|%')
     `
   )
-  stmt.bind([normalized])
+  stmt.bind([normalized, normalized])
   const row = stmt.step() ? stmt.getAsObject() : null
   stmt.free()
   return Number(row?.total || 0)

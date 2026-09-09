@@ -59,6 +59,7 @@ import MenuOpcoesCompartilhar from '../components/MenuOpcoesCompartilhar'
 import AppBarMaisMenu from '../components/AppBarMaisMenu'
 import PlanoEscadaBarraMedalhas from '../components/PlanoEscadaBarraMedalhas'
 import PlanoEscadaCelebracao from '../components/PlanoEscadaCelebracao'
+import StrongOriginalAudioPlayer from '../components/StrongOriginalAudioPlayer'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { buildBibliaVersiculosExport } from '../utils/appExportPayload'
@@ -306,6 +307,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const [dialogoCompartilharAberto, setDialogoCompartilharAberto] = useState(false)
   const [refParalelaFragmento, setRefParalelaFragmento] = useState(null)
   const versiculoRefs = React.useRef({})
+  const versiculoOriginalAudioRefs = React.useRef({})
   const elementoDestacadoRef = React.useRef(null)
   const scrollToTopOnChapterChangeRef = React.useRef(false)
   const bibliaProntaNotificadaRef = React.useRef(false)
@@ -367,12 +369,32 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const [versiculosDestaqueLink, setVersiculosDestaqueLink] = useState([])
   const [ntProvaDisponivel, setNtProvaDisponivel] = useState(false)
   const [modoStrongProva, setModoStrongProva] = useState(false)
+  const [versiculoAudioOriginalAtivo, setVersiculoAudioOriginalAtivo] = useState(null)
   const [tokensNtCapitulo, setTokensNtCapitulo] = useState({})
   const [otStrongDisponivel, setOtStrongDisponivel] = useState(false)
   const [tokensOtCapitulo, setTokensOtCapitulo] = useState({})
   const [headwordsOtCapitulo, setHeadwordsOtCapitulo] = useState({})
   const [planoLeituraTick, setPlanoLeituraTick] = useState(0)
   const [filaCelebracaoPlano, setFilaCelebracaoPlano] = useState([])
+
+  useEffect(() => {
+    if (!modoStrongProva || !versiculoAudioOriginalAtivo || !livroAtual?.id || !capitulo) return
+    const key = `${livroAtual.id}-${capitulo}-${versiculoAudioOriginalAtivo}`
+    const frame = requestAnimationFrame(() => {
+      versiculoOriginalAudioRefs.current[key]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [
+    modoStrongProva,
+    versiculoAudioOriginalAtivo,
+    livroAtual?.id,
+    capitulo,
+    tokensNtCapitulo,
+    tokensOtCapitulo,
+  ])
   /** Só para NT: vários possíveis Strong para o mesmo lema (escolhe e abre a página de estudo). */
   const [strongMatchDialog, setStrongMatchDialog] = useState({
     open: false,
@@ -489,6 +511,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     min: 100,
     max: 200,
     step: 10,
+    preserveAnchor: true,
   })
 
   const livroCorBase = livroAtual ? obterCorLivro(livroAtual.id) : '#1E7A35'
@@ -863,6 +886,29 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         salvarTokenPassagem(strongCode, tokenComRef)
         navigate(`/estudo-strong/${encodeURIComponent(strongCode)}`, { state: { token: tokenComRef } })
       }
+      return
+    }
+    const strongCodesDiretos = String(token.strong_code || '')
+      .split('|')
+      .map((code) => code.trim().toUpperCase())
+      .filter(Boolean)
+    if (strongCodesDiretos.length === 1) {
+      salvarTokenPassagem(strongCodesDiretos[0], tokenComRef)
+      navigate(`/estudo-strong/${encodeURIComponent(strongCodesDiretos[0])}`, {
+        state: { token: tokenComRef },
+      })
+      return
+    }
+    if (strongCodesDiretos.length > 1) {
+      const { buscarStrongGrego } = await loadNtStrongProvaService()
+      const matches = (await Promise.all(strongCodesDiretos.map(buscarStrongGrego))).filter(Boolean)
+      setStrongMatchDialog({
+        open: true,
+        matches,
+        token: tokenComRef,
+        loading: false,
+        empty: matches.length === 0,
+      })
       return
     }
     try {
@@ -2683,6 +2729,14 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 </Typography>
               </Box>
             )}
+            {modoStrongProva && livroAtual && capitulo > 0 ? (
+              <StrongOriginalAudioPlayer
+                livroId={livroAtual.id}
+                capitulo={capitulo}
+                cor={livroCorBase}
+                onVersiculoChange={setVersiculoAudioOriginalAtivo}
+              />
+            ) : null}
             {resultadosVisiveis.map((verso, index) => {
               const numeroVersiculo = verso.numero || index + 1;
               const keyAtual = `${livroAtual?.id}-${capitulo}-${numeroVersiculo}`;
@@ -2739,6 +2793,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                     ))
                   ) : null}
               <VersiculoMarcavel
+                data-pinch-anchor
                 ref={(el) => {
                   if (el) {
                     versiculoRefs.current[keyAtual] = el
@@ -2762,22 +2817,45 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 lineHeight={lineHeight}
                 semEspacoEntreVersiculos={semEspacoEntreVersiculos}
                 sx={
-                  versiculosDestaqueLink.includes(Number(numeroVersiculo))
+                  Number(numeroVersiculo) === versiculoAudioOriginalAtivo
                     ? {
-                        backgroundColor: 'rgba(255, 165, 0, 0.3)'
+                        backgroundColor: toRgba(livroCorBase, 0.16),
+                        boxShadow: `inset 4px 0 0 ${livroCorBase}`,
+                        borderRadius: 1,
+                        transition: 'background-color 180ms ease',
                       }
-                    : undefined
+                    : versiculosDestaqueLink.includes(Number(numeroVersiculo))
+                      ? {
+                          backgroundColor: 'rgba(255, 165, 0, 0.3)'
+                        }
+                      : undefined
                 }
               />
                   {modoStrongProva && ehNovoTestamento && Array.isArray(tokensNtCapitulo?.[Number(numeroVersiculo)]) && (
                     <Box
+                      ref={(el) => {
+                        if (el) versiculoOriginalAudioRefs.current[keyAtual] = el
+                        else delete versiculoOriginalAudioRefs.current[keyAtual]
+                      }}
                       sx={{
                         mt: 0.6,
                         mb: 0.8,
-                        px: 0.3,
+                        px: Number(numeroVersiculo) === versiculoAudioOriginalAtivo ? 0.75 : 0.3,
+                        py: Number(numeroVersiculo) === versiculoAudioOriginalAtivo ? 0.55 : 0,
                         display: 'flex',
                         flexWrap: 'wrap',
-                        gap: 0.5
+                        gap: 0.5,
+                        backgroundColor:
+                          Number(numeroVersiculo) === versiculoAudioOriginalAtivo
+                            ? toRgba(livroCorBase, 0.16)
+                            : 'transparent',
+                        boxShadow:
+                          Number(numeroVersiculo) === versiculoAudioOriginalAtivo
+                            ? `inset 4px 0 0 ${livroCorBase}`
+                            : 'none',
+                        borderRadius: 1,
+                        transition:
+                          'background-color 180ms ease, box-shadow 180ms ease, padding 180ms ease',
                       }}
                     >
                       {tokensNtCapitulo[Number(numeroVersiculo)].map((tk) => (
@@ -2822,15 +2900,31 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                   )}
                   {modoStrongProva && !ehNovoTestamento && Array.isArray(tokensOtCapitulo?.[Number(numeroVersiculo)]) && (
                     <Box
+                      ref={(el) => {
+                        if (el) versiculoOriginalAudioRefs.current[keyAtual] = el
+                        else delete versiculoOriginalAudioRefs.current[keyAtual]
+                      }}
                       sx={{
                         mt: 0.6,
                         mb: 0.8,
-                        px: 0.3,
+                        px: Number(numeroVersiculo) === versiculoAudioOriginalAtivo ? 0.75 : 0.3,
+                        py: Number(numeroVersiculo) === versiculoAudioOriginalAtivo ? 0.55 : 0,
                         display: 'flex',
                         flexWrap: 'wrap',
                         gap: 0.5,
                         direction: 'rtl',
                         justifyContent: 'flex-start',
+                        backgroundColor:
+                          Number(numeroVersiculo) === versiculoAudioOriginalAtivo
+                            ? toRgba(livroCorBase, 0.16)
+                            : 'transparent',
+                        boxShadow:
+                          Number(numeroVersiculo) === versiculoAudioOriginalAtivo
+                            ? `inset -4px 0 0 ${livroCorBase}`
+                            : 'none',
+                        borderRadius: 1,
+                        transition:
+                          'background-color 180ms ease, box-shadow 180ms ease, padding 180ms ease',
                       }}
                     >
                       {tokensOtCapitulo[Number(numeroVersiculo)].map((tk) => (

@@ -47,7 +47,7 @@ import { alternarCurtida, assinarDestaqueVersiculoDoDia, obterCurtidasDoUsuario,
 const ICON_BOX = 44
 const ICON_SIZE = 26
 
-function VersiculoDoDiaMenu() {
+function VersiculoDoDiaMenu({ ehAdmin }) {
   const navigate = useNavigate()
   const { user } = useFirebaseAuth()
   const [item, setItem] = useState(null)
@@ -166,6 +166,9 @@ function VersiculoDoDiaMenu() {
             <IosShareOutlinedIcon fontSize="small" />
           </IconButton>
           <Typography variant="caption" sx={{ fontWeight: 900, minWidth: 18 }}>{interacoes.sharesCount}</Typography>
+        </Box>
+        <Box sx={{ gridColumn: '2 / -1' }}>
+          <AdminSectionViewCounts ehAdmin={ehAdmin} keys={['versiculo_do_dia']} />
         </Box>
       </Box>
       <CompartilharVersiculoImagemDialog
@@ -1013,7 +1016,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
           </Card>
         </Grid>
 
-        <VersiculoDoDiaMenu />
+        <VersiculoDoDiaMenu ehAdmin={ehAdmin} />
 
         {menuAntesHinario.map((item, idx) => {
           const isActive = rotaCorrespondeItemMenu(item.path, location.pathname)

@@ -16,6 +16,8 @@ const LABEL_CURTO = {
   hinario_cifras: 'Cifras',
   salmos: 'Salmos',
   outras_cancoes: 'Outras canções',
+  versiculo_do_dia: 'Versículo do dia',
+  versiculos_do_dia: 'Arquivo diário',
   confissao: 'CFW',
   catecismo_maior: 'Maior',
   catecismo_breve: 'Breve',

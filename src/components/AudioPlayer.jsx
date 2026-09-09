@@ -19,7 +19,7 @@ function resolveAudioUrl(url) {
   return `${base}/${url.replace(/^\//, '')}`
 }
 
-export default function AudioPlayer({ url, label = 'Áudio' }) {
+export default function AudioPlayer({ url, label = 'Áudio', compact = false }) {
   const { isDarkMode } = useApp()
   const audioRef = useRef(null)
   const resolvedUrl = resolveAudioUrl(url)
@@ -92,13 +92,13 @@ export default function AudioPlayer({ url, label = 'Áudio' }) {
       sx={{
         display: 'flex',
         alignItems: 'center',
-        gap: 1,
-        p: 1.5,
+        gap: compact ? 0.5 : 1,
+        p: compact ? 0.5 : 1.5,
         borderRadius: 1,
         bgcolor: isDarkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
         border: '1px solid',
         borderColor: 'divider',
-        flexWrap: 'wrap'
+        flexWrap: compact ? 'nowrap' : 'wrap'
       }}
     >
       <audio ref={audioRef} src={resolvedUrl} preload="metadata" />
@@ -107,13 +107,19 @@ export default function AudioPlayer({ url, label = 'Áudio' }) {
         disabled={error}
         color="primary"
         aria-label={playing ? 'Pausar' : 'Reproduzir'}
-        sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', '&:hover': { bgcolor: 'primary.dark' } }}
+        sx={{
+          width: compact ? 32 : undefined,
+          height: compact ? 32 : undefined,
+          bgcolor: 'primary.main',
+          color: 'primary.contrastText',
+          '&:hover': { bgcolor: 'primary.dark' }
+        }}
       >
         {playing ? <Pause /> : <PlayArrow />}
       </IconButton>
       <Box sx={{ flex: 1, minWidth: 0 }}>
         {label && (
-          <Typography variant="caption" color="text.secondary" display="block">
+          <Typography variant="caption" color="text.secondary" display="block" noWrap={compact} sx={compact ? { fontSize: '0.68rem', lineHeight: 1 } : undefined}>
             {label}
           </Typography>
         )}
@@ -128,7 +134,7 @@ export default function AudioPlayer({ url, label = 'Áudio' }) {
             max={duration}
             value={currentTime}
             onChange={handleSeek}
-            sx={{ mt: 0.5 }}
+            sx={compact ? { mt: 0, py: 0.5 } : { mt: 0.5 }}
             aria-label="Posição do áudio"
           />
         ) : loaded ? (
@@ -138,7 +144,7 @@ export default function AudioPlayer({ url, label = 'Áudio' }) {
         ) : null}
       </Box>
       {durationFinite && (
-        <Typography variant="caption" color="text.secondary" sx={{ minWidth: 36 }}>
+        <Typography variant="caption" color="text.secondary" sx={{ minWidth: compact ? 70 : 36, whiteSpace: 'nowrap', fontSize: compact ? '0.65rem' : undefined }}>
           {formatTime(currentTime)} / {formatTime(duration)}
         </Typography>
       )}

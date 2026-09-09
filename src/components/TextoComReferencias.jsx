@@ -401,7 +401,7 @@ function TextoComReferencias({
         `(?<![a-zA-ZÀ-ú])(?:${livrosNumeradosPorExtenso}|${livrosComNumeros}|${livrosAT}|${livrosNT})(?![a-zA-ZÀ-ú])` + // Nome do livro
         '\\s*\\.?\\s*' + // Espaço opcional e ponto opcional
         '(\\d+)(?:-\\d+)?' + // Capítulo (ou faixa de capítulos, ex: 29-30)
-        '(?:[:.](\\d+)(?:-(\\d+))?(?:\\s*;\\s*\\d+(?:-\\d+)?(?!\\s*[A-Za-zÀ-ú]))*)?', // Aceita "; 17", mas não "; 1 Coríntios..."
+        '(?:[:.](\\d+)(?:-(\\d+))?(?:\\s*;\\s*\\d+(?:(?:[:.]\\d+(?:-\\d+)?)|(?:-\\d+)?)(?!\\s*[A-Za-zÀ-ú]))*)?', // Aceita "; 17" e "; 5:20", mas não "; 1 Coríntios..."
         'gi' // global e case insensitive
       )
 

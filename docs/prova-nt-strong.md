@@ -17,6 +17,7 @@ Este documento descreve a prova tecnica de dados Strong para AT e NT.
 ## Fontes usadas na prova
 
 - Tokens/morfologia NT: MorphGNT SBLGNT (`morphgnt/sblgnt`)
+- Strong por palavra/ocorrencia: STEPBible TAGNT (`STEPBible/STEPBible-Data`, CC BY 4.0)
 - Dicionario Strong grego (CC0): `morphgnt/strongs-dictionary-xml`
 - Tokens/lemmas AT: MorphHB (`openscriptures/morphhb`)
 

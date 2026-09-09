@@ -2721,8 +2721,8 @@ Por isso, a Igreja deve continuar confessando, pregando e vivendo segundo a Pala
     },
     {
       id: 8,
-      pergunta: "Segundo Judas 24-25, quem é capaz de nos guardar de tropeçar?",
-      referencias: ["Judas 24-25", "Salmo 121:3", "Isaías 41:10"],
+      pergunta: "Segundo Judas 1:24-25, quem é capaz de nos guardar de tropeçar?",
+      referencias: ["Judas 1:24-25", "Salmo 121:3", "Isaías 41:10"],
       alternativas: [
         { id: "a", texto: "Nós mesmos", correta: false },
         { id: "b", texto: "Nossos líderes", correta: false },

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { 
   Container, 
@@ -14,7 +14,8 @@ import {
   InputAdornment,
   Paper,
   Tooltip,
-  Divider
+  Divider,
+  Portal
 } from '@mui/material'
 import { devocionalData } from '../data/devocional'
 import TextoComReferencias from '../components/TextoComReferencias'
@@ -46,8 +47,6 @@ export default function Devocional() {
   const [searchTerm, setSearchTerm] = useState('')
   const [devocionalAtual, setDevocionalAtual] = useState(null)
 
-  const scrollRef = useRef(null);
-
   useEffect(() => {
     if (id) {
       const devocional = devocionalData.find(d => d.id === parseInt(id))
@@ -60,12 +59,6 @@ export default function Devocional() {
       setDevocionalAtual(null)
     }
   }, [id, navigate])
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = 0;
-    }
-  }, [devocionalAtual]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -133,7 +126,7 @@ export default function Devocional() {
               minHeight: 0,
               display: 'flex',
               flexDirection: 'column',
-              overflow: 'hidden',
+              overflow: 'visible',
               bgcolor: 'background.default',
               position: 'relative',
               boxShadow: 'none',
@@ -233,15 +226,11 @@ export default function Devocional() {
 
             {/* Conteúdo do devocional */}
             <Box
-              ref={scrollRef}
               sx={{
-                flex: 1,
-                overflow: 'auto',
+                width: '100%',
                 px: { xs: 1, sm: 2.5 },
                 py: { xs: 1.5, sm: 2.5 },
-                pb: 'calc(env(safe-area-inset-bottom, 0px) + 88px)',
-                WebkitOverflowScrolling: 'touch',
-                overscrollBehavior: 'contain',
+                pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)',
                 touchAction: 'pan-y',
               }}
             >
@@ -295,66 +284,78 @@ export default function Devocional() {
             </Box>
 
             {/* Navegação */}
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                width: '100%',
-                position: 'absolute',
-                bottom: 'calc(env(safe-area-inset-bottom, 0px) + 14px)',
-                left: 0,
-                px: { xs: 1, sm: 2 },
-                zIndex: 1000,
-                pointerEvents: 'none',
-              }}
-            >
+            <Portal>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  width: '100%',
+                  position: 'fixed',
+                  top: '50%',
+                  left: 0,
+                  right: 0,
+                  transform: 'translateY(-50%)',
+                  px: { xs: 1, sm: 2 },
+                  zIndex: 1000,
+                  pointerEvents: 'none',
+                }}
+              >
               <IconButton
                 onClick={handleAnterior}
                 disabled={devocionalAtual.id <= 1}
                 sx={{
-                  bgcolor: 'background.paper',
+                  bgcolor: 'transparent',
                   color: 'primary.main',
-                  border: 1,
-                  borderColor: 'divider',
-                  opacity: 0.9,
+                  border: 'none',
+                  boxShadow: 'none',
+                  backdropFilter: 'none',
+                  opacity: 0.45,
+                  ml: '-14px',
+                  borderRadius: '0 8px 8px 0',
+                  transition: 'opacity 0.2s ease, margin 0.2s ease',
                   '&:hover': {
-                    bgcolor: 'action.hover',
-                    opacity: 1
+                    bgcolor: 'transparent',
+                    opacity: 0.9,
+                    ml: '-7px'
                   },
                   '&.Mui-disabled': {
-                    opacity: 0.28
+                    opacity: 0.15
                   },
-                  boxShadow: 3,
                   pointerEvents: 'auto',
                 }}
               >
-                <ArrowBackIosNewIcon />
+                <ArrowBackIosNewIcon sx={{ fontSize: '2rem' }} />
               </IconButton>
 
               <IconButton
                 onClick={handleProximo}
                 disabled={devocionalAtual.id >= devocionalData.length}
                 sx={{
-                  bgcolor: 'background.paper',
+                  bgcolor: 'transparent',
                   color: 'primary.main',
-                  border: 1,
-                  borderColor: 'divider',
-                  opacity: 0.9,
+                  border: 'none',
+                  boxShadow: 'none',
+                  backdropFilter: 'none',
+                  opacity: 0.45,
+                  mr: '-14px',
+                  borderRadius: '8px 0 0 8px',
+                  transition: 'opacity 0.2s ease, margin 0.2s ease',
                   '&:hover': {
-                    bgcolor: 'action.hover',
-                    opacity: 1
+                    bgcolor: 'transparent',
+                    opacity: 0.9,
+                    mr: '-7px'
                   },
                   '&.Mui-disabled': {
-                    opacity: 0.28
+                    opacity: 0.15
                   },
-                  boxShadow: 3,
                   pointerEvents: 'auto',
                 }}
               >
-                <ArrowForwardIosIcon />
+                <ArrowForwardIosIcon sx={{ fontSize: '2rem' }} />
               </IconButton>
-            </Box>
+              </Box>
+            </Portal>
           </Paper>
         ) : (
           <Container

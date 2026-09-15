@@ -17,7 +17,7 @@ import {
   Divider,
   Portal
 } from '@mui/material'
-import { devocionalData } from '../data/devocional'
+import { devocionalData, devocionalMeta, devocionalSecoes } from '../data/devocional'
 import TextoComReferencias from '../components/TextoComReferencias'
 import SearchIcon from '@mui/icons-material/Search'
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
@@ -33,23 +33,32 @@ import { buildDevocionalExport } from '../utils/appExportPayload'
 import { ensureUserForChatExport, pushPendingChatExport } from '../utils/chatExportSend'
 import { avisarAsync } from '../utils/uiDialogs'
 import EditorialContentHeader from '../components/EditorialContentHeader'
-import EditorialProse from '../components/EditorialProse'
 import EditorialPageSurface from '../components/EditorialPageSurface'
 import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
+
+const compactarQuebras = (texto) => String(texto || '').replace(/\r\n/g, '\n').replace(/\n{2,}/g, '\n')
+const devocionaisOrdenados = [...devocionalData].sort((a, b) => a.ordem - b.ordem)
+const secoesPorId = new Map(devocionalSecoes.map((secao) => [secao.id, secao]))
 
 export default function Devocional() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useFirebaseAuth()
-  const { fontSize, fontFamily, lineHeight, devocionaisConcluidos, setDevocionaisConcluidos } = useApp()
+  const { fontSize, fontFamily, lineHeight, textAlign, devocionaisConcluidos, setDevocionaisConcluidos } = useApp()
   const ff = resolveFontFamily(fontFamily)
   const lh = readingLineHeightToCss(lineHeight)
+  const tamanhoTituloSecao = `${Math.max(90, Math.round(fontSize * 0.9))}%`
   const [searchTerm, setSearchTerm] = useState('')
   const [devocionalAtual, setDevocionalAtual] = useState(null)
+  const indiceAtual = devocionalAtual
+    ? devocionaisOrdenados.findIndex((devocional) => devocional.id === devocionalAtual.id)
+    : -1
+  const secaoAtual = devocionalAtual ? secoesPorId.get(devocionalAtual.secao) : null
 
   useEffect(() => {
     if (id) {
-      const devocional = devocionalData.find(d => d.id === parseInt(id))
+      // A URL permanece vinculada ao ID histórico; `ordem` é apenas a posição editorial visível.
+      const devocional = devocionaisOrdenados.find(d => d.id === parseInt(id))
       if (devocional) {
         setDevocionalAtual(devocional)
       } else {
@@ -70,15 +79,13 @@ export default function Devocional() {
   }, [devocionalAtual]);
 
   const handleAnterior = () => {
-    if (devocionalAtual && devocionalAtual.id > 1) {
-      navigate(`/devocional/${devocionalAtual.id - 1}`)
-    }
+    if (indiceAtual <= 0) return
+    navigate(`/devocional/${devocionaisOrdenados[indiceAtual - 1].id}`)
   }
 
   const handleProximo = () => {
-    if (devocionalAtual && devocionalAtual.id < devocionalData.length) {
-      navigate(`/devocional/${devocionalAtual.id + 1}`)
-    }
+    if (indiceAtual < 0 || indiceAtual >= devocionaisOrdenados.length - 1) return
+    navigate(`/devocional/${devocionaisOrdenados[indiceAtual + 1].id}`)
   }
 
   const toggleDevocionalConcluido = (devocionalId) => {
@@ -89,20 +96,15 @@ export default function Devocional() {
     )
   }
 
-  const devocionaisFiltrados = devocionalData.filter(devocional =>
+  const devocionaisFiltrados = devocionaisOrdenados.filter(devocional =>
     devocional.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    devocional.introducao.texto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    devocional.meditacao.some(meditacao =>
-      meditacao.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      meditacao.texto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (meditacao.reflexao && meditacao.reflexao.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (meditacao.oracao && meditacao.oracao.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (meditacao.conselho_pastoral && meditacao.conselho_pastoral.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (meditacao.desafio && meditacao.desafio.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
+    devocional.leitura.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    devocional.texto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    devocional.pense_bem.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    devocional.oracao.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const totalDevocionais = devocionalData.length
+  const totalDevocionais = devocionaisOrdenados.length
   const totalConcluidos = devocionaisConcluidos.length
   const progressoPercentual = totalDevocionais > 0
     ? Math.round((totalConcluidos / totalDevocionais) * 100)
@@ -133,6 +135,7 @@ export default function Devocional() {
               borderRadius: 0,
               fontFamily: ff,
               lineHeight: lh,
+              textAlign,
             }}
           >
             <Box
@@ -149,8 +152,8 @@ export default function Devocional() {
               <Box sx={{ width: '100%', maxWidth: 920, mx: 'auto', display: 'grid', gap: 1.25 }}>
                 <EditorialContentHeader
                   title={devocionalAtual.titulo}
-                  subtitle="Meditação bíblica para a vida cristã"
-                  eyebrow="Devocional"
+                  subtitle={secaoAtual?.titulo || 'Meditação bíblica para a vida cristã'}
+                  eyebrow={`Devocional • Dia ${devocionalAtual.ordem} de ${totalDevocionais}`}
                   image={EDITORIAL_IMAGES.devocional}
                   imagePosition="center 50%"
                 />
@@ -229,57 +232,90 @@ export default function Devocional() {
               sx={{
                 width: '100%',
                 px: { xs: 1, sm: 2.5 },
-                py: { xs: 1.5, sm: 2.5 },
+                py: { xs: 1, sm: 1.5 },
                 pb: 'calc(env(safe-area-inset-bottom, 0px) + 32px)',
                 touchAction: 'pan-y',
               }}
             >
               <Box sx={{ width: '100%', maxWidth: 860, mx: 'auto' }}>
-              <EditorialProse
-                text={devocionalAtual.introducao.texto}
-                fontSize={fontSize}
-                textAlign="justify"
-                lineHeight={lh}
-                sx={{ mb: 2 }}
-              />
-
-              {/* Meditação */}
-              {devocionalAtual.meditacao.map((meditacao, index) => (
                 <EditorialPageSurface
-                  key={index}
                   sx={{
-                    mb: 2,
+                    mb: 1,
                     px: { xs: 2, sm: 2.5 },
-                    py: { xs: 2, sm: 2.5 },
+                    py: { xs: 1.5, sm: 2 },
                   }}
                 >
-                    <Typography variant="h6" gutterBottom sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
-                      {meditacao.titulo}
+                    <Typography variant="subtitle1" color="text.secondary" gutterBottom sx={{ fontSize: `${fontSize}%`, fontFamily: ff, lineHeight: lh, textAlign }}>
+                      Leitura: <TextoComReferencias texto={devocionalAtual.leitura} inline={true} style={{ fontSize: `${fontSize}%`, fontFamily: ff, lineHeight: lh }} />
                     </Typography>
-                    <Typography variant="subtitle1" color="text.secondary" gutterBottom sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
-                      Leitura: <TextoComReferencias texto={meditacao.leitura} inline={true} style={{ fontSize: `${fontSize}%`, lineHeight: lh }} />
-                    </Typography>
-                    <Divider sx={{ my: 2 }} />
-                    <TextoComReferencias texto={meditacao.texto} style={{ fontSize: `${fontSize}%`, lineHeight: lh }} />
-                    <Divider sx={{ my: 2 }} />
-                    <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
-                      Reflexão:
-                    </Typography>
-                    <TextoComReferencias texto={meditacao.reflexao} style={{ fontSize: `${fontSize}%`, lineHeight: lh, marginBottom: 16 }} />
-                    <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
-                      Oração:
-                    </Typography>
-                    <TextoComReferencias texto={meditacao.oracao} style={{ fontSize: `${fontSize}%`, lineHeight: lh, marginBottom: 16 }} />
-                    <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
-                      Conselho Pastoral:
-                    </Typography>
-                    <TextoComReferencias texto={meditacao.conselho_pastoral} style={{ fontSize: `${fontSize}%`, lineHeight: lh, marginBottom: 16 }} />
-                    <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontSize: `${fontSize}%`, lineHeight: lh }}>
-                      Desafio:
-                    </Typography>
-                    <TextoComReferencias texto={meditacao.desafio} style={{ fontSize: `${fontSize}%`, lineHeight: lh }} />
+                    <Divider sx={{ my: 1.25 }} />
+                    <TextoComReferencias texto={compactarQuebras(devocionalAtual.texto)} style={{ fontSize: `${fontSize}%`, fontFamily: ff, lineHeight: lh, textAlign }} />
+                    <Box
+                      component="section"
+                      sx={{
+                        mt: 1.25,
+                        px: 1.25,
+                        py: 1,
+                        border: 1,
+                        borderLeft: 4,
+                        borderColor: 'divider',
+                        borderLeftColor: 'primary.main',
+                        borderRadius: 1.5,
+                        bgcolor: 'action.hover',
+                      }}
+                    >
+                      <Typography
+                        component="h2"
+                        color="primary"
+                        sx={{
+                          m: 0,
+                          mb: 0.5,
+                          fontSize: tamanhoTituloSecao,
+                          fontFamily: ff,
+                          fontWeight: 800,
+                          lineHeight: 1.25,
+                          letterSpacing: '0.045em',
+                          textTransform: 'uppercase',
+                          textAlign,
+                        }}
+                      >
+                        Pense bem!
+                      </Typography>
+                      <TextoComReferencias texto={compactarQuebras(devocionalAtual.pense_bem)} style={{ fontSize: `${fontSize}%`, fontFamily: ff, lineHeight: lh, textAlign }} />
+                    </Box>
+                    <Box
+                      component="section"
+                      sx={{
+                        mt: 1,
+                        px: 1.25,
+                        py: 1,
+                        border: 1,
+                        borderLeft: 4,
+                        borderColor: 'divider',
+                        borderLeftColor: 'primary.main',
+                        borderRadius: 1.5,
+                      }}
+                    >
+                      <Typography
+                        component="h2"
+                        color="primary"
+                        sx={{
+                          m: 0,
+                          mb: 0.5,
+                          fontSize: tamanhoTituloSecao,
+                          fontFamily: ff,
+                          fontWeight: 800,
+                          lineHeight: 1.25,
+                          letterSpacing: '0.045em',
+                          textTransform: 'uppercase',
+                          textAlign,
+                        }}
+                      >
+                        Oração
+                      </Typography>
+                      <TextoComReferencias texto={devocionalAtual.oracao} style={{ fontSize: `${fontSize}%`, fontFamily: ff, lineHeight: lh, textAlign }} />
+                    </Box>
                 </EditorialPageSurface>
-              ))}
               </Box>
             </Box>
 
@@ -303,7 +339,7 @@ export default function Devocional() {
               >
               <IconButton
                 onClick={handleAnterior}
-                disabled={devocionalAtual.id <= 1}
+                disabled={indiceAtual <= 0}
                 sx={{
                   bgcolor: 'transparent',
                   color: 'primary.main',
@@ -330,7 +366,7 @@ export default function Devocional() {
 
               <IconButton
                 onClick={handleProximo}
-                disabled={devocionalAtual.id >= devocionalData.length}
+                disabled={indiceAtual < 0 || indiceAtual >= devocionaisOrdenados.length - 1}
                 sx={{
                   bgcolor: 'transparent',
                   color: 'primary.main',
@@ -410,6 +446,38 @@ export default function Devocional() {
                 </Box>
               </Box>
 
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mt: 1.5, fontFamily: ff, lineHeight: 1.6, textAlign }}
+              >
+                {devocionalMeta.introducao}
+              </Typography>
+
+              <Box
+                component="details"
+                sx={{
+                  mt: 1,
+                  px: 1.25,
+                  py: 0.75,
+                  border: 1,
+                  borderColor: 'divider',
+                  borderRadius: 1.5,
+                  bgcolor: 'action.hover',
+                  '&[open] summary': { mb: 0.75 },
+                }}
+              >
+                <Box
+                  component="summary"
+                  sx={{ cursor: 'pointer', color: 'primary.main', fontWeight: 800, fontSize: '0.82rem' }}
+                >
+                  Aviso pastoral
+                </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ fontFamily: ff, lineHeight: 1.55, textAlign }}>
+                  {devocionalMeta.avisoPastoral}
+                </Typography>
+              </Box>
+
               <TextField
                 fullWidth
                 size="small"
@@ -427,67 +495,107 @@ export default function Devocional() {
               />
             </Paper>
 
-            <Grid container spacing={1.5}>
-              {devocionaisFiltrados.map((devocional) => {
-                const concluido = devocionaisConcluidos.includes(devocional.id)
-                return (
-                  <Grid item xs={12} sm={6} md={4} key={devocional.id}>
-                    <Card
-                      variant="outlined"
-                      sx={{
-                        height: '100%',
-                        borderRadius: 2,
-                        boxShadow: 'none',
-                        bgcolor: 'background.paper',
-                        borderColor: concluido ? 'success.main' : 'divider',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <CardActionArea onClick={() => navigate(`/devocional/${devocional.id}`)} sx={{ height: '100%' }}>
-                        <CardContent sx={{ p: { xs: 1.75, sm: 2 }, minHeight: 150, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800 }}>
-                              Dia {devocional.id}
-                            </Typography>
-                            {concluido && (
-                              <Tooltip title="Devocional lido">
-                                <CheckCircleIcon color="success" sx={{ fontSize: '1.25rem', flexShrink: 0 }} />
-                              </Tooltip>
-                            )}
-                          </Box>
+            {devocionalSecoes.map((secao) => {
+              const itensDaSecao = devocionaisFiltrados.filter((devocional) => devocional.secao === secao.id)
+              if (itensDaSecao.length === 0) return null
 
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              fontSize: '1.02rem',
-                              lineHeight: 1.25,
-                              fontWeight: 800,
-                              wordBreak: 'break-word',
-                            }}
-                          >
-                            {devocional.titulo}
-                          </Typography>
+              return (
+                <Box component="section" key={secao.id} sx={{ mb: 3 }}>
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      mb: 1.25,
+                      px: { xs: 1.5, sm: 2 },
+                      py: 1.25,
+                      borderLeft: 4,
+                      borderLeftColor: 'primary.main',
+                      borderRadius: 2,
+                      bgcolor: 'action.hover',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
+                      <Typography variant="h6" sx={{ fontFamily: ff, fontSize: '1.05rem', fontWeight: 800, lineHeight: 1.25 }}>
+                        {secao.ordem}. {secao.titulo}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800 }}>
+                        Dias {secao.inicio}–{secao.fim}
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4, fontFamily: ff, lineHeight: 1.5 }}>
+                      {secao.descricao}
+                    </Typography>
+                  </Paper>
 
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
+                  <Grid container spacing={1.5}>
+                    {itensDaSecao.map((devocional) => {
+                      const concluido = devocionaisConcluidos.includes(devocional.id)
+                      return (
+                        <Grid item xs={12} sm={6} md={4} key={devocional.id}>
+                          <Card
+                            variant="outlined"
                             sx={{
-                              lineHeight: 1.55,
-                              display: '-webkit-box',
-                              WebkitLineClamp: 3,
-                              WebkitBoxOrient: 'vertical',
+                              height: '100%',
+                              borderRadius: 2,
+                              boxShadow: 'none',
+                              bgcolor: 'background.paper',
+                              borderColor: concluido ? 'success.main' : 'divider',
                               overflow: 'hidden',
                             }}
                           >
-                            {devocional.introducao.texto}
-                          </Typography>
-                        </CardContent>
-                      </CardActionArea>
-                    </Card>
+                            <CardActionArea onClick={() => navigate(`/devocional/${devocional.id}`)} sx={{ height: '100%' }}>
+                              <CardContent sx={{ p: { xs: 1.75, sm: 2 }, minHeight: 150, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800 }}>
+                                    Dia {devocional.ordem}
+                                  </Typography>
+                                  {concluido && (
+                                    <Tooltip title="Devocional lido">
+                                      <CheckCircleIcon color="success" sx={{ fontSize: '1.25rem', flexShrink: 0 }} />
+                                    </Tooltip>
+                                  )}
+                                </Box>
+
+                                <Typography
+                                  variant="h6"
+                                  sx={{
+                                    fontSize: '1.02rem',
+                                    lineHeight: 1.25,
+                                    fontWeight: 800,
+                                    wordBreak: 'break-word',
+                                  }}
+                                >
+                                  {devocional.titulo}
+                                </Typography>
+
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{
+                                    lineHeight: 1.55,
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 3,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                  }}
+                                >
+                                  {devocional.texto}
+                                </Typography>
+                              </CardContent>
+                            </CardActionArea>
+                          </Card>
+                        </Grid>
+                      )
+                    })}
                   </Grid>
-                )
-              })}
-            </Grid>
+                </Box>
+              )
+            })}
+
+            {devocionaisFiltrados.length === 0 && (
+              <Paper variant="outlined" sx={{ p: 3, textAlign: 'center', borderRadius: 2 }}>
+                <Typography color="text.secondary">Nenhum devocional encontrado.</Typography>
+              </Paper>
+            )}
           </Container>
       )}
     </Box>

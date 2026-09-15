@@ -15,6 +15,9 @@ const capituloCache = new Map()
 const CAPITULO_CACHE_MAX = 24
 const pericopesCache = new Map()
 const PERICOPES_CACHE_MAX = 80
+// Deve mudar sempre que public/ara.sqlite for substituído. Evita que instalações
+// existentes continuem usando indefinidamente uma cópia antiga no IndexedDB.
+const ARA_SQLITE_CONTENT_REV = 'ea17063b'
 /** Primeiro livro do NT (Mateus); ids menores são AT. */
 const LIVRO_ID_NT_INICIO = 40
 
@@ -71,7 +74,10 @@ export async function initDB() {
   initPromise = (async () => {
     try {
       const base = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/';
-      const rev = String(import.meta.env?.VITE_SQLITE_ASSET_REV || '').trim();
+      const configuredRev = String(import.meta.env?.VITE_SQLITE_ASSET_REV || '').trim();
+      const rev = configuredRev
+        ? `${ARA_SQLITE_CONTENT_REV}-${configuredRev}`
+        : ARA_SQLITE_CONTENT_REV;
       const url = `${base}ara.sqlite${rev ? `?v=${encodeURIComponent(rev)}` : ''}`;
 
       SQL = await initSqlJs({

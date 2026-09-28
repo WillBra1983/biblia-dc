@@ -3,7 +3,7 @@
  * Exige autenticação Firebase; chave só no servidor (secret GEMINI_API_KEY).
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { defineSecret } = require('firebase-functions/params')
 const { logger } = require('firebase-functions/v2')

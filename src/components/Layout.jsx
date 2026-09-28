@@ -74,6 +74,7 @@ function getPageTitleFromPathname(pathname) {
   if (path.startsWith('/mais-de-deus')) return 'Mais de Deus'
   if (path.startsWith('/youtube')) return 'YouTube'
   if (path.startsWith('/quiz-retiro')) return 'Quiz Bíblico'
+  if (path.startsWith('/biblioteca/') || path === '/biblioteca') return 'Biblioteca Digital'
   if (path.startsWith('/biblioteca-estudos')) return 'Bíblia comentada'
   if (path === '/estudos-biblicos/gerir') return 'Gerenciar estudos'
   /** Comentários gerados/curados pertencem ao acervo da Bíblia comentada. */
@@ -187,6 +188,7 @@ export default function Layout({ title, children }) {
     p === '/mais-de-deus' ||
     p === '/hinario-editor' ||
     p.startsWith('/biblioteca-estudos') ||
+    p.startsWith('/biblioteca') ||
     p.startsWith('/estudos-biblicos') ||
     p.startsWith('/estudo-strong') ||
     p.startsWith('/sobre') ||
@@ -209,6 +211,7 @@ export default function Layout({ title, children }) {
   const ocultarAcoesLeituraAppBar =
     pathnameNorm.startsWith('/estudos-biblicos') ||
     pathnameNorm.startsWith('/biblioteca-estudos') ||
+    pathnameNorm.startsWith('/biblioteca') ||
     pathnameNorm.startsWith('/hinario-editor') ||
     pathnameNorm.startsWith('/youtube') ||
     pathnameNorm.startsWith('/quiz-retiro') ||

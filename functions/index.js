@@ -5,7 +5,7 @@
  * re-export para o runtime do Firebase descobri-las pelo nome.
  */
 
-const admin = require('firebase-admin')
+const admin = require('./src/firebaseAdmin')
 
 if (!admin.apps.length) {
   admin.initializeApp()
@@ -17,6 +17,16 @@ exports.pushChatMensagem = require('./src/onMensagemChat').pushChatMensagem
 // Aviso administrativo (callable)
 exports.enviarAvisoAdmin = require('./src/enviarAvisoAdmin').enviarAvisoAdmin
 
+// Capas da Biblioteca Digital — envio validado exclusivamente para administradores.
+exports.enviarCapaBiblioteca = require('./src/bibliotecaCapas').enviarCapaBiblioteca
+
+// Venda direta da Biblioteca por Pix, com conferência e liberação pelo administrador.
+const bibliotecaPix = require('./src/bibliotecaPix')
+exports.salvarConfiguracaoPixBiblioteca = bibliotecaPix.salvarConfiguracaoPixBiblioteca
+exports.criarPedidoPixBiblioteca = bibliotecaPix.criarPedidoPixBiblioteca
+exports.informarPagamentoPixBiblioteca = bibliotecaPix.informarPagamentoPixBiblioteca
+exports.decidirPedidoPixBiblioteca = bibliotecaPix.decidirPedidoPixBiblioteca
+
 // Lembretes diários (cron)
 exports.lembretesDiarios = require('./src/lembretesDiarios').lembretesDiarios
 
@@ -25,6 +35,12 @@ const topicNovidades = require('./src/gerirTopicNovidades')
 exports.inscreverTokenNovoNovidades = topicNovidades.inscreverTokenNovoNovidades
 exports.desinscreverTokenRemovidoNovidades = topicNovidades.desinscreverTokenRemovidoNovidades
 exports.aoMudarPreferenciaNovidades = topicNovidades.aoMudarPreferenciaNovidades
+
+// Opt-in de lançamentos editoriais (3 triggers RTDB; default desligado)
+const topicLivros = require('./src/gerirTopicLivros')
+exports.inscreverTokenNovoLivros = topicLivros.inscreverTokenNovoLivros
+exports.desinscreverTokenRemovidoLivros = topicLivros.desinscreverTokenRemovidoLivros
+exports.aoMudarPreferenciaLivros = topicLivros.aoMudarPreferenciaLivros
 
 // Votação em estudos IA (versículo + perícope): 10 positivos → oficial; 10 negativos → descarta candidato
 exports.onVotoEstudoCurado = require('./src/onVotoEstudoCurado').onVotoEstudoCurado

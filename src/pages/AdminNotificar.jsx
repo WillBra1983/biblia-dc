@@ -92,6 +92,7 @@ const ROTAS_SUGERIDAS = [
   { label: 'Devocional', value: '/devocional' },
   { label: 'Estudos Compartilhados', value: '/estudos-biblicos' },
   { label: 'Bíblia comentada', value: '/biblioteca-estudos' },
+  { label: 'Biblioteca de livros', value: '/biblioteca' },
   { label: 'Hinário - Letra', value: '/hinario/letra' },
   { label: 'Hinário - Cifras', value: '/hinario/cifras' },
   { label: 'Confissão de Fé', value: '/confissao' },
@@ -118,6 +119,7 @@ export default function AdminNotificar() {
   const [url, setUrl] = useState('/')
   const [temAtualizacaoApp, setTemAtualizacaoApp] = useState(false)
   const [somenteTeste, setSomenteTeste] = useState(true)
+  const [categoriaAviso, setCategoriaAviso] = useState('novidades')
   const [confirmouTesteAtualizacao, setConfirmouTesteAtualizacao] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [ultimoEnvio, setUltimoEnvio] = useState(null)
@@ -280,7 +282,7 @@ export default function AdminNotificar() {
         url: temAtualizacaoApp ? URL_ATUALIZACAO_FALLBACK : u,
         atualizacaoApp: temAtualizacaoApp,
         somenteParaMim: somenteTeste,
-        topic: 'novidades'
+        topic: categoriaAviso
       })
       setUltimoEnvio({
         quando: Date.now(),
@@ -333,8 +335,8 @@ export default function AdminNotificar() {
           </>
         ) : (
           <>
-            Será enviado para todos os aparelhos inscritos no topic <code>novidades</code>.
-            Usuários que desligaram esse switch nas Configurações não recebem.
+            Será enviado somente aos aparelhos inscritos em <strong>{categoriaAviso === 'livros' ? 'Livros e lançamentos' : 'Novidades gerais'}</strong>.
+            Usuários que desligaram essa opção nas Configurações não recebem.
           </>
         )}
       </Alert>
@@ -349,6 +351,30 @@ export default function AdminNotificar() {
           )}
           label="Enviar teste somente para mim"
         />
+        <Box>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
+            Público do comunicado:
+          </Typography>
+          <Stack direction="row" spacing={1}>
+            <Button
+              size="small"
+              variant={categoriaAviso === 'novidades' ? 'contained' : 'outlined'}
+              onClick={() => setCategoriaAviso('novidades')}
+            >
+              Novidades gerais
+            </Button>
+            <Button
+              size="small"
+              variant={categoriaAviso === 'livros' ? 'contained' : 'outlined'}
+              onClick={() => {
+                setCategoriaAviso('livros')
+                if (url === '/') setUrl('/biblioteca')
+              }}
+            >
+              Livros e lançamentos
+            </Button>
+          </Stack>
+        </Box>
         <TextField
           label="Título"
           value={titulo}

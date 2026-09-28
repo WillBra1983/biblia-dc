@@ -6,7 +6,7 @@
  * que o Admin SDK já devolve (email, displayName, datas); não inclui tokens.
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { logger } = require('firebase-functions/v2')
 

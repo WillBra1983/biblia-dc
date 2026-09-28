@@ -18,7 +18,7 @@
  *   `startAfter()`.
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const { onSchedule } = require('firebase-functions/v2/scheduler')
 const { logger } = require('firebase-functions/v2')
 const { enviarParaUsuarios } = require('./push')

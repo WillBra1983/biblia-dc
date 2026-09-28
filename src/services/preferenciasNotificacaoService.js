@@ -6,6 +6,7 @@
  * Campos:
  *   - chat                  (boolean)
  *   - novidades             (boolean) — receber pushes do topic 'novidades'
+ *   - livros                (boolean) — lançamentos editoriais (opt-in)
  *   - lembreteDevocional    (boolean)
  *   - lembretePlano         (boolean)
  *   - horarioLembrete       (string 'HH:mm')
@@ -19,6 +20,7 @@ import { getFirebaseDatabase } from '../config/firebase'
 export const PREFS_PADRAO = Object.freeze({
   chat: true,
   novidades: true,
+  livros: false,
   lembreteDevocional: false,
   lembretePlano: false,
   horarioLembrete: '07:00'

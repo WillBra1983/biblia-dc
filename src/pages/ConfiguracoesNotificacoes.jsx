@@ -22,6 +22,7 @@ import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
+import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined'
 import { Capacitor } from '@capacitor/core'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import {
@@ -135,6 +136,33 @@ export default function ConfiguracoesNotificacoes() {
     Boolean(prefs.lembreteDevocional) ||
     Boolean(prefs.lembretePlano)
 
+  async function alternarAvisosLivros() {
+    if (!user?.uid) return
+    const ligar = !Boolean(prefs.livros)
+    setSalvando(true)
+    setPrefs((prev) => ({ ...prev, livros: ligar }))
+    try {
+      await atualizarPreferenciasNotificacao(user.uid, { livros: ligar })
+      if (ligar && (!ehWeb || navegadorPermitido) && !pushAtivoNoAparelho) {
+        await aoAtivarPush()
+      } else if (!ligar && !notificacoesAtivas && pushAtivoNoAparelho) {
+        await aoDesativarPush()
+      }
+      mostrarSnackbar({
+        mensagem: ligar
+          ? 'Avisos de livros e lançamentos ativados.'
+          : 'Avisos de livros e lançamentos desativados.',
+        severidade: ligar ? 'success' : 'info',
+      })
+    } catch (e) {
+      const preferenciaServidor = await obterPreferenciasNotificacao(user.uid)
+      setPrefs(preferenciaServidor)
+      mostrarSnackbar({ mensagem: e?.message || 'Falha ao salvar preferência.', severidade: 'error' })
+    } finally {
+      setSalvando(false)
+    }
+  }
+
   async function alternarNotificacoes() {
     if (!user?.uid) return
     const ligar = !notificacoesAtivas
@@ -151,7 +179,7 @@ export default function ConfiguracoesNotificacoes() {
       if (!ehWeb || navegadorPermitido) {
         if (ligar && !pushAtivoNoAparelho) {
           await aoAtivarPush()
-        } else if (!ligar && pushAtivoNoAparelho) {
+        } else if (!ligar && !prefs.livros && pushAtivoNoAparelho) {
           await aoDesativarPush()
         }
       } else if (ligar) {
@@ -304,6 +332,28 @@ export default function ConfiguracoesNotificacoes() {
           checked={notificacoesAtivas}
           disabled={salvando || ativandoPush || (ehWeb && !navegadorPermitido)}
           onChange={() => void alternarNotificacoes()}
+        />
+      </Stack>
+
+      <Divider sx={{ my: 1.5 }} />
+
+      <Stack direction="row" alignItems="center" spacing={2} sx={{ py: 0.5 }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <AutoStoriesOutlinedIcon color="primary" fontSize="small" />
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              Livros e lançamentos
+            </Typography>
+          </Stack>
+          <Typography variant="caption" color="text.secondary">
+            Receber avisos ocasionais sobre novas traduções e edições. Esta opção é voluntária.
+          </Typography>
+        </Box>
+        <Switch
+          checked={Boolean(prefs.livros)}
+          disabled={salvando || ativandoPush || (ehWeb && !navegadorPermitido)}
+          onChange={() => void alternarAvisosLivros()}
+          inputProps={{ 'aria-label': 'Receber avisos de livros e lançamentos' }}
         />
       </Stack>
     </Container>

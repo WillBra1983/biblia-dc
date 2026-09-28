@@ -17,7 +17,7 @@
  *     unsubscribe todos os tokens daquele usuário em massa.
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const {
   onValueCreated,
   onValueDeleted,

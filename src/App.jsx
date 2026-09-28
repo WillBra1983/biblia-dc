@@ -60,6 +60,7 @@ const EstudoBiblicoEditor = lazy(() => import('./pages/EstudoBiblicoEditor'))
 const EstudoBiblicoIaPassagem = lazy(() => import('./pages/EstudoBiblicoIaPassagem'))
 const EstudoBiblicoIaPericope = lazy(() => import('./pages/EstudoBiblicoIaPericope'))
 const BibliotecaEstudos = lazy(() => import('./pages/BibliotecaEstudos'))
+const BibliotecaLivros = lazy(() => import('./pages/BibliotecaLivros'))
 const EstudoBiblicoVer = lazy(() => import('./pages/EstudoBiblicoVer'))
 const EstudosBiblicosGerir = lazy(() => import('./pages/EstudosBiblicosGerir'))
 const Sobre = lazy(() => import('./pages/Sobre'))
@@ -233,6 +234,8 @@ const appRouteTree = createRoutesFromElements(
     <Route path="estudos-biblicos/ia-passagem" element={<EstudoBiblicoIaPassagem />} />
     <Route path="estudos-biblicos/ia-pericope" element={<EstudoBiblicoIaPericope />} />
     <Route path="biblioteca-estudos" element={<BibliotecaEstudos />} />
+    <Route path="biblioteca" element={<BibliotecaLivros />} />
+    <Route path="biblioteca/:livroId" element={<BibliotecaLivros />} />
     <Route path="estudos-biblicos/abrir" element={<EstudoBiblicoVer />} />
     {/* Rota canónica nova (alinhada ao termo "avaliação" usado na UI). */}
     <Route path="estudos-biblicos/avaliacao-resultado" element={<EstudoBiblicoProvaResultado />} />

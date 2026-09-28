@@ -5,7 +5,7 @@
  * RTDB `profileEmails` ainda não foi sincronizado. Qualquer utilizador autenticado.
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { logger } = require('firebase-functions/v2')
 

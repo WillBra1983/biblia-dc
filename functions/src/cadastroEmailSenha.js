@@ -3,7 +3,7 @@
  * Só após `signInWithEmailLink` + `finalizarCadastroEmailLink` existe conta com senha.
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const crypto = require('crypto')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { logger } = require('firebase-functions/v2')

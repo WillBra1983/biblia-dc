@@ -6,6 +6,7 @@ import BibliaIcon from '@mui/icons-material/MenuBook'
 import DiscipuladoIcon from '@mui/icons-material/People'
 import EstudosBiblicosIcon from '@mui/icons-material/Groups'
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks'
+import TabletMacOutlinedIcon from '@mui/icons-material/TabletMacOutlined'
 import WestminsterIcon from '@mui/icons-material/Church'
 import ConfissaoIcon from '@mui/icons-material/Article'
 import CatecismoMaiorIcon from '@mui/icons-material/LibraryBooks'
@@ -249,6 +250,14 @@ const menuItems = [
     fundo: 'menu-fundos/biblia.webp'
   },
   {
+    text: 'Biblioteca Digital',
+    icon: <TabletMacOutlinedIcon sx={{ fontSize: ICON_SIZE }} />,
+    path: '/biblioteca',
+    description: 'Livros para leitura digital e aquisição',
+    accentRing: 'rgba(227, 189, 104, 0.78)',
+    fundo: 'menu-fundos/biblioteca-digital.webp',
+  },
+  {
     text: 'Plano de leitura',
     icon: <EventNoteIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/plano-leitura-biblia',
@@ -337,9 +346,9 @@ const menuItems = [
   },
 ]
 
-const menuAntesHinario = menuItems.slice(0, 4)
+const menuAntesHinario = menuItems.slice(0, 5)
 // Itens depois de Westminster e antes do "Sobre" (menuFinal).
-const menuDepoisWestminster = menuItems.slice(4, -1)
+const menuDepoisWestminster = menuItems.slice(5, -1)
 const menuFinal = menuItems.slice(-1)
 
 /**
@@ -482,6 +491,7 @@ function nomePrefetchPorPath(path) {
   if (!path) return null
   if (path === '/chat') return 'chat'
   if (path.startsWith('/discipulado')) return 'discipulado'
+  if (path.startsWith('/biblioteca') && !path.startsWith('/biblioteca-estudos')) return 'bibliotecaLivros'
   if (path.startsWith('/hinario/editor') || path.startsWith('/hinario-editor')) return 'hinarioEditor'
   if (path.startsWith('/hinario/salmos') || path.startsWith('/hinario/canticos')) return 'canticos'
   if (path.startsWith('/hinario/outras-cancoes')) return 'canticos'

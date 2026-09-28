@@ -3,7 +3,7 @@
  * Cadastros novos usam link de e-mail: a conta Auth só existe após abrir o link.
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const { onSchedule } = require('firebase-functions/v2/scheduler')
 const { logger } = require('firebase-functions/v2')
 

@@ -19,7 +19,7 @@
  * cada tom é tratado como um estudo independente.
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const { onValueWritten } = require('firebase-functions/v2/database')
 const { logger } = require('firebase-functions/v2')
 

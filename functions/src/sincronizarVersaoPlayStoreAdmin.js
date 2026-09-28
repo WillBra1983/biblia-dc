@@ -4,7 +4,7 @@
  * Só administradores. Requer secret PLAY_STORE_SERVICE_ACCOUNT.
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { logger } = require('firebase-functions/v2')
 const {

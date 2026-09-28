@@ -77,6 +77,7 @@ export function pathnameParaSectionKey(pathname) {
   if (p === '/versiculo-do-dia') return 'versiculo_do_dia'
   if (p === '/versiculos-do-dia') return 'versiculos_do_dia'
   if (p.startsWith('/biblioteca-estudos')) return 'biblioteca_estudos'
+  if (p.startsWith('/biblioteca')) return 'biblioteca_livros'
   if (p.startsWith('/chat')) return 'chat'
 
   if (p.startsWith('/configuracoes/notificacoes')) return 'config_notificacoes'

@@ -13,6 +13,7 @@
  * /users/{uid}/notif/preferencias = {
  *   chat: boolean,
  *   novidades: boolean,
+ *   livros: boolean,
  *   lembreteDevocional: boolean,
  *   lembretePlano: boolean,
  *   horarioLembrete: 'HH:mm'  // ex.: '07:00'
@@ -25,7 +26,7 @@
  * — ou simplesmente lê o campo `token` do objeto, que é o valor "limpo".
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 
 function db() {
   return admin.database()
@@ -87,6 +88,7 @@ function defaultPrefs() {
   return {
     chat: true,
     novidades: true,
+    livros: false,
     lembreteDevocional: false,
     lembretePlano: false,
     horarioLembrete: '07:00'
@@ -123,7 +125,7 @@ async function removerTokensInvalidos(uid, tokensInvalidos) {
  * @param {object}        params.notification        { title, body, image? }.
  * @param {object}        [params.data]              Carga adicional (strings).
  * @param {string}        [params.categoria]         Para checar preferências.
- *   Aceita: 'chat' | 'novidades' | 'lembreteDevocional' | 'lembretePlano'.
+ *   Aceita: 'chat' | 'novidades' | 'livros' | 'lembreteDevocional' | 'lembretePlano'.
  *   Se omitido, ignoramos preferências e enviamos a todos.
  * @param {boolean}       [params.computarBadge=false]
  *   Quando `true`, calculamos o total de mensagens não lidas do

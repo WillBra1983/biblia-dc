@@ -3,7 +3,7 @@
  * O aluno recebe perguntas e alternativas sem marcação de resposta correta.
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const crypto = require('crypto')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 

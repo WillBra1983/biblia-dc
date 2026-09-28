@@ -1,6 +1,6 @@
 /** Lista, para o administrador, os utilizadores presentes em uma data. */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { logger } = require('firebase-functions/v2')
 

@@ -439,6 +439,33 @@
       ".read": false,
       ".write": false
     },
+    "bibliotecaLivros": {
+      ".read": "auth != null",
+      "$livroId": {
+        ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true"
+      }
+    },
+    "bibliotecaConteudos": {
+      "$livroId": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('admin').val() === true || root.child('bibliotecaAcessos').child(auth.uid).child($livroId).child('ativo').val() === true)",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true"
+      }
+    },
+    "bibliotecaAcessos": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('admin').val() === true)",
+        ".write": false
+      }
+    },
+    "bibliotecaPedidos": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
+      ".write": false,
+      ".indexOn": ["status", "uid"]
+    },
+    "bibliotecaConfiguracao": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
+      ".write": false
+    },
     "estudosCurados": {
       ".read": "auth != null",
       "$passagemKey": {

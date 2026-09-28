@@ -42,6 +42,7 @@ const importers = {
   versiculosCompartilhados: () => import('../pages/VersiculosCompartilhados'),
   versiculoDoDia: () => import('../pages/VersiculoDoDia'),
   versiculosDoDiaArquivo: () => import('../pages/VersiculosDoDiaArquivo'),
+  bibliotecaLivros: () => import('../pages/BibliotecaLivros'),
   quizRetiro: () => import('../pages/QuizRetiro'),
   estudosBiblicosHub: () => import('../pages/EstudosBiblicosHub'),
   estudoBiblicoEditor: () => import('../pages/EstudoBiblicoEditor'),
@@ -80,6 +81,7 @@ export function prefetchRotasComuns() {
   const fila = [
     'planoLeituraBiblia',
     'discipulado',
+    'bibliotecaLivros',
     'hinario',
     'canticos',
     'estudosBiblicosHub',

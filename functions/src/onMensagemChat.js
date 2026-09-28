@@ -6,7 +6,7 @@
  * - Quem desativou push de chat em `users/{uid}/notif/preferencias/chat`.
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const { onValueCreated } = require('firebase-functions/v2/database')
 const { logger } = require('firebase-functions/v2')
 const { enviarParaUsuarios } = require('./push')

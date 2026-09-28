@@ -13,7 +13,7 @@
  * ```
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { logger } = require('firebase-functions/v2')
 const { enviarParaTopic, enviarParaUsuarios } = require('./push')
@@ -54,9 +54,15 @@ exports.enviarAvisoAdmin = onCall(
     if (!titulo || !mensagem) {
       throw new HttpsError('invalid-argument', 'Forneça `titulo` e `mensagem`.')
     }
+    if (!['novidades', 'livros'].includes(topic)) {
+      throw new HttpsError('invalid-argument', 'Público de notificação inválido.')
+    }
 
     try {
-      const avisoRef = somenteParaMim
+      // Comunicados editoriais são estritamente opt-in e não entram no
+      // histórico geral, que é reapresentado no login. Assim, quem não
+      // consentiu nunca recebe o aviso por um caminho alternativo.
+      const avisoRef = somenteParaMim || topic === 'livros'
         ? null
         : admin.database().ref('avisosAdmin').push()
       const data = {

@@ -5,7 +5,7 @@
  * Só administradores. Útil após deploy do índice de busca do chat.
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { logger } = require('firebase-functions/v2')
 

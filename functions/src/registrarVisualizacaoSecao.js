@@ -11,7 +11,7 @@
  * não incrementam contadores (navegação de revisão não distorce métricas).
  */
 
-const admin = require('firebase-admin')
+const admin = require('./firebaseAdmin')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { logger } = require('firebase-functions/v2')
 
@@ -36,6 +36,7 @@ const STATIC_KEYS = new Set([
   'versiculo_do_dia',
   'versiculos_do_dia',
   'biblioteca_estudos',
+  'biblioteca_livros',
   'chat',
   'config_notificacoes',
   'admin_notificar',

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Capacitor } from '@capacitor/core'
 import {
   Alert, Box, Button, Card, CardActions, CardContent, Chip, CircularProgress,
@@ -10,7 +10,9 @@ import {
 import AddIcon from '@mui/icons-material/Add'
 import AndroidIcon from '@mui/icons-material/Android'
 import AppleIcon from '@mui/icons-material/Apple'
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined'
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined'
@@ -20,6 +22,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined'
 import LaunchIcon from '@mui/icons-material/Launch'
+import ListAltOutlinedIcon from '@mui/icons-material/ListAltOutlined'
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined'
 import PixIcon from '@mui/icons-material/Pix'
 import SearchIcon from '@mui/icons-material/Search'
@@ -156,11 +159,11 @@ function OpcoesDialog({ livro, comprasConfirmadas, onConfirmarCompra, onClose })
 
   const abrirOpcao = async (opcao) => {
     if (opcao.id === 'pix') {
-      if (foiComprada(opcao)) { onClose(); navigate(`/biblioteca/${livro.id}`); return }
+      if (foiComprada(opcao)) { onClose(); navigate(`/biblioteca/${livro.id}/ler`); return }
       setProcessandoPix(true); setErroPix('')
       try {
         const pedido = await criarPedidoPixBiblioteca(livro.id)
-        if (pedido.jaPossui) { onClose(); navigate(`/biblioteca/${livro.id}`); return }
+        if (pedido.jaPossui) { onClose(); navigate(`/biblioteca/${livro.id}/ler`); return }
         setPedidoPix(pedido)
         setUltimaOpcao(opcao)
       } catch (erro) { setErroPix(erro?.message || 'Não foi possível preparar o Pix.') }
@@ -503,6 +506,97 @@ function Catalogo({ livros, carregando, comprasConfirmadas, ehAdmin, onConfirmar
   )
 }
 
+function LeitorLivro({ livro, uid, ehAdmin, onEditar }) {
+  const navigate = useNavigate()
+  const [partes, setPartes] = useState([])
+  const [indice, setIndice] = useState(0)
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState('')
+  const [sumarioAberto, setSumarioAberto] = useState(false)
+  const [tamanho, setTamanho] = useState(() => {
+    const salvo = Number(localStorage.getItem('biblioteca-leitor-tamanho'))
+    return salvo >= 85 && salvo <= 150 ? salvo : 105
+  })
+
+  useEffect(() => {
+    let ativo = true
+    setCarregando(true); setErro(''); setPartes([])
+    void carregarConteudoLivroBiblioteca(livro.id, uid)
+      .then((conteudo) => {
+        if (!ativo) return
+        setPartes(conteudo)
+        const salvo = Number(localStorage.getItem(`biblioteca-progresso:${uid}:${livro.id}`))
+        setIndice(conteudo.length ? Math.max(0, Math.min(conteudo.length - 1, salvo || 0)) : 0)
+      })
+      .catch((falha) => {
+        if (!ativo) return
+        const negado = String(falha?.code || falha?.message || '').includes('permission')
+        setErro(negado ? 'Seu acesso a este livro ainda não foi liberado.' : 'Não foi possível carregar o conteúdo do livro.')
+      })
+      .finally(() => { if (ativo) setCarregando(false) })
+    return () => { ativo = false }
+  }, [livro.id, uid])
+
+  useEffect(() => {
+    localStorage.setItem('biblioteca-leitor-tamanho', String(tamanho))
+  }, [tamanho])
+
+  const escolherParte = (novoIndice) => {
+    const proximo = Math.max(0, Math.min(partes.length - 1, novoIndice))
+    setIndice(proximo)
+    localStorage.setItem(`biblioteca-progresso:${uid}:${livro.id}`, String(proximo))
+    setSumarioAberto(false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const parte = partes[indice]
+  const progresso = partes.length ? Math.round(((indice + 1) / partes.length) * 100) : 0
+  const paragrafos = String(parte?.conteudo || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter((item) => item.trim())
+
+  if (carregando) return <Box sx={{ py: 12, textAlign: 'center' }}><CircularProgress /><Typography color="text.secondary" sx={{ mt: 2 }}>Abrindo o livro…</Typography></Box>
+  if (erro) return <Container maxWidth="sm" sx={{ py: 6 }}><Alert severity="warning" action={<Button onClick={() => navigate(`/biblioteca/${livro.id}`)}>Voltar</Button>}>{erro}</Alert></Container>
+  if (!partes.length) return <Container maxWidth="sm" sx={{ py: 6 }}><Alert severity="info" action={ehAdmin ? <Button onClick={() => onEditar(livro)}>Adicionar capítulos</Button> : <Button onClick={() => navigate(`/biblioteca/${livro.id}`)}>Voltar</Button>}>O conteúdo deste livro ainda está sendo preparado para leitura digital.</Alert></Container>
+
+  return (
+    <Box sx={{ minHeight: '100%', bgcolor: (theme) => theme.palette.mode === 'dark' ? '#121814' : '#f3eee3' }}>
+      <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(18,24,20,.97)' : 'rgba(255,253,248,.97)', borderBottom: 1, borderColor: 'divider', backdropFilter: 'blur(10px)' }}>
+        <Container maxWidth="md" sx={{ py: 1 }}>
+          <Stack direction="row" alignItems="center" spacing={0.7}>
+            <Button onClick={() => navigate(`/biblioteca/${livro.id}`)} sx={{ minWidth: 0, px: 1 }}>Voltar</Button>
+            <Box sx={{ flex: 1, minWidth: 0 }}><Typography noWrap fontWeight={800} sx={{ fontFamily: 'Lora, Georgia, serif' }}>{livro.titulo}</Typography><Typography variant="caption" color="text.secondary">{progresso}% concluído</Typography></Box>
+            <Tooltip title="Diminuir texto"><span><Button aria-label="Diminuir texto" onClick={() => setTamanho((valor) => Math.max(85, valor - 10))} disabled={tamanho <= 85} sx={{ minWidth: 38, fontWeight: 900 }}>A−</Button></span></Tooltip>
+            <Tooltip title="Aumentar texto"><span><Button aria-label="Aumentar texto" onClick={() => setTamanho((valor) => Math.min(150, valor + 10))} disabled={tamanho >= 150} sx={{ minWidth: 38, fontWeight: 900 }}>A+</Button></span></Tooltip>
+            <Tooltip title="Sumário"><IconButton aria-label="Abrir sumário" onClick={() => setSumarioAberto(true)}><ListAltOutlinedIcon /></IconButton></Tooltip>
+          </Stack>
+          <Box sx={{ height: 3, mt: 0.7, bgcolor: 'action.hover', borderRadius: 2, overflow: 'hidden' }}><Box sx={{ width: `${progresso}%`, height: '100%', bgcolor: '#b98322', transition: 'width 200ms ease' }} /></Box>
+        </Container>
+      </Box>
+
+      <Container maxWidth="md" sx={{ py: { xs: 3, sm: 5 } }}>
+        <Paper elevation={0} sx={{ px: { xs: 2.2, sm: 6, md: 8 }, py: { xs: 3, sm: 6 }, borderRadius: { xs: 1.5, sm: 3 }, bgcolor: 'background.paper', boxShadow: '0 16px 45px rgba(42,36,24,.08)' }}>
+          <Typography variant="overline" color="text.secondary">{parte.tipo === 'capitulo' ? `Capítulo ${indice + 1}` : parte.tipo}</Typography>
+          <Typography component="h1" sx={{ mt: 0.5, mb: 3.5, fontFamily: 'Lora, Georgia, serif', fontWeight: 800, fontSize: { xs: '1.75rem', sm: '2.25rem' }, lineHeight: 1.2 }}>{parte.titulo}</Typography>
+          <Box sx={{ fontFamily: 'Lora, Georgia, serif', fontSize: `${tamanho}%`, lineHeight: 1.82, color: 'text.primary', textAlign: 'justify', hyphens: 'auto' }}>
+            {paragrafos.map((paragrafo, paragrafoIndice) => <Typography key={paragrafoIndice} component="p" sx={{ font: 'inherit', lineHeight: 'inherit', textAlign: 'inherit', mb: 2.1, whiteSpace: 'pre-wrap' }}>{paragrafo.trim()}</Typography>)}
+          </Box>
+        </Paper>
+
+        <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ py: 3 }}>
+          <Button variant="outlined" startIcon={<ArrowBackIosNewIcon />} onClick={() => escolherParte(indice - 1)} disabled={indice === 0}>Anterior</Button>
+          <Typography variant="body2" color="text.secondary" sx={{ alignSelf: 'center' }}>{indice + 1} de {partes.length}</Typography>
+          <Button variant="contained" endIcon={<ArrowForwardIosIcon />} onClick={() => escolherParte(indice + 1)} disabled={indice === partes.length - 1}>Próximo</Button>
+        </Stack>
+      </Container>
+
+      <Dialog open={sumarioAberto} onClose={() => setSumarioAberto(false)} maxWidth="sm" fullWidth scroll="paper">
+        <DialogTitle>Sumário</DialogTitle>
+        <DialogContent dividers><Stack spacing={0.5}>{partes.map((item, itemIndice) => <Button key={item.id} variant={itemIndice === indice ? 'contained' : 'text'} color={itemIndice === indice ? 'primary' : 'inherit'} onClick={() => escolherParte(itemIndice)} sx={{ justifyContent: 'flex-start', textAlign: 'left', py: 1.1 }}>{item.titulo}</Button>)}</Stack></DialogContent>
+        <DialogActions><Button onClick={() => setSumarioAberto(false)}>Fechar</Button></DialogActions>
+      </Dialog>
+    </Box>
+  )
+}
+
 function DetalheLivro({ livro, comprasConfirmadas, ehAdmin, onConfirmarCompra, onEditar, onExcluir }) {
   const navigate = useNavigate()
   const [opcoesAbertas, setOpcoesAbertas] = useState(false)
@@ -534,6 +628,7 @@ function DetalheLivro({ livro, comprasConfirmadas, ehAdmin, onConfirmarCompra, o
 
 export default function BibliotecaLivros() {
   const { livroId } = useParams()
+  const location = useLocation()
   const navigate = useNavigate()
   const { user } = useFirebaseAuth()
   const { ehAdmin } = useEhAdmin(user?.uid)
@@ -545,6 +640,7 @@ export default function BibliotecaLivros() {
   const [salvando, setSalvando] = useState(false)
   const [comprasConfirmadas, setComprasConfirmadas] = useState(() => lerComprasConfirmadas(user?.uid))
   const [acessosPix, setAcessosPix] = useState(new Set())
+  const [acessosCarregados, setAcessosCarregados] = useState(false)
   const [configuracaoPix, setConfiguracaoPix] = useState({})
   const [pedidosPix, setPedidosPix] = useState([])
   const [configurandoPix, setConfigurandoPix] = useState(false)
@@ -556,10 +652,12 @@ export default function BibliotecaLivros() {
   }, [user?.uid])
 
   useEffect(() => {
+    setAcessosCarregados(false)
     if (!user?.uid) { setAcessosPix(new Set()); return undefined }
     return assinarAcessosBiblioteca(user.uid, (acessos) => {
       setAcessosPix(new Set(Object.entries(acessos || {}).filter(([, acesso]) => acesso?.ativo === true).map(([id]) => chaveCompra(id, 'pix'))))
-    }, () => setAcessosPix(new Set()))
+      setAcessosCarregados(true)
+    }, () => { setAcessosPix(new Set()); setAcessosCarregados(true) })
   }, [user?.uid])
 
   useEffect(() => {
@@ -607,6 +705,8 @@ export default function BibliotecaLivros() {
   }, [user?.uid])
 
   const livro = livroId ? livros.find((item) => item.id === livroId) : null
+  const modoLeitura = Boolean(livroId && location.pathname.endsWith('/ler'))
+  const acessoLeitura = Boolean(livro && (ehAdmin || acessosPix.has(chaveCompra(livro.id, 'pix'))))
   const visivelAoLeitor = livro ? livro.publicado !== false && temModalidade(livro) && opcoesLivro(livro).length > 0 : false
 
   async function salvar(form) {
@@ -648,7 +748,9 @@ export default function BibliotecaLivros() {
 
   let conteudo
   if (!livroId) conteudo = <Catalogo livros={livros} carregando={carregando} comprasConfirmadas={comprasDisponiveis} ehAdmin={ehAdmin} onConfirmarCompra={confirmarCompra} onNovo={() => setEditando({ titulo: '', autor: '', descricao: '', capa: '', androidUrl: '', appleUrl: '', amazonUrl: '', pixAtivo: false, precoPixCentavos: 0, publicado: false })} onEditar={setEditando} onExcluir={setExcluindo} onConfigurarPix={() => setConfigurandoPix(true)} onVerPedidos={() => setVendoPedidos(true)} pedidosPendentes={pedidosPendentes} />
-  else if (carregando) conteudo = <Box sx={{ py: 10, textAlign: 'center' }}><CircularProgress /></Box>
+  else if (carregando || (modoLeitura && !ehAdmin && !acessosCarregados)) conteudo = <Box sx={{ py: 10, textAlign: 'center' }}><CircularProgress /></Box>
+  else if (modoLeitura && livro && acessoLeitura) conteudo = <LeitorLivro livro={livro} uid={user?.uid} ehAdmin={ehAdmin} onEditar={setEditando} />
+  else if (modoLeitura) conteudo = <Container maxWidth="sm" sx={{ py: 5 }}><Alert severity="warning" action={<Button onClick={() => navigate(`/biblioteca/${livroId}`)}>Voltar</Button>}>A leitura deste livro ainda não está liberada para sua conta.</Alert></Container>
   else if (livro && (ehAdmin || visivelAoLeitor)) conteudo = <DetalheLivro livro={livro} comprasConfirmadas={comprasDisponiveis} ehAdmin={ehAdmin} onConfirmarCompra={confirmarCompra} onEditar={setEditando} onExcluir={setExcluindo} />
   else conteudo = <Container maxWidth="sm" sx={{ py: 5 }}><Alert severity="warning" action={<Button onClick={() => navigate('/biblioteca')}>Voltar</Button>}>Este livro não está disponível.</Alert></Container>
 

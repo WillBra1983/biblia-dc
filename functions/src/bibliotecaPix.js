@@ -86,7 +86,7 @@ exports.criarPedidoPixBiblioteca = onCall(OPCOES, async (req) => {
   const livro = livroSnap.val() || {}
   const pix = pixSnap.val() || {}
   const valorCentavos = Math.round(Number(livro.precoPixCentavos) || 0)
-  if (livro.publicado === false || livro.pixAtivo !== true || valorCentavos < 100) {
+  if (livro.publicado === false || livro.pixAtivo !== true || valorCentavos < 1) {
     throw new HttpsError('failed-precondition', 'Este livro não está disponível para compra por Pix.')
   }
   if (pix.ativo !== true || !pix.chave || !pix.nome || !pix.cidade) {
@@ -179,7 +179,7 @@ exports.decidirPedidoPixBiblioteca = onCall(OPCOES, async (req) => {
     notification: aprovado
       ? { title: 'Pagamento confirmado', body: `Seu acesso a “${pedido.livroTitulo}” foi liberado.` }
       : { title: 'Pagamento não localizado', body: `Não conseguimos confirmar o Pix de “${pedido.livroTitulo}”. Fale com o suporte para conferirmos.` },
-    data: { tipo: 'biblioteca_pix', url: aprovado ? `/biblioteca/${pedido.livroId}` : '/biblioteca', pedidoId },
+    data: { tipo: 'biblioteca_pix', url: aprovado ? `/biblioteca/${pedido.livroId}/ler` : '/biblioteca', pedidoId },
   })
   return { ok: true }
 })

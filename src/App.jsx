@@ -236,6 +236,7 @@ const appRouteTree = createRoutesFromElements(
     <Route path="biblioteca-estudos" element={<BibliotecaEstudos />} />
     <Route path="biblioteca" element={<BibliotecaLivros />} />
     <Route path="biblioteca/:livroId" element={<BibliotecaLivros />} />
+    <Route path="biblioteca/:livroId/ler" element={<BibliotecaLivros />} />
     <Route path="estudos-biblicos/abrir" element={<EstudoBiblicoVer />} />
     {/* Rota canónica nova (alinhada ao termo "avaliação" usado na UI). */}
     <Route path="estudos-biblicos/avaliacao-resultado" element={<EstudoBiblicoProvaResultado />} />

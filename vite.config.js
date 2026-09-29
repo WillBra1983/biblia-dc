@@ -218,6 +218,11 @@ export default defineConfig({
             // próprio mantém o bundle inicial leve.
             return 'vendor-pdf'
           }
+          if (/[\\/]node_modules[\\/](epubjs|jszip|localforage|url-polyfill|@xmldom[\\/]xmldom)[\\/]/.test(id)) {
+            // Leitor de livros digitais: só é necessário depois que o usuário
+            // abre um EPUB; não deve aumentar o carregamento inicial da Bíblia.
+            return 'vendor-epub'
+          }
           if (/[\\/]node_modules[\\/]react-window[\\/]/.test(id)) {
             return 'vendor-react-window'
           }

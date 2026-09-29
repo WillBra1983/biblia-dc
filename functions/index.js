@@ -27,6 +27,14 @@ exports.criarPedidoPixBiblioteca = bibliotecaPix.criarPedidoPixBiblioteca
 exports.informarPagamentoPixBiblioteca = bibliotecaPix.informarPagamentoPixBiblioteca
 exports.decidirPedidoPixBiblioteca = bibliotecaPix.decidirPedidoPixBiblioteca
 
+// Arquivos PDF/EPUB privados. O catálogo guarda apenas metadados; o arquivo
+// completo é liberado por endereço temporário após conferir o acesso da conta.
+const bibliotecaArquivos = require('./src/bibliotecaArquivos')
+exports.prepararUploadLivroBiblioteca = bibliotecaArquivos.prepararUploadLivroBiblioteca
+exports.confirmarUploadLivroBiblioteca = bibliotecaArquivos.confirmarUploadLivroBiblioteca
+exports.obterArquivoLivroBiblioteca = bibliotecaArquivos.obterArquivoLivroBiblioteca
+exports.excluirArquivoLivroBiblioteca = bibliotecaArquivos.excluirArquivoLivroBiblioteca
+
 // Lembretes diários (cron)
 exports.lembretesDiarios = require('./src/lembretesDiarios').lembretesDiarios
 

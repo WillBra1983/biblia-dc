@@ -7,6 +7,14 @@ function texto(valor, limite = 1200) {
 }
 
 function normalizarLivro(id, valor = {}) {
+  const normalizarArquivo = (arquivo) => arquivo?.chave ? {
+    chave: texto(arquivo.chave, 500),
+    formato: ['pdf', 'epub'].includes(arquivo.formato) ? arquivo.formato : '',
+    contentType: texto(arquivo.contentType, 100),
+    tamanho: Math.max(0, Number(arquivo.tamanho) || 0),
+    nome: texto(arquivo.nome, 240),
+    atualizadoEm: Number(arquivo.atualizadoEm) || 0,
+  } : null
   return {
     id: texto(valor.id || id, 100),
     titulo: texto(valor.titulo, 180),
@@ -23,6 +31,10 @@ function normalizarLivro(id, valor = {}) {
     destaque: Boolean(valor.destaque),
     excluido: Boolean(valor.excluido),
     atualizadoEm: Number(valor.atualizadoEm) || 0,
+    arquivos: {
+      completo: normalizarArquivo(valor.arquivos?.completo),
+      amostra: normalizarArquivo(valor.arquivos?.amostra),
+    },
   }
 }
 
@@ -232,3 +244,39 @@ export const salvarConfiguracaoPixBiblioteca = (configuracao) => chamarFuncao('s
 export const criarPedidoPixBiblioteca = (livroId) => chamarFuncao('criarPedidoPixBiblioteca', { livroId })
 export const informarPagamentoPixBiblioteca = (pedidoId) => chamarFuncao('informarPagamentoPixBiblioteca', { pedidoId })
 export const decidirPedidoPixBiblioteca = (pedidoId, aprovado) => chamarFuncao('decidirPedidoPixBiblioteca', { pedidoId, aprovado })
+
+export async function enviarArquivoLivroBiblioteca(livroId, finalidade, arquivo) {
+  if (!livroId || !arquivo) throw new Error('Escolha o arquivo do livro.')
+  const permitido = /\.(pdf|epub)$/i.test(arquivo.name || '') || ['application/pdf', 'application/epub+zip'].includes(arquivo.type)
+  if (!permitido) throw new Error('Envie um arquivo PDF ou EPUB.')
+  if (arquivo.size > 100 * 1024 * 1024) throw new Error('O arquivo deve ter no máximo 100 MB.')
+  const preparado = await chamarFuncao('prepararUploadLivroBiblioteca', {
+    livroId,
+    finalidade,
+    nome: arquivo.name,
+    contentType: arquivo.type || 'application/octet-stream',
+    tamanho: arquivo.size,
+  })
+  const resposta = await fetch(preparado.url, {
+    method: 'PUT',
+    headers: { 'Content-Type': preparado.contentType },
+    body: arquivo,
+  })
+  if (!resposta.ok) {
+    throw new Error(`O armazenamento recusou o envio (${resposta.status}). Verifique a configuração CORS do bucket.`)
+  }
+  const confirmado = await chamarFuncao('confirmarUploadLivroBiblioteca', {
+    livroId,
+    finalidade,
+    nome: arquivo.name,
+    contentType: preparado.contentType,
+    tamanho: arquivo.size,
+  })
+  return confirmado.arquivo
+}
+
+export const obterArquivoLivroBiblioteca = (livroId, finalidade = 'completo') =>
+  chamarFuncao('obterArquivoLivroBiblioteca', { livroId, finalidade })
+
+export const excluirArquivoLivroBiblioteca = (livroId, finalidade) =>
+  chamarFuncao('excluirArquivoLivroBiblioteca', { livroId, finalidade })

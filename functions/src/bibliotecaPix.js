@@ -86,7 +86,7 @@ exports.criarPedidoPixBiblioteca = onCall(OPCOES, async (req) => {
   const livro = livroSnap.val() || {}
   const pix = pixSnap.val() || {}
   const valorCentavos = Math.round(Number(livro.precoPixCentavos) || 0)
-  if (livro.publicado === false || livro.pixAtivo !== true || valorCentavos < 1) {
+  if (livro.publicado === false || livro.pixAtivo !== true || valorCentavos < 1 || !livro.arquivos?.completo?.chave) {
     throw new HttpsError('failed-precondition', 'Este livro não está disponível para compra por Pix.')
   }
   if (pix.ativo !== true || !pix.chave || !pix.nome || !pix.cidade) {

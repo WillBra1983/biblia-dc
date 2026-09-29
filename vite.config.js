@@ -5,6 +5,7 @@ import { resolve } from 'path'
 import { readFileSync } from 'fs'
 import { salvationBeastiesPlugin } from './vite-plugin-beasties.js'
 import { stripBiblicalAudioFromDist } from './vite-plugin-strip-biblical-audio.js'
+import { bibliotecaSharePagesPlugin } from './vite-plugin-biblioteca-share.js'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
@@ -27,6 +28,7 @@ export default defineConfig({
   },
   plugins: [
     stripBiblicalAudioFromDist(),
+    bibliotecaSharePagesPlugin(),
     react(),
     // PWA: só ativo no build; no Android (Capacitor) o SW não é registrado (ver main.jsx)
     VitePWA({

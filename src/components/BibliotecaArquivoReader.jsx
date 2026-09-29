@@ -4,7 +4,9 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
 import CompartilharTrechoLivroDialog from './CompartilharTrechoLivroDialog'
+import CompartilharLivroButton from './CompartilharLivroButton'
 import { urlCapaLivro } from '../data/livrosCatalogo'
+import { linkCompartilhamentoLivro } from '../utils/livroShare'
 
 let pdfjsPromise
 
@@ -162,17 +164,17 @@ export default function BibliotecaArquivoReader({ arquivo, storageKey, livro }) 
   if (!arquivo?.url) return <Alert severity="warning">O arquivo do livro não está disponível.</Alert>
   if (arquivo.formato === 'pdf') return <PdfReader url={arquivo.url} storageKey={storageKey} />
 
-  const basePublica = String(import.meta.env?.VITE_PUBLIC_APP_URL || 'https://foundcine.com/biblia').replace(/\/$/, '')
-  const urlLivro = `${basePublica}/biblioteca/${encodeURIComponent(livro?.id || '')}`
+  const urlLivro = linkCompartilhamentoLivro(livro?.id)
   const livroCompartilhamento = { ...livro, capaUrl: livro?.capa ? urlCapaLivro(livro.capa) : '' }
 
   return <>
     <EpubReader url={arquivo.url} storageKey={storageKey} onSelection={setTrecho} />
-    <Paper elevation={4} sx={{ position: 'sticky', bottom: 12, zIndex: 5, maxWidth: 680, mx: 'auto', mt: 1.5, p: 1.2, borderRadius: 2 }}>
+    <Paper elevation={4} sx={{ position: 'sticky', bottom: 12, zIndex: 5, maxWidth: 760, mx: 'auto', mt: 1.5, p: 1.2, borderRadius: 2 }}>
       {trecho ? <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }}>
         <Typography variant="body2" sx={{ flex: 1 }} noWrap>“{trecho}”</Typography>
         <Button variant="contained" startIcon={<IosShareOutlinedIcon />} onClick={() => setCompartilhando(true)}>Compartilhar como imagem</Button>
-      </Stack> : <Typography variant="body2" color="text.secondary" textAlign="center">Selecione um trecho do livro para compartilhá-lo como imagem.</Typography>}
+        <CompartilharLivroButton livro={livro} somenteIcone />
+      </Stack> : <Stack direction="row" spacing={1} alignItems="center" justifyContent="center"><Typography variant="body2" color="text.secondary">Selecione um trecho para criar uma imagem.</Typography><CompartilharLivroButton livro={livro} somenteIcone /></Stack>}
     </Paper>
     <CompartilharTrechoLivroDialog open={compartilhando} onClose={() => setCompartilhando(false)} trecho={trecho} livro={livroCompartilhamento} urlLivro={urlLivro} />
   </>

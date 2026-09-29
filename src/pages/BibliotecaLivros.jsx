@@ -28,6 +28,7 @@ import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined'
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined'
 import { urlCapaLivro } from '../data/livrosCatalogo'
 import BibliotecaArquivoReader from '../components/BibliotecaArquivoReader'
+import CompartilharLivroButton from '../components/CompartilharLivroButton'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { useEhAdmin } from '../hooks/useEhAdmin'
 import {
@@ -531,6 +532,7 @@ function LeitorLivro({ livro, uid, finalidade = 'completo' }) {
           <Stack direction="row" alignItems="center" spacing={0.7}>
             <Button onClick={() => navigate(`/biblioteca/${livro.id}`)} sx={{ minWidth: 0, px: 1 }}>Voltar</Button>
             <Box sx={{ flex: 1, minWidth: 0 }}><Typography noWrap fontWeight={800} sx={{ fontFamily: 'Lora, Georgia, serif' }}>{livro.titulo}</Typography><Typography variant="caption" color="text.secondary">{finalidade === 'amostra' ? 'Amostra gratuita' : 'Minha biblioteca'}</Typography></Box>
+            <CompartilharLivroButton livro={livro} somenteIcone />
           </Stack>
         </Container>
       </Box>
@@ -567,6 +569,7 @@ function DetalheLivro({ livro, comprasConfirmadas, ehAdmin, onConfirmarCompra, o
                 {acessoDigital && livro.arquivos?.completo
                   ? <Button variant="contained" size="large" startIcon={<VerifiedOutlinedIcon />} onClick={() => navigate(`/biblioteca/${livro.id}/ler`)} fullWidth>Ler livro</Button>
                   : opcoes.length ? <Button variant="contained" size="large" startIcon={comprado ? <VerifiedOutlinedIcon /> : <ShoppingCartOutlinedIcon />} onClick={() => setOpcoesAbertas(true)} fullWidth>{comprado ? 'Abrir' : 'Comprar'}</Button> : ehAdmin ? <Alert severity="warning">Rascunho administrativo: cadastre Android, Apple, Amazon ou Pix para publicar.</Alert> : null}
+                <CompartilharLivroButton livro={livro} fullWidth />
               </Stack>
             </Grid>
           </Grid>
@@ -660,6 +663,13 @@ export default function BibliotecaLivros() {
   const modoAmostra = Boolean(livroId && location.pathname.endsWith('/amostra'))
   const acessoLeitura = Boolean(livro && (ehAdmin || acessosPix.has(chaveCompra(livro.id, 'pix'))))
   const visivelAoLeitor = livro ? livro.publicado !== false && temModalidade(livro) && opcoesLivro(livro).length > 0 : false
+  const abrirSolicitado = new URLSearchParams(location.search).get('abrir') === '1'
+
+  useEffect(() => {
+    if (!abrirSolicitado || modoLeitura || modoAmostra || !livro?.arquivos?.completo) return
+    if (!ehAdmin && !acessosCarregados) return
+    if (acessoLeitura) navigate(`/biblioteca/${livro.id}/ler`, { replace: true })
+  }, [abrirSolicitado, modoLeitura, modoAmostra, livro, ehAdmin, acessosCarregados, acessoLeitura, navigate])
 
   async function salvar(form) {
     setSalvando(true); setErro('')

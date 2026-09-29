@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Box, Button, CircularProgress, Stack, Typography } from '@mui/material'
+import { Alert, Box, Button, CircularProgress, Paper, Stack, Typography } from '@mui/material'
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
+import CompartilharTrechoLivroDialog from './CompartilharTrechoLivroDialog'
+import { urlCapaLivro } from '../data/livrosCatalogo'
 
 let pdfjsPromise
 
@@ -89,13 +92,16 @@ function PdfReader({ url, storageKey }) {
   )
 }
 
-function EpubReader({ url, storageKey }) {
+function EpubReader({ url, storageKey, onSelection }) {
   const areaRef = useRef(null)
   const livroRef = useRef(null)
   const renditionRef = useRef(null)
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
   const [tamanho, setTamanho] = useState(105)
+  const onSelectionRef = useRef(onSelection)
+
+  useEffect(() => { onSelectionRef.current = onSelection }, [onSelection])
 
   useEffect(() => {
     let ativo = true
@@ -112,6 +118,11 @@ function EpubReader({ url, storageKey }) {
       rendition.themes.default({ body: { 'font-family': 'Georgia, serif', 'line-height': '1.7', padding: '0 4%' } })
       rendition.themes.fontSize('105%')
       rendition.on('relocated', (localizacao) => localStorage.setItem(storageKey, localizacao?.start?.cfi || ''))
+      rendition.on('selected', (cfiRange, contents) => {
+        const texto = contents?.range?.(cfiRange)?.toString?.() || contents?.window?.getSelection?.()?.toString?.() || ''
+        const limpo = String(texto).replace(/\s+/g, ' ').trim()
+        if (limpo) onSelectionRef.current?.(limpo)
+      })
       await rendition.display(localStorage.getItem(storageKey) || undefined)
     })().catch((falha) => { if (ativo) setErro(falha?.message || 'Não foi possível abrir o EPUB.') })
       .finally(() => { if (ativo) setCarregando(false) })
@@ -145,9 +156,24 @@ function EstadoCarregando() {
   return <Box sx={{ py: 10, textAlign: 'center' }}><CircularProgress /><Typography color="text.secondary" sx={{ mt: 2 }}>Abrindo o livro…</Typography></Box>
 }
 
-export default function BibliotecaArquivoReader({ arquivo, storageKey }) {
+export default function BibliotecaArquivoReader({ arquivo, storageKey, livro }) {
+  const [trecho, setTrecho] = useState('')
+  const [compartilhando, setCompartilhando] = useState(false)
   if (!arquivo?.url) return <Alert severity="warning">O arquivo do livro não está disponível.</Alert>
-  return arquivo.formato === 'pdf'
-    ? <PdfReader url={arquivo.url} storageKey={storageKey} />
-    : <EpubReader url={arquivo.url} storageKey={storageKey} />
+  if (arquivo.formato === 'pdf') return <PdfReader url={arquivo.url} storageKey={storageKey} />
+
+  const basePublica = String(import.meta.env?.VITE_PUBLIC_APP_URL || 'https://foundcine.com/biblia').replace(/\/$/, '')
+  const urlLivro = `${basePublica}/biblioteca/${encodeURIComponent(livro?.id || '')}`
+  const livroCompartilhamento = { ...livro, capaUrl: livro?.capa ? urlCapaLivro(livro.capa) : '' }
+
+  return <>
+    <EpubReader url={arquivo.url} storageKey={storageKey} onSelection={setTrecho} />
+    <Paper elevation={4} sx={{ position: 'sticky', bottom: 12, zIndex: 5, maxWidth: 680, mx: 'auto', mt: 1.5, p: 1.2, borderRadius: 2 }}>
+      {trecho ? <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }}>
+        <Typography variant="body2" sx={{ flex: 1 }} noWrap>“{trecho}”</Typography>
+        <Button variant="contained" startIcon={<IosShareOutlinedIcon />} onClick={() => setCompartilhando(true)}>Compartilhar como imagem</Button>
+      </Stack> : <Typography variant="body2" color="text.secondary" textAlign="center">Selecione um trecho do livro para compartilhá-lo como imagem.</Typography>}
+    </Paper>
+    <CompartilharTrechoLivroDialog open={compartilhando} onClose={() => setCompartilhando(false)} trecho={trecho} livro={livroCompartilhamento} urlLivro={urlLivro} />
+  </>
 }

@@ -536,7 +536,7 @@ function LeitorLivro({ livro, uid, finalidade = 'completo' }) {
       </Box>
 
       <Container maxWidth="lg" sx={{ py: { xs: 1.5, sm: 3 } }} onContextMenu={(event) => event.preventDefault()}>
-        <BibliotecaArquivoReader arquivo={arquivo} storageKey={`biblioteca-progresso:${uid}:${livro.id}:${finalidade}`} />
+        <BibliotecaArquivoReader arquivo={arquivo} storageKey={`biblioteca-progresso:${uid}:${livro.id}:${finalidade}`} livro={livro} />
       </Container>
     </Box>
   )

@@ -143,6 +143,15 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference }) {
       if (!resposta.ok) throw new Error('O arquivo não pôde ser aberto.')
       const livro = ePub(await resposta.arrayBuffer())
       if (!ativo || !areaRef.current) { livro.destroy(); return }
+      livro.spine.hooks.serialize.register((conteudo, secao) => {
+        // EPUBs produzidos por alguns editores carregam scripts auxiliares.
+        // O leitor não precisa deles e os iframes são deliberadamente seguros;
+        // removê-los antes da montagem evita avisos e preserva o conteúdo.
+        secao.output = String(conteudo || '').replace(
+          /<script\b[^>]*>[\s\S]*?<\/script\s*>|<script\b[^>]*\/\s*>/giu,
+          '',
+        )
+      })
       livroRef.current = livro
       const rendition = livro.renderTo(areaRef.current, {
         width: '100%',

@@ -46,13 +46,11 @@ export default function VersiculoPopup({ versiculos, onClose }) {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [onClose]);
 
-  if (!versiculos || versiculos.length === 0) return null
-
   const titulo = useMemo(() => {
     const getNumero = (v) => Number(v?.numero ?? v?.versiculo ?? 0)
     const getCapitulo = (v) => Number(v?.capitulo ?? 0)
 
-    const ordenados = [...versiculos]
+    const ordenados = [...(versiculos || [])]
       .filter((v) => v && v.livro && getCapitulo(v) > 0 && getNumero(v) > 0)
       .sort((a, b) => {
         const byLivro = String(a.livro).localeCompare(String(b.livro))
@@ -107,6 +105,8 @@ export default function VersiculoPopup({ versiculos, onClose }) {
 
     return `${livro} ${ref}`
   }, [versiculos])
+
+  if (!versiculos || versiculos.length === 0) return null
 
   return (
     <Dialog 

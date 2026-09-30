@@ -5,8 +5,10 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
 import CompartilharTrechoLivroDialog from './CompartilharTrechoLivroDialog'
 import CompartilharLivroButton from './CompartilharLivroButton'
+import VersiculoPopup from './VersiculoPopup'
 import { urlCapaLivro } from '../data/livrosCatalogo'
 import { linkCompartilhamentoLivro } from '../utils/livroShare'
+import { carregarReferenciaBiblica, tornarReferenciasBiblicasClicaveis } from '../utils/referenciasBiblicasEpub'
 
 let pdfjsPromise
 let epubjsPromise
@@ -120,7 +122,7 @@ function PdfReader({ url, storageKey }) {
   )
 }
 
-function EpubReader({ url, storageKey, onSelection }) {
+function EpubReader({ url, storageKey, onSelection, onBibleReference }) {
   const areaRef = useRef(null)
   const livroRef = useRef(null)
   const renditionRef = useRef(null)
@@ -128,8 +130,10 @@ function EpubReader({ url, storageKey, onSelection }) {
   const [erro, setErro] = useState('')
   const [tamanho, setTamanho] = useState(105)
   const onSelectionRef = useRef(onSelection)
+  const onBibleReferenceRef = useRef(onBibleReference)
 
   useEffect(() => { onSelectionRef.current = onSelection }, [onSelection])
+  useEffect(() => { onBibleReferenceRef.current = onBibleReference }, [onBibleReference])
 
   useEffect(() => {
     let ativo = true
@@ -148,6 +152,11 @@ function EpubReader({ url, storageKey, onSelection }) {
         manager: ManagerSemUnload,
       })
       renditionRef.current = rendition
+      rendition.hooks.content.register((contents) => {
+        tornarReferenciasBiblicasClicaveis(contents?.document, (referencia) => {
+          onBibleReferenceRef.current?.(referencia)
+        })
+      })
       rendition.themes.default({ body: { 'font-family': 'Georgia, serif', 'line-height': '1.7', padding: '0 4%' } })
       rendition.themes.fontSize('105%')
       rendition.on('relocated', (localizacao) => localStorage.setItem(storageKey, localizacao?.start?.cfi || ''))
@@ -206,14 +215,29 @@ function EstadoCarregando() {
 export default function BibliotecaArquivoReader({ arquivo, storageKey, livro }) {
   const [trecho, setTrecho] = useState('')
   const [compartilhando, setCompartilhando] = useState(false)
+  const [versiculos, setVersiculos] = useState(null)
+  const [erroReferencia, setErroReferencia] = useState('')
   if (!arquivo?.url) return <Alert severity="warning">O arquivo do livro não está disponível.</Alert>
   if (arquivo.formato === 'pdf') return <PdfReader url={arquivo.url} storageKey={storageKey} />
+
+  const abrirReferenciaBiblica = async (referencia) => {
+    setErroReferencia('')
+    try {
+      const encontrados = await carregarReferenciaBiblica(referencia)
+      if (!encontrados.length) throw new Error('Referência não encontrada')
+      setVersiculos(encontrados)
+    } catch (falha) {
+      console.error('Não foi possível abrir a referência bíblica:', falha)
+      setErroReferencia(`Não foi possível abrir ${referencia}.`)
+    }
+  }
 
   const urlLivro = linkCompartilhamentoLivro(livro?.id)
   const livroCompartilhamento = { ...livro, capaUrl: livro?.capa ? urlCapaLivro(livro.capa) : '' }
 
   return <>
-    <EpubReader url={arquivo.url} storageKey={storageKey} onSelection={setTrecho} />
+    {erroReferencia && <Alert severity="warning" onClose={() => setErroReferencia('')} sx={{ mb: 1 }}>{erroReferencia}</Alert>}
+    <EpubReader url={arquivo.url} storageKey={storageKey} onSelection={setTrecho} onBibleReference={abrirReferenciaBiblica} />
     <Paper elevation={4} sx={{ position: 'sticky', bottom: 12, zIndex: 5, maxWidth: 760, mx: 'auto', mt: 1.5, p: 1.2, borderRadius: 2 }}>
       {trecho ? <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }}>
         <Typography variant="body2" sx={{ flex: 1 }} noWrap>“{trecho}”</Typography>
@@ -222,5 +246,6 @@ export default function BibliotecaArquivoReader({ arquivo, storageKey, livro }) 
       </Stack> : <Stack direction="row" spacing={1} alignItems="center" justifyContent="center"><Typography variant="body2" color="text.secondary">Selecione um trecho para criar uma imagem.</Typography><CompartilharLivroButton livro={livro} somenteIcone /></Stack>}
     </Paper>
     <CompartilharTrechoLivroDialog open={compartilhando} onClose={() => setCompartilhando(false)} trecho={trecho} livro={livroCompartilhamento} urlLivro={urlLivro} />
+    <VersiculoPopup versiculos={versiculos} onClose={() => setVersiculos(null)} />
   </>
 }

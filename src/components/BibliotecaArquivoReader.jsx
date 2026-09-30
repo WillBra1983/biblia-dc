@@ -9,6 +9,7 @@ import { urlCapaLivro } from '../data/livrosCatalogo'
 import { linkCompartilhamentoLivro } from '../utils/livroShare'
 
 let pdfjsPromise
+let epubjsPromise
 
 async function carregarPdfJs() {
   if (!pdfjsPromise) {
@@ -23,32 +24,29 @@ async function carregarPdfJs() {
   return pdfjsPromise
 }
 
-function renderizarEpubSemEventoUnload(livro, elemento, opcoes) {
-  // O gerenciador do epub.js registra `window.unload` apenas para chamar
-  // destroy(). Navegadores atuais podem bloquear esse evento pela
-  // Permissions Policy e imprimir um aviso. O efeito do React abaixo já faz
-  // essa limpeza, então ignoramos somente esse registro redundante durante a
-  // criação síncrona do rendition.
-  const addEventListenerOriginal = window.addEventListener
-  const addEventListenerFiltrado = function (tipo, listener, options) {
-    if (tipo === 'unload') return undefined
-    return Reflect.apply(addEventListenerOriginal, this, [tipo, listener, options])
-  }
-  let substituido = false
+async function carregarEpubJs() {
+  if (!epubjsPromise) {
+    epubjsPromise = Promise.all([
+      import('epubjs'),
+      import('epubjs/lib/managers/default/index.js'),
+    ]).then(([epubModulo, managerModulo]) => {
+      const ePub = epubModulo.default || epubModulo
+      const ManagerPadrao = managerModulo.default || managerModulo
 
-  try {
-    window.addEventListener = addEventListenerFiltrado
-    substituido = window.addEventListener === addEventListenerFiltrado
-  } catch {
-    // Se o navegador não permitir substituir o método, o leitor continua
-    // funcionando; apenas o aviso original poderá permanecer no console.
-  }
+      class ManagerSemUnload extends ManagerPadrao {
+        addEventListeners() {
+          // O React já chama destroy() ao fechar o leitor. Não registramos o
+          // evento obsoleto `unload`, bloqueado pela Permissions Policy.
+          const scroller = this.settings.fullsize ? window : this.container
+          this._onScroll = this.onScroll.bind(this)
+          scroller.addEventListener('scroll', this._onScroll)
+        }
+      }
 
-  try {
-    return livro.renderTo(elemento, opcoes)
-  } finally {
-    if (substituido) window.addEventListener = addEventListenerOriginal
+      return { ePub, ManagerSemUnload }
+    })
   }
+  return epubjsPromise
 }
 
 function PdfReader({ url, storageKey }) {
@@ -137,17 +135,17 @@ function EpubReader({ url, storageKey, onSelection }) {
     let ativo = true
     setCarregando(true); setErro('')
     void (async () => {
-      const [modulo, resposta] = await Promise.all([import('epubjs'), fetch(url)])
+      const [{ ePub, ManagerSemUnload }, resposta] = await Promise.all([carregarEpubJs(), fetch(url)])
       if (!resposta.ok) throw new Error('O arquivo não pôde ser aberto.')
-      const ePub = modulo.default || modulo
       const livro = ePub(await resposta.arrayBuffer())
       if (!ativo || !areaRef.current) { livro.destroy(); return }
       livroRef.current = livro
-      const rendition = renderizarEpubSemEventoUnload(livro, areaRef.current, {
+      const rendition = livro.renderTo(areaRef.current, {
         width: '100%',
         height: '72vh',
         spread: 'none',
         flow: 'paginated',
+        manager: ManagerSemUnload,
       })
       renditionRef.current = rendition
       rendition.themes.default({ body: { 'font-family': 'Georgia, serif', 'line-height': '1.7', padding: '0 4%' } })
@@ -158,7 +156,14 @@ function EpubReader({ url, storageKey, onSelection }) {
         const limpo = String(texto).replace(/\s+/g, ' ').trim()
         if (limpo) onSelectionRef.current?.(limpo)
       })
-      await rendition.display(localStorage.getItem(storageKey) || undefined)
+      const localizacaoSalva = localStorage.getItem(storageKey) || undefined
+      try {
+        await rendition.display(localizacaoSalva)
+      } catch (falha) {
+        if (!localizacaoSalva) throw falha
+        localStorage.removeItem(storageKey)
+        await rendition.display(livro.spine?.first?.()?.href || undefined)
+      }
     })().catch((falha) => { if (ativo) setErro(falha?.message || 'Não foi possível abrir o EPUB.') })
       .finally(() => { if (ativo) setCarregando(false) })
     return () => {
@@ -172,10 +177,17 @@ function EpubReader({ url, storageKey, onSelection }) {
 
   useEffect(() => { renditionRef.current?.themes?.fontSize?.(`${tamanho}%`) }, [tamanho])
 
+  const abrirCapa = () => {
+    localStorage.removeItem(storageKey)
+    const primeiraPagina = livroRef.current?.spine?.first?.()?.href
+    void renditionRef.current?.display?.(primeiraPagina || undefined)
+  }
+
   return (
     <Stack spacing={1.5}>
       {erro && <Alert severity="error">{erro}</Alert>}
       <Stack direction="row" spacing={1} justifyContent="center" alignItems="center">
+        <Button onClick={abrirCapa}>Capa</Button>
         <Button variant="outlined" startIcon={<ArrowBackIosNewIcon />} onClick={() => renditionRef.current?.prev?.()}>Anterior</Button>
         <Button variant="contained" endIcon={<ArrowForwardIosIcon />} onClick={() => renditionRef.current?.next?.()}>Próxima</Button>
         <Button onClick={() => setTamanho((v) => Math.max(80, v - 10))}>A−</Button>

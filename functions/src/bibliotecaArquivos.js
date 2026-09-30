@@ -153,6 +153,7 @@ exports.obterArquivoLivroBiblioteca = onCall(OPCOES, async (req) => {
     url,
     formato: arquivo.formato,
     contentType: arquivo.contentType,
+    versao: Number(arquivo.atualizadoEm || livro.atualizadoEm || 0),
     expiraEm: Date.now() + 5 * 60 * 1000,
   }
 })

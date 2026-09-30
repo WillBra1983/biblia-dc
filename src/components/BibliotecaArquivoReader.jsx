@@ -23,6 +23,34 @@ async function carregarPdfJs() {
   return pdfjsPromise
 }
 
+function renderizarEpubSemEventoUnload(livro, elemento, opcoes) {
+  // O gerenciador do epub.js registra `window.unload` apenas para chamar
+  // destroy(). Navegadores atuais podem bloquear esse evento pela
+  // Permissions Policy e imprimir um aviso. O efeito do React abaixo já faz
+  // essa limpeza, então ignoramos somente esse registro redundante durante a
+  // criação síncrona do rendition.
+  const addEventListenerOriginal = window.addEventListener
+  const addEventListenerFiltrado = function (tipo, listener, options) {
+    if (tipo === 'unload') return undefined
+    return Reflect.apply(addEventListenerOriginal, this, [tipo, listener, options])
+  }
+  let substituido = false
+
+  try {
+    window.addEventListener = addEventListenerFiltrado
+    substituido = window.addEventListener === addEventListenerFiltrado
+  } catch {
+    // Se o navegador não permitir substituir o método, o leitor continua
+    // funcionando; apenas o aviso original poderá permanecer no console.
+  }
+
+  try {
+    return livro.renderTo(elemento, opcoes)
+  } finally {
+    if (substituido) window.addEventListener = addEventListenerOriginal
+  }
+}
+
 function PdfReader({ url, storageKey }) {
   const canvasRef = useRef(null)
   const [documento, setDocumento] = useState(null)
@@ -115,7 +143,12 @@ function EpubReader({ url, storageKey, onSelection }) {
       const livro = ePub(await resposta.arrayBuffer())
       if (!ativo || !areaRef.current) { livro.destroy(); return }
       livroRef.current = livro
-      const rendition = livro.renderTo(areaRef.current, { width: '100%', height: '72vh', spread: 'none', flow: 'paginated' })
+      const rendition = renderizarEpubSemEventoUnload(livro, areaRef.current, {
+        width: '100%',
+        height: '72vh',
+        spread: 'none',
+        flow: 'paginated',
+      })
       renditionRef.current = rendition
       rendition.themes.default({ body: { 'font-family': 'Georgia, serif', 'line-height': '1.7', padding: '0 4%' } })
       rendition.themes.fontSize('105%')

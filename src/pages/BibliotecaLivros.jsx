@@ -48,6 +48,12 @@ import {
   salvarConfiguracaoPixBiblioteca,
   salvarLivroBiblioteca,
 } from '../services/bibliotecaLivrosService'
+import {
+  excluirLivroPessoal,
+  importarLivroPessoal,
+  listarLivrosPessoais,
+  obterLivroPessoal,
+} from '../services/bibliotecaPessoalService'
 import { abrirUrlExterna } from '../utils/abrirUrlExterna'
 
 const PLATAFORMA = Capacitor.getPlatform()
@@ -444,7 +450,53 @@ function LivroCard({ livro, comprasConfirmadas, ehAdmin, onOpcoes, onEditar, onE
   )
 }
 
-function Catalogo({ livros, carregando, comprasConfirmadas, ehAdmin, onConfirmarCompra, onNovo, onEditar, onExcluir, onConfigurarPix, onVerPedidos, pedidosPendentes }) {
+function CapaLivroPessoal({ livro }) {
+  const [url, setUrl] = useState('')
+  useEffect(() => {
+    if (!livro?.capa) { setUrl(''); return undefined }
+    const proximaUrl = URL.createObjectURL(livro.capa)
+    setUrl(proximaUrl)
+    return () => URL.revokeObjectURL(proximaUrl)
+  }, [livro?.capa])
+
+  return <Box sx={{ width: '100%', aspectRatio: '2 / 3', bgcolor: '#0b302b', borderRadius: 1.4, overflow: 'hidden', display: 'grid', placeItems: 'center' }}>
+    {url
+      ? <Box component="img" src={url} alt={`Capa de ${livro.titulo}`} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      : <AutoStoriesOutlinedIcon sx={{ color: '#e1bd6e', fontSize: 58 }} />}
+  </Box>
+}
+
+function MeusLivrosPessoais({ livros, carregando, importando, onImportar, onExcluir }) {
+  const navigate = useNavigate()
+  return <Box sx={{ mb: 4 }}>
+    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.2} alignItems={{ sm: 'center' }} justifyContent="space-between" sx={{ mb: 1.5 }}>
+      <Box>
+        <Typography variant="h6" fontWeight={800}>Meus livros neste aparelho</Typography>
+        <Typography variant="body2" color="text.secondary">Adicione seus EPUBs para lê-los com acesso às referências bíblicas. Os arquivos não são enviados para nossos servidores.</Typography>
+      </Box>
+      <Button component="label" variant="outlined" startIcon={importando ? <CircularProgress size={18} /> : <UploadFileOutlinedIcon />} disabled={importando} sx={{ flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
+        {importando ? 'Adicionando…' : 'Adicionar EPUB'}
+        <input aria-label="Selecionar arquivo EPUB" type="file" accept=".epub,application/epub+zip" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} onChange={(evento) => { const arquivo = evento.target.files?.[0]; evento.target.value = ''; if (arquivo) onImportar(arquivo) }} />
+      </Button>
+    </Stack>
+    {carregando ? <Box sx={{ py: 3, textAlign: 'center' }}><CircularProgress size={28} /></Box> : livros.length > 0 ? <Grid container spacing={{ xs: 1.6, sm: 2, md: 2.5 }}>
+      {livros.map((livro) => <Grid item xs={6} sm={4} md={3} lg={2.4} key={livro.id} sx={{ display: 'flex' }}>
+        <Card variant="outlined" sx={{ width: '100%', display: 'flex', flexDirection: 'column', borderRadius: 2.5, overflow: 'hidden', borderColor: 'rgba(10,81,68,.2)', position: 'relative' }}>
+          <Tooltip title="Remover deste aparelho"><IconButton aria-label={`Remover ${livro.titulo}`} size="small" color="error" onClick={() => onExcluir(livro)} sx={{ position: 'absolute', zIndex: 2, top: 8, right: 8, bgcolor: 'rgba(255,255,255,.94)', boxShadow: 1, '&:hover': { bgcolor: '#fff' } }}><DeleteOutlineIcon fontSize="small" /></IconButton></Tooltip>
+          <Box component="button" type="button" onClick={() => navigate(`/biblioteca/pessoal/${livro.id}`)} aria-label={`Ler ${livro.titulo}`} sx={{ appearance: 'none', border: 0, bgcolor: 'transparent', p: 1.15, pb: 0, cursor: 'pointer' }}><CapaLivroPessoal livro={livro} /></Box>
+          <CardContent sx={{ flex: 1, p: 1.5, '&:last-child': { pb: 0.7 } }}>
+            <Chip size="small" label="Neste aparelho" variant="outlined" sx={{ height: 25 }} />
+            <Typography variant="subtitle2" sx={{ mt: 1, fontFamily: 'Lora, Georgia, serif', fontWeight: 800, lineHeight: 1.24 }}>{livro.titulo}</Typography>
+            <Typography variant="caption" color="text.secondary">{livro.autor}</Typography>
+          </CardContent>
+          <CardActions sx={{ px: 1.2, pb: 1.2, pt: 0.5 }}><Button size="small" variant="contained" startIcon={<AutoStoriesOutlinedIcon />} onClick={() => navigate(`/biblioteca/pessoal/${livro.id}`)}>Ler</Button></CardActions>
+        </Card>
+      </Grid>)}
+    </Grid> : <Alert severity="info">Você ainda não adicionou nenhum EPUB pessoal.</Alert>}
+  </Box>
+}
+
+function Catalogo({ livros, carregando, comprasConfirmadas, ehAdmin, onConfirmarCompra, onNovo, onEditar, onExcluir, onConfigurarPix, onVerPedidos, pedidosPendentes, livrosPessoais, carregandoPessoais, importandoPessoal, onImportarPessoal, onExcluirPessoal }) {
   const [busca, setBusca] = useState('')
   const [infoAberta, setInfoAberta] = useState(false)
   const [livroOpcoes, setLivroOpcoes] = useState(null)
@@ -474,6 +526,8 @@ function Catalogo({ livros, carregando, comprasConfirmadas, ehAdmin, onConfirmar
         </Container>
       </Box>
       <Container maxWidth="lg" sx={{ py: { xs: 2.8, md: 4.2 } }}>
+        <MeusLivrosPessoais livros={livrosPessoais} carregando={carregandoPessoais} importando={importandoPessoal} onImportar={onImportarPessoal} onExcluir={onExcluirPessoal} />
+        <Divider sx={{ mb: 3.2 }} />
         <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ sm: 'center' }} justifyContent="space-between" spacing={1.5} sx={{ mb: 2.7 }}>
           <Box><Typography variant="h5" sx={{ fontFamily: 'Lora, Georgia, serif', fontWeight: 800 }}>Acervo</Typography><Typography variant="body2" color="text.secondary">Escolha um título e veja as opções disponíveis para o seu aparelho.</Typography></Box>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ width: { xs: '100%', sm: 'auto' } }}>
@@ -544,6 +598,48 @@ function LeitorLivro({ livro, uid, finalidade = 'completo' }) {
   )
 }
 
+function LeitorLivroPessoal({ id, proprietario }) {
+  const navigate = useNavigate()
+  const [livro, setLivro] = useState(null)
+  const [arquivoUrl, setArquivoUrl] = useState('')
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState('')
+
+  useEffect(() => {
+    let ativo = true
+    let url = ''
+    setCarregando(true); setErro(''); setLivro(null); setArquivoUrl('')
+    void obterLivroPessoal(id, proprietario).then((registro) => {
+      if (!ativo) return
+      if (!registro?.arquivo) throw new Error('Livro não encontrado neste aparelho.')
+      url = URL.createObjectURL(registro.arquivo)
+      setLivro(registro)
+      setArquivoUrl(url)
+    }).catch((falha) => { if (ativo) setErro(falha?.message || 'Não foi possível abrir este livro.') })
+      .finally(() => { if (ativo) setCarregando(false) })
+    return () => { ativo = false; if (url) URL.revokeObjectURL(url) }
+  }, [id, proprietario])
+
+  if (carregando) return <EstadoCarregandoLivro mensagem="Abrindo seu EPUB…" />
+  if (erro || !livro || !arquivoUrl) return <Container maxWidth="sm" sx={{ py: 6 }}><Alert severity="warning" action={<Button onClick={() => navigate('/biblioteca')}>Voltar</Button>}>{erro || 'Livro não encontrado neste aparelho.'}</Alert></Container>
+
+  return <Box sx={{ minHeight: '100%', bgcolor: (theme) => theme.palette.mode === 'dark' ? '#121814' : '#f3eee3' }}>
+    <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(18,24,20,.97)' : 'rgba(255,253,248,.97)', borderBottom: 1, borderColor: 'divider', backdropFilter: 'blur(10px)' }}>
+      <Container maxWidth="md" sx={{ py: 1 }}><Stack direction="row" alignItems="center" spacing={0.7}>
+        <Button onClick={() => navigate('/biblioteca')} sx={{ minWidth: 0, px: 1 }}>Voltar</Button>
+        <Box sx={{ flex: 1, minWidth: 0 }}><Typography noWrap fontWeight={800} sx={{ fontFamily: 'Lora, Georgia, serif' }}>{livro.titulo}</Typography><Typography variant="caption" color="text.secondary">Livro pessoal · somente neste aparelho</Typography></Box>
+      </Stack></Container>
+    </Box>
+    <Container maxWidth="lg" sx={{ py: { xs: 1.5, sm: 3 } }}>
+      <BibliotecaArquivoReader arquivo={{ url: arquivoUrl, formato: 'epub', versao: livro.adicionadoEm }} storageKey={`biblioteca-pessoal-progresso:${proprietario}:${livro.id}`} livro={livro} permitirCompartilhamento={false} />
+    </Container>
+  </Box>
+}
+
+function EstadoCarregandoLivro({ mensagem }) {
+  return <Box sx={{ py: 12, textAlign: 'center' }}><CircularProgress /><Typography color="text.secondary" sx={{ mt: 2 }}>{mensagem}</Typography></Box>
+}
+
 function DetalheLivro({ livro, comprasConfirmadas, ehAdmin, onConfirmarCompra, onEditar, onExcluir }) {
   const navigate = useNavigate()
   const [opcoesAbertas, setOpcoesAbertas] = useState(false)
@@ -581,7 +677,7 @@ function DetalheLivro({ livro, comprasConfirmadas, ehAdmin, onConfirmarCompra, o
 }
 
 export default function BibliotecaLivros() {
-  const { livroId } = useParams()
+  const { livroId, livroPessoalId } = useParams()
   const location = useLocation()
   const navigate = useNavigate()
   const { user } = useFirebaseAuth()
@@ -600,10 +696,25 @@ export default function BibliotecaLivros() {
   const [configurandoPix, setConfigurandoPix] = useState(false)
   const [vendoPedidos, setVendoPedidos] = useState(false)
   const [processandoPedido, setProcessandoPedido] = useState(false)
+  const [livrosPessoais, setLivrosPessoais] = useState([])
+  const [carregandoPessoais, setCarregandoPessoais] = useState(true)
+  const [importandoPessoal, setImportandoPessoal] = useState(false)
+  const [excluindoPessoal, setExcluindoPessoal] = useState(null)
+  const proprietarioPessoal = user?.uid || 'local'
 
   useEffect(() => {
     setComprasConfirmadas(lerComprasConfirmadas(user?.uid))
   }, [user?.uid])
+
+  useEffect(() => {
+    let ativo = true
+    setCarregandoPessoais(true)
+    void listarLivrosPessoais(proprietarioPessoal)
+      .then((itens) => { if (ativo) setLivrosPessoais(itens) })
+      .catch((falha) => { if (ativo) setErro(falha?.message || 'Não foi possível abrir seus livros deste aparelho.') })
+      .finally(() => { if (ativo) setCarregandoPessoais(false) })
+    return () => { ativo = false }
+  }, [proprietarioPessoal])
 
   useEffect(() => {
     setAcessosCarregados(false)
@@ -693,6 +804,32 @@ export default function BibliotecaLivros() {
     finally { setSalvando(false) }
   }
 
+  async function importarPessoal(arquivo) {
+    setImportandoPessoal(true); setErro('')
+    try {
+      const livroAdicionado = await importarLivroPessoal(arquivo, proprietarioPessoal)
+      setLivrosPessoais((atuais) => [livroAdicionado, ...atuais])
+    } catch (falha) {
+      setErro(falha?.message || 'Não foi possível adicionar este EPUB.')
+    } finally {
+      setImportandoPessoal(false)
+    }
+  }
+
+  async function removerPessoal() {
+    if (!excluindoPessoal) return
+    setImportandoPessoal(true); setErro('')
+    try {
+      await excluirLivroPessoal(excluindoPessoal.id, proprietarioPessoal)
+      setLivrosPessoais((atuais) => atuais.filter((livroPessoal) => livroPessoal.id !== excluindoPessoal.id))
+      setExcluindoPessoal(null)
+    } catch (falha) {
+      setErro(falha?.message || 'Não foi possível remover este livro do aparelho.')
+    } finally {
+      setImportandoPessoal(false)
+    }
+  }
+
   async function excluir() {
     if (!excluindo) return
     setSalvando(true); setErro('')
@@ -716,7 +853,8 @@ export default function BibliotecaLivros() {
   }
 
   let conteudo
-  if (!livroId) conteudo = <Catalogo livros={livros} carregando={carregando} comprasConfirmadas={comprasDisponiveis} ehAdmin={ehAdmin} onConfirmarCompra={confirmarCompra} onNovo={() => setEditando({ titulo: '', autor: '', descricao: '', capa: '', androidUrl: '', appleUrl: '', amazonUrl: '', pixAtivo: false, precoPixCentavos: 0, publicado: false })} onEditar={setEditando} onExcluir={setExcluindo} onConfigurarPix={() => setConfigurandoPix(true)} onVerPedidos={() => setVendoPedidos(true)} pedidosPendentes={pedidosPendentes} />
+  if (livroPessoalId) conteudo = <LeitorLivroPessoal id={livroPessoalId} proprietario={proprietarioPessoal} />
+  else if (!livroId) conteudo = <Catalogo livros={livros} carregando={carregando} comprasConfirmadas={comprasDisponiveis} ehAdmin={ehAdmin} onConfirmarCompra={confirmarCompra} onNovo={() => setEditando({ titulo: '', autor: '', descricao: '', capa: '', androidUrl: '', appleUrl: '', amazonUrl: '', pixAtivo: false, precoPixCentavos: 0, publicado: false })} onEditar={setEditando} onExcluir={setExcluindo} onConfigurarPix={() => setConfigurandoPix(true)} onVerPedidos={() => setVendoPedidos(true)} pedidosPendentes={pedidosPendentes} livrosPessoais={livrosPessoais} carregandoPessoais={carregandoPessoais} importandoPessoal={importandoPessoal} onImportarPessoal={importarPessoal} onExcluirPessoal={setExcluindoPessoal} />
   else if (carregando || (modoLeitura && !ehAdmin && !acessosCarregados)) conteudo = <Box sx={{ py: 10, textAlign: 'center' }}><CircularProgress /></Box>
   else if (modoAmostra && livro && (ehAdmin || (livro.publicado !== false && livro.arquivos?.amostra))) conteudo = <LeitorLivro livro={livro} uid={user?.uid} finalidade="amostra" />
   else if (modoAmostra) conteudo = <Container maxWidth="sm" sx={{ py: 5 }}><Alert severity="warning" action={<Button onClick={() => navigate(`/biblioteca/${livroId}`)}>Voltar</Button>}>Este livro ainda não possui uma amostra disponível.</Alert></Container>
@@ -736,6 +874,11 @@ export default function BibliotecaLivros() {
         <DialogTitle>Excluir livro?</DialogTitle>
         <DialogContent><Typography>“{excluindo?.titulo}” será removido da Biblioteca.</Typography></DialogContent>
         <DialogActions><Button onClick={() => setExcluindo(null)} disabled={salvando}>Cancelar</Button><Button color="error" variant="contained" onClick={excluir} disabled={salvando}>{salvando ? 'Excluindo…' : 'Excluir'}</Button></DialogActions>
+      </Dialog>
+      <Dialog open={Boolean(excluindoPessoal)} onClose={importandoPessoal ? undefined : () => setExcluindoPessoal(null)} maxWidth="xs" fullWidth>
+        <DialogTitle>Remover livro deste aparelho?</DialogTitle>
+        <DialogContent><Typography>“{excluindoPessoal?.titulo}” será removido somente desta biblioteca local. O arquivo original não será apagado do aparelho.</Typography></DialogContent>
+        <DialogActions><Button onClick={() => setExcluindoPessoal(null)} disabled={importandoPessoal}>Cancelar</Button><Button color="error" variant="contained" onClick={removerPessoal} disabled={importandoPessoal}>Remover</Button></DialogActions>
       </Dialog>
     </>
   )

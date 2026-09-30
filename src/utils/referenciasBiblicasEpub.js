@@ -18,6 +18,22 @@ const criarRegexReferencia = () => new RegExp(
   'giu',
 )
 
+export function extrairReferenciasBiblicas(texto) {
+  const encontradas = []
+  const vistas = new Set()
+  const regex = criarRegexReferencia()
+  let match
+  while ((match = regex.exec(String(texto || ''))) !== null) {
+    const referencia = String(match[2] || '').replace(/\s+/g, ' ').trim()
+    const chave = referencia.toLocaleLowerCase('pt-BR')
+    if (referencia && !vistas.has(chave)) {
+      vistas.add(chave)
+      encontradas.push(referencia)
+    }
+  }
+  return encontradas
+}
+
 export function tornarReferenciasBiblicasClicaveis(documento, aoAbrir) {
   if (!documento?.body || typeof aoAbrir !== 'function') return
 

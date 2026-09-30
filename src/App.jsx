@@ -236,6 +236,7 @@ const appRouteTree = createRoutesFromElements(
     <Route path="estudos-biblicos/ia-pericope" element={<EstudoBiblicoIaPericope />} />
     <Route path="biblioteca-estudos" element={<BibliotecaEstudos />} />
     <Route path="biblioteca" element={<BibliotecaLivros />} />
+    <Route path="biblioteca/pessoal/:livroPessoalId" element={<BibliotecaLivros />} />
     <Route path="biblioteca/:livroId" element={<BibliotecaLivros />} />
     <Route path="biblioteca/:livroId/ler" element={<BibliotecaLivros />} />
     <Route path="biblioteca/:livroId/amostra" element={<BibliotecaLivros />} />

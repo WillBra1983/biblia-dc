@@ -64,7 +64,6 @@
     "@capacitor/android": "^6.0.0",
     "@capacitor/app": "^6.0.0",
     "@capacitor/browser": "^6.0.6",
-    "@capacitor/cli": "^6.0.0",
     "@capacitor/core": "^6.0.0",
     "@capacitor/filesystem": "^6.0.4",
     "@capacitor/ios": "^6.2.1",
@@ -90,7 +89,7 @@
     "canvas-confetti": "^1.9.4",
     "date-fns": "^4.1.0",
     "epubjs": "^0.3.93",
-    "firebase": "^12.12.0",
+    "firebase": "^12.19.0",
     "md5": "^2.3.0",
     "pdfjs-dist": "^4.10.38",
     "qrcode": "^1.5.4",
@@ -106,6 +105,7 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.0.0",
     "@vitejs/plugin-react": "^4.2.0",
     "beasties": "^0.4.2",
     "cross-env": "^7.0.3",
@@ -115,5 +115,12 @@
     "typescript": "^5.8.2",
     "vite": "^6.2.0",
     "vite-plugin-pwa": "^1.2.0"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "1.14.5",
+    "@xmldom/xmldom": "0.9.12",
+    "brace-expansion@2": "2.1.7",
+    "tar": "7.5.22",
+    "websocket-driver": "0.7.5"
   }
 }

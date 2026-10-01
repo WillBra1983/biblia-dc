@@ -50,7 +50,7 @@ function criarId() {
 }
 
 function tituloPeloArquivo(nome) {
-  return String(nome || 'Livro pessoal').replace(/\.epub$/i, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim()
+  return String(nome || 'Livro pessoal').replace(/\.(epub|pdf)$/i, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
 async function lerDadosEpub(arquivo) {
@@ -96,10 +96,11 @@ export async function obterLivroPessoal(id, proprietario) {
 }
 
 export async function importarLivroPessoal(arquivo, proprietario) {
-  if (!arquivo || !/\.epub$/i.test(arquivo.name || '') && arquivo.type !== 'application/epub+zip') {
-    throw new Error('Escolha um arquivo EPUB.')
+  if (!arquivo || !/\.(epub|pdf)$/i.test(arquivo.name || '') && !['application/epub+zip', 'application/pdf'].includes(arquivo.type)) {
+    throw new Error('Escolha um arquivo EPUB ou PDF.')
   }
-  const dados = await lerDadosEpub(arquivo)
+  const formato = /\.pdf$/i.test(arquivo.name || '') || arquivo.type === 'application/pdf' ? 'pdf' : 'epub'
+  const dados = formato === 'epub' ? await lerDadosEpub(arquivo) : { titulo: tituloPeloArquivo(arquivo.name), autor: 'Autor não informado', capa: null }
   const registro = {
     id: criarId(),
     proprietario: String(proprietario || 'local'),
@@ -109,7 +110,7 @@ export async function importarLivroPessoal(arquivo, proprietario) {
     arquivo,
     nomeArquivo: arquivo.name,
     tamanho: arquivo.size,
-    formato: 'epub',
+    formato,
     adicionadoEm: Date.now(),
   }
   await executarTransacao('readwrite', (store) => store.put(registro))

@@ -178,6 +178,7 @@ export function normalizarNomeLivro(nome) {
     'est': 'Ester',
     'sl': 'Salmos',
     'sal': 'Salmos',
+    'salmo': 'Salmos',
     'pv': 'Provérbios',
     'pro': 'Provérbios',
     'ec': 'Eclesiastes',

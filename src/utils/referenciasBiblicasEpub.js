@@ -5,18 +5,29 @@ import { normalizarNomeLivro } from './biblia'
 const escaparRegex = (valor) => String(valor).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 const nomesDosLivros = [...new Set(
-  livros.flatMap((livro) => [livro.nome, livro.abreviacao]).filter(Boolean),
+  [...livros.flatMap((livro) => [livro.nome, livro.abreviacao]), 'Salmo', 'Atos'].filter(Boolean)
+    .flatMap((nome) => [nome, nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '')]),
 )]
   .sort((a, b) => b.length - a.length)
-  .map(escaparRegex)
+  .map((nome) => escaparRegex(nome).replace(/\s+/g, '\\s+'))
   .join('|')
 
-// O EPUB analisado usa principalmente "Rm 1.20", mas também aceitamos
-// "Rm 1:20" e intervalos como "Rm 1.20-22".
+// Um capítulo pode citar versículos isolados, intervalos ou listas com vírgulas.
+const trechoVersiculos = '\\d{1,3}(?:\\s*[-–—]\\s*\\d{1,3})?'
+const listaVersiculos = `${trechoVersiculos}(?:\\s*,\\s*${trechoVersiculos})*`
 const criarRegexReferencia = () => new RegExp(
-  `(^|[^\\p{L}\\p{N}])((?:${nomesDosLivros})\\.?\\s+\\d{1,3}(?:\\s*[:.]\\s*\\d{1,3}(?:\\s*[-–—]\\s*\\d{1,3})?)?)`,
+  `(^|[^\\p{L}\\p{N}])((?:${nomesDosLivros})\\.?\\s+\\d{1,3}(?:\\s*[:.]\\s*${listaVersiculos})?)(?!\\p{N})`,
   'giu',
 )
+
+// Mantém os índices para localizar citações que atravessam vários trechos do PDF.
+export function localizarReferenciasBiblicas(texto) {
+  return [...String(texto || '').matchAll(criarRegexReferencia())].map((match) => ({
+    referencia: match[2].replace(/\s+/g, ' ').trim(),
+    inicio: match.index + match[1].length,
+    fim: match.index + match[1].length + match[2].length,
+  }))
+}
 
 export function extrairReferenciasBiblicas(texto) {
   const encontradas = []
@@ -113,21 +124,31 @@ export function tornarReferenciasBiblicasClicaveis(documento, aoAbrir) {
 
 export async function carregarReferenciaBiblica(referencia) {
   const match = String(referencia || '').trim().match(
-    /^(.+?)\s+(\d{1,3})(?:\s*[:.]\s*(\d{1,3})(?:\s*[-–—]\s*(\d{1,3}))?)?$/u,
+    new RegExp(`^(.+?)\\s+(\\d{1,3})(?:\\s*[:.]\\s*(${listaVersiculos}))?$`, 'u'),
   )
   if (!match) return []
 
-  const [, livroInformado, capituloTexto, inicioTexto, fimTexto] = match
+  const [, livroInformado, capituloTexto, versiculosTexto] = match
   const livro = await buscarLivroPorNome(normalizarNomeLivro(livroInformado))
   if (!livro) return []
 
   const capitulo = Number(capituloTexto)
-  const inicio = inicioTexto ? Number(inicioTexto) : 1
-  const fim = fimTexto ? Number(fimTexto) : (inicioTexto ? inicio : 999)
-  const resultado = await buscarIntervaloVersiculos(livro.id, capitulo, inicio, fim)
-
-  return (resultado?.versiculos || []).map((versiculo) => ({
-    ...versiculo,
-    livro: livro.nome,
-  }))
+  if (capitulo < 1) return []
+  const intervalos = versiculosTexto ? versiculosTexto.split(',').map((trecho) => {
+    const [inicio, fim = inicio] = trecho.trim().split(/\s*[-–—]\s*/).map(Number)
+    return { inicio, fim }
+  }) : [{ inicio: 1, fim: 999 }]
+  if (intervalos.some(({ inicio, fim }) => inicio < 1 || fim < inicio)) return []
+  const encontrados = []
+  const vistos = new Set()
+  for (const { inicio, fim } of intervalos) {
+    const resultado = await buscarIntervaloVersiculos(livro.id, capitulo, inicio, fim)
+    for (const versiculo of resultado?.versiculos || []) {
+      const chave = versiculo.id ?? `${versiculo.capitulo ?? capitulo}:${versiculo.versiculo ?? JSON.stringify(versiculo)}`
+      if (vistos.has(chave)) continue
+      vistos.add(chave)
+      encontrados.push({ ...versiculo, livro: livro.nome })
+    }
+  }
+  return encontrados
 }

@@ -471,12 +471,12 @@ function MeusLivrosPessoais({ livros, carregando, importando, onImportar, onExcl
   return <Box sx={{ mb: 4 }}>
     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.2} alignItems={{ sm: 'center' }} justifyContent="space-between" sx={{ mb: 1.5 }}>
       <Box>
-        <Typography variant="h6" fontWeight={800}>Meus livros neste aparelho</Typography>
-        <Typography variant="body2" color="text.secondary">Adicione seus EPUBs para lê-los com acesso às referências bíblicas. Os arquivos não são enviados para nossos servidores.</Typography>
+        <Typography variant="h6" fontWeight={800}>Minha Biblioteca Pessoal</Typography>
+        <Typography variant="body2" color="text.secondary">Adicione livros em EPUB ou PDF para ler e abrir as referências bíblicas reconhecidas no texto. Os arquivos ficam somente neste aparelho e não são enviados para nossos servidores.</Typography>
       </Box>
       <Button component="label" variant="outlined" startIcon={importando ? <CircularProgress size={18} /> : <UploadFileOutlinedIcon />} disabled={importando} sx={{ flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
-        {importando ? 'Adicionando…' : 'Adicionar EPUB'}
-        <input aria-label="Selecionar arquivo EPUB" type="file" accept=".epub,application/epub+zip" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} onChange={(evento) => { const arquivo = evento.target.files?.[0]; evento.target.value = ''; if (arquivo) onImportar(arquivo) }} />
+        {importando ? 'Adicionando…' : 'Adicionar livro'}
+        <input aria-label="Selecionar livro EPUB ou PDF" type="file" accept=".epub,.pdf,application/epub+zip,application/pdf" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} onChange={(evento) => { const arquivo = evento.target.files?.[0]; evento.target.value = ''; if (arquivo) onImportar(arquivo) }} />
       </Button>
     </Stack>
     {carregando ? <Box sx={{ py: 3, textAlign: 'center' }}><CircularProgress size={28} /></Box> : livros.length > 0 ? <Grid container spacing={{ xs: 1.6, sm: 2, md: 2.5 }}>
@@ -492,7 +492,7 @@ function MeusLivrosPessoais({ livros, carregando, importando, onImportar, onExcl
           <CardActions sx={{ px: 1.2, pb: 1.2, pt: 0.5 }}><Button size="small" variant="contained" startIcon={<AutoStoriesOutlinedIcon />} onClick={() => navigate(`/biblioteca/pessoal/${livro.id}`)}>Ler</Button></CardActions>
         </Card>
       </Grid>)}
-    </Grid> : <Alert severity="info">Você ainda não adicionou nenhum EPUB pessoal.</Alert>}
+    </Grid> : <Alert severity="info">Você ainda não adicionou nenhum livro à sua biblioteca pessoal. Adicione um EPUB ou PDF.</Alert>}
   </Box>
 }
 
@@ -620,7 +620,7 @@ function LeitorLivroPessoal({ id, proprietario }) {
     return () => { ativo = false; if (url) URL.revokeObjectURL(url) }
   }, [id, proprietario])
 
-  if (carregando) return <EstadoCarregandoLivro mensagem="Abrindo seu EPUB…" />
+  if (carregando) return <EstadoCarregandoLivro mensagem="Abrindo seu livro…" />
   if (erro || !livro || !arquivoUrl) return <Container maxWidth="sm" sx={{ py: 6 }}><Alert severity="warning" action={<Button onClick={() => navigate('/biblioteca')}>Voltar</Button>}>{erro || 'Livro não encontrado neste aparelho.'}</Alert></Container>
 
   return <Box sx={{ minHeight: '100%', bgcolor: (theme) => theme.palette.mode === 'dark' ? '#121814' : '#f3eee3' }}>
@@ -631,7 +631,7 @@ function LeitorLivroPessoal({ id, proprietario }) {
       </Stack></Container>
     </Box>
     <Container maxWidth="lg" sx={{ py: { xs: 1.5, sm: 3 } }}>
-      <BibliotecaArquivoReader arquivo={{ url: arquivoUrl, formato: 'epub', versao: livro.adicionadoEm }} storageKey={`biblioteca-pessoal-progresso:${proprietario}:${livro.id}`} livro={livro} permitirCompartilhamento={false} />
+      <BibliotecaArquivoReader arquivo={{ url: arquivoUrl, formato: livro.formato || 'epub', versao: livro.adicionadoEm }} storageKey={`biblioteca-pessoal-progresso:${proprietario}:${livro.id}`} livro={livro} permitirCompartilhamento={false} />
     </Container>
   </Box>
 }
@@ -810,7 +810,7 @@ export default function BibliotecaLivros() {
       const livroAdicionado = await importarLivroPessoal(arquivo, proprietarioPessoal)
       setLivrosPessoais((atuais) => [livroAdicionado, ...atuais])
     } catch (falha) {
-      setErro(falha?.message || 'Não foi possível adicionar este EPUB.')
+      setErro(falha?.message || 'Não foi possível adicionar este livro.')
     } finally {
       setImportandoPessoal(false)
     }

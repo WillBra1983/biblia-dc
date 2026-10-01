@@ -1,30 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { Alert, Box, Button, CircularProgress, Paper, Stack, Typography } from '@mui/material'
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
 import CompartilharTrechoLivroDialog from './CompartilharTrechoLivroDialog'
 import CompartilharLivroButton from './CompartilharLivroButton'
 import VersiculoPopup from './VersiculoPopup'
+import BibliotecaPdfReader from './BibliotecaPdfReader'
+import BibliotecaReaderToolbar from './BibliotecaReaderToolbar'
 import { urlCapaLivro } from '../data/livrosCatalogo'
 import { linkCompartilhamentoLivro } from '../utils/livroShare'
-import { carregarReferenciaBiblica, extrairReferenciasBiblicas, tornarReferenciasBiblicasClicaveis } from '../utils/referenciasBiblicasEpub'
+import { carregarReferenciaBiblica, tornarReferenciasBiblicasClicaveis } from '../utils/referenciasBiblicasEpub'
 
-let pdfjsPromise
 let epubjsPromise
 
-async function carregarPdfJs() {
-  if (!pdfjsPromise) {
-    pdfjsPromise = Promise.all([
-      import('pdfjs-dist'),
-      import('pdfjs-dist/build/pdf.worker.min.mjs?url'),
-    ]).then(([pdfjs, worker]) => {
-      pdfjs.GlobalWorkerOptions.workerSrc = worker.default
-      return pdfjs
-    })
-  }
-  return pdfjsPromise
-}
 
 async function carregarEpubJs() {
   if (!epubjsPromise) {
@@ -51,95 +38,8 @@ async function carregarEpubJs() {
   return epubjsPromise
 }
 
-function PdfReader({ url, storageKey, onBibleReference }) {
-  const canvasRef = useRef(null)
-  const [documento, setDocumento] = useState(null)
-  const [pagina, setPagina] = useState(() => Math.max(1, Number(localStorage.getItem(storageKey)) || 1))
-  const [escala, setEscala] = useState(1.2)
-  const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState('')
-  const [referenciasPagina, setReferenciasPagina] = useState([])
-  const [paginaTemTexto, setPaginaTemTexto] = useState(null)
 
-  useEffect(() => {
-    let ativo = true
-    let tarefa
-    setCarregando(true); setErro(''); setDocumento(null)
-    void (async () => {
-      const [pdfjs, resposta] = await Promise.all([carregarPdfJs(), fetch(url)])
-      if (!resposta.ok) throw new Error('O arquivo não pôde ser aberto.')
-      const bytes = new Uint8Array(await resposta.arrayBuffer())
-      tarefa = pdfjs.getDocument({ data: bytes })
-      const pdf = await tarefa.promise
-      if (ativo) {
-        setDocumento(pdf)
-        setPagina((atual) => Math.min(pdf.numPages, atual))
-      }
-    })().catch((falha) => { if (ativo) setErro(falha?.message || 'Não foi possível abrir o PDF.') })
-      .finally(() => { if (ativo) setCarregando(false) })
-    return () => { ativo = false; tarefa?.destroy?.() }
-  }, [url])
-
-  useEffect(() => {
-    if (!documento || !canvasRef.current) return undefined
-    let cancelado = false
-    let renderizacao
-    setReferenciasPagina([])
-    setPaginaTemTexto(null)
-    void documento.getPage(pagina).then((folha) => {
-      if (cancelado || !canvasRef.current) return
-      const viewportBase = folha.getViewport({ scale: 1 })
-      const larguraDisponivel = Math.min(window.innerWidth - 24, 900)
-      const escalaResponsiva = Math.min(escala, larguraDisponivel / viewportBase.width)
-      const viewport = folha.getViewport({ scale: Math.max(0.5, escalaResponsiva) })
-      const canvas = canvasRef.current
-      const proporcao = Math.min(window.devicePixelRatio || 1, 2)
-      canvas.width = Math.floor(viewport.width * proporcao)
-      canvas.height = Math.floor(viewport.height * proporcao)
-      canvas.style.width = `${Math.floor(viewport.width)}px`
-      canvas.style.height = `${Math.floor(viewport.height)}px`
-      const contexto = canvas.getContext('2d', { alpha: false })
-      renderizacao = folha.render({ canvasContext: contexto, viewport, transform: proporcao === 1 ? null : [proporcao, 0, 0, proporcao, 0, 0] })
-      const leituraTexto = folha.getTextContent().then((conteudo) => {
-        if (cancelado) return
-        const texto = (conteudo?.items || []).map((item) => item?.str || '').join(' ').replace(/\s+/g, ' ').trim()
-        setPaginaTemTexto(Boolean(texto))
-        setReferenciasPagina(extrairReferenciasBiblicas(texto))
-      })
-      return Promise.all([renderizacao.promise, leituraTexto])
-    }).catch((falha) => {
-      if (!cancelado && falha?.name !== 'RenderingCancelledException') setErro('Não foi possível mostrar esta página.')
-    })
-    localStorage.setItem(storageKey, String(pagina))
-    return () => { cancelado = true; renderizacao?.cancel?.() }
-  }, [documento, pagina, escala, storageKey])
-
-  if (carregando) return <EstadoCarregando />
-  if (erro) return <Alert severity="error">{erro}</Alert>
-  return (
-    <Stack spacing={1.5} alignItems="center">
-      <Stack direction="row" spacing={1} alignItems="center" justifyContent="center" flexWrap="wrap">
-        <Button variant="outlined" startIcon={<ArrowBackIosNewIcon />} disabled={pagina <= 1} onClick={() => setPagina((p) => p - 1)}>Anterior</Button>
-        <Typography minWidth={110} textAlign="center">{pagina} de {documento?.numPages || 0}</Typography>
-        <Button variant="contained" endIcon={<ArrowForwardIosIcon />} disabled={pagina >= (documento?.numPages || 0)} onClick={() => setPagina((p) => p + 1)}>Próxima</Button>
-        <Button onClick={() => setEscala((v) => Math.max(0.8, v - 0.15))}>A−</Button>
-        <Button onClick={() => setEscala((v) => Math.min(2.2, v + 0.15))}>A+</Button>
-      </Stack>
-      <Box sx={{ width: '100%', overflow: 'auto', textAlign: 'center', bgcolor: '#777', py: 1.5, borderRadius: 1 }}>
-        <canvas ref={canvasRef} style={{ display: 'inline-block', maxWidth: 'none', boxShadow: '0 5px 22px rgba(0,0,0,.32)' }} />
-      </Box>
-      {referenciasPagina.length > 0 && <Paper variant="outlined" sx={{ width: '100%', maxWidth: 900, p: 1.4, borderRadius: 2 }}>
-        <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 0.8 }}>Textos bíblicos nesta página</Typography>
-        <Stack direction="row" spacing={0.8} useFlexGap flexWrap="wrap">
-          {referenciasPagina.map((referencia) => <Button key={referencia} size="small" variant="outlined" onClick={() => onBibleReference?.(referencia)}>{referencia}</Button>)}
-        </Stack>
-      </Paper>}
-      {paginaTemTexto === false && <Alert severity="info" sx={{ width: '100%', maxWidth: 900 }}>Esta página parece ser uma imagem. Para reconhecer referências nela, será necessário OCR.</Alert>}
-    </Stack>
-  )
-}
-
-function EpubReader({ url, storageKey, onSelection, onBibleReference }) {
+function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap, immersive }) {
   const areaRef = useRef(null)
   const livroRef = useRef(null)
   const renditionRef = useRef(null)
@@ -150,6 +50,11 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference }) {
   const [exibindoCapa, setExibindoCapa] = useState(false)
   const onSelectionRef = useRef(onSelection)
   const onBibleReferenceRef = useRef(onBibleReference)
+  const onPageTapRef = useRef(onPageTap)
+  const gestureRef = useRef(null)
+  const ultimoGestoRef = useRef(0)
+  const navigationRef = useRef({})
+  onPageTapRef.current = onPageTap
 
   useEffect(() => { onSelectionRef.current = onSelection }, [onSelection])
   useEffect(() => { onBibleReferenceRef.current = onBibleReference }, [onBibleReference])
@@ -191,6 +96,32 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference }) {
         tornarReferenciasBiblicasClicaveis(contents?.document, (referencia) => {
           onBibleReferenceRef.current?.(referencia)
         })
+        const doc = contents?.document
+        if (!doc) return
+        doc.addEventListener('touchstart', (event) => {
+          if (event.touches.length !== 1) { gestureRef.current = null; return }
+          const touch = event.touches[0]
+          gestureRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now(), target: event.target }
+        }, { passive: true })
+        doc.addEventListener('touchend', (event) => {
+          const start = gestureRef.current
+          gestureRef.current = null
+          const touch = event.changedTouches[0]
+          if (!start || !touch || event.touches.length || Date.now() - start.time > 800) return
+          const dx = touch.clientX - start.x
+          const dy = touch.clientY - start.y
+          if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5 && !doc.defaultView?.getSelection()?.toString()) {
+            ultimoGestoRef.current = Date.now()
+            if (dx < 0) navigationRef.current.next?.()
+            else navigationRef.current.prev?.()
+          }
+        }, { passive: true })
+        doc.addEventListener('touchcancel', () => { gestureRef.current = null }, { passive: true })
+        doc.addEventListener('click', (event) => {
+          if (Date.now() - ultimoGestoRef.current < 500) return
+          if (event.target?.closest?.('a, button, input, [data-biblia-referencia]') || doc.defaultView?.getSelection()?.toString()) return
+          onPageTapRef.current?.()
+        })
       })
       rendition.themes.default({ body: { 'font-family': 'Georgia, serif', 'line-height': '1.7', padding: '0 4%' } })
       rendition.themes.fontSize('105%')
@@ -221,8 +152,21 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference }) {
 
   useEffect(() => { renditionRef.current?.themes?.fontSize?.(`${tamanho}%`) }, [tamanho])
 
+  useEffect(() => {
+    const area = areaRef.current
+    if (!area) return
+    let frame
+    const observer = new ResizeObserver(([entry]) => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        if (entry.contentRect.width > 0) renditionRef.current?.resize?.(entry.contentRect.width, entry.contentRect.height)
+      })
+    })
+    observer.observe(area)
+    return () => { observer.disconnect(); cancelAnimationFrame(frame) }
+  }, [])
+
   const abrirCapa = () => {
-    localStorage.removeItem(storageKey)
     if (capaUrl) {
       setExibindoCapa(true)
       return
@@ -245,22 +189,23 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference }) {
     }
     void renditionRef.current?.next?.()
   }
+  navigationRef.current = { prev: paginaAnterior, next: proximaPagina }
 
   return (
     <Stack spacing={1.5}>
       {erro && <Alert severity="error">{erro}</Alert>}
-      <Stack direction="row" spacing={1} justifyContent="center" alignItems="center">
-        <Button onClick={abrirCapa}>Capa</Button>
-        <Button variant="outlined" startIcon={<ArrowBackIosNewIcon />} onClick={paginaAnterior}>Anterior</Button>
-        <Button variant="contained" endIcon={<ArrowForwardIosIcon />} onClick={proximaPagina}>Próxima</Button>
+      {!immersive && <BibliotecaReaderToolbar onFullscreen={onPageTap}>
+        <Button onClick={abrirCapa}>Início</Button>
+        <Button variant="outlined" onClick={paginaAnterior}>Anterior</Button>
+        <Button variant="contained" onClick={proximaPagina}>Próxima</Button>
         <Button onClick={() => setTamanho((v) => Math.max(80, v - 10))}>A−</Button>
         <Button onClick={() => setTamanho((v) => Math.min(160, v + 10))}>A+</Button>
-      </Stack>
+      </BibliotecaReaderToolbar>}
       {carregando && <EstadoCarregando />}
-      {exibindoCapa && capaUrl && <Box sx={{ minHeight: '72vh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)', display: 'grid', placeItems: 'center', p: { xs: 1.5, sm: 3 } }}>
+      {exibindoCapa && capaUrl && <Box onClick={onPageTap} onTouchStart={(event) => { const touch = event.touches[0]; gestureRef.current = { x: touch.clientX, y: touch.clientY } }} onTouchEnd={(event) => { const start = gestureRef.current; gestureRef.current = null; const touch = event.changedTouches[0]; if (start && touch && start.x - touch.clientX > 55 && Math.abs(touch.clientY - start.y) < 60) proximaPagina() }} sx={{ height: immersive ? '100dvh' : '72dvh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)', display: 'grid', placeItems: 'center', p: { xs: 1.5, sm: 3 } }}>
         <Box component="img" src={capaUrl} alt="Capa do livro" sx={{ display: 'block', maxWidth: '100%', maxHeight: '68vh', objectFit: 'contain', borderRadius: 0.75, boxShadow: '0 8px 24px rgba(0,0,0,.2)' }} />
       </Box>}
-      <Box ref={areaRef} sx={{ display: carregando || exibindoCapa ? 'none' : 'block', minHeight: '72vh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)' }} />
+      <Box ref={areaRef} sx={{ display: carregando || exibindoCapa ? 'none' : 'block', height: immersive ? '100dvh' : '72dvh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)' }} />
     </Stack>
   )
 }
@@ -274,6 +219,26 @@ export default function BibliotecaArquivoReader({ arquivo, storageKey, livro, pe
   const [compartilhando, setCompartilhando] = useState(false)
   const [versiculos, setVersiculos] = useState(null)
   const [erroReferencia, setErroReferencia] = useState('')
+  const [immersive, setImmersive] = useState(false)
+  const readerRef = useRef(null)
+  const wasImmersiveRef = useRef(false)
+  useEffect(() => {
+    const saiu = wasImmersiveRef.current && !immersive
+    wasImmersiveRef.current = immersive
+    if (!saiu) return
+    const frame = requestAnimationFrame(() => readerRef.current?.scrollIntoView({ block: 'start' }))
+    return () => cancelAnimationFrame(frame)
+  }, [immersive])
+  useEffect(() => {
+    if (!immersive) return
+    const oldOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const exit = (event) => { if (event.type === 'androidBack' || event.key === 'Escape') setImmersive(false) }
+    window.addEventListener('keydown', exit)
+    window.addEventListener('androidBack', exit)
+    return () => { document.body.style.overflow = oldOverflow; window.removeEventListener('keydown', exit); window.removeEventListener('androidBack', exit) }
+  }, [immersive])
+  const toggleReading = () => setImmersive((value) => !value)
 
   const abrirReferenciaBiblica = async (referencia) => {
     setErroReferencia('')
@@ -294,10 +259,12 @@ export default function BibliotecaArquivoReader({ arquivo, storageKey, livro, pe
 
   return <>
     {erroReferencia && <Alert severity="warning" onClose={() => setErroReferencia('')} sx={{ mb: 1 }}>{erroReferencia}</Alert>}
-    {arquivo.formato === 'pdf'
-      ? <PdfReader url={arquivo.url} storageKey={storageKey} onBibleReference={abrirReferenciaBiblica} />
-      : <EpubReader url={arquivo.url} storageKey={storageKey} onSelection={setTrecho} onBibleReference={abrirReferenciaBiblica} />}
-    {arquivo.formato !== 'pdf' && permitirCompartilhamento && <Paper elevation={4} sx={{ position: 'sticky', bottom: 12, zIndex: 5, maxWidth: 760, mx: 'auto', mt: 1.5, p: 1.2, borderRadius: 2 }}>
+    <Box ref={readerRef} sx={immersive ? { position: 'fixed', inset: 0, zIndex: 1300, bgcolor: 'background.paper', overflow: 'auto', overscrollBehavior: 'contain', pt: 'env(safe-area-inset-top)', pb: 'env(safe-area-inset-bottom)' } : { scrollMarginTop: '80px' }}>
+      {arquivo.formato === 'pdf'
+        ? <BibliotecaPdfReader url={arquivo.url} storageKey={storageKey} onBibleReference={abrirReferenciaBiblica} onPageTap={toggleReading} immersive={immersive} />
+        : <EpubReader url={arquivo.url} storageKey={storageKey} onSelection={setTrecho} onBibleReference={abrirReferenciaBiblica} onPageTap={toggleReading} immersive={immersive} />}
+    </Box>
+    {!immersive && arquivo.formato !== 'pdf' && permitirCompartilhamento && <Paper elevation={4} sx={{ position: 'sticky', bottom: 12, zIndex: 5, maxWidth: 760, mx: 'auto', mt: 1.5, p: 1.2, borderRadius: 2 }}>
       {trecho ? <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }}>
         <Typography variant="body2" sx={{ flex: 1 }} noWrap>“{trecho}”</Typography>
         <Button variant="contained" startIcon={<IosShareOutlinedIcon />} onClick={() => setCompartilhando(true)}>Compartilhar como imagem</Button>

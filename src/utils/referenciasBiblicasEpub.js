@@ -5,16 +5,16 @@ import { normalizarNomeLivro } from './biblia'
 const escaparRegex = (valor) => String(valor).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 const nomesDosLivros = [...new Set(
-  [...livros.flatMap((livro) => [livro.nome, livro.abreviacao]), 'Salmo', 'Atos'].filter(Boolean)
+  [...livros.flatMap((livro) => [livro.nome, livro.abreviacao]), 'Salmo', 'Atos', 'Ha', '1 Co', '2 Co', '1 Pe', '2 Pe', '1 Jo', '2 Jo', '3 Jo'].filter(Boolean)
     .flatMap((nome) => [nome, nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '')]),
 )]
   .sort((a, b) => b.length - a.length)
-  .map((nome) => escaparRegex(nome).replace(/\s+/g, '\\s+'))
+  .map((nome) => escaparRegex(nome).replace(/\s+/g, '\\s+').replace(/^([1-3])(?=[A-Za-z])/, '$1\\s*'))
   .join('|')
 
 // Um capítulo pode citar versículos isolados, intervalos ou listas com vírgulas.
 const trechoVersiculos = '\\d{1,3}(?:\\s*[-–—]\\s*\\d{1,3})?'
-const listaVersiculos = `${trechoVersiculos}(?:\\s*,\\s*${trechoVersiculos})*`
+const listaVersiculos = `${trechoVersiculos}(?:\\s*,\\s*${trechoVersiculos}(?!\\d|\\s*[:.]\\s*\\d))*`
 const criarRegexReferencia = () => new RegExp(
   `(^|[^\\p{L}\\p{N}])((?:${nomesDosLivros})\\.?\\s+\\d{1,3}(?:\\s*[:.]\\s*${listaVersiculos})?)(?!\\p{N})`,
   'giu',
@@ -22,20 +22,31 @@ const criarRegexReferencia = () => new RegExp(
 
 // Mantém os índices para localizar citações que atravessam vários trechos do PDF.
 export function localizarReferenciasBiblicas(texto) {
-  return [...String(texto || '').matchAll(criarRegexReferencia())].map((match) => ({
-    referencia: match[2].replace(/\s+/g, ' ').trim(),
-    inicio: match.index + match[1].length,
-    fim: match.index + match[1].length + match[2].length,
-  }))
+  const fonte = String(texto || '')
+  const encontradas = []
+  const continuacao = new RegExp(`^(\\s*(?:;|,|e\\s)\\s*)(\\d{1,3}\\s*[:.]\\s*${listaVersiculos})(?!\\p{N})`, 'iu')
+  for (const match of fonte.matchAll(criarRegexReferencia())) {
+    const referencia = match[2].replace(/\s+/g, ' ').trim()
+    const inicio = match.index + match[1].length
+    let fim = inicio + match[2].length
+    encontradas.push({ referencia, inicio, fim })
+    // Herda o livro somente na sequência imediata de capítulo e versículo.
+    const livro = referencia.match(/^(.+?)\s+\d{1,3}(?:\s*[:.]|$)/u)?.[1]
+    if (!livro) continue
+    let proxima
+    while ((proxima = fonte.slice(fim).match(continuacao))) {
+      const inicioSeguinte = fim + proxima[1].length
+      fim += proxima[0].length
+      encontradas.push({ referencia: `${livro} ${proxima[2].replace(/\s+/g, ' ').trim()}`, inicio: inicioSeguinte, fim })
+    }
+  }
+  return encontradas.sort((a, b) => a.inicio - b.inicio)
 }
 
 export function extrairReferenciasBiblicas(texto) {
   const encontradas = []
   const vistas = new Set()
-  const regex = criarRegexReferencia()
-  let match
-  while ((match = regex.exec(String(texto || ''))) !== null) {
-    const referencia = String(match[2] || '').replace(/\s+/g, ' ').trim()
+  for (const { referencia } of localizarReferenciasBiblicas(texto)) {
     const chave = referencia.toLocaleLowerCase('pt-BR')
     if (referencia && !vistas.has(chave)) {
       vistas.add(chave)
@@ -72,17 +83,13 @@ export function tornarReferenciasBiblicasClicaveis(documento, aoAbrir) {
 
   nos.forEach((no) => {
     const texto = no.nodeValue
-    const regex = criarRegexReferencia()
     const fragmento = documento.createDocumentFragment()
     let inicio = 0
     let encontrou = false
-    let match
-
-    while ((match = regex.exec(texto)) !== null) {
+    for (const localizada of localizarReferenciasBiblicas(texto)) {
       encontrou = true
-      const prefixo = match[1] || ''
-      const referencia = match[2]
-      const indiceReferencia = match.index + prefixo.length
+      const referencia = localizada.referencia
+      const indiceReferencia = localizada.inicio
 
       if (indiceReferencia > inicio) {
         fragmento.appendChild(documento.createTextNode(texto.slice(inicio, indiceReferencia)))
@@ -91,7 +98,7 @@ export function tornarReferenciasBiblicasClicaveis(documento, aoAbrir) {
       const botao = documento.createElement('button')
       botao.type = 'button'
       botao.dataset.bibliaReferencia = referencia
-      botao.textContent = referencia
+      botao.textContent = texto.slice(localizada.inicio, localizada.fim)
       botao.title = `Ler ${referencia}`
       botao.setAttribute('aria-label', `Ler ${referencia}`)
       Object.assign(botao.style, {
@@ -113,7 +120,7 @@ export function tornarReferenciasBiblicasClicaveis(documento, aoAbrir) {
         aoAbrir(referencia)
       })
       fragmento.appendChild(botao)
-      inicio = regex.lastIndex
+      inicio = localizada.fim
     }
 
     if (!encontrou) return

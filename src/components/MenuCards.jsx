@@ -346,9 +346,9 @@ const menuItems = [
   },
 ]
 
-const menuAntesHinario = menuItems.slice(0, 5)
+const menuAntesHinario = menuItems.slice(0, 4)
 // Itens depois de Westminster e antes do "Sobre" (menuFinal).
-const menuDepoisWestminster = menuItems.slice(5, -1)
+const menuDepoisWestminster = menuItems.slice(4, -1)
 const menuFinal = menuItems.slice(-1)
 
 /**

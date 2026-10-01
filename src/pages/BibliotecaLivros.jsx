@@ -50,6 +50,7 @@ import {
 } from '../services/bibliotecaLivrosService'
 import {
   excluirLivroPessoal,
+  gerarPreviaLivroPessoal,
   importarLivroPessoal,
   listarLivrosPessoais,
   obterLivroPessoal,
@@ -453,15 +454,21 @@ function LivroCard({ livro, comprasConfirmadas, ehAdmin, onOpcoes, onEditar, onE
 function CapaLivroPessoal({ livro }) {
   const [url, setUrl] = useState('')
   useEffect(() => {
-    if (!livro?.capa) { setUrl(''); return undefined }
-    const proximaUrl = URL.createObjectURL(livro.capa)
-    setUrl(proximaUrl)
-    return () => URL.revokeObjectURL(proximaUrl)
-  }, [livro?.capa])
+    let ativo = true
+    let proximaUrl
+    setUrl('')
+    void (async () => {
+      const capa = livro.capa || await gerarPreviaLivroPessoal(livro)
+      if (!ativo || !capa) return
+      proximaUrl = URL.createObjectURL(capa)
+      setUrl(proximaUrl)
+    })().catch(() => {})
+    return () => { ativo = false; if (proximaUrl) URL.revokeObjectURL(proximaUrl) }
+  }, [livro?.id, livro?.capa, livro?.proprietario])
 
   return <Box sx={{ width: '100%', aspectRatio: '2 / 3', bgcolor: '#0b302b', borderRadius: 1.4, overflow: 'hidden', display: 'grid', placeItems: 'center' }}>
     {url
-      ? <Box component="img" src={url} alt={`Capa de ${livro.titulo}`} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      ? <Box component="img" src={url} alt={`Prévia de ${livro.titulo}`} sx={{ width: '100%', height: '100%', objectFit: 'contain', bgcolor: 'white' }} />
       : <AutoStoriesOutlinedIcon sx={{ color: '#e1bd6e', fontSize: 58 }} />}
   </Box>
 }

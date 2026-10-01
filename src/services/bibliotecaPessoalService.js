@@ -3,6 +3,57 @@ const VERSAO_BANCO = 1
 const STORE_LIVROS = 'livros'
 
 let bancoPromise
+let pdfPromise
+let filaPrevias = Promise.resolve()
+
+async function primeiraPaginaPdf(arquivo) {
+  pdfPromise ||= Promise.all([import('pdfjs-dist'), import('pdfjs-dist/build/pdf.worker.min.mjs?url')]).then(([pdf, worker]) => {
+    pdf.GlobalWorkerOptions.workerSrc = worker.default
+    return pdf
+  })
+  const pdf = await pdfPromise
+  const tarefa = pdf.getDocument({ data: new Uint8Array(await arquivo.arrayBuffer()) })
+  let canvas
+  try {
+    const documento = await tarefa.promise
+    const pagina = await documento.getPage(1)
+    const base = pagina.getViewport({ scale: 1 })
+    const viewport = pagina.getViewport({ scale: Math.min(420 / base.width, 600 / base.height) })
+    canvas = document.createElement('canvas')
+    canvas.width = Math.ceil(viewport.width)
+    canvas.height = Math.ceil(viewport.height)
+    await pagina.render({ canvasContext: canvas.getContext('2d', { alpha: false }), viewport }).promise
+    return await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', .85))
+  } finally {
+    await tarefa.destroy()
+    if (canvas) { canvas.width = 0; canvas.height = 0 }
+  }
+}
+
+export function gerarPreviaLivroPessoal(livro) {
+  if (livro.capa || livro.formato !== 'pdf' || !livro.arquivo) return Promise.resolve(livro.capa || null)
+  const trabalho = filaPrevias.then(async () => {
+    const capa = await primeiraPaginaPdf(livro.arquivo)
+    if (!capa) return null
+    const banco = await abrirBanco()
+    await new Promise((resolve, reject) => {
+      const transacao = banco.transaction(STORE_LIVROS, 'readwrite')
+      const store = transacao.objectStore(STORE_LIVROS)
+      const get = store.get(livro.id)
+      get.onsuccess = () => {
+        const atual = get.result
+        // Não recria livros excluídos nem sobrescreve alterações posteriores.
+        if (atual?.proprietario === livro.proprietario && !atual.capa) store.put({ ...atual, capa })
+      }
+      transacao.oncomplete = resolve
+      transacao.onerror = () => reject(transacao.error)
+      transacao.onabort = () => reject(transacao.error)
+    })
+    return capa
+  })
+  filaPrevias = trabalho.catch(() => {})
+  return trabalho
+}
 
 function abrirBanco() {
   if (bancoPromise) return bancoPromise
@@ -101,6 +152,10 @@ export async function importarLivroPessoal(arquivo, proprietario) {
   }
   const formato = /\.pdf$/i.test(arquivo.name || '') || arquivo.type === 'application/pdf' ? 'pdf' : 'epub'
   const dados = formato === 'epub' ? await lerDadosEpub(arquivo) : { titulo: tituloPeloArquivo(arquivo.name), autor: 'Autor não informado', capa: null }
+  if (formato === 'pdf') {
+    try { dados.capa = await primeiraPaginaPdf(arquivo) }
+    catch { /* Um PDF sem prévia continua disponível para leitura. */ }
+  }
   const registro = {
     id: criarId(),
     proprietario: String(proprietario || 'local'),

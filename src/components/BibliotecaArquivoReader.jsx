@@ -6,6 +6,7 @@ import CompartilharLivroButton from './CompartilharLivroButton'
 import VersiculoPopup from './VersiculoPopup'
 import BibliotecaPdfReader from './BibliotecaPdfReader'
 import BibliotecaReaderToolbar from './BibliotecaReaderToolbar'
+import { useLeituraTelaCheia } from '../hooks/useLeituraTelaCheia'
 import { urlCapaLivro } from '../data/livrosCatalogo'
 import { linkCompartilhamentoLivro } from '../utils/livroShare'
 import { carregarReferenciaBiblica, tornarReferenciasBiblicasClicaveis } from '../utils/referenciasBiblicasEpub'
@@ -219,7 +220,7 @@ export default function BibliotecaArquivoReader({ arquivo, storageKey, livro, pe
   const [compartilhando, setCompartilhando] = useState(false)
   const [versiculos, setVersiculos] = useState(null)
   const [erroReferencia, setErroReferencia] = useState('')
-  const [immersive, setImmersive] = useState(false)
+  const { telaCheia: immersive, entrarTelaCheia, sairTelaCheia } = useLeituraTelaCheia()
   const readerRef = useRef(null)
   const wasImmersiveRef = useRef(false)
   useEffect(() => {
@@ -233,12 +234,12 @@ export default function BibliotecaArquivoReader({ arquivo, storageKey, livro, pe
     if (!immersive) return
     const oldOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    const exit = (event) => { if (event.type === 'androidBack' || event.key === 'Escape') setImmersive(false) }
+    const exit = (event) => { if (event.type === 'androidBack' || event.key === 'Escape') sairTelaCheia() }
     window.addEventListener('keydown', exit)
     window.addEventListener('androidBack', exit)
     return () => { document.body.style.overflow = oldOverflow; window.removeEventListener('keydown', exit); window.removeEventListener('androidBack', exit) }
-  }, [immersive])
-  const toggleReading = () => setImmersive((value) => !value)
+  }, [immersive, sairTelaCheia])
+  const toggleReading = () => immersive ? sairTelaCheia() : entrarTelaCheia()
 
   const abrirReferenciaBiblica = async (referencia) => {
     setErroReferencia('')

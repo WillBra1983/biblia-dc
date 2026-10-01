@@ -1,5 +1,8 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
+import { Capacitor, registerPlugin } from '@capacitor/core'
 import { useLocation, useNavigate } from 'react-router-dom'
+
+const ReadingFullscreen = registerPlugin('ReadingFullscreen')
 
 export function useLeituraTelaCheia() {
   const location = useLocation()
@@ -8,6 +11,12 @@ export function useLeituraTelaCheia() {
     () => new URLSearchParams(location.search).get('telaCheia') === '1',
     [location.search]
   )
+  const biblioteca = location.pathname.startsWith('/biblioteca')
+  useEffect(() => {
+    if (!biblioteca || Capacitor.getPlatform() !== 'android') return
+    void ReadingFullscreen.setEnabled({ enabled: telaCheia }).catch(() => {})
+    return () => { void ReadingFullscreen.setEnabled({ enabled: false }).catch(() => {}) }
+  }, [biblioteca, telaCheia])
 
   const atualizarRota = useCallback((ativa) => {
     const params = new URLSearchParams(location.search)
@@ -30,6 +39,13 @@ export function useLeituraTelaCheia() {
       document.exitFullscreen().catch(() => {})
     }
   }, [atualizarRota])
+
+  useEffect(() => {
+    if (!telaCheia) return
+    const changed = () => { if (!document.fullscreenElement) atualizarRota(false) }
+    document.addEventListener('fullscreenchange', changed)
+    return () => document.removeEventListener('fullscreenchange', changed)
+  }, [telaCheia, atualizarRota])
 
   return { telaCheia, entrarTelaCheia, sairTelaCheia }
 }

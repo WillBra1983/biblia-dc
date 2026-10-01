@@ -179,6 +179,7 @@ export function normalizarNomeLivro(nome) {
     'sl': 'Salmos',
     'sal': 'Salmos',
     'salmo': 'Salmos',
+    'ha': 'Habacuque',
     'pv': 'Provérbios',
     'pro': 'Provérbios',
     'ec': 'Eclesiastes',

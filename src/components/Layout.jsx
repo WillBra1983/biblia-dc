@@ -113,7 +113,7 @@ export default function Layout({ title, children }) {
       : location.pathname
   const isHinarioApresentacao = pathnameNorm.startsWith('/hinario/apresentacao')
   const isBibliaApresentacao = pathnameNorm.startsWith('/biblia/apresentacao')
-  const isLeituraHinarioTelaCheia = pathnameNorm.startsWith('/hinario') && new URLSearchParams(location.search).get('telaCheia') === '1'
+  const isLeituraHinarioTelaCheia = (pathnameNorm.startsWith('/hinario') || pathnameNorm.startsWith('/biblioteca')) && new URLSearchParams(location.search).get('telaCheia') === '1'
   const isVersiculoDoDia = pathnameNorm === '/versiculo-do-dia'
   const apresentacaoTelaCheia = isHinarioApresentacao || isBibliaApresentacao || isVersiculoDoDia || isLeituraHinarioTelaCheia
   const { version: zoomResetVersion } = useZoomReset()

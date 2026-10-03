@@ -27,6 +27,13 @@ function normalizarLivro(id, valor = {}) {
     pixAtivo: valor.pixAtivo === true,
     precoPixCentavos: Math.max(0, Math.round(Number(valor.precoPixCentavos) || 0)),
     publicado: valor.publicado !== false,
+    downloadPermitido: false,
+    degustacao: {
+      modo: ['tempo', 'percentual'].includes(valor.degustacao?.modo) ? valor.degustacao.modo : 'amostra',
+      inicioEm: Math.max(0, Number(valor.degustacao?.inicioEm) || 0),
+      fimEm: Math.max(0, Number(valor.degustacao?.fimEm) || 0),
+      percentual: Math.max(1, Math.min(99, Number(valor.degustacao?.percentual) || 10)),
+    },
     totalPartes: Math.max(0, Math.min(300, Number(valor.totalPartes) || 0)),
     destaque: Boolean(valor.destaque),
     excluido: Boolean(valor.excluido),
@@ -275,8 +282,8 @@ export async function enviarArquivoLivroBiblioteca(livroId, finalidade, arquivo)
   return confirmado.arquivo
 }
 
-export const obterArquivoLivroBiblioteca = (livroId, finalidade = 'completo') =>
-  chamarFuncao('obterArquivoLivroBiblioteca', { livroId, finalidade })
+export const obterArquivoLivroBiblioteca = (livroId, finalidade = 'completo', download = false) =>
+  chamarFuncao('obterArquivoLivroBiblioteca', { livroId, finalidade, download })
 
 export const excluirArquivoLivroBiblioteca = (livroId, finalidade) =>
   chamarFuncao('excluirArquivoLivroBiblioteca', { livroId, finalidade })

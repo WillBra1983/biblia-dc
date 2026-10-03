@@ -6,7 +6,7 @@ let bancoPromise
 let pdfPromise
 let filaPrevias = Promise.resolve()
 
-async function primeiraPaginaPdf(arquivo) {
+export async function primeiraPaginaPdf(arquivo) {
   pdfPromise ||= Promise.all([import('pdfjs-dist'), import('pdfjs-dist/build/pdf.worker.min.mjs?url')]).then(([pdf, worker]) => {
     pdf.GlobalWorkerOptions.workerSrc = worker.default
     return pdf
@@ -31,10 +31,12 @@ async function primeiraPaginaPdf(arquivo) {
 }
 
 export function gerarPreviaLivroPessoal(livro) {
-  if (livro.capa || livro.formato !== 'pdf' || !livro.arquivo) return Promise.resolve(livro.capa || null)
+  const epub = livro.formato !== 'pdf'
+  if (!livro.arquivo || (livro.capa && (!epub || livro.versaoPrevia === 2))) return Promise.resolve(livro.capa || null)
+  if (epub && livro.versaoPrevia === 2) return Promise.resolve(null)
   const trabalho = filaPrevias.then(async () => {
-    const capa = await primeiraPaginaPdf(livro.arquivo)
-    if (!capa) return null
+    const capa = livro.formato === 'pdf' ? await primeiraPaginaPdf(livro.arquivo) : (await lerDadosEpub(livro.arquivo)).capa
+    if (!capa && !epub) return null
     const banco = await abrirBanco()
     await new Promise((resolve, reject) => {
       const transacao = banco.transaction(STORE_LIVROS, 'readwrite')
@@ -43,7 +45,7 @@ export function gerarPreviaLivroPessoal(livro) {
       get.onsuccess = () => {
         const atual = get.result
         // Não recria livros excluídos nem sobrescreve alterações posteriores.
-        if (atual?.proprietario === livro.proprietario && !atual.capa) store.put({ ...atual, capa })
+        if (atual?.proprietario === livro.proprietario && (epub ? atual.versaoPrevia !== 2 : !atual.capa)) store.put({ ...atual, capa, versaoPrevia: 2 })
       }
       transacao.oncomplete = resolve
       transacao.onerror = () => reject(transacao.error)
@@ -104,6 +106,7 @@ function tituloPeloArquivo(nome) {
   return String(nome || 'Livro pessoal').replace(/\.(epub|pdf)$/i, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
+
 async function lerDadosEpub(arquivo) {
   let livro
   let capaUrl
@@ -162,6 +165,7 @@ export async function importarLivroPessoal(arquivo, proprietario) {
     titulo: dados.titulo,
     autor: dados.autor,
     capa: dados.capa,
+    versaoPrevia: 2,
     arquivo,
     nomeArquivo: arquivo.name,
     tamanho: arquivo.size,

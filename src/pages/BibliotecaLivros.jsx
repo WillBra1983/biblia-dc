@@ -5,7 +5,7 @@ import {
   Alert, Box, Button, Card, CardActions, CardContent, Chip, CircularProgress,
   Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControlLabel,
   Grid, IconButton, InputAdornment, Paper, Stack, Switch, TextField,
-  Tooltip, Typography,
+  Tooltip, Typography, Select, MenuItem,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import AndroidIcon from '@mui/icons-material/Android'
@@ -55,10 +55,22 @@ import {
   listarLivrosPessoais,
   obterLivroPessoal,
 } from '../services/bibliotecaPessoalService'
+import EpubPrimeiraPaginaMiniatura from '../components/EpubPrimeiraPaginaMiniatura'
+import PreviaLivroComprado from '../components/PreviaLivroComprado'
 import { abrirUrlExterna } from '../utils/abrirUrlExterna'
 
 const PLATAFORMA = Capacitor.getPlatform()
 const CHAVE_COMPRAS = 'biblioteca-digital-compras-v1'
+
+function dataLocal(valor) {
+  if (!valor) return ''
+  const data = new Date(valor)
+  return new Date(data.getTime() - data.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+}
+
+function temDegustacao(livro) {
+  return livro.degustacao?.modo === 'tempo' ? Boolean(livro.arquivos?.completo) : Boolean(livro.arquivos?.amostra)
+}
 
 function chaveCompra(livroId, modalidadeId) {
   return `${livroId}:${modalidadeId}`
@@ -119,7 +131,7 @@ function temModalidade(livro) {
   return Boolean(livro.pixAtivo || livro.androidUrl || livro.appleUrl || livro.amazonUrl)
 }
 
-function CapaLivro({ livro, onClick, grande = false }) {
+function CapaLivro({ livro, onClick, grande = false, permitirPrevia = false }) {
   return (
     <Box component="button" type="button" onClick={onClick} aria-label={`Abrir ${livro.titulo}`} sx={{
       appearance: 'none', display: 'block', width: '100%', maxWidth: grande ? 330 : 'none', p: 0,
@@ -129,7 +141,9 @@ function CapaLivro({ livro, onClick, grande = false }) {
       '&:hover': { transform: 'translateY(-4px)', boxShadow: grande ? '0 28px 62px rgba(0,0,0,.42)' : '0 17px 34px rgba(0,0,0,.28)' },
       '&:focus-visible': { outline: '3px solid #d8ad52', outlineOffset: 3 },
     }}>
-      <Box component="img" src={urlCapaLivro(livro.capa)} alt={`Capa de ${livro.titulo}, de ${livro.autor}`} loading={grande ? 'eager' : 'lazy'} sx={{ display: 'block', width: '100%', aspectRatio: '2 / 3', objectFit: 'cover' }} />
+      {livro.capa ? <Box component="img" src={urlCapaLivro(livro.capa)} alt={`Capa de ${livro.titulo}, de ${livro.autor}`} loading={grande ? 'eager' : 'lazy'} sx={{ display: 'block', width: '100%', aspectRatio: '2 / 3', objectFit: 'cover' }} />
+        : permitirPrevia ? <PreviaLivroComprado livroId={livro.id} />
+          : <Box sx={{ aspectRatio: '2 / 3', display: 'grid', placeItems: 'center' }}><AutoStoriesOutlinedIcon sx={{ color: '#e1bd6e', fontSize: 58 }} /></Box>}
     </Box>
   )
 }
@@ -324,6 +338,23 @@ function EditarLivroDialog({ livro, aberto, uid, onClose, onSalvar, salvando }) 
           </Grid>
 
           <Divider />
+          <Typography variant="subtitle1" fontWeight={800}>Leitura gratuita e proteção</Typography>
+          <Select value={form.degustacao?.modo || 'amostra'} onChange={(event) => setForm((atual) => ({ ...atual, degustacao: { ...atual.degustacao, modo: event.target.value } }))}>
+            <MenuItem value="amostra">Amostra gratuita tradicional</MenuItem>
+            <MenuItem value="percentual">Por percentual — arquivo de amostra separado</MenuItem>
+            <MenuItem value="tempo">Por tempo — promoção com início e fim</MenuItem>
+          </Select>
+          {form.degustacao?.modo === 'percentual' && <>
+            <TextField label="Percentual gratuito (%)" type="number" value={form.degustacao?.percentual || 10} inputProps={{ min: 1, max: 99 }} onChange={(event) => setForm((atual) => ({ ...atual, degustacao: { ...atual.degustacao, percentual: Number(event.target.value) } }))} />
+            <Alert severity="info">Envie em “Amostra gratuita” um PDF ou EPUB contendo somente esse percentual. O sistema entrega apenas essa amostra, nunca o arquivo completo. O corte do arquivo deve ser preparado por você.</Alert>
+          </>}
+          {form.degustacao?.modo === 'tempo' && <Stack spacing={1.5}>
+            <TextField label="Início da promoção" type="datetime-local" InputLabelProps={{ shrink: true }} value={dataLocal(form.degustacao?.inicioEm)} onChange={(event) => setForm((atual) => ({ ...atual, degustacao: { ...atual.degustacao, inicioEm: new Date(event.target.value).getTime() || 0 } }))} />
+            <TextField label="Fim da promoção" type="datetime-local" InputLabelProps={{ shrink: true }} value={dataLocal(form.degustacao?.fimEm)} onChange={(event) => setForm((atual) => ({ ...atual, degustacao: { ...atual.degustacao, fimEm: new Date(event.target.value).getTime() || 0 } }))} />
+            <Typography variant="caption">Horários locais deste aparelho. O prazo é igual para todos, mesmo para quem não abriu o livro.</Typography>
+          </Stack>}
+          <Alert severity="warning">Somente leitura no sistema, sem download autorizado. Isso não impede fotografias, capturas de tela ou cópias técnicas do conteúdo exibido. Na promoção por tempo, o arquivo completo é carregado pelo leitor; o encerramento não apaga cópias que alguém tenha feito.</Alert>
+          <Divider />
           <Typography variant="subtitle1" fontWeight={800}>Onde o livro está disponível</Typography>
           <Grid container spacing={1.5}>
             <Grid item xs={12} md={4}><TextField fullWidth label="Link Android" value={form.androidUrl || ''} onChange={alterar('androidUrl')} placeholder="Deixe vazio enquanto não estiver disponível" /></Grid>
@@ -436,7 +467,7 @@ function LivroCard({ livro, comprasConfirmadas, ehAdmin, onOpcoes, onEditar, onE
     <Grid item xs={6} sm={4} md={3} lg={2.4} sx={{ display: 'flex' }}>
       <Card variant="outlined" sx={{ width: '100%', display: 'flex', flexDirection: 'column', borderRadius: 2.5, overflow: 'hidden', borderColor: 'rgba(10,81,68,.2)', bgcolor: 'background.paper', boxShadow: '0 10px 28px rgba(24,38,34,.08)', position: 'relative' }}>
         {ehAdmin && <Stack direction="row" sx={{ position: 'absolute', zIndex: 3, top: 8, right: 8, bgcolor: 'rgba(255,255,255,.94)', borderRadius: 5, boxShadow: 2 }}><Tooltip title="Editar"><IconButton size="small" onClick={() => onEditar(livro)}><EditOutlinedIcon fontSize="small" /></IconButton></Tooltip><Tooltip title="Excluir"><IconButton size="small" color="error" onClick={() => onExcluir(livro)}><DeleteOutlineIcon fontSize="small" /></IconButton></Tooltip></Stack>}
-        <Box sx={{ p: 1.15, pb: 0 }}><CapaLivro livro={livro} onClick={() => navigate(`/biblioteca/${livro.id}`)} /></Box>
+        <Box sx={{ p: 1.15, pb: 0 }}><CapaLivro livro={livro} permitirPrevia={acessoDigital} onClick={() => navigate(`/biblioteca/${livro.id}`)} /></Box>
         <CardContent sx={{ display: 'flex', flexDirection: 'column', flex: 1, p: 1.5, '&:last-child': { pb: 0.7 } }}>
           <SelosModalidades livro={livro} compacto />
           <Typography variant="subtitle2" sx={{ mt: 1, fontFamily: 'Lora, Georgia, serif', fontWeight: 800, lineHeight: 1.24 }}>{livro.titulo}</Typography>
@@ -453,23 +484,27 @@ function LivroCard({ livro, comprasConfirmadas, ehAdmin, onOpcoes, onEditar, onE
 
 function CapaLivroPessoal({ livro }) {
   const [url, setUrl] = useState('')
+  const [verificada, setVerificada] = useState(false)
   useEffect(() => {
     let ativo = true
     let proximaUrl
     setUrl('')
+    setVerificada(false)
     void (async () => {
-      const capa = livro.capa || await gerarPreviaLivroPessoal(livro)
-      if (!ativo || !capa) return
+      const capa = await gerarPreviaLivroPessoal(livro)
+      if (!ativo) return
+      setVerificada(true)
+      if (!capa) return
       proximaUrl = URL.createObjectURL(capa)
       setUrl(proximaUrl)
-    })().catch(() => {})
+    })().catch(() => { if (ativo) setVerificada(true) })
     return () => { ativo = false; if (proximaUrl) URL.revokeObjectURL(proximaUrl) }
-  }, [livro?.id, livro?.capa, livro?.proprietario])
+  }, [livro?.id, livro?.capa, livro?.proprietario, livro?.versaoPrevia])
 
   return <Box sx={{ width: '100%', aspectRatio: '2 / 3', bgcolor: '#0b302b', borderRadius: 1.4, overflow: 'hidden', display: 'grid', placeItems: 'center' }}>
     {url
       ? <Box component="img" src={url} alt={`Prévia de ${livro.titulo}`} sx={{ width: '100%', height: '100%', objectFit: 'contain', bgcolor: 'white' }} />
-      : <AutoStoriesOutlinedIcon sx={{ color: '#e1bd6e', fontSize: 58 }} />}
+      : verificada && livro.formato !== 'pdf' ? <EpubPrimeiraPaginaMiniatura arquivo={livro.arquivo} /> : <AutoStoriesOutlinedIcon sx={{ color: '#e1bd6e', fontSize: 58 }} />}
   </Box>
 }
 
@@ -559,32 +594,63 @@ function Catalogo({ livros, carregando, comprasConfirmadas, ehAdmin, onConfirmar
   )
 }
 
-function LeitorLivro({ livro, uid, finalidade = 'completo' }) {
+function LeitorLivro({ livro, uid, finalidade = 'completo', acessoDigital = false }) {
   const navigate = useNavigate()
   const [arquivo, setArquivo] = useState(null)
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
+  const [expirado, setExpirado] = useState(false)
+  const [fimAmostra, setFimAmostra] = useState(false)
+
+  useEffect(() => {
+    if (finalidade === 'amostra' && acessoDigital) navigate(`/biblioteca/${livro.id}/ler`, { replace: true })
+  }, [acessoDigital, finalidade, livro.id, navigate])
+
+  useEffect(() => {
+    if (!arquivo?.acessoAte) return
+    const duracao = Math.max(0, arquivo.acessoAte - arquivo.servidorAgora)
+    const inicioMonotono = performance.now()
+    const inicioRelogio = Date.now()
+    const conferir = () => {
+      if (Math.max(performance.now() - inicioMonotono, Date.now() - inicioRelogio) < duracao) return
+      setExpirado(true); setArquivo(null)
+      if (document.fullscreenElement) void document.exitFullscreen?.().catch(() => {})
+      navigate(`/biblioteca/${livro.id}/amostra`, { replace: true })
+    }
+    const timer = setInterval(conferir, 1000)
+    document.addEventListener('visibilitychange', conferir)
+    return () => { clearInterval(timer); document.removeEventListener('visibilitychange', conferir) }
+  }, [arquivo, livro.id, navigate])
 
   useEffect(() => {
     let ativo = true
-    setCarregando(true); setErro(''); setArquivo(null)
+    setCarregando(true); setErro(''); setArquivo(null); setExpirado(false); setFimAmostra(false)
     void obterArquivoLivroBiblioteca(livro.id, finalidade)
-      .then((dados) => { if (ativo) setArquivo(dados) })
+      .then((dados) => {
+        if (!ativo) return
+        const chave = `biblioteca-progresso:${uid}:${livro.id}:leitura`
+        if (!localStorage.getItem(chave)) {
+          const anterior = localStorage.getItem(`biblioteca-progresso:${uid}:${livro.id}:${finalidade}:${dados.versao || 'original'}`)
+          if (anterior) localStorage.setItem(chave, anterior)
+        }
+        setArquivo(dados)
+      })
       .catch((falha) => {
         if (!ativo) return
         const mensagem = String(falha?.message || '')
         setErro(mensagem.includes('not-found') || mensagem.includes('não possui') || mensagem.includes('ainda não foi enviado')
           ? 'O arquivo deste livro ainda não foi enviado.'
+          : mensagem.includes('gratuito') || mensagem.includes('promoção') ? mensagem
           : mensagem.includes('permission') || mensagem.includes('acesso')
             ? 'Seu acesso a este livro ainda não foi liberado.'
             : 'Não foi possível abrir o livro agora.')
       })
       .finally(() => { if (ativo) setCarregando(false) })
     return () => { ativo = false }
-  }, [livro.id, finalidade])
+  }, [livro.id, finalidade, livro.degustacao?.modo, livro.degustacao?.inicioEm, livro.degustacao?.fimEm])
 
   if (carregando) return <Box sx={{ py: 12, textAlign: 'center' }}><CircularProgress /><Typography color="text.secondary" sx={{ mt: 2 }}>Abrindo o livro…</Typography></Box>
-  if (erro) return <Container maxWidth="sm" sx={{ py: 6 }}><Alert severity="warning" action={<Button onClick={() => navigate(`/biblioteca/${livro.id}`)}>Voltar</Button>}>{erro}</Alert></Container>
+  if (erro || expirado) return <Container maxWidth="sm" sx={{ py: 6 }}><Alert severity="info">{expirado ? 'O período gratuito terminou. Compre para continuar a leitura.' : erro}</Alert><Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate(`/biblioteca/${livro.id}`)}>Ver opções de compra</Button></Container>
 
   return (
     <Box sx={{ minHeight: '100%', bgcolor: (theme) => theme.palette.mode === 'dark' ? '#121814' : '#f3eee3' }}>
@@ -599,7 +665,9 @@ function LeitorLivro({ livro, uid, finalidade = 'completo' }) {
       </Box>
 
       <Container maxWidth="lg" sx={{ py: { xs: 1.5, sm: 3 } }} onContextMenu={(event) => event.preventDefault()}>
-        <BibliotecaArquivoReader arquivo={arquivo} storageKey={`biblioteca-progresso:${uid}:${livro.id}:${finalidade}:${arquivo?.versao || 'original'}`} livro={livro} />
+        {arquivo?.acessoAte && <Alert severity="info" sx={{ mb: 1 }}>Leitura gratuita até {new Date(arquivo.acessoAte).toLocaleString('pt-BR')}. Depois, compre para continuar.</Alert>}
+        <BibliotecaArquivoReader arquivo={arquivo} storageKey={`biblioteca-progresso:${uid}:${livro.id}:leitura`} livro={livro} onEnd={() => setFimAmostra(true)} />
+        {finalidade === 'amostra' && !acessoDigital && <Paper sx={{ p: 2, mt: 2 }}><Typography>{fimAmostra && !arquivo?.acessoAte ? 'Você chegou ao fim da amostra. ' : ''}Gostou da leitura? Compre para continuar com acesso ao livro completo.</Typography><Button variant="contained" sx={{ mt: 1 }} onClick={() => navigate(`/biblioteca/${livro.id}`)}>Comprar para continuar</Button></Paper>}
       </Container>
     </Box>
   )
@@ -668,7 +736,8 @@ function DetalheLivro({ livro, comprasConfirmadas, ehAdmin, onConfirmarCompra, o
               <Typography sx={{ lineHeight: 1.78, color: 'text.secondary' }}>{livro.descricao}</Typography>
               <Typography variant="body2" sx={{ mt: 2, fontWeight: 700 }}>Tradução, revisão e organização de Wilson Lucas Ferreira.</Typography>
               <Stack spacing={1.2} sx={{ mt: 3 }}>
-                {livro.arquivos?.amostra && <Button variant="outlined" size="large" startIcon={<AutoStoriesOutlinedIcon />} onClick={() => navigate(`/biblioteca/${livro.id}/amostra`)} fullWidth>Ler amostra</Button>}
+                {temDegustacao(livro) && !acessoDigital && <Button variant="outlined" size="large" startIcon={<AutoStoriesOutlinedIcon />} onClick={() => navigate(`/biblioteca/${livro.id}/amostra`)} fullWidth>{livro.degustacao?.modo === 'tempo' ? 'Ver leitura gratuita por tempo' : livro.degustacao?.modo === 'percentual' ? `Ler amostra (${livro.degustacao.percentual}%)` : 'Ler amostra'}</Button>}
+                {livro.degustacao?.modo === 'tempo' && livro.degustacao.fimEm > 0 && <Typography variant="caption">Promoção: {new Date(livro.degustacao.inicioEm).toLocaleString('pt-BR')} até {new Date(livro.degustacao.fimEm).toLocaleString('pt-BR')}.</Typography>}
                 {acessoDigital && livro.arquivos?.completo
                   ? <Button variant="contained" size="large" startIcon={<VerifiedOutlinedIcon />} onClick={() => navigate(`/biblioteca/${livro.id}/ler`)} fullWidth>Ler livro</Button>
                   : opcoes.length ? <Button variant="contained" size="large" startIcon={comprado ? <VerifiedOutlinedIcon /> : <ShoppingCartOutlinedIcon />} onClick={() => setOpcoesAbertas(true)} fullWidth>{comprado ? 'Abrir' : 'Comprar'}</Button> : ehAdmin ? <Alert severity="warning">Rascunho administrativo: cadastre Android, Apple, Amazon ou Pix para publicar.</Alert> : null}
@@ -794,6 +863,9 @@ export default function BibliotecaLivros() {
     try {
       const { arquivosSelecionados, capaPreparada, ...dados } = form
       const id = dados.id || criarIdLivro(dados.titulo)
+      if (dados.degustacao?.modo === 'tempo' && (!(dados.degustacao.inicioEm > 0) || !(dados.degustacao.fimEm > dados.degustacao.inicioEm))) throw new Error('Defina início e fim válidos para a promoção.')
+      if (dados.degustacao?.modo === 'tempo' && !dados.arquivos?.completo && !arquivosSelecionados?.completo) throw new Error('Envie o livro completo para a promoção por tempo.')
+      if (dados.degustacao?.modo === 'percentual' && (!(dados.degustacao.percentual >= 1 && dados.degustacao.percentual <= 99) || (!dados.arquivos?.amostra && !arquivosSelecionados?.amostra))) throw new Error('Informe um percentual entre 1 e 99 e envie o arquivo contendo somente a amostra.')
       if (dados.pixAtivo && !dados.arquivos?.completo && !arquivosSelecionados?.completo) {
         throw new Error('Envie o arquivo completo antes de ativar a venda por Pix.')
       }
@@ -863,7 +935,7 @@ export default function BibliotecaLivros() {
   if (livroPessoalId) conteudo = <LeitorLivroPessoal id={livroPessoalId} proprietario={proprietarioPessoal} />
   else if (!livroId) conteudo = <Catalogo livros={livros} carregando={carregando} comprasConfirmadas={comprasDisponiveis} ehAdmin={ehAdmin} onConfirmarCompra={confirmarCompra} onNovo={() => setEditando({ titulo: '', autor: '', descricao: '', capa: '', androidUrl: '', appleUrl: '', amazonUrl: '', pixAtivo: false, precoPixCentavos: 0, publicado: false })} onEditar={setEditando} onExcluir={setExcluindo} onConfigurarPix={() => setConfigurandoPix(true)} onVerPedidos={() => setVendoPedidos(true)} pedidosPendentes={pedidosPendentes} livrosPessoais={livrosPessoais} carregandoPessoais={carregandoPessoais} importandoPessoal={importandoPessoal} onImportarPessoal={importarPessoal} onExcluirPessoal={setExcluindoPessoal} />
   else if (carregando || (modoLeitura && !ehAdmin && !acessosCarregados)) conteudo = <Box sx={{ py: 10, textAlign: 'center' }}><CircularProgress /></Box>
-  else if (modoAmostra && livro && (ehAdmin || (livro.publicado !== false && livro.arquivos?.amostra))) conteudo = <LeitorLivro livro={livro} uid={user?.uid} finalidade="amostra" />
+  else if (modoAmostra && livro && (ehAdmin || (livro.publicado !== false && temDegustacao(livro)))) conteudo = <LeitorLivro livro={livro} uid={user?.uid} finalidade="amostra" acessoDigital={acessoLeitura} />
   else if (modoAmostra) conteudo = <Container maxWidth="sm" sx={{ py: 5 }}><Alert severity="warning" action={<Button onClick={() => navigate(`/biblioteca/${livroId}`)}>Voltar</Button>}>Este livro ainda não possui uma amostra disponível.</Alert></Container>
   else if (modoLeitura && livro && acessoLeitura) conteudo = <LeitorLivro livro={livro} uid={user?.uid} finalidade="completo" />
   else if (modoLeitura) conteudo = <Container maxWidth="sm" sx={{ py: 5 }}><Alert severity="warning" action={<Button onClick={() => navigate(`/biblioteca/${livroId}`)}>Voltar</Button>}>A leitura deste livro ainda não está liberada para sua conta.</Alert></Container>

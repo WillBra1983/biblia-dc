@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 import QRCode from 'qrcode'
+import { normalizarTrechoLivro } from './textoTrechoLivro'
 
 const LARGURA = 1080
 const ALTURA = 1350
@@ -9,21 +10,22 @@ const TAMANHO_MINIMO = 46
 const MAXIMO_LINHAS = 12
 
 function normalizarTrecho(texto) {
-  return String(texto || '')
-    .replace(/\s+/g, ' ')
-    .trim()
+  return normalizarTrechoLivro(texto)
 }
 
 function linhasDoTexto(ctx, texto, larguraMaxima) {
-  const palavras = normalizarTrecho(texto).split(' ').filter(Boolean)
   const linhas = []
-  let linha = palavras.shift() || ''
-  for (const palavra of palavras) {
-    const teste = `${linha} ${palavra}`
-    if (ctx.measureText(teste).width <= larguraMaxima) linha = teste
-    else { linhas.push(linha); linha = palavra }
+  for (const paragrafo of normalizarTrecho(texto).split('\n')) {
+    const palavras = paragrafo.split(' ').filter(Boolean)
+    if (!palavras.length) { linhas.push(''); continue }
+    let linha = palavras.shift()
+    for (const palavra of palavras) {
+      const teste = `${linha} ${palavra}`
+      if (ctx.measureText(teste).width <= larguraMaxima) linha = teste
+      else { linhas.push(linha); linha = palavra }
+    }
+    if (linha) linhas.push(linha)
   }
-  if (linha) linhas.push(linha)
   return linhas
 }
 
@@ -89,13 +91,15 @@ export async function gerarImagemTrechoLivro({ trecho, titulo, autor, capaUrl, u
   ctx.fillRect(405, 119, 270, 3)
 
   ctx.font = `600 ${ajuste.tamanho}px Georgia, serif`
+  const estruturado = texto.includes('\n')
+  ctx.textAlign = estruturado ? 'left' : 'center'
   ctx.fillStyle = '#ffffff'
   ctx.shadowColor = 'rgba(0,0,0,.32)'
   ctx.shadowBlur = 8
   const alturaTexto = ajuste.linhas.length * ajuste.alturaLinha
   let y = 505 - alturaTexto / 2 + ajuste.alturaLinha / 2
   for (const linha of ajuste.linhas) {
-    ctx.fillText(linha, LARGURA / 2, y)
+    if (linha) ctx.fillText(linha, estruturado ? 115 : LARGURA / 2, y)
     y += ajuste.alturaLinha
   }
   ctx.shadowBlur = 0

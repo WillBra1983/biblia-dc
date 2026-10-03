@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict'
+import { createRequire } from 'node:module'
+const require = createRequire(import.meta.url)
+const { decidirArquivo, politicaLivro } = require('../functions/src/bibliotecaDegustacao.js')
+const livro = { publicado: true, degustacao: { modo: 'tempo', inicioEm: 1000, fimEm: 5000 } }
+const decidir = (extra = {}) => decidirArquivo({ livro, finalidade: 'amostra', ehAdmin: false, comprado: false, agora: 2000, ...extra })
+assert.equal(decidir().finalidade, 'completo')
+assert.equal(decidir().acessoAte, 5000)
+assert.ok(decidir({ agora: 999 }).erro)
+assert.ok(decidir({ agora: 5000 }).erro)
+assert.ok(decidir({ agora: 9000 }).erro, 'Quem chegou tarde não ganha outro prazo')
+assert.equal(decidir({ comprado: true, finalidade: 'completo', agora: 9000 }).finalidade, 'completo')
+assert.ok(decidir({ finalidade: 'completo' }).erro, 'Promoção não libera rota de compra sem autorização')
+assert.ok(decidir({ livro: { ...livro, publicado: false } }).erro)
+assert.ok(decidir({ livro: { ...livro, excluido: true } }).erro)
+assert.ok(decidir({ comprado: true, download: true }).erro, 'Compra não autoriza download')
+assert.ok(decidir({ download: true }).erro)
+assert.equal(decidir({ livro: { publicado: true, degustacao: { modo: 'percentual', percentual: 15 } } }).finalidade, 'amostra')
+assert.equal(decidir({ ehAdmin: true, finalidade: 'completo' }).finalidade, 'completo')
+assert.equal(politicaLivro({}).modo, 'amostra', 'Livros antigos continuam com amostra tradicional')
+assert.ok(decidir({ livro: { publicado: true, degustacao: { modo: 'tempo' } } }).erro)
+console.log('Biblioteca: 15 verificações de promoção, amostra, compra e bloqueio de download passaram.')

@@ -9,6 +9,7 @@ const {
   DeleteObjectCommand,
 } = require('@aws-sdk/client-s3')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
+const { decidirArquivo } = require('./bibliotecaDegustacao')
 
 const R2_ACCOUNT_ID = defineSecret('R2_ACCOUNT_ID')
 const R2_ACCESS_KEY_ID = defineSecret('R2_ACCESS_KEY_ID')
@@ -132,29 +133,31 @@ exports.obterArquivoLivroBiblioteca = onCall(OPCOES, async (req) => {
   ])
   const livro = livroSnap.val() || {}
   const ehAdmin = adminSnap.val() === true
-  if (finalidade === 'completo' && !ehAdmin && acessoSnap.val() !== true) {
-    throw new HttpsError('permission-denied', 'Seu acesso a este livro ainda não foi liberado.')
-  }
-  if (finalidade === 'amostra' && !ehAdmin && livro.publicado === false) {
-    throw new HttpsError('permission-denied', 'Esta amostra ainda não foi publicada.')
-  }
-  const arquivo = livro.arquivos?.[finalidade]
+  const comprado = acessoSnap.val() === true
+  const agora = Date.now()
+  const decisao = decidirArquivo({ livro, finalidade, ehAdmin, comprado, download: req.data?.download === true, agora })
+  if (decisao.erro) throw new HttpsError('permission-denied', decisao.erro)
+  const arquivo = livro.arquivos?.[decisao.finalidade]
   if (!arquivo?.chave || !['pdf', 'epub'].includes(arquivo.formato)) {
     throw new HttpsError('not-found', finalidade === 'amostra' ? 'Este livro ainda não possui amostra.' : 'O arquivo deste livro ainda não foi enviado.')
   }
   const { client, bucket } = clienteR2()
+  const segundos = decisao.acessoAte ? Math.max(1, Math.min(300, Math.floor((decisao.acessoAte - agora) / 1000))) : 300
   const url = await getSignedUrl(client, new GetObjectCommand({
     Bucket: bucket,
     Key: arquivo.chave,
     ResponseContentType: arquivo.contentType || (arquivo.formato === 'pdf' ? 'application/pdf' : 'application/epub+zip'),
-    ResponseContentDisposition: `inline; filename="${livroId}.${arquivo.formato}"`,
-  }), { expiresIn: 5 * 60 })
+    ResponseContentDisposition: `${req.data?.download === true ? 'attachment' : 'inline'}; filename="${livroId}.${arquivo.formato}"`,
+  }), { expiresIn: segundos })
   return {
     url,
     formato: arquivo.formato,
     contentType: arquivo.contentType,
     versao: Number(arquivo.atualizadoEm || livro.atualizadoEm || 0),
-    expiraEm: Date.now() + 5 * 60 * 1000,
+    expiraEm: agora + segundos * 1000,
+    acessoAte: decisao.acessoAte || null,
+    servidorAgora: agora,
+    degustacao: decisao.degustacao || null,
   }
 })
 

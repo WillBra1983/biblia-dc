@@ -46,7 +46,7 @@ function hidePublicAudioDirs() {
   }
 }
 
-function restorePublicAudioDirs() {
+export function restorePublicAudioDirs() {
   for (const parts of PUBLIC_AUDIO_DIRS) {
     const src = path.join(root, ...parts)
     const hidden = hiddenSibling(...parts)

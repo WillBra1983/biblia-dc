@@ -3,7 +3,8 @@
 # Uso: npm run deploy:pwa-apis
 
 param(
-  [string]$ApisRoot = $env:SALVATION_APIS_ROOT
+  [string]$ApisRoot = $env:SALVATION_APIS_ROOT,
+  [switch]$ValidateOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -31,6 +32,22 @@ $WellKnownDst = Join-Path $ApisRoot '.well-known'
 if (-not (Test-Path $Dist)) {
   Write-Error "Pasta dist nao encontrada. Rode antes: npm run build:web"
 }
+$IndexDist = Join-Path $Dist 'index.html'
+$ValidacaoDist = Join-Path $Dist 'build-validado.json'
+if (-not (Test-Path -LiteralPath $IndexDist -PathType Leaf) -or -not (Test-Path -LiteralPath $ValidacaoDist -PathType Leaf)) {
+  throw 'Publicacao cancelada: o build nao terminou ou falta index.html. Rode npm run build:web e confirme o sucesso antes de publicar. Nenhum arquivo do servidor foi alterado.'
+}
+$Validacao = Get-Content -LiteralPath $ValidacaoDist -Raw | ConvertFrom-Json
+if ($Validacao.base -ne '/biblia/' -or $Validacao.indexSha256 -ne (Get-FileHash -LiteralPath $IndexDist -Algorithm SHA256).Hash.ToLowerInvariant()) {
+  throw 'Publicacao cancelada: dist nao corresponde a um build web validado. Rode npm run build:web novamente.'
+}
+foreach ($ArquivoValidado in $Validacao.arquivos) {
+  if (-not (Test-Path -LiteralPath (Join-Path $Dist $ArquivoValidado) -PathType Leaf)) { throw "Publicacao cancelada: falta o arquivo $ArquivoValidado." }
+}
+if ($ValidateOnly) { Write-Host 'Build web validado. Nenhum arquivo foi copiado.'; exit 0 }
+$ApisRoot = [System.IO.Path]::GetFullPath($ApisRoot)
+$BibliaTarget = [System.IO.Path]::GetFullPath((Join-Path $ApisRoot 'biblia_dist'))
+if (-not $BibliaTarget.StartsWith($ApisRoot.TrimEnd('\') + '\', [System.StringComparison]::OrdinalIgnoreCase)) { throw 'Destino de publicacao fora da pasta apis.' }
 if (-not (Test-Path $ApisRoot)) {
   Write-Error "Pasta apis nao encontrada em: $ApisRoot. Informe outro caminho com: npm run deploy:pwa-apis -- -ApisRoot C:\apis"
 }

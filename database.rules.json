@@ -445,6 +445,11 @@
         ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true"
       }
     },
+    "bibliotecaEstatisticas": {
+      ".read": false,
+      ".write": false,
+      ".indexOn": ["criadoEm"]
+    },
     "bibliotecaConteudos": {
       "$livroId": {
         ".read": "auth != null && (root.child('users').child(auth.uid).child('admin').val() === true || root.child('bibliotecaAcessos').child(auth.uid).child($livroId).child('ativo').val() === true)",

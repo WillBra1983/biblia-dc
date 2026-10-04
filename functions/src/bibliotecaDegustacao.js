@@ -1,5 +1,5 @@
 function politicaLivro(livro = {}) {
-  const modo = ['tempo', 'percentual'].includes(livro.degustacao?.modo) ? livro.degustacao.modo : 'amostra'
+  const modo = livro.degustacao?.modo === 'tempo' ? 'tempo' : 'percentual'
   return {
     modo,
     inicioEm: Math.max(0, Number(livro.degustacao?.inicioEm) || 0),
@@ -12,9 +12,10 @@ function politicaLivro(livro = {}) {
 function decidirArquivo({ livro, finalidade, ehAdmin, comprado, download = false, agora }) {
   const politica = politicaLivro(livro)
   if (download && !ehAdmin) return { erro: 'Este livro está disponível somente para leitura no sistema.' }
-  if (ehAdmin || comprado) return { finalidade: download ? 'completo' : finalidade }
+  if (ehAdmin || comprado) return { finalidade: download || (finalidade === 'amostra' && politica.modo !== 'amostra') ? 'completo' : finalidade }
   if (livro.publicado === false || livro.excluido) return { erro: 'Este livro não está disponível.' }
   if (finalidade === 'completo') return { erro: 'Seu acesso a este livro ainda não foi liberado.' }
+  if (politica.modo === 'percentual') return { finalidade: 'completo', gerarAmostra: true, degustacao: politica }
   if (politica.modo !== 'tempo') return { finalidade: 'amostra', degustacao: politica }
   const acessoAte = politica.fimEm
   if (agora < politica.inicioEm) return { erro: 'A promoção de leitura gratuita ainda não começou.' }

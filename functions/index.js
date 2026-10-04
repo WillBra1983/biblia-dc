@@ -33,6 +33,8 @@ const bibliotecaArquivos = require('./src/bibliotecaArquivos')
 exports.prepararUploadLivroBiblioteca = bibliotecaArquivos.prepararUploadLivroBiblioteca
 exports.confirmarUploadLivroBiblioteca = bibliotecaArquivos.confirmarUploadLivroBiblioteca
 exports.obterArquivoLivroBiblioteca = bibliotecaArquivos.obterArquivoLivroBiblioteca
+exports.registrarAcessoBiblioteca = require('./src/bibliotecaAcessos').registrarAcessoBiblioteca
+exports.listarAcessosBibliotecaAdmin = require('./src/bibliotecaAcessos').listarAcessosBibliotecaAdmin
 exports.excluirArquivoLivroBiblioteca = bibliotecaArquivos.excluirArquivoLivroBiblioteca
 
 // Lembretes diários (cron)

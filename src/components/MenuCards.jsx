@@ -111,9 +111,12 @@ function VersiculoDoDiaMenu({ ehAdmin }) {
   return (
     <Grid item xs={12}>
       <Box component="div" role="button" tabIndex={0} onClick={() => navigate('/versiculo-do-dia')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') navigate('/versiculo-do-dia') }} sx={{
-        position: 'relative', minHeight: 184, borderRadius: 2, overflow: 'hidden', color: '#083e35',
+        position: 'relative', minHeight: 184, borderRadius: 2, overflow: 'hidden', color: '#000',
+        '& .MuiTypography-root': {
+          textShadow: '-1px -1px 0 rgba(255,255,255,.98), 0 -1px 0 rgba(255,255,255,.98), 1px -1px 0 rgba(255,255,255,.98), -1px 0 0 rgba(255,255,255,.98), 1px 0 0 rgba(255,255,255,.98), -1px 1px 0 rgba(255,255,255,.98), 0 1px 0 rgba(255,255,255,.98), 1px 1px 0 rgba(255,255,255,.98)',
+        },
         width: '100%', cursor: 'pointer', textAlign: 'left', font: 'inherit',
-        backgroundImage: `linear-gradient(90deg, rgba(255,253,246,.99) 0%, rgba(255,253,246,.96) 48%, rgba(255,253,246,.48) 68%, rgba(255,253,246,.08) 100%), url("${urlFundoVersiculo({ arquivo: fundoArquivo })}")`,
+        backgroundImage: `url("${urlFundoVersiculo({ arquivo: fundoArquivo })}")`,
         backgroundSize: 'cover', backgroundPosition: 'right center', border: '1px solid rgba(222,205,165,.88)',
         boxShadow: '0 5px 18px rgba(0,0,0,.2)', px: 2, py: 1.6, boxSizing: 'border-box',
         display: 'grid',
@@ -215,13 +218,11 @@ function estilosFundoMenu(fundo, ativo = false) {
   const url = urlFundoMenu(fundo)
   if (!url) return {}
   return {
-    backgroundImage: `${ativo
-      ? 'linear-gradient(90deg, rgba(237,246,239,.98) 0%, rgba(237,246,239,.92) 42%, rgba(237,246,239,.24) 62%, rgba(237,246,239,.02) 100%)'
-      : 'linear-gradient(90deg, rgba(255,253,246,.98) 0%, rgba(255,253,246,.92) 42%, rgba(255,253,246,.2) 62%, rgba(255,253,246,.02) 100%)'}, url("${url}")`,
+    backgroundImage: `url("${url}")`,
     backgroundSize: 'cover',
     backgroundPosition: 'right center',
     position: 'relative',
-    color: '#083e35',
+    color: '#000',
     minHeight: 116,
     height: '100%',
     width: '100%',
@@ -230,11 +231,11 @@ function estilosFundoMenu(fundo, ativo = false) {
       ? '0 5px 16px rgba(0,55,44,.2), inset 0 0 0 1px rgba(190,139,34,.2)'
       : '0 4px 14px rgba(0,40,32,.15)',
     '& .MuiTypography-root': {
-      color: '#083e35 !important',
+      color: '#000 !important',
       textShadow: '-1px -1px 0 rgba(255,255,255,.98), 0 -1px 0 rgba(255,255,255,.98), 1px -1px 0 rgba(255,255,255,.98), -1px 0 0 rgba(255,255,255,.98), 1px 0 0 rgba(255,255,255,.98), -1px 1px 0 rgba(255,255,255,.98), 0 1px 0 rgba(255,255,255,.98), 1px 1px 0 rgba(255,255,255,.98) !important',
       fontStyle: 'normal !important',
     },
-    '& .MuiSvgIcon-root': { color: '#f7e8b5 !important' },
+    '& .MuiSvgIcon-root': { color: '#000 !important' },
   }
 }
 
@@ -305,22 +306,6 @@ const menuItems = [
     fundo: 'menu-fundos/mais-de-deus.webp'
   },
   {
-    text: 'YouTube',
-    icon: <YouTubeIcon sx={{ fontSize: ICON_SIZE }} />,
-    path: '/youtube',
-    description: 'Canal Bíblia do Discípulo Cristão',
-    accentRing: 'rgba(255, 255, 255, 0.45)',
-    fundo: 'menu-fundos/youtube.webp'
-  },
-  {
-    text: 'Quiz',
-    icon: <QuizRetiroIcon sx={{ fontSize: ICON_SIZE }} />,
-    path: '/quiz-retiro',
-    description: 'Quiz bíblico',
-    accentRing: 'rgba(255, 255, 255, 0.45)',
-    fundo: 'menu-fundos/quiz.webp'
-  },
-  {
     text: 'Versículos marcados',
     icon: <BookmarkAddedOutlinedIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/versiculos-marcados',
@@ -337,6 +322,22 @@ const menuItems = [
     fundo: 'menu-fundos/versiculos-compartilhados.webp'
   },
   {
+    text: 'YouTube',
+    icon: <YouTubeIcon sx={{ fontSize: ICON_SIZE }} />,
+    path: '/youtube',
+    description: 'Canal Bíblia do Discípulo Cristão',
+    accentRing: 'rgba(255, 255, 255, 0.45)',
+    fundo: 'menu-fundos/youtube.webp'
+  },
+  {
+    text: 'Quiz',
+    icon: <QuizRetiroIcon sx={{ fontSize: ICON_SIZE }} />,
+    path: '/quiz-retiro',
+    description: 'Quiz bíblico',
+    accentRing: 'rgba(255, 255, 255, 0.45)',
+    fundo: 'menu-fundos/quiz.webp'
+  },
+  {
     text: 'Sobre',
     icon: <InfoIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/sobre',
@@ -347,9 +348,9 @@ const menuItems = [
 ]
 
 const menuAntesHinario = menuItems.slice(0, 4)
-// Itens depois de Westminster e antes do "Sobre" (menuFinal).
-const menuDepoisWestminster = menuItems.slice(4, -1)
-const menuFinal = menuItems.slice(-1)
+// Itens depois de Westminster; YouTube, Quiz e Sobre encerram o menu.
+const menuDepoisWestminster = menuItems.slice(4, -3)
+const menuFinal = menuItems.slice(-3)
 
 /**
  * Pai expansível "Conectar" — reúne tudo que é **conexão** com a comunidade
@@ -1072,7 +1073,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                       flexShrink: 0,
                       p: 0.75,
                       borderRadius: '50%',
-                      background: 'linear-gradient(145deg, #00715f, #004d40)',
+                      background: 'linear-gradient(145deg, #fffdf6, #e7ddc7)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -1178,7 +1179,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     flexShrink: 0,
                     p: 0.75,
                     borderRadius: '50%',
-                    background: 'linear-gradient(145deg, #00715f, #004d40)',
+                    background: 'linear-gradient(145deg, #fffdf6, #e7ddc7)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1377,7 +1378,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                     flexShrink: 0,
                     p: 0.75,
                     borderRadius: '50%',
-                    background: 'linear-gradient(145deg, #00715f, #004d40)',
+                    background: 'linear-gradient(145deg, #fffdf6, #e7ddc7)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1574,7 +1575,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                       flexShrink: 0,
                       p: 0.75,
                       borderRadius: '50%',
-                      background: 'linear-gradient(145deg, #00715f, #004d40)',
+                      background: 'linear-gradient(145deg, #fffdf6, #e7ddc7)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -1678,7 +1679,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                       flexShrink: 0,
                       p: 0.75,
                       borderRadius: '50%',
-                      background: 'linear-gradient(145deg, #00715f, #004d40)',
+                      background: 'linear-gradient(145deg, #fffdf6, #e7ddc7)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',

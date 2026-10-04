@@ -178,7 +178,7 @@ const PdfPage = memo(function PdfPage({ documento, numero, largura, zoom, aoRefe
   </Box>
 })
 
-export default function BibliotecaPdfReader({ url, storageKey, onBibleReference, onPageTap, onEnd, immersive }) {
+export default function BibliotecaPdfReader({ url, storageKey, onBibleReference, onPageTap, onEnd, onLimit, restricao, immersive }) {
   const rootRef = useRef(null)
   const [documento, setDocumento] = useState(null)
   const recursos = useMemo(() => ({ cache: new CachePaginasPdf(), fila: new FilaRenderPdf(2), pagina: 1, direcao: 1 }), [documento])
@@ -340,6 +340,7 @@ export default function BibliotecaPdfReader({ url, storageKey, onBibleReference,
     return () => cancelAnimationFrame(frame)
   }, [documento, largura])
   const ir = (numero) => {
+    if (restricao && numero > documento.numPages) { onLimit?.(); return }
     const root = rootRef.current
     const page = root?.querySelector(`[data-pdf-page="${numero}"]`)
     if (page) root.scrollTo({ top: root.scrollTop + page.getBoundingClientRect().top - root.getBoundingClientRect().top })
@@ -355,7 +356,7 @@ export default function BibliotecaPdfReader({ url, storageKey, onBibleReference,
     </Box>
     <Dialog open={escolherPagina} onClose={() => setEscolherPagina(false)} fullWidth maxWidth="sm">
       <DialogTitle>Escolher página ou capítulo</DialogTitle>
-      <DialogContent><TextField label={`Página de 1 a ${documento?.numPages || 1}`} type="number" value={paginaDigitada} onChange={(event) => setPaginaDigitada(event.target.value)} inputProps={{ min: 1, max: documento?.numPages, inputMode: 'numeric' }} sx={{ mt: 1 }} />
+      <DialogContent><TextField label={`Página de 1 a ${restricao?.totalOriginal || documento?.numPages || 1}`} helperText={restricao ? `Amostra gratuita: páginas 1 a ${restricao.limite}. Para continuar, compre o livro.` : ''} type="number" value={paginaDigitada} onChange={(event) => setPaginaDigitada(event.target.value)} inputProps={{ min: 1, max: restricao?.totalOriginal || documento?.numPages, inputMode: 'numeric' }} sx={{ mt: 1 }} />
         {erroSumario && <Alert severity="warning" sx={{ mt: 2 }}>{erroSumario}</Alert>}
         <SumarioLivro itens={sumario} carregando={carregandoSumario} navegando={navegandoSumario} onSelect={async (item) => {
           setNavegandoSumario(true); setErroSumario('')
@@ -364,7 +365,7 @@ export default function BibliotecaPdfReader({ url, storageKey, onBibleReference,
           finally { setNavegandoSumario(false) }
         }} />
       </DialogContent>
-      <DialogActions><Button onClick={() => setEscolherPagina(false)}>Cancelar</Button><Button disabled={!Number.isInteger(Number(paginaDigitada)) || Number(paginaDigitada) < 1 || Number(paginaDigitada) > (documento?.numPages || 0)} onClick={() => { ir(Number(paginaDigitada)); setEscolherPagina(false) }}>Ir à página</Button></DialogActions>
+      <DialogActions><Button onClick={() => setEscolherPagina(false)}>Cancelar</Button><Button disabled={!Number.isInteger(Number(paginaDigitada)) || Number(paginaDigitada) < 1 || Number(paginaDigitada) > (restricao?.totalOriginal || documento?.numPages || 0)} onClick={() => { ir(Number(paginaDigitada)); setEscolherPagina(false) }}>Ir à página</Button></DialogActions>
     </Dialog>
     <Dialog open={!!referenciaSelecionada} onClose={() => setReferenciaSelecionada('')}>
       <DialogTitle>{referenciaSelecionada}</DialogTitle>

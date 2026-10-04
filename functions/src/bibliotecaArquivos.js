@@ -10,6 +10,8 @@ const {
 } = require('@aws-sdk/client-s3')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 const { decidirArquivo } = require('./bibliotecaDegustacao')
+const { gerarAmostraAutomatica, VERSAO_AMOSTRA } = require('./bibliotecaAmostraAutomatica')
+const { createHash } = require('node:crypto')
 
 const R2_ACCOUNT_ID = defineSecret('R2_ACCOUNT_ID')
 const R2_ACCESS_KEY_ID = defineSecret('R2_ACCESS_KEY_ID')
@@ -118,7 +120,7 @@ exports.confirmarUploadLivroBiblioteca = onCall(OPCOES, async (req) => {
   return { ok: true, arquivo: metadados }
 })
 
-exports.obterArquivoLivroBiblioteca = onCall(OPCOES, async (req) => {
+exports.obterArquivoLivroBiblioteca = onCall({ ...OPCOES, memory: '1GiB', concurrency: 1, timeoutSeconds: 180 }, async (req) => {
   const uid = req.auth?.uid
   if (!uid) throw new HttpsError('unauthenticated', 'Entre na sua conta para ler.')
   const livroId = idSeguro(req.data?.livroId)
@@ -142,13 +144,42 @@ exports.obterArquivoLivroBiblioteca = onCall(OPCOES, async (req) => {
     throw new HttpsError('not-found', finalidade === 'amostra' ? 'Este livro ainda não possui amostra.' : 'O arquivo deste livro ainda não foi enviado.')
   }
   const { client, bucket } = clienteR2()
+  let chaveLeitura = arquivo.chave
+  let restricao = null
+  if (decisao.gerarAmostra) {
+    const hash = createHash('sha256').update(JSON.stringify([arquivo.chave, arquivo.atualizadoEm, arquivo.tamanho, decisao.degustacao.percentual, VERSAO_AMOSTRA])).digest('hex')
+    chaveLeitura = `biblioteca-amostras/${livroId}/${hash}.${arquivo.formato}`
+    try {
+      const head = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: chaveLeitura }))
+      restricao = JSON.parse(head.Metadata?.restricao || 'null')
+      if (!restricao || restricao.percentual !== decisao.degustacao.percentual) throw new Error('Amostra sem metadados')
+    } catch (erro) {
+      if (erro.$metadata?.httpStatusCode && erro.$metadata.httpStatusCode !== 404) throw new HttpsError('unavailable', 'Não foi possível consultar a amostra agora.')
+      try {
+        const origem = await client.send(new GetObjectCommand({ Bucket: bucket, Key: arquivo.chave }))
+        if (Number(origem.ContentLength) > MAXIMO_BYTES) throw new Error('Livro muito grande para recorte automático.')
+        const bytes = Buffer.from(await origem.Body.transformToByteArray())
+        if (bytes.length > MAXIMO_BYTES) throw new Error('Livro muito grande para recorte automático.')
+        const amostra = await gerarAmostraAutomatica(bytes, arquivo.formato, decisao.degustacao.percentual)
+        const { bytes: conteudo, ...metadados } = amostra
+        restricao = metadados
+        await client.send(new PutObjectCommand({ Bucket: bucket, Key: chaveLeitura, Body: conteudo, ContentType: arquivo.contentType, Metadata: { restricao: JSON.stringify(restricao) } }))
+      } catch (falha) {
+        console.error('Falha na amostra automática', livroId, falha.message)
+        throw new HttpsError('failed-precondition', 'Não foi possível preparar uma amostra segura deste arquivo. O livro completo não foi disponibilizado.')
+      }
+    }
+  }
   const segundos = decisao.acessoAte ? Math.max(1, Math.min(300, Math.floor((decisao.acessoAte - agora) / 1000))) : 300
   const url = await getSignedUrl(client, new GetObjectCommand({
     Bucket: bucket,
-    Key: arquivo.chave,
+    Key: chaveLeitura,
     ResponseContentType: arquivo.contentType || (arquivo.formato === 'pdf' ? 'application/pdf' : 'application/epub+zip'),
     ResponseContentDisposition: `${req.data?.download === true ? 'attachment' : 'inline'}; filename="${livroId}.${arquivo.formato}"`,
   }), { expiresIn: segundos })
+  if (req.data?.eventoId && !ehAdmin && req.data?.download !== true) {
+    await require('./bibliotecaAcessos').salvarAcesso(uid, { eventoId: req.data.eventoId, tipo: 'leitura', livroId, modalidade: decisao.gerarAmostra ? 'amostra_percentual' : decisao.acessoAte ? 'promocao_tempo' : finalidade === 'amostra' && !comprado ? 'amostra' : 'comprado' }).catch((erro) => console.warn('Registro da biblioteca indisponível', erro.code || 'erro'))
+  }
   return {
     url,
     formato: arquivo.formato,
@@ -158,6 +189,7 @@ exports.obterArquivoLivroBiblioteca = onCall(OPCOES, async (req) => {
     acessoAte: decisao.acessoAte || null,
     servidorAgora: agora,
     degustacao: decisao.degustacao || null,
+    restricao,
   }
 })
 

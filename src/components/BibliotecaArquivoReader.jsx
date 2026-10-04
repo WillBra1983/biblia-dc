@@ -71,7 +71,8 @@ export async function carregarEpubJs() {
 }
 
 
-function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap, onEnd, immersive, compacto = false }) {
+function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap, onEnd, onLimit, restricao, immersive, compacto = false }) {
+  const fimRestritoRef = useRef(false)
   const areaRef = useRef(null)
   const livroRef = useRef(null)
   const renditionRef = useRef(null)
@@ -218,7 +219,7 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
           onPageTapRef.current?.()
         })
         doc.addEventListener('dblclick', (event) => {
-          if (!compacto || Date.now() - ultimoGestoRef.current < 500 || event.target?.closest?.('a, button, input') || doc.defaultView?.getSelection()?.toString()) return
+          if (!compacto || Date.now() - ultimoGestoRef.current < 500 || event.target?.closest?.('a, button, input')) return
           event.preventDefault()
           onPageTapRef.current?.()
         })
@@ -227,6 +228,7 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
       rendition.themes.fontSize(`${tamanhoRef.current}%`)
       rendition.on('relocated', (localizacao) => {
         if (!ativo) return
+        fimRestritoRef.current = Boolean(localizacao?.atEnd)
         if (localizacao?.atEnd) onEndRef.current?.()
         if (!restaurando && localizacao?.start?.cfi) localStorage.setItem(storageKey, localizacao.start.cfi)
         const index = livro.locations.locationFromCfi(localizacao?.start?.cfi)
@@ -302,6 +304,7 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
   }
 
   const proximaPagina = () => {
+    if (restricao && fimRestritoRef.current && !exibindoCapa) { onLimit?.(); return }
     if (exibindoCapa) {
       setExibindoCapa(false)
       const primeiraPagina = livroRef.current?.spine?.first?.()?.href
@@ -333,7 +336,15 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
         <Button onClick={() => setTamanho((v) => Math.min(160, v + 10))}>A+</Button>
       </BibliotecaReaderToolbar>}
       {carregando && <EstadoCarregando />}
-      {exibindoCapa && capaUrl && <Box onClick={onPageTap} onTouchStart={(event) => { const touch = event.touches[0]; gestureRef.current = { x: touch.clientX, y: touch.clientY } }} onTouchEnd={(event) => { const start = gestureRef.current; gestureRef.current = null; const touch = event.changedTouches[0]; if (start && touch && start.x - touch.clientX > 55 && Math.abs(touch.clientY - start.y) < 60) proximaPagina() }} sx={{ height: immersive ? '100dvh' : '72dvh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)', display: 'grid', placeItems: 'center', p: { xs: 1.5, sm: 3 } }}>
+      {exibindoCapa && capaUrl && <Box onDoubleClick={(event) => { if (Date.now() - ultimoGestoRef.current < 500) return; event.preventDefault(); onPageTap?.() }} onTouchStart={(event) => { const touch = event.touches[0]; gestureRef.current = { x: touch.clientX, y: touch.clientY } }} onTouchEnd={(event) => {
+        const start = gestureRef.current; gestureRef.current = null; const touch = event.changedTouches[0]
+        if (!start || !touch) return
+        if (start.x - touch.clientX > 55 && Math.abs(touch.clientY - start.y) < 60) { proximaPagina(); return }
+        if (Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 12) return
+        const last = lastTapRef.current
+        if (last && Date.now() - last.time < 350 && Math.hypot(last.x - touch.clientX, last.y - touch.clientY) < 30) { event.preventDefault(); lastTapRef.current = null; ultimoGestoRef.current = Date.now(); onPageTap?.() }
+        else lastTapRef.current = { time: Date.now(), x: touch.clientX, y: touch.clientY }
+      }} sx={{ touchAction: 'manipulation', height: immersive ? '100dvh' : '72dvh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)', display: 'grid', placeItems: 'center', p: { xs: 1.5, sm: 3 } }}>
         <Box component="img" src={capaUrl} alt="Capa do livro" sx={{ display: 'block', maxWidth: '100%', maxHeight: '68vh', objectFit: 'contain', borderRadius: 0.75, boxShadow: '0 8px 24px rgba(0,0,0,.2)' }} />
       </Box>}
       <Box ref={areaRef} sx={{ display: carregando || exibindoCapa ? 'none' : 'block', height: immersive ? (compacto ? 'calc(100dvh - 40px)' : '100dvh') : '72svh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)' }} />
@@ -361,7 +372,7 @@ function EstadoCarregando() {
   return <Box sx={{ py: 10, textAlign: 'center' }}><CircularProgress /><Typography color="text.secondary" sx={{ mt: 2 }}>Abrindo o livro…</Typography></Box>
 }
 
-export default function BibliotecaArquivoReader({ arquivo, storageKey, livro, permitirCompartilhamento = true, onEnd }) {
+export default function BibliotecaArquivoReader({ arquivo, storageKey, livro, permitirCompartilhamento = true, onEnd, onLimit }) {
   const [trecho, setTrecho] = useState('')
   const [compartilhando, setCompartilhando] = useState(false)
   const [versiculos, setVersiculos] = useState(null)
@@ -408,8 +419,8 @@ export default function BibliotecaArquivoReader({ arquivo, storageKey, livro, pe
     {erroReferencia && <Alert severity="warning" onClose={() => setErroReferencia('')} sx={{ mb: 1 }}>{erroReferencia}</Alert>}
     <Box ref={readerRef} sx={immersive ? { position: 'fixed', inset: 0, zIndex: 1300, bgcolor: 'background.paper', overflow: 'auto', overscrollBehavior: 'contain', pt: 'env(safe-area-inset-top)', pb: 'env(safe-area-inset-bottom)' } : { scrollMarginTop: '80px' }}>
       {arquivo.formato === 'pdf'
-        ? <BibliotecaPdfReader url={arquivo.url} storageKey={storageKey} onBibleReference={abrirReferenciaBiblica} onPageTap={toggleReading} onEnd={onEnd} immersive={immersive} />
-        : <EpubReader compacto url={arquivo.url} storageKey={storageKey} onSelection={setTrecho} onBibleReference={abrirReferenciaBiblica} onPageTap={toggleReading} onEnd={onEnd} immersive={immersive} />}
+        ? <BibliotecaPdfReader url={arquivo.url} storageKey={storageKey} onBibleReference={abrirReferenciaBiblica} onPageTap={toggleReading} onEnd={onEnd} restricao={arquivo.restricao} onLimit={() => { sairTelaCheia(); onLimit?.() }} immersive={immersive} />
+        : <EpubReader compacto url={arquivo.url} storageKey={storageKey} onSelection={setTrecho} onBibleReference={abrirReferenciaBiblica} onPageTap={toggleReading} onEnd={onEnd} restricao={arquivo.restricao} onLimit={() => { sairTelaCheia(); onLimit?.() }} immersive={immersive} />}
     </Box>
     {!immersive && arquivo.formato !== 'pdf' && permitirCompartilhamento && <Paper elevation={4} sx={{ position: 'sticky', bottom: 12, zIndex: 5, maxWidth: 760, mx: 'auto', mt: 1.5, p: 1.2, borderRadius: 2 }}>
       {trecho ? <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }}>

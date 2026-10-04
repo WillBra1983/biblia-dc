@@ -29,7 +29,7 @@ function normalizarLivro(id, valor = {}) {
     publicado: valor.publicado !== false,
     downloadPermitido: false,
     degustacao: {
-      modo: ['tempo', 'percentual'].includes(valor.degustacao?.modo) ? valor.degustacao.modo : 'amostra',
+      modo: valor.degustacao?.modo === 'tempo' ? 'tempo' : 'percentual',
       inicioEm: Math.max(0, Number(valor.degustacao?.inicioEm) || 0),
       fimEm: Math.max(0, Number(valor.degustacao?.fimEm) || 0),
       percentual: Math.max(1, Math.min(99, Number(valor.degustacao?.percentual) || 10)),
@@ -282,8 +282,11 @@ export async function enviarArquivoLivroBiblioteca(livroId, finalidade, arquivo)
   return confirmado.arquivo
 }
 
-export const obterArquivoLivroBiblioteca = (livroId, finalidade = 'completo', download = false) =>
-  chamarFuncao('obterArquivoLivroBiblioteca', { livroId, finalidade, download })
+export const obterArquivoLivroBiblioteca = (livroId, finalidade = 'completo', download = false, eventoId = null) =>
+  chamarFuncao('obterArquivoLivroBiblioteca', { livroId, finalidade, download, eventoId })
+
+export const registrarAcessoBiblioteca = (dados) => chamarFuncao('registrarAcessoBiblioteca', dados)
+export const listarAcessosBibliotecaAdmin = (inicio, fim) => chamarFuncao('listarAcessosBibliotecaAdmin', { inicio, fim })
 
 export const excluirArquivoLivroBiblioteca = (livroId, finalidade) =>
   chamarFuncao('excluirArquivoLivroBiblioteca', { livroId, finalidade })

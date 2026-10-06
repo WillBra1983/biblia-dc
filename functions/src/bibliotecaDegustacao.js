@@ -11,7 +11,7 @@ function politicaLivro(livro = {}) {
 
 function decidirArquivo({ livro, finalidade, ehAdmin, comprado, download = false, agora }) {
   const politica = politicaLivro(livro)
-  if (download && !ehAdmin) return { erro: 'Este livro está disponível somente para leitura no sistema.' }
+  if (download && !ehAdmin && (!comprado || !politica.downloadPermitido)) return { erro: 'Este livro está disponível somente para leitura no sistema.' }
   if (ehAdmin || comprado) return { finalidade: download || (finalidade === 'amostra' && politica.modo !== 'amostra') ? 'completo' : finalidade }
   if (livro.publicado === false || livro.excluido) return { erro: 'Este livro não está disponível.' }
   if (finalidade === 'completo') return { erro: 'Seu acesso a este livro ainda não foi liberado.' }

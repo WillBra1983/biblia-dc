@@ -977,11 +977,8 @@ export default function Chat() {
 
   useEffect(() => {
     if (!user || searchParams.get('perfil') !== '1') return
-    setProfileDialogOpen(true)
-    const next = new URLSearchParams(searchParams)
-    next.delete('perfil')
-    setSearchParams(next, { replace: true })
-  }, [user, searchParams, setSearchParams])
+    navigate('/perfil', { replace: true })
+  }, [user, searchParams, navigate])
 
   /**
    * Busca pessoas (handles) enquanto o usuário digita na barra da caixa de entrada,
@@ -1140,7 +1137,11 @@ export default function Chat() {
         setPeerDialogError('Informe um @apelido ou UID válido (não é possível usar a sua própria conta).')
         return
       }
-      if (peerDialog === 'favorite') {
+      if (peerDialog === 'chat') {
+        const cid = dmChatId(user.uid, peerUid)
+        await ensureChatMembership(cid, user.uid, peerUid)
+        setActiveChatId(cid); setActivePeerUid(peerUid); setChatListNotice('')
+      } else if (peerDialog === 'favorite') {
         await addFavorite(user.uid, peerUid)
         setChatListNotice('Adicionado aos favoritos.')
       } else {
@@ -1621,6 +1622,12 @@ export default function Chat() {
                 bgcolor: 'rgba(0, 0, 0, 0.22)'
               }}
             >
+              <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" sx={{ mb: 1.5 }}>
+                <Button variant="contained" onClick={() => openPeerDialog('chat')}>Nova conversa</Button>
+                <Button variant="outlined" sx={{ color: '#fff', borderColor: 'rgba(255,255,255,.4)' }} onClick={() => setAuxListDialog('friends')}>Amigos</Button>
+                <Button variant="outlined" sx={{ color: '#fff', borderColor: 'rgba(255,255,255,.4)' }} onClick={() => setAuxListDialog('in')}>Pedidos{friendRequestsIn.length ? ` (${friendRequestsIn.length})` : ''}</Button>
+                <Button sx={{ color: '#fff' }} onClick={() => navigate('/perfil')}>Meu perfil</Button>
+              </Stack>
               <TextField
                 size="small"
                 fullWidth
@@ -2314,10 +2321,10 @@ export default function Chat() {
               <MenuItem
                 onClick={() => {
                   setInboxMenuAnchor(null)
-                  setSettingsDialogOpen(true)
+                  navigate('/configuracoes')
                 }}
               >
-                Configuração
+                Configurações
               </MenuItem>
               <MenuItem
                 onClick={() => {
@@ -3278,12 +3285,11 @@ export default function Chat() {
 
       <Dialog open={peerDialog != null} onClose={() => !busy && closePeerDialog()} fullWidth maxWidth="sm">
         <DialogTitle>
-          {peerDialog === 'favorite' ? 'Adicionar aos favoritos' : 'Enviar pedido de amizade'}
+          {peerDialog === 'chat' ? 'Nova conversa' : peerDialog === 'favorite' ? 'Adicionar aos favoritos' : 'Enviar pedido de amizade'}
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Escreve o <strong>@apelido</strong> ou cola o <strong>UID técnico</strong> da pessoa. O valor do campo
-            &quot;Nova conversa&quot; acima é copiado automaticamente quando abres esta janela.
+            Informe o <strong>@apelido</strong>, e-mail ou código da conta da pessoa com quem deseja se conectar.
           </Typography>
           <TextField
             autoFocus
@@ -3306,7 +3312,7 @@ export default function Chat() {
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={() => !busy && closePeerDialog()}>Cancelar</Button>
           <Button variant="contained" disabled={busy} onClick={() => submitPeerDialog()}>
-            {peerDialog === 'favorite' ? 'Adicionar' : 'Enviar pedido'}
+            {peerDialog === 'chat' ? 'Abrir conversa' : peerDialog === 'favorite' ? 'Adicionar' : 'Enviar pedido'}
           </Button>
         </DialogActions>
       </Dialog>

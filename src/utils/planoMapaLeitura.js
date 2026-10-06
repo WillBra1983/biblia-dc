@@ -2,7 +2,14 @@
  * Mapa por blocos (AT/NT): atalhos para abrir leitura. A contagem do plano segue única (`capitulosLidos`).
  */
 
+import { PLANOS } from '../data/planos'
+
 export const MAPA_BLOCOS_ORDEM = [
+  {
+    id: 'cronologico',
+    titulo: 'Leitura cronológica',
+    livros: PLANOS.find((plano) => plano.id === 'cronologico').livros.map((livro) => Number(livro.id)),
+  },
   { id: 'pentateuco', titulo: 'Pentateuco', livros: [1, 2, 3, 4, 5] },
   {
     id: 'historicos',
@@ -51,6 +58,21 @@ export function blocosVisiveisParaTemplate(template) {
   if (!template?.livros?.length) return []
   const ids = new Set(template.livros.map((l) => Number(l.id)))
   return MAPA_BLOCOS_ORDEM.filter((b) => b.livros.some((lid) => ids.has(lid)))
+}
+
+/** Lista os livros do mapa escolhido, sem selecionar nem marcar capítulos. */
+export function livrosDoMapa(template, blocoId) {
+  if (!template?.livros?.length) return []
+  if (!blocoId) return template.livros
+  const bloco = MAPA_BLOCOS_ORDEM.find((item) => item.id === blocoId)
+  if (!bloco) return []
+  const livrosMap = new Map(template.livros.map((livro) => [Number(livro.id), livro]))
+  return bloco.livros.flatMap((id) => {
+    const livro = livrosMap.get(id)
+    if (!livro) return []
+    const alcance = alcanceCapitulosNoPlano(livro)
+    return alcance.to >= alcance.from ? [{ ...livro, inicioPlano: alcance.from, fimPlano: alcance.to }] : []
+  })
 }
 
 /**

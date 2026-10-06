@@ -17,6 +17,7 @@ import {
   Alert,
   Divider,
   CircularProgress,
+  Paper,
 } from '@mui/material'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
@@ -253,9 +254,17 @@ export default function ConfiguracoesNotificacoes() {
 
   return (
     <Container maxWidth="sm" sx={{ py: 3 }}>
-      <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+      <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>
         Configurações
       </Typography>
+      <Typography color="text.secondary" sx={{ mb: 2 }}>Conta, preferências e notificações em um só lugar.</Typography>
+      <Paper variant="outlined" sx={{ p: 2, borderRadius: 3, mb: 2 }}>
+        <Stack direction="row" useFlexGap flexWrap="wrap" spacing={1}>
+          <Button variant="outlined" onClick={() => navigate('/perfil')}>Meu perfil</Button>
+          <Button variant="outlined" onClick={() => navigate('/chat')}>Mensagens</Button>
+          <Button variant="outlined" onClick={() => navigate('/plano')}>Plano de leitura</Button>
+        </Stack>
+      </Paper>
 
       <Button
         variant="contained"
@@ -268,6 +277,7 @@ export default function ConfiguracoesNotificacoes() {
         Menu inicial
       </Button>
 
+      <Paper variant="outlined" sx={{ p: 2, borderRadius: 3, mb: 2 }}>
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
         Conta
       </Typography>
@@ -285,7 +295,7 @@ export default function ConfiguracoesNotificacoes() {
           variant="outlined"
           startIcon={<PersonOutlineIcon />}
           fullWidth
-          onClick={() => navigate('/chat?perfil=1')}
+          onClick={() => navigate('/perfil')}
         >
           Editar perfil
         </Button>
@@ -301,7 +311,9 @@ export default function ConfiguracoesNotificacoes() {
         </Button>
       </Stack>
 
-      <Divider sx={{ mb: 2 }} />
+      </Paper>
+      <Paper variant="outlined" sx={{ p: 2, borderRadius: 3 }}>
+      <Typography fontWeight={700} sx={{ mb: 1.5 }}>Preferências de notificações</Typography>
 
       {ehWeb && !navegadorPermitido ? (
         <Alert severity="warning" sx={{ mb: 2 }}>
@@ -356,6 +368,7 @@ export default function ConfiguracoesNotificacoes() {
           inputProps={{ 'aria-label': 'Receber avisos de livros e lançamentos' }}
         />
       </Stack>
+      </Paper>
     </Container>
   )
 }

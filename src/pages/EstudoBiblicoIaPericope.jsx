@@ -14,9 +14,9 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  TextField
 } from '@mui/material'
 import ArrowBack from '@mui/icons-material/ArrowBack'
+import TextField from '../components/CampoTextoEstudo'
 import AutoAwesome from '@mui/icons-material/AutoAwesome'
 import Edit from '@mui/icons-material/Edit'
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks'

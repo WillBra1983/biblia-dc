@@ -28,6 +28,8 @@ import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined'
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined'
 import { urlCapaLivro } from '../data/livrosCatalogo'
 import BibliotecaArquivoReader from '../components/BibliotecaArquivoReader'
+import EditorApresentacao from '../components/EditorApresentacao'
+import { partesApresentacao } from '../utils/apresentacaoFormatada'
 import BibliotecaAcessosDialog from '../components/BibliotecaAcessosDialog'
 import CompartilharLivroButton from '../components/CompartilharLivroButton'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
@@ -334,7 +336,7 @@ function EditarLivroDialog({ livro, aberto, uid, onClose, onSalvar, salvando }) 
               <Stack spacing={1.5}>
                 <TextField label="Título" value={form.titulo || ''} onChange={alterar('titulo')} required />
                 <TextField label="Autor" value={form.autor || ''} onChange={alterar('autor')} required />
-                <TextField label="Descrição" value={form.descricao || ''} onChange={alterar('descricao')} multiline minRows={4} />
+                <EditorApresentacao label="Descrição do livro" texto={form.descricao || ''} alinhamento={form.descricaoAlinhamento} limite={1800} onTexto={(descricao) => setForm((atual) => ({ ...atual, descricao }))} onAlinhamento={(descricaoAlinhamento) => setForm((atual) => ({ ...atual, descricaoAlinhamento }))} />
                 <FormControlLabel control={<Switch checked={form.publicado !== false} onChange={(event) => setForm((atual) => ({ ...atual, publicado: event.target.checked }))} />} label={form.publicado !== false ? 'Publicado' : 'Rascunho — visível somente para o administrador'} />
               </Stack>
             </Grid>
@@ -356,7 +358,8 @@ function EditarLivroDialog({ livro, aberto, uid, onClose, onSalvar, salvando }) 
             <TextField label="Fim da promoção" type="datetime-local" InputLabelProps={{ shrink: true }} value={dataLocal(form.degustacao?.fimEm)} onChange={(event) => setForm((atual) => ({ ...atual, degustacao: { ...atual.degustacao, fimEm: new Date(event.target.value).getTime() || 0 } }))} />
             <Typography variant="caption">Horários locais deste aparelho. O prazo é igual para todos, mesmo para quem não abriu o livro.</Typography>
           </Stack>}
-          <Alert severity="warning">Somente leitura no sistema, sem download autorizado. Isso não impede fotografias, capturas de tela ou cópias técnicas do conteúdo exibido. Na promoção por tempo, o arquivo completo é carregado pelo leitor; o encerramento não apaga cópias que alguém tenha feito.</Alert>
+          <FormControlLabel control={<Switch checked={form.downloadPermitido === true} onChange={(event) => setForm((atual) => ({ ...atual, downloadPermitido: event.target.checked }))} />} label="Permitir download personalizado após compra confirmada" />
+          <Alert severity="warning">{form.downloadPermitido ? 'O comprador poderá baixar uma cópia identificada com um código e aviso de uso pessoal. Amostras não permitem download.' : 'Somente leitura no sistema, sem download autorizado.'} A identificação não impede cópias ou remoção da marca. Na promoção por tempo, o arquivo completo é carregado pelo leitor; o encerramento não apaga cópias que alguém tenha feito.</Alert>
           <Divider />
           <Typography variant="subtitle1" fontWeight={800}>Onde o livro está disponível</Typography>
           <Grid container spacing={1.5}>
@@ -724,6 +727,22 @@ function EstadoCarregandoLivro({ mensagem }) {
 }
 
 function DetalheLivro({ livro, comprasConfirmadas, ehAdmin, onConfirmarCompra, onEditar, onExcluir }) {
+  const [baixando, setBaixando] = useState(false)
+  const [erroDownload, setErroDownload] = useState('')
+  const baixar = async () => {
+    setBaixando(true); setErroDownload('')
+    try {
+      const dados = await obterArquivoLivroBiblioteca(livro.id, 'completo', true)
+      const resposta = await fetch(dados.url)
+      if (!resposta.ok) throw new Error('Falha no download.')
+      const url = URL.createObjectURL(await resposta.blob())
+      const link = document.createElement('a')
+      link.href = url; link.download = `${livro.id}-${dados.codigoExemplar || 'original'}.${dados.formato}`
+      document.body.appendChild(link); link.click(); link.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 60000)
+    } catch { setErroDownload('Não foi possível baixar seu exemplar. Confira sua conexão e se o download está autorizado.') }
+    finally { setBaixando(false) }
+  }
   const navigate = useNavigate()
   const [opcoesAbertas, setOpcoesAbertas] = useState(false)
   const opcoes = opcoesLivro(livro)
@@ -741,7 +760,7 @@ function DetalheLivro({ livro, comprasConfirmadas, ehAdmin, onConfirmarCompra, o
               <Typography component="h1" sx={{ mt: 1.6, fontFamily: 'Lora, Georgia, serif', fontSize: { xs: '1.85rem', md: '2.45rem' }, lineHeight: 1.12, fontWeight: 800 }}>{livro.titulo}</Typography>
               <Typography variant="h6" color="text.secondary" sx={{ mt: 0.8, fontWeight: 500 }}>{livro.autor}</Typography>
               <Box sx={{ width: 58, height: 3, borderRadius: 2, bgcolor: '#b98322', my: 2.2 }} />
-              <Typography sx={{ lineHeight: 1.78, color: 'text.secondary' }}>{livro.descricao}</Typography>
+              <Typography sx={{ lineHeight: 1.78, color: 'text.secondary', whiteSpace: 'pre-wrap', textAlign: livro.descricaoAlinhamento === 'justify' ? 'justify' : 'left' }}>{partesApresentacao(livro.descricao).map((parte, indice) => <Box key={indice} component="span" sx={{ fontWeight: parte.tipo.includes('negrito') ? 700 : 'inherit', fontStyle: parte.tipo.includes('italico') ? 'italic' : 'normal' }}>{parte.texto}</Box>)}</Typography>
               <Typography variant="body2" sx={{ mt: 2, fontWeight: 700 }}>Tradução, revisão e organização de Wilson Lucas Ferreira.</Typography>
               <Stack spacing={1.2} sx={{ mt: 3 }}>
                 {temDegustacao(livro) && !acessoDigital && <Button variant="outlined" size="large" startIcon={<AutoStoriesOutlinedIcon />} onClick={() => navigate(`/biblioteca/${livro.id}/amostra`)} fullWidth>{livro.degustacao?.modo === 'tempo' ? 'Ver leitura gratuita por tempo' : livro.degustacao?.modo === 'percentual' ? `Ler amostra (${livro.degustacao.percentual}%)` : 'Ler amostra'}</Button>}
@@ -750,6 +769,8 @@ function DetalheLivro({ livro, comprasConfirmadas, ehAdmin, onConfirmarCompra, o
                   ? <Button variant="contained" size="large" startIcon={<VerifiedOutlinedIcon />} onClick={() => navigate(`/biblioteca/${livro.id}/ler`)} fullWidth>Ler livro</Button>
                   : opcoes.length ? <Button variant="contained" size="large" startIcon={comprado ? <VerifiedOutlinedIcon /> : <ShoppingCartOutlinedIcon />} onClick={() => setOpcoesAbertas(true)} fullWidth>{comprado ? 'Abrir' : 'Comprar'}</Button> : ehAdmin ? <Alert severity="warning">Rascunho administrativo: cadastre Android, Apple, Amazon ou Pix para publicar.</Alert> : null}
                 <CompartilharLivroButton livro={livro} fullWidth />
+                {acessoDigital && !ehAdmin && livro.downloadPermitido && livro.arquivos?.completo && <Button variant="outlined" disabled={baixando} onClick={baixar}>{baixando ? 'Preparando seu exemplar…' : 'Baixar exemplar de uso pessoal'}</Button>}
+                {erroDownload && <Alert severity="warning">{erroDownload}</Alert>}
               </Stack>
             </Grid>
           </Grid>

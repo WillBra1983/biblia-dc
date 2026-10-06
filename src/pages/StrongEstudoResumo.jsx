@@ -15,9 +15,11 @@ import {
   Alert,
   CircularProgress,
   Stack,
-  TextField
 } from '@mui/material'
 import ArrowBack from '@mui/icons-material/ArrowBack'
+import TextField from '../components/CampoTextoEstudo'
+import TextoComReferencias from '../components/TextoComReferencias'
+import { lerFormatoEstudo } from '../utils/formatoEstudo'
 import Edit from '@mui/icons-material/Edit'
 import Save from '@mui/icons-material/Save'
 import ThumbDownAltOutlined from '@mui/icons-material/ThumbDownAltOutlined'
@@ -212,9 +214,8 @@ export default function StrongEstudoResumo() {
   )
 
   const linhas = useMemo(() => {
-    const raw = String(texto || '')
+    const raw = lerFormatoEstudo(texto).texto
       .replace(/^##\s*/gm, '')
-      .replace(/\*\*/g, '')
       .trim()
     if (!raw) return []
     return raw.split('\n').map((l) => l.trim()).filter(Boolean)
@@ -681,7 +682,7 @@ export default function StrongEstudoResumo() {
                 </>
               ) : (
                 <>
-              <Box sx={{ display: 'grid', gap: 0.6 }}>
+              <Box sx={{ display: 'grid', gap: 0.6, textAlign: lerFormatoEstudo(texto).alinhamento || 'left' }}>
                 {linhas.map((linha, idx) => {
                   const isTitulo = /^(Identificação|Definição|Uso e ocorrências|Contexto bíblico \(exemplos\)|Ligações nos dados|Rede léxica e âncoras no índice)\b/i.test(
                     linha
@@ -698,7 +699,7 @@ export default function StrongEstudoResumo() {
                         wordBreak: 'break-word'
                       }}
                     >
-                      {linha}
+                      <TextoComReferencias texto={lerFormatoEstudo(linha).texto} inline component="span" style={{ fontSize: 'inherit', lineHeight: 'inherit', textAlign: lerFormatoEstudo(texto).alinhamento || 'inherit' }} />
                     </Typography>
                   )
                 })}

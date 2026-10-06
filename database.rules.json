@@ -439,6 +439,23 @@
       ".read": false,
       ".write": false
     },
+    "destaquesMenu": {
+      ".read": true,
+      ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
+      "$id": {
+        ".validate": "newData.hasChildren(['tipo', 'titulo', 'texto'])",
+        "tipo": { ".validate": "newData.val() === 'mensagem' || newData.val() === 'trecho' || newData.val() === 'livro'" },
+        "titulo": { ".validate": "newData.isString() && newData.val().length <= 180" },
+        "texto": { ".validate": "newData.isString() && newData.val().length <= 6000" },
+        "autor": { ".validate": "newData.isString() && newData.val().length <= 180" },
+        "livroId": { ".validate": "newData.isString() && newData.val().length <= 100" },
+        "inicioEm": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "fimEm": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "ativo": { ".validate": "newData.isBoolean()" },
+        "alinhamento": { ".validate": "newData.val() === 'left' || newData.val() === 'justify'" },
+        "$outro": { ".validate": false }
+      }
+    },
     "bibliotecaLivros": {
       ".read": "auth != null",
       "$livroId": {
@@ -455,6 +472,10 @@
         ".read": "auth != null && (root.child('users').child(auth.uid).child('admin').val() === true || root.child('bibliotecaAcessos').child(auth.uid).child($livroId).child('ativo').val() === true)",
         ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true"
       }
+    },
+    "bibliotecaLicencas": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
+      ".write": false
     },
     "bibliotecaAcessos": {
       "$uid": {

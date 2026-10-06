@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Avatar, Box, Card, CardContent, Typography, Grid, Collapse, IconButton } from '@mui/material'
+import { Avatar, Box, Button, Stack, Card, CardContent, Typography, Grid, Collapse, IconButton } from '@mui/material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import BibliaIcon from '@mui/icons-material/MenuBook'
@@ -43,12 +43,14 @@ import { prefetchRota, prefetchRotasComuns } from '../utils/routePrefetch'
 import { urlFundoVersiculo, urlLogoApp } from '../utils/versiculoImagem'
 import { abrirVersiculoDoDia, linkPaginaVersiculoDoDia, obterVersiculoDoDia } from '../services/versiculoDoDiaService'
 import CompartilharVersiculoImagemDialog from './CompartilharVersiculoImagemDialog'
+import DestaquesMenu from './DestaquesMenu'
+import TextoDestaque from './TextoDestaque'
 import { alternarCurtida, assinarDestaqueVersiculoDoDia, obterCurtidasDoUsuario, registrarCompartilhamentoVersiculoDoDia } from '../services/versiculosCompartilhadosService'
 
 const ICON_BOX = 44
 const ICON_SIZE = 26
 
-function VersiculoDoDiaMenu({ ehAdmin }) {
+function VersiculoDoDiaMenu({ ehAdmin, onExpandidoChange, reiniciarExpansao }) {
   const navigate = useNavigate()
   const { user } = useFirebaseAuth()
   const [item, setItem] = useState(null)
@@ -122,8 +124,8 @@ function VersiculoDoDiaMenu({ ehAdmin }) {
         display: 'grid',
         gridTemplateColumns: '24px minmax(0, 1fr)',
         gridTemplateRows: 'auto auto auto',
-        columnGap: 1,
-        rowGap: 1.1,
+        columnGap: 0.5,
+        rowGap: 0.5,
       }}>
         <Box sx={{ gridColumn: '1 / -1' }}>
           <Typography variant="overline" sx={{ color: '#79581b', fontWeight: 900, lineHeight: 1.2, letterSpacing: 1.2 }}>Versículo do dia</Typography>
@@ -142,17 +144,15 @@ function VersiculoDoDiaMenu({ ehAdmin }) {
         >
           “
         </Typography>
-        <Typography sx={{
+        <TextoDestaque onExpandidoChange={onExpandidoChange} reiniciarExpansao={reiniciarExpansao} texto={item?.texto || 'A Palavra para o seu dia está sendo escolhida.'} linhas={5} sx={{
           gridColumn: 2,
-          maxWidth: { xs: '88%', sm: '82%' },
+          maxWidth: '100%',
           fontFamily: 'Georgia, serif',
           fontSize: { xs: '1.06rem', sm: '1.22rem' },
-          lineHeight: 1.42,
+          lineHeight: 1.3,
           fontWeight: 700,
-        }}>
-          {item?.texto || 'A Palavra para o seu dia está sendo escolhida.'}
-        </Typography>
-        <Box sx={{ gridColumn: 2, display: 'flex', alignItems: 'center', gap: 0.75 }}>
+        }} />
+        <Box sx={{ gridColumn: 2, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
           <Box
             component="img"
             src={urlLogoApp()}
@@ -160,8 +160,6 @@ function VersiculoDoDiaMenu({ ehAdmin }) {
             sx={{ width: 23, height: 23, borderRadius: 0.6, objectFit: 'cover', flexShrink: 0 }}
           />
           <Typography variant="caption" sx={{ fontWeight: 800 }}>{item?.referencia || 'Toque para abrir'}</Typography>
-        </Box>
-        <Box sx={{ gridColumn: '2 / -1', display: 'flex', alignItems: 'center', gap: 0.15, mt: -0.35 }}>
           <IconButton size="small" onClick={curtir} disabled={!user?.uid} title={user?.uid ? (curtido ? 'Remover curtida' : 'Curtir') : 'Entre na conta para curtir'} aria-label={curtido ? 'Remover curtida' : 'Curtir'} sx={{ color: curtido ? '#d93025' : '#79581b', p: 0.45 }}>
             {curtido ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
           </IconButton>
@@ -251,10 +249,10 @@ const menuItems = [
     fundo: 'menu-fundos/biblia.webp'
   },
   {
-    text: 'Biblioteca Digital',
+    text: 'Comprar Livros',
     icon: <TabletMacOutlinedIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/biblioteca',
-    description: 'Livros para leitura digital e aquisição',
+    description: 'Adquira nossas traduções e use nossa biblioteca',
     accentRing: 'rgba(227, 189, 104, 0.78)',
     fundo: 'menu-fundos/biblioteca-digital.webp',
   },
@@ -694,7 +692,12 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
               }}
             >
               <Box
+                role="button"
+                tabIndex={0}
+                aria-label="Abrir ou recolher opções da conta"
+                aria-expanded={conectarExpanded}
                 onClick={() => setConectarExpanded((v) => !v)}
+                onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setConectarExpanded((v) => !v) } }}
                 sx={{
                   display: 'flex',
                   flexDirection: 'row',
@@ -809,7 +812,14 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   )}
                 </Box>
                 <ExpandMore
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Abrir ou recolher opções da conta"
+                  aria-expanded={conectarExpanded}
+                  onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); setConectarExpanded((v) => !v) } }}
+                  onClick={(event) => { event.stopPropagation(); setConectarExpanded((v) => !v) }}
                   sx={{
+                    display: 'block',
                     flexShrink: 0,
                     color: corTextoItemMenuAtivo(conectarGrupoAtivo),
                     transition: 'transform 0.2s ease',
@@ -817,7 +827,12 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                   }}
                 />
               </Box>
-              <Collapse in={conectarExpanded} timeout="auto" unmountOnExit={false} onEntered={() => trazerOpcoesParaTela(conectarCardRef)}>
+              <Collapse in={conectarExpanded} timeout="auto" onEntered={() => trazerOpcoesParaTela(conectarCardRef)}>
+              <Stack spacing={.75} sx={{ mt: 1.5 }}>
+                {[['Meu perfil', '/perfil', <PersonIcon />], ['Mensagens', '/chat', <ChatIcon />], ['Configurações', '/configuracoes', <TuneIcon />]].map(([label, path, icon]) => <Button key={path} startIcon={icon} variant="outlined" fullWidth onClick={() => { navigate(path); fecharMenuPai() }} sx={{ justifyContent: 'flex-start', color: '#fff', borderColor: 'rgba(255,255,255,.4)', textTransform: 'none', py: .8 }}>{label}{path === '/chat' && Number(unreadChatCount) > 0 && <Box component="span" sx={{ ml: 'auto', bgcolor: '#b54120', color: '#fff', px: 1, borderRadius: 3 }}>{Number(unreadChatCount) > 99 ? '99+' : unreadChatCount}</Box>}</Button>)}
+              </Stack>
+              </Collapse>
+              <Collapse in={ehAdmin && conectarExpanded} timeout="auto" unmountOnExit={false}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1.5, pl: 0.5 }}>
                   {/* Chat */}
                   <Card
@@ -826,6 +841,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                       fecharMenuPai()
                     }}
                     sx={{
+                      display: 'none',
                       ...estilosCartaoMenu(
                         chatMenuActive ? MENU_CARD_DESTAQUE_VERDE_GRADIENT : menuCardGradient,
                         {
@@ -935,11 +951,10 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
                       color: isDarkMode ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.55)',
                     }}
                   >
-                    Notificações
+                    Administração
                   </Typography>
 
                   {[
-                    ...notificacoesSubItens,
                     ...(ehAdmin ? [notificacoesSubItemUsuarios, notificacoesSubItemAdmin] : [])
                   ].map((sub, subIdx) => {
                     const subActive = location.pathname === sub.path
@@ -1027,7 +1042,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
           </Card>
         </Grid>
 
-        <VersiculoDoDiaMenu ehAdmin={ehAdmin} />
+        <DestaquesMenu ehAdmin={ehAdmin}><VersiculoDoDiaMenu ehAdmin={ehAdmin} /></DestaquesMenu>
 
         {menuAntesHinario.map((item, idx) => {
           const isActive = rotaCorrespondeItemMenu(item.path, location.pathname)

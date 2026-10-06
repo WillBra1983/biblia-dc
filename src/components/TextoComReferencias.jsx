@@ -3,6 +3,7 @@ import { Box, Typography, Link, useTheme } from '@mui/material'
 import { normalizarNomeLivro } from '../utils/biblia'
 import { buscarLivroPorNome, buscarIntervaloVersiculos } from '../services/bibliaService'
 import VersiculoPopup from './VersiculoPopup'
+import { lerFormatoEstudo } from '../utils/formatoEstudo'
 import CfwParagrafoPopup from './CfwParagrafoPopup'
 import CatecismoPerguntaPopup from './CatecismoPerguntaPopup'
 // Importamos só a regex (leve) do `lite` — assim este componente não puxa
@@ -178,6 +179,9 @@ function TextoComReferencias({
   descricao = null,
   style = {}
 }) {
+  const formatoEstudo = lerFormatoEstudo(texto)
+  texto = formatoEstudo.texto
+  if (formatoEstudo.alinhamento) style = { ...style, textAlign: formatoEstudo.alinhamento }
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
 

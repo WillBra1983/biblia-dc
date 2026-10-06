@@ -7,11 +7,12 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import { useTheme } from '@mui/material/styles'
 import TextoComReferencias from './TextoComReferencias'
+import { lerFormatoEstudo, escreverFormatoEstudo } from '../utils/formatoEstudo'
 
 const RE_HEADING = /^(?:#{1,3}\s+|\d+[.)]\s+|conclus[aã]o$|introdu[cç][aã]o$|s[ií]ntese\b)/i
 
 function blocosDoTexto(texto) {
-  return String(texto || '')
+  return lerFormatoEstudo(texto).texto
     .replace(/\r\n/g, '\n')
     .split(/\n{2,}/)
     .map((bloco) => bloco.trim())
@@ -76,6 +77,7 @@ function textoSemMarcador(linha) {
 }
 
 export function separarIntroducaoEditorial(texto) {
+  const formato = lerFormatoEstudo(texto)
   const blocos = blocosDoTexto(texto)
 
   // No discipulado, o titulo principal ja aparece no cabeçalho ilustrado.
@@ -85,15 +87,15 @@ export function separarIntroducaoEditorial(texto) {
     if (/^##\s+/.test(blocos[0] || '')) {
       return {
         subtitle: blocos.shift().replace(/^##\s+/, ''),
-        body: blocos.join('\n\n'),
+        body: escreverFormatoEstudo(blocos.join('\n\n'), formato.alinhamento),
       }
     }
   }
 
   if (pareceSubtitulo(blocos[0])) {
-    return { subtitle: blocos[0], body: blocos.slice(1).join('\n\n') }
+    return { subtitle: blocos[0], body: escreverFormatoEstudo(blocos.slice(1).join('\n\n'), formato.alinhamento) }
   }
-  return { subtitle: '', body: blocos.join('\n\n') }
+  return { subtitle: '', body: escreverFormatoEstudo(blocos.join('\n\n'), formato.alinhamento) }
 }
 
 export default function EditorialProse({
@@ -106,6 +108,9 @@ export default function EditorialProse({
   children,
   sx,
 }) {
+  const formatoEstudo = lerFormatoEstudo(text)
+  text = formatoEstudo.texto
+  if (formatoEstudo.alinhamento) textAlign = formatoEstudo.alinhamento
   const theme = useTheme()
   const darkMode = theme.palette.mode === 'dark'
   const colors = darkMode

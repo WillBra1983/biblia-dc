@@ -429,6 +429,17 @@ export function criarInstancia({ templateId, dataInicio, dataFim }) {
   return { ok: true, instancia: inst }
 }
 
+/** Altera somente o prazo; preserva leituras, histórico e conquistas. */
+export function atualizarPrazoInstancia(id, dataFim) {
+  const inst = listarInstancias().find((item) => item.id === id)
+  if (!inst) return { ok: false, erro: 'Plano não encontrado.' }
+  const previsao = calcularPrevisaoInicial(inst.templateId, inst.dataInicio, dataFim)
+  if (!previsao.valido) return { ok: false, erro: previsao.erro }
+  salvarInstanciaAtualizada({ ...inst, dataFim })
+  emitirPlanoLeituraPersistenciaAlterada()
+  return { ok: true, instancia: { ...inst, dataFim } }
+}
+
 export function removerInstancia(id) {
   const s = carregarEstadoPlanoLeituraUsuario()
   s.instancias = s.instancias.filter((i) => i.id !== id)

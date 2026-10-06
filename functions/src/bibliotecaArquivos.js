@@ -12,6 +12,7 @@ const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 const { decidirArquivo } = require('./bibliotecaDegustacao')
 const { gerarAmostraAutomatica, VERSAO_AMOSTRA } = require('./bibliotecaAmostraAutomatica')
 const { createHash } = require('node:crypto')
+const { personalizarExemplar, VERSAO_EXEMPLAR } = require('./bibliotecaExemplarPersonalizado')
 
 const R2_ACCOUNT_ID = defineSecret('R2_ACCOUNT_ID')
 const R2_ACCESS_KEY_ID = defineSecret('R2_ACCESS_KEY_ID')
@@ -146,6 +147,30 @@ exports.obterArquivoLivroBiblioteca = onCall({ ...OPCOES, memory: '1GiB', concur
   const { client, bucket } = clienteR2()
   let chaveLeitura = arquivo.chave
   let restricao = null
+  let codigoExemplar = null
+  if (req.data?.download === true && !ehAdmin) {
+    const conta = await admin.auth().getUser(uid)
+    const nomeComprador = texto(conta.displayName, 100) || 'Comprador identificado pela licença'
+    codigoExemplar = `BDC-${createHash('sha256').update(JSON.stringify([uid, livroId])).digest('hex').slice(0, 20).toUpperCase()}`
+    const hash = createHash('sha256').update(JSON.stringify([arquivo.chave, arquivo.atualizadoEm, arquivo.tamanho, codigoExemplar, nomeComprador, VERSAO_EXEMPLAR])).digest('hex')
+    chaveLeitura = `biblioteca-exemplares/${livroId}/${hash}.${arquivo.formato}`
+    try { await client.send(new HeadObjectCommand({ Bucket: bucket, Key: chaveLeitura })) }
+    catch (erro) {
+      if (erro.$metadata?.httpStatusCode !== 404 && erro.name !== 'NotFound') throw new HttpsError('unavailable', 'Não foi possível consultar seu exemplar.')
+      try {
+        const origem = await client.send(new GetObjectCommand({ Bucket: bucket, Key: arquivo.chave }))
+        if (Number(origem.ContentLength) > MAXIMO_BYTES) throw new Error('Arquivo muito grande.')
+        const bytes = Buffer.from(await origem.Body.transformToByteArray())
+        if (bytes.length > MAXIMO_BYTES) throw new Error('Arquivo muito grande.')
+        const copia = await personalizarExemplar(bytes, arquivo.formato, codigoExemplar, nomeComprador)
+        await client.send(new PutObjectCommand({ Bucket: bucket, Key: chaveLeitura, Body: copia, ContentType: arquivo.contentType }))
+      } catch (falha) {
+        console.error('Falha ao personalizar exemplar', livroId, falha.message)
+        throw new HttpsError('failed-precondition', 'Não foi possível preparar seu exemplar personalizado. O original não será entregue para download.')
+      }
+    }
+    await db.ref(`bibliotecaLicencas/${codigoExemplar}`).transaction((atual) => atual || { uid, livroId, criadoEm: Date.now() })
+  }
   if (decisao.gerarAmostra) {
     const hash = createHash('sha256').update(JSON.stringify([arquivo.chave, arquivo.atualizadoEm, arquivo.tamanho, decisao.degustacao.percentual, VERSAO_AMOSTRA])).digest('hex')
     chaveLeitura = `biblioteca-amostras/${livroId}/${hash}.${arquivo.formato}`
@@ -190,6 +215,7 @@ exports.obterArquivoLivroBiblioteca = onCall({ ...OPCOES, memory: '1GiB', concur
     servidorAgora: agora,
     degustacao: decisao.degustacao || null,
     restricao,
+    codigoExemplar,
   }
 })
 

@@ -29,12 +29,12 @@ function linhasDoTexto(ctx, texto, larguraMaxima) {
   return linhas
 }
 
-function ajustarTrecho(ctx, trecho) {
-  for (let tamanho = 60; tamanho >= TAMANHO_MINIMO; tamanho -= 2) {
+function ajustarTrecho(ctx, trecho, reduzirFonte = false) {
+  for (let tamanho = 60; tamanho >= (reduzirFonte ? 36 : TAMANHO_MINIMO); tamanho -= 2) {
     ctx.font = `600 ${tamanho}px Georgia, serif`
     const linhas = linhasDoTexto(ctx, trecho, 850)
     const alturaLinha = Math.round(tamanho * 1.34)
-    if (linhas.length <= MAXIMO_LINHAS && linhas.length * alturaLinha <= 680) {
+    if (linhas.every((linha) => ctx.measureText(linha).width <= 850) && linhas.length <= (reduzirFonte ? 14 : MAXIMO_LINHAS) && linhas.length * alturaLinha <= 680) {
       return { tamanho, linhas, alturaLinha }
     }
   }
@@ -60,15 +60,15 @@ function desenharImagemCortada(ctx, imagem, x, y, largura, altura) {
   ctx.drawImage(imagem, origemX, origemY, origemLargura, origemAltura, x, y, largura, altura)
 }
 
-export async function gerarImagemTrechoLivro({ trecho, titulo, autor, capaUrl, urlLivro }) {
+export async function gerarImagemTrechoLivro({ trecho, titulo, autor, capaUrl, urlLivro, reduzirFonte = false, numero = 1, total = 1 }) {
   const texto = normalizarTrecho(trecho)
-  if (texto.length < 20) throw new Error('Selecione um trecho um pouco maior.')
+  if (texto.length < (total > 1 ? 1 : 20)) throw new Error('Selecione um trecho um pouco maior.')
 
   const canvas = document.createElement('canvas')
   canvas.width = LARGURA
   canvas.height = ALTURA
   const ctx = canvas.getContext('2d', { alpha: false })
-  const ajuste = ajustarTrecho(ctx, `“${texto}”`)
+  const ajuste = ajustarTrecho(ctx, `“${texto}”`, reduzirFonte)
 
   const fundo = ctx.createLinearGradient(0, 0, LARGURA, ALTURA)
   fundo.addColorStop(0, '#073f37')
@@ -89,6 +89,7 @@ export async function gerarImagemTrechoLivro({ trecho, titulo, autor, capaUrl, u
   ctx.fillText('BIBLIOTECA DO DISCÍPULO CRISTÃO', LARGURA / 2, 82)
   ctx.fillStyle = 'rgba(228,189,104,.65)'
   ctx.fillRect(405, 119, 270, 3)
+  if (total > 1) { ctx.font = '700 28px Arial, sans-serif'; ctx.fillText(`${numero}/${total}`, LARGURA / 2, 158) }
 
   ctx.font = `600 ${ajuste.tamanho}px Georgia, serif`
   const estruturado = texto.includes('\n')
@@ -157,12 +158,12 @@ export async function gerarImagemTrechoLivro({ trecho, titulo, autor, capaUrl, u
   ))
 }
 
-export function baixarImagemTrechoLivro(blob, titulo) {
+export function baixarImagemTrechoLivro(blob, titulo, numero = 1, total = 1) {
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   const nome = String(titulo || 'trecho-livro').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '')
   link.href = url
-  link.download = `${nome || 'trecho-livro'}.png`
+  link.download = `${nome || 'trecho-livro'}${total > 1 ? `-${numero}-de-${total}` : ''}.png`
   document.body.appendChild(link)
   link.click()
   link.remove()
@@ -170,27 +171,60 @@ export function baixarImagemTrechoLivro(blob, titulo) {
 }
 
 export async function compartilharImagemTrechoLivro(blob, { titulo, autor, urlLivro }) {
+  const blobs = Array.isArray(blob) ? blob : [blob]
   const texto = [`Trecho de “${titulo}”${autor ? `, de ${autor}` : ''}.`, 'Disponível na Biblioteca Digital.', urlLivro].filter(Boolean).join('\n\n')
   if (Capacitor.isNativePlatform?.()) {
-    const path = `trecho-livro-${Date.now()}.png`
+    const paths = [], uris = []
+    try {
+    for (const [indice, imagem] of blobs.entries()) {
+    const path = `trecho-livro-${Date.now()}-${indice + 1}.png`
     const data = await new Promise((resolve, reject) => {
       const leitor = new FileReader()
       leitor.onload = () => resolve(String(leitor.result || '').split(',')[1] || '')
       leitor.onerror = () => reject(leitor.error || new Error('Não foi possível preparar a imagem.'))
-      leitor.readAsDataURL(blob)
+      leitor.readAsDataURL(imagem)
     })
     await Filesystem.writeFile({ path, data, directory: Directory.Cache })
+    paths.push(path)
     const { uri } = await Filesystem.getUri({ path, directory: Directory.Cache })
-    try {
-      await Share.share({ title: `Trecho de ${titulo}`, text: texto, files: [uri], dialogTitle: 'Compartilhar trecho do livro' })
+    uris.push(uri)
+    }
+      await Share.share({ title: `Trecho de ${titulo}`, text: texto, files: uris, dialogTitle: 'Compartilhar trecho do livro' })
       return true
     } finally {
-      await Filesystem.deleteFile({ path, directory: Directory.Cache }).catch(() => {})
+      await Promise.all(paths.map((path) => Filesystem.deleteFile({ path, directory: Directory.Cache }).catch(() => {})))
     }
   }
   if (typeof navigator === 'undefined' || typeof navigator.share !== 'function' || typeof File === 'undefined') return false
-  const arquivo = new File([blob], 'trecho-livro.png', { type: 'image/png' })
-  if (typeof navigator.canShare === 'function' && !navigator.canShare({ files: [arquivo] })) return false
-  await navigator.share({ title: `Trecho de ${titulo}`, text, files: [arquivo] })
+  const arquivos = blobs.map((imagem, indice) => new File([imagem], `trecho-livro-${indice + 1}-de-${blobs.length}.png`, { type: 'image/png' }))
+  if (typeof navigator.canShare === 'function' && !navigator.canShare({ files: arquivos })) return false
+  await navigator.share({ title: `Trecho de ${titulo}`, text: texto, files: arquivos })
   return true
+}
+
+export function dividirTrechoEmPartes(texto, cabe) {
+  const original = normalizarTrecho(texto)
+  if (original.length > 12000) throw new Error('Compartilhe um trecho de até 12 mil caracteres, não o livro inteiro.')
+  const partes = []
+  let atual = ''
+  for (const token of original.match(/\S+\s*/g) || []) {
+    if (atual && !cabe((atual + token).trim())) { partes.push(atual.trim()); atual = '' }
+    atual += token
+    if (!cabe(atual.trim())) throw new Error('Há uma palavra muito longa para a imagem. Ajuste o trecho.')
+  }
+  if (atual.trim()) partes.push(atual.trim())
+  if (partes.length > 12) throw new Error('O trecho ultrapassa 12 imagens. Selecione uma parte menor.')
+  return partes
+}
+
+export async function gerarImagensTrechoLivro(opcoes) {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  const texto = normalizarTrecho(opcoes.trecho)
+  if (texto.length < 20) throw new Error('Selecione um trecho um pouco maior.')
+  const cabe = (parte) => { try { ajustarTrecho(ctx, `“${parte}”`, opcoes.reduzirFonte); return true } catch { return false } }
+  const partes = opcoes.dividir ? dividirTrechoEmPartes(texto, cabe) : [texto]
+  const imagens = []
+  for (const [indice, trecho] of partes.entries()) imagens.push(await gerarImagemTrechoLivro({ ...opcoes, trecho, numero: indice + 1, total: partes.length }))
+  return imagens
 }

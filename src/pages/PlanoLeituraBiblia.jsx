@@ -47,7 +47,7 @@ const hojeBrasil = () => diaCivilAmericaSaoPaulo()
 import { resumoVisualAPartirInventario } from '../utils/escadaPlanoLeitura'
 import { processarMedalhasAposAbrirPlano } from '../utils/medalhasGamificacao'
 import PlanoEscadaBarraMedalhas from '../components/PlanoEscadaBarraMedalhas'
-import { blocosVisiveisParaTemplate, destinoMapaBloco } from '../utils/planoMapaLeitura'
+import { blocosVisiveisParaTemplate, livrosDoMapa } from '../utils/planoMapaLeitura'
 import { sxFundoVerdePagina } from '../utils/fundoVerdePagina'
 import { preloadPlanoRankingIcon } from '../utils/planoEscadaImagens'
 
@@ -149,10 +149,16 @@ export default function PlanoLeituraBiblia() {
   const [filaCelebracao, setFilaCelebracao] = useState([])
   const [mapaExpandido, setMapaExpandido] = useState(false)
   const [livrosExpandido, setLivrosExpandido] = useState(false)
+  const [mapaSelecionado, setMapaSelecionado] = useState('')
+  const livrosMapaRef = useRef(null)
 
   useEffect(() => {
     setLivrosExpandido(false)
     setMapaExpandido(false)
+    let mapa = ''
+    try { mapa = sessionStorage.getItem(`plano-mapa:${instanciaId}`) || '' } catch { /* leitura opcional */ }
+    setMapaSelecionado(mapa)
+    if (mapa) { setMapaExpandido(true); setLivrosExpandido(true) }
   }, [instanciaId])
 
   useEffect(() => {
@@ -175,6 +181,9 @@ export default function PlanoLeituraBiblia() {
     () => (instancia ? obterTemplate(instancia.templateId) : null),
     [instancia, tick]
   )
+  useEffect(() => {
+    if (!idUrl && !instanciaId && !instancia) navigate('/plano', { replace: true })
+  }, [idUrl, instanciaId, instancia, navigate])
 
   const blocosMapa = useMemo(
     () => (planoAtual ? blocosVisiveisParaTemplate(planoAtual) : []),
@@ -184,16 +193,15 @@ export default function PlanoLeituraBiblia() {
   const abrirMapaBloco = useCallback(
     (blocoId) => {
       if (!instancia || !planoAtual || !instanciaId) return
-      const dest = destinoMapaBloco(instancia, planoAtual, blocoId)
-      if (!dest) return
-      // Evita que o cache da última leitura na Bíblia sobrescreva o destino do plano.
-      limparBibliaSessaoCache()
-      navigate(
-        `/?livro=${dest.livroId}&capitulo=${dest.capitulo}&planoId=${encodeURIComponent(instanciaId)}&origem=plano`
-      )
+      setMapaSelecionado(blocoId)
+      setLivrosExpandido(true)
+      try { sessionStorage.setItem(`plano-mapa:${instanciaId}`, blocoId) } catch { /* leitura opcional */ }
+      requestAnimationFrame(() => livrosMapaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
     },
-    [instancia, planoAtual, instanciaId, navigate]
+    [instancia, planoAtual, instanciaId]
   )
+  const livrosExibidos = useMemo(() => livrosDoMapa(planoAtual, mapaSelecionado), [planoAtual, mapaSelecionado])
+  const tituloMapa = blocosMapa.find((item) => item.id === mapaSelecionado)?.titulo
 
   const capitulosLidosPlano = instancia?.capitulosLidos ?? []
   const capitulosLidosSet = useMemo(
@@ -404,9 +412,10 @@ export default function PlanoLeituraBiblia() {
   if (!planoAtual || !instancia) {
     return (
       <Box sx={{ ...sxFundoVerdePagina, px: { xs: 1, sm: 3 } }}>
-        <Typography sx={{ mb: 2 }}>Nenhum plano ativo ou instância inválida.</Typography>
+        <Typography variant="h5" fontWeight={800} sx={{ mb: 1 }}>Vamos organizar sua leitura?</Typography>
+        <Typography sx={{ mb: 2 }}>{idUrl ? 'Este plano não foi encontrado neste aparelho. Você pode consultar seus planos ou configurar um novo.' : 'Escolha uma data de início e um prazo que combine com sua rotina.'}</Typography>
         <Button variant="contained" color="inherit" onClick={() => navigate('/plano')}>
-          Ir aos planos de leitura
+          Configurar meu plano
         </Button>
       </Box>
     )
@@ -429,7 +438,7 @@ export default function PlanoLeituraBiblia() {
           display: 'flex',
           alignItems: 'center',
           gap: 1,
-          mb: 1.5,
+          mb: 0.5,
           minWidth: 0,
           flexWrap: 'nowrap',
         }}
@@ -457,6 +466,7 @@ export default function PlanoLeituraBiblia() {
         </Menu>
       </Box>
 
+      <Button variant="outlined" size="small" fullWidth sx={{ mb: 1, minHeight: 32, color: '#fff', borderColor: 'rgba(255,255,255,.45)', '&:hover': { borderColor: '#fff', bgcolor: 'rgba(255,255,255,.08)' } }} onClick={() => navigate('/plano')}>Configurar plano</Button>
       {atualCelebracao ? (
         <Suspense fallback={null}>
           <PlanoEscadaCelebracao
@@ -524,7 +534,7 @@ export default function PlanoLeituraBiblia() {
             <Collapse in={mapaExpandido} timeout="auto" unmountOnExit>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, pt: 0.5 }}>
                 {blocosMapa.map((b) => (
-                  <Button key={b.id} variant="outlined" size="small" onClick={() => abrirMapaBloco(b.id)}>
+                  <Button key={b.id} aria-pressed={mapaSelecionado === b.id} variant={b.id === 'cronologico' || mapaSelecionado === b.id ? 'contained' : 'outlined'} size="small" onClick={() => abrirMapaBloco(b.id)} sx={mapaSelecionado === b.id ? { bgcolor: '#1565c0', color: '#fff', '&:hover': { bgcolor: '#0d47a1' } } : b.id === 'cronologico' ? { bgcolor: 'primary.main', color: isDarkMode ? 'grey.900' : 'grey.100', '&:hover': { bgcolor: 'primary.dark' } } : undefined}>
                     {b.titulo}
                   </Button>
                 ))}
@@ -534,7 +544,9 @@ export default function PlanoLeituraBiblia() {
         )}
 
         <Paper
+          ref={livrosMapaRef}
           sx={{
+            scrollMarginTop: 96,
             p: 2,
             mb: 2,
             bgcolor: isDarkMode ? 'grey.900' : 'grey.100',
@@ -546,14 +558,15 @@ export default function PlanoLeituraBiblia() {
           }}
         >
           <CabecalhoSecaoRecolhivel
-            titulo="Livros"
+            titulo={tituloMapa ? `Livros — ${tituloMapa}` : 'Livros'}
+            acaoDireita={mapaSelecionado ? <Button size="small" onClick={(event) => { event.stopPropagation(); setMapaSelecionado(''); setLivrosExpandido(true); try { sessionStorage.removeItem(`plano-mapa:${instanciaId}`) } catch { /* leitura opcional */ } }}>Voltar à ordem bíblica</Button> : null}
             expandido={livrosExpandido}
             onToggle={() => setLivrosExpandido((v) => !v)}
             sx={{ color: isDarkMode ? 'grey.300' : 'grey.800' }}
           />
           <Collapse in={livrosExpandido} timeout="auto" unmountOnExit>
         <Grid container spacing={1} sx={{ pt: 0.5 }}>
-          {planoAtual.livros.map((livro) => (
+          {livrosExibidos.map((livro) => (
             <Grid
               item
               xs={12}
@@ -582,6 +595,8 @@ export default function PlanoLeituraBiblia() {
                   }}
                 >
                   {livro.nome}
+                  {Array.from({ length: (livro.fimPlano || livro.capitulos) - (livro.inicioPlano || 1) + 1 }, (_, i) => i + (livro.inicioPlano || 1)).every((cap) => isCapituloLido(livro.id, cap)) && <Check fontSize="small" aria-label="Livro concluído" sx={{ ml: 1, color: 'success.main', verticalAlign: 'middle' }} />}
+                  <Typography component="span" variant="caption" sx={{ ml: 1 }}>{Array.from({ length: (livro.fimPlano || livro.capitulos) - (livro.inicioPlano || 1) + 1 }, (_, i) => i + (livro.inicioPlano || 1)).filter((cap) => isCapituloLido(livro.id, cap)).length} / {(livro.fimPlano || livro.capitulos) - (livro.inicioPlano || 1) + 1} lidos</Typography>
                 </Typography>
                 <Box
                   sx={{
@@ -608,9 +623,10 @@ export default function PlanoLeituraBiblia() {
                     },
                   }}
                 >
-                  {Array.from({ length: livro.capitulos }, (_, i) => i + 1).map((cap) => (
+                  {Array.from({ length: (livro.fimPlano || livro.capitulos) - (livro.inicioPlano || 1) + 1 }, (_, i) => i + (livro.inicioPlano || 1)).map((cap) => (
                     <Button
                       key={cap}
+                      aria-label={`${livro.nome}, capítulo ${cap}${isCapituloLido(livro.id, cap) ? ', lido' : ', não lido'}`}
                       variant={isCapituloLido(livro.id, cap) ? 'contained' : 'outlined'}
                       size="small"
                       onClick={() => {

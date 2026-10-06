@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import {
   Box,
   Container,
@@ -15,6 +15,7 @@ import {
   TextField,
   Alert,
   Chip,
+  Stack,
 } from '@mui/material'
 import { useApp } from '../contexts/AppContext'
 import { useNavigate } from 'react-router-dom'
@@ -31,6 +32,7 @@ import {
   obterTemplate,
   definirInstanciaAtiva,
   criarInstancia,
+  atualizarPrazoInstancia,
   limparProgressoInstancia,
   removerInstancia,
   obterProgressoInstancia,
@@ -42,14 +44,18 @@ import {
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { sincronizarPlanoLeituraAposAlteracaoDestrutiva } from '../services/planoLeituraCloudSync'
 import { adicionarDiasIso, diaCivilAmericaSaoPaulo, diferencaDiasIso } from '../utils/fusoHorarioBrasil'
+import { confirmarAsync } from '../utils/uiDialogs'
 
 export default function PlanoLeitura() {
+  const primeiroAcessoRef = useRef(false)
   const { planoLeitura, setPlanoLeitura, isDarkMode } = useApp()
   const { user } = useFirebaseAuth()
   const navigate = useNavigate()
   const [atualizar, setAtualizar] = useState(0)
   const [dialogLimpar, setDialogLimpar] = useState({ aberto: false, instanciaId: null })
+  const [erroConfiguracao, setErroConfiguracao] = useState('')
   const [dialogNovo, setDialogNovo] = useState({
+    instanciaId: null,
     aberto: false,
     templateId: PLANO_BIBLIA_COMPLETA_ID,
     dataInicio: diaCivilAmericaSaoPaulo(),
@@ -79,6 +85,7 @@ export default function PlanoLeitura() {
   }, [atualizar])
 
   const abrirNovoPlano = () => {
+    setErroConfiguracao('')
     const padrao = PLANOS_NOVO_CADASTRO[0]
     const padraoId = padrao?.id ?? PLANO_BIBLIA_COMPLETA_ID
     const tid = PLANOS_NOVO_CADASTRO.some((p) => p.id === dialogNovo.templateId)
@@ -93,6 +100,7 @@ export default function PlanoLeitura() {
     setDialogNovo((d) => ({
       ...d,
       aberto: true,
+      instanciaId: null,
       templateId: t?.id ?? PLANO_BIBLIA_COMPLETA_ID,
       dataInicio: inicio,
       dataFim: d.dataFim || fimDefault,
@@ -114,14 +122,20 @@ export default function PlanoLeitura() {
     [dialogNovo.dataInicio]
   )
 
+  useEffect(() => {
+    if (!atualizar || instancias.length || primeiroAcessoRef.current) return
+    primeiroAcessoRef.current = true
+    abrirNovoPlano()
+  }, [atualizar, instancias.length])
+
   const confirmarNovoPlano = () => {
     if (!previa?.valido) return
-    const r = criarInstancia({
+    const r = dialogNovo.instanciaId ? atualizarPrazoInstancia(dialogNovo.instanciaId, dialogNovo.dataFim) : criarInstancia({
       templateId: dialogNovo.templateId,
       dataInicio: dialogNovo.dataInicio,
       dataFim: dialogNovo.dataFim,
     })
-    if (!r.ok) return
+    if (!r.ok) { setErroConfiguracao(r.erro || 'Não foi possível salvar seu plano.'); return }
     const inst = r.instancia
     setPlanoLeitura((prev) => ({
       ...prev,
@@ -162,6 +176,16 @@ export default function PlanoLeitura() {
   }
 
   const excluirInstancia = async (instanciaId) => {
+    const instancia = obterInstancia(instanciaId)
+    if (!instancia) return
+    const confirmado = await confirmarAsync({
+      titulo: 'Excluir plano de leitura?',
+      mensagem: `O plano “${obterTemplate(instancia.templateId)?.titulo || 'Plano de leitura'}” será removido, junto com seu progresso e histórico neste plano. Esta ação não pode ser desfeita.`,
+      labelOk: 'Excluir plano',
+      labelCancelar: 'Cancelar',
+      destrutivo: true,
+    })
+    if (!confirmado) return
     removerInstancia(instanciaId)
     setAtualizar((x) => x + 1)
     const restantes = listarInstancias()
@@ -277,6 +301,7 @@ export default function PlanoLeitura() {
           <Button variant="contained" fullWidth onClick={() => continuarInstancia(inst.id)}>
             {obterProgressoInstancia(inst.id).lidos > 0 ? 'Continuar plano' : 'Abrir plano'}
           </Button>
+          <Button variant="outlined" fullWidth onClick={() => setDialogNovo({ aberto: true, instanciaId: inst.id, templateId: inst.templateId, dataInicio: inst.dataInicio, dataFim: inst.dataFim })}>Alterar prazo e ritmo de leitura</Button>
           {obterProgressoInstancia(inst.id).lidos > 0 && (
             <Button size="small" color="warning" onClick={() => setDialogLimpar({ aberto: true, instanciaId: inst.id })}>
               Limpar progresso deste plano
@@ -355,12 +380,15 @@ export default function PlanoLeitura() {
       </PlanoPinchZoomShell>
 
       <Dialog open={dialogNovo.aberto} onClose={() => setDialogNovo((d) => ({ ...d, aberto: false }))} fullWidth maxWidth="sm">
-        <DialogTitle>Iniciar plano</DialogTitle>
+        <DialogTitle>{dialogNovo.instanciaId ? 'Ajustar seu plano' : 'Configure seu primeiro plano'}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+          {erroConfiguracao && <Alert severity="error">{erroConfiguracao}</Alert>}
+          <Alert severity="info">{dialogNovo.instanciaId ? 'Altere o prazo sem perder capítulos lidos, histórico ou conquistas. A data de início permanece a mesma.' : 'Escolha quando começar e em quanto tempo quer concluir. Você poderá ajustar o prazo depois.'}</Alert>
           {PLANOS_NOVO_CADASTRO.length > 1 && (
             <TextField
               select
               label="Modelo"
+              disabled={Boolean(dialogNovo.instanciaId)}
               value={dialogNovo.templateId}
               onChange={(e) => {
                 const id = e.target.value
@@ -384,6 +412,7 @@ export default function PlanoLeitura() {
           )}
           <TextField
             label="Início"
+            disabled={Boolean(dialogNovo.instanciaId)}
             type="date"
             value={dialogNovo.dataInicio}
             onChange={(e) => {
@@ -404,8 +433,12 @@ export default function PlanoLeitura() {
             }}
             InputLabelProps={{ shrink: true }}
           />
+          <Typography fontWeight={700}>Escolha um prazo ou personalize a data</Typography>
+          <Stack direction="row" useFlexGap flexWrap="wrap" spacing={1}>
+            {[90, 180, 270, 365].map((dias) => <Button variant={diferencaDiasIso(dialogNovo.dataInicio, dialogNovo.dataFim) === dias - 1 ? 'contained' : 'outlined'} key={dias} onClick={() => setDialogNovo((d) => ({ ...d, dataFim: adicionarDiasIso(d.dataInicio, dias - 1) }))}>{dias} dias</Button>)}
+          </Stack>
           <TextField
-            label="Término (até 1 ano a partir do início)"
+            label="Data de conclusão"
             type="date"
             value={dialogNovo.dataFim}
             onChange={(e) => setDialogNovo((d) => ({ ...d, dataFim: e.target.value }))}
@@ -431,7 +464,7 @@ export default function PlanoLeitura() {
         <DialogActions>
           <Button onClick={() => setDialogNovo((d) => ({ ...d, aberto: false }))}>Cancelar</Button>
           <Button variant="contained" onClick={confirmarNovoPlano} disabled={!previa?.valido}>
-            Iniciar
+            {dialogNovo.instanciaId ? 'Salvar alterações' : 'Iniciar meu plano'}
           </Button>
         </DialogActions>
       </Dialog>

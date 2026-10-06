@@ -39,7 +39,7 @@ function getPageTitleFromPathname(pathname) {
   const raw = pathname || '/'
   const path = raw !== '/' && raw.endsWith('/') ? raw.slice(0, -1) : raw
   if (path === '/' || path === '/biblia') return 'Biblia DC'
-  if (path.startsWith('/plano-leitura-biblia')) return 'Plano de Leitura Anual'
+  if (path.startsWith('/plano-leitura-biblia')) return 'Plano de Leitura'
   if (path.startsWith('/plano')) return 'Plano de Leitura'
 
   const discSub = path.match(/^\/discipulado\/([^/]+)\/([^/]+)$/)
@@ -74,13 +74,14 @@ function getPageTitleFromPathname(pathname) {
   if (path.startsWith('/mais-de-deus')) return 'Mais de Deus'
   if (path.startsWith('/youtube')) return 'YouTube'
   if (path.startsWith('/quiz-retiro')) return 'Quiz Bíblico'
-  if (path.startsWith('/biblioteca/') || path === '/biblioteca') return 'Biblioteca Digital'
+  if (path.startsWith('/biblioteca/') || path === '/biblioteca') return 'Comprar Livros'
   if (path.startsWith('/biblioteca-estudos')) return 'Bíblia comentada'
   if (path === '/estudos-biblicos/gerir') return 'Gerenciar estudos'
   /** Comentários gerados/curados pertencem ao acervo da Bíblia comentada. */
   if (/^\/estudos-biblicos\/ia-(passagem|pericope)/.test(path)) return 'Bíblia comentada'
   if (path.startsWith('/estudos-biblicos')) return 'Estudos Compartilhados'
   if (path.startsWith('/chat')) return 'Mensagens'
+  if (path.startsWith('/perfil')) return 'Meu perfil'
   if (path.startsWith('/admin/usuarios')) return 'Usuários'
   if (path.startsWith('/admin/notificar')) return 'Enviar aviso'
   if (path.startsWith('/versiculos-marcados')) return 'Versículos marcados'
@@ -216,6 +217,7 @@ export default function Layout({ title, children }) {
     pathnameNorm.startsWith('/youtube') ||
     pathnameNorm.startsWith('/quiz-retiro') ||
     pathnameNorm.startsWith('/configuracoes') ||
+    pathnameNorm.startsWith('/perfil') ||
     pathnameNorm.startsWith('/admin/')
 
   // Sempre rola para o topo ao mudar de página

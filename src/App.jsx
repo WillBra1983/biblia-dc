@@ -68,6 +68,7 @@ const Sobre = lazy(() => import('./pages/Sobre'))
 const Privacidade = lazy(() => import('./pages/Privacidade'))
 const Chat = lazy(() => import('./pages/Chat'))
 const ConfiguracoesNotificacoes = lazy(() => import('./pages/ConfiguracoesNotificacoes'))
+const Perfil = lazy(() => import('./pages/Perfil'))
 const AdminNotificar = lazy(() => import('./pages/AdminNotificar'))
 const AdminUsuarios = lazy(() => import('./pages/AdminUsuarios'))
 const EstudoBiblicoProvaResultado = lazy(() => import('./pages/EstudoBiblicoProvaResultado'))
@@ -251,6 +252,8 @@ const appRouteTree = createRoutesFromElements(
     <Route path="estudos-biblicos/:studyId" element={<EstudoBiblicoVer />} />
     <Route path="estudos-biblicos" element={<EstudosBiblicosHub />} />
     <Route path="chat" element={<Chat />} />
+    <Route path="perfil" element={<Perfil />} />
+    <Route path="configuracoes" element={<ConfiguracoesNotificacoes />} />
     <Route path="configuracoes/notificacoes" element={<ConfiguracoesNotificacoes />} />
     <Route path="admin/usuarios" element={<AdminUsuarios />} />
     <Route path="admin/notificar" element={<AdminNotificar />} />

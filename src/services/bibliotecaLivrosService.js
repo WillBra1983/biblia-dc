@@ -1,4 +1,5 @@
 import { livrosCatalogo } from '../data/livrosCatalogo'
+import { contarApresentacao } from '../utils/apresentacaoFormatada'
 
 const CAMINHO = 'bibliotecaLivros'
 
@@ -20,14 +21,15 @@ function normalizarLivro(id, valor = {}) {
     titulo: texto(valor.titulo, 180),
     autor: texto(valor.autor, 140),
     capa: texto(valor.capa, 600),
-    descricao: texto(valor.descricao, 1800),
+    descricao: texto(valor.descricao, 6000),
+    descricaoAlinhamento: valor.descricaoAlinhamento === 'justify' ? 'justify' : 'left',
     amazonUrl: texto(valor.amazonUrl, 700),
     androidUrl: texto(valor.androidUrl, 700),
     appleUrl: texto(valor.appleUrl, 700),
     pixAtivo: valor.pixAtivo === true,
     precoPixCentavos: Math.max(0, Math.round(Number(valor.precoPixCentavos) || 0)),
     publicado: valor.publicado !== false,
-    downloadPermitido: false,
+    downloadPermitido: valor.downloadPermitido === true,
     degustacao: {
       modo: valor.degustacao?.modo === 'tempo' ? 'tempo' : 'percentual',
       inicioEm: Math.max(0, Number(valor.degustacao?.inicioEm) || 0),
@@ -108,6 +110,7 @@ export function assinarCatalogoLivros(callback, onError) {
 }
 
 export async function salvarLivroBiblioteca(livro, uid) {
+  if (contarApresentacao(livro?.descricao) > 1800 || String(livro?.descricao || '').length > 6000) throw new Error('A descrição deve ter até 1800 caracteres, sem contar as marcas de formatação.')
   if (!uid || !livro?.id) throw new Error('Administrador não identificado.')
   const rtdb = await obterRtdb()
   if (!rtdb) throw new Error('Firebase não disponível.')

@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import {
   Box,
   Typography,
-  TextField,
   Button,
   IconButton,
   Alert,
@@ -21,6 +20,7 @@ import {
   DialogActions,
 } from '@mui/material'
 import Add from '@mui/icons-material/Add'
+import TextField from '../components/CampoTextoEstudo'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import NavigateBefore from '@mui/icons-material/NavigateBefore'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'

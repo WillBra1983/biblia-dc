@@ -5,6 +5,8 @@ import { normalizarSumarioLivro, paginaDestinoPdf } from '../utils/sumarioLivro'
 import { localizarReferenciasBiblicas } from '../utils/referenciasBiblicasEpub'
 import SumarioLivro from './SumarioLivro'
 import { origemZoomPdf, posicaoPdfValida } from '../utils/pdfViewerPosicao'
+import FullscreenIcon from '@mui/icons-material/Fullscreen'
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
 
 let runtime
 function carregarVisualizador() {
@@ -26,7 +28,9 @@ export default function BibliotecaPdfViewer({ url, storageKey, onBibleReference,
   const paginasRef = useRef(null)
   const apiRef = useRef(null)
   const callbacks = useRef({})
-  callbacks.current = { onBibleReference, onPageTap, onEnd, onLimit, restricao }
+  callbacks.current = { onBibleReference, onPageTap, onEnd, onLimit, restricao, immersive }
+  const [barraVisivel, setBarraVisivel] = useState(true)
+  useEffect(() => { setBarraVisivel(true) }, [immersive])
   const [pagina, setPagina] = useState(1)
   const [total, setTotal] = useState(0)
   const [erro, setErro] = useState('')
@@ -38,7 +42,7 @@ export default function BibliotecaPdfViewer({ url, storageKey, onBibleReference,
   const [erroDestino, setErroDestino] = useState('')
 
   useEffect(() => {
-    let ativo = true, tarefa, pdf, viewer, bus, links, observer, resizeTimer, pinch, tap, suppress = 0
+    let ativo = true, tarefa, pdf, viewer, bus, links, observer, resizeTimer, clickTimer, pinch, tap, suppress = 0
     let pronta = false, ajustando = false, localizacao = null, tamanho = null, escalaLargura = 1
     const container = containerRef.current
     setTotal(0); setErro(''); setSumario([]); setMensagem('Preparando leitor PDF…')
@@ -113,6 +117,7 @@ export default function BibliotecaPdfViewer({ url, storageKey, onBibleReference,
       const touch = event.changedTouches[0], inicio = tap; tap = null
       if (!inicio || !touch || Date.now() < suppress || Date.now() - inicio.time > 300 || Math.hypot(touch.clientX - inicio.x, touch.clientY - inicio.y) > 12 || event.target.closest('button, a, input')) return
       if (ultimoTap && Date.now() - ultimoTap.time < 320 && Math.hypot(touch.clientX - ultimoTap.x, touch.clientY - ultimoTap.y) < 30) {
+        clearTimeout(clickTimer)
         event.preventDefault(); ultimoTap = null; suppress = Date.now() + 500; callbacks.current.onPageTap?.()
       } else ultimoTap = { x: touch.clientX, y: touch.clientY, time: Date.now() }
     }
@@ -123,8 +128,16 @@ export default function BibliotecaPdfViewer({ url, storageKey, onBibleReference,
       viewer.updateScale({ scaleFactor: Math.exp(-event.deltaY * .005), drawingDelay: 150, origin: origemZoom(event.clientX, event.clientY) })
     }
     const double = (event) => {
+      clearTimeout(clickTimer)
       if (!pronta || Date.now() < suppress || event.target.closest('button, a, input')) return
       event.preventDefault(); callbacks.current.onPageTap?.()
+    }
+    const click = (event) => {
+      clearTimeout(clickTimer)
+      if (!pronta || !callbacks.current.immersive || Date.now() < suppress || event.detail > 1 || event.target.closest('button, a, input') || window.getSelection()?.toString()) return
+      clickTimer = setTimeout(() => {
+        if (ativo && callbacks.current.immersive && Date.now() >= suppress) setBarraVisivel((visivel) => !visivel)
+      }, 350)
     }
     const keyboard = (event) => {
       if (!pronta || !(event.ctrlKey || event.metaKey) || !['+', '=', '-', '0'].includes(event.key)) return
@@ -132,7 +145,7 @@ export default function BibliotecaPdfViewer({ url, storageKey, onBibleReference,
       if (event.key === '0') viewer.currentScaleValue = 'page-width'
       else viewer.updateScale({ steps: event.key === '-' ? -1 : 1, drawingDelay: 150 })
     }
-    for (const [evento, handler] of [['touchstart', start], ['touchmove', move], ['touchend', end], ['touchcancel', cancel], ['wheel', wheel], ['dblclick', double], ['keydown', keyboard]]) container.addEventListener(evento, handler, { passive: false })
+    for (const [evento, handler] of [['touchstart', start], ['touchmove', move], ['touchend', end], ['touchcancel', cancel], ['wheel', wheel], ['click', click], ['dblclick', double], ['keydown', keyboard]]) container.addEventListener(evento, handler, { passive: false })
     void (async () => {
       const { pdfjs, PDFViewer, PDFLinkService, EventBus } = await carregarVisualizador()
       if (!ativo) return
@@ -203,8 +216,8 @@ export default function BibliotecaPdfViewer({ url, storageKey, onBibleReference,
     })().catch((falha) => { if (ativo) setErro(falha.message || 'Não foi possível abrir o PDF.') })
     return () => {
       ativo = false; pronta = false; apiRef.current = null
-      clearTimeout(resizeTimer); observer?.disconnect()
-      for (const [evento, handler] of [['touchstart', start], ['touchmove', move], ['touchend', end], ['touchcancel', cancel], ['wheel', wheel], ['dblclick', double], ['keydown', keyboard]]) container.removeEventListener(evento, handler)
+      clearTimeout(resizeTimer); clearTimeout(clickTimer); observer?.disconnect()
+      for (const [evento, handler] of [['touchstart', start], ['touchmove', move], ['touchend', end], ['touchcancel', cancel], ['wheel', wheel], ['click', click], ['dblclick', double], ['keydown', keyboard]]) container.removeEventListener(evento, handler)
       viewer?.setDocument(null); links?.setDocument(null); void tarefa?.destroy()
     }
   }, [url, storageKey])
@@ -221,10 +234,11 @@ export default function BibliotecaPdfViewer({ url, storageKey, onBibleReference,
     finally { setNavegando(false) }
   }
   return <Box sx={{ height: immersive ? '100%' : '80dvh', minHeight: immersive ? 0 : 240, display: 'flex', flexDirection: 'column', width: '100%' }}>
-    <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, bgcolor: 'background.paper' }}>
+    <Box sx={{ flexShrink: 0, display: !immersive || barraVisivel ? 'flex' : 'none', alignItems: 'center', justifyContent: 'center', gap: 1, bgcolor: 'background.paper' }}>
       <Button disabled={!total || !!erro} aria-label="Diminuir PDF" title="Diminuir PDF" sx={{ minWidth: 44, minHeight: 44, fontSize: '1.5rem' }} onClick={() => apiRef.current?.viewer.updateScale({ steps: -1, drawingDelay: 150 })}>−</Button>
       <Button disabled={!total} aria-label="Escolher página ou capítulo do PDF" onClick={() => { setDigitada(String(pagina)); setAberto(true); setErroDestino('') }}>{pagina} de {total || '…'}</Button>
       <Button disabled={!total || !!erro} aria-label="Ampliar PDF" title="Ampliar PDF" sx={{ minWidth: 44, minHeight: 44, fontSize: '1.5rem' }} onClick={() => apiRef.current?.viewer.updateScale({ steps: 1, drawingDelay: 150 })}>+</Button>
+      <Button aria-label={immersive ? 'Sair da tela cheia' : 'Entrar em tela cheia'} title={immersive ? 'Sair da tela cheia' : 'Entrar em tela cheia'} sx={{ minWidth: 44, minHeight: 44 }} onClick={() => onPageTap?.()}>{immersive ? <FullscreenExitIcon /> : <FullscreenIcon />}</Button>
     </Box>
     {erro && <Alert severity="error">{erro}</Alert>}
     <Box sx={{ position: 'relative', flex: 1, minHeight: 0, '& .referenciasBiblicasPdf': { position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5 }, '& .referenciasBiblicasPdf button': { position: 'absolute', pointerEvents: 'auto', background: 'transparent', border: 0, borderBottom: '1px dotted #17633b', padding: 0, cursor: 'pointer' }, '& .referenciasBiblicasPdf button:focus-visible': { outline: '2px solid #17633b' } }}>

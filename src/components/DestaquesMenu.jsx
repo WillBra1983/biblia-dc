@@ -5,10 +5,14 @@ import { conectarDestaques, destaquesAtivos, LIMITE_APRESENTACAO, APRESENTACAO_L
 import { assinarCatalogoLivros, assinarAcessosBiblioteca } from '../services/bibliotecaLivrosService'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import TextoDestaque from './TextoDestaque'
+import AcoesDestaque from './AcoesDestaque'
+import CapaDestaqueLivro from './CapaDestaqueLivro'
 import EditorApresentacao from './EditorApresentacao'
 import { contarApresentacao } from '../utils/apresentacaoFormatada'
 import { direcaoGestoDestaque } from '../utils/gestoDestaques'
 import { urlFundoVersiculo } from '../utils/versiculoImagem'
+import PauseIcon from '@mui/icons-material/Pause'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
 export default function DestaquesMenu({ ehAdmin, children }) {
   const navigate = useNavigate()
@@ -24,6 +28,7 @@ export default function DestaquesMenu({ ehAdmin, children }) {
   const ignorarCliqueAte = useRef(0)
   const [editar, setEditar] = useState(false)
   const [leituraExpandida, setLeituraExpandida] = useState(false)
+  const [pausado, setPausado] = useState(false)
   const [erro, setErro] = useState('')
   const [salvando, setSalvando] = useState(false)
   useEffect(() => {
@@ -44,10 +49,10 @@ export default function DestaquesMenu({ ehAdmin, children }) {
   const item = posicao ? ativos[posicao - 1] : null
   const livro = item && livros.find((valor) => valor.id === item.livroId)
   useEffect(() => {
-    if (editar || leituraExpandida || total < 2) return undefined
+    if (editar || leituraExpandida || pausado || total < 2) return undefined
     const timer = setInterval(() => { if (!document.hidden) setIndice((valor) => (valor + 1) % total) }, 15000)
     return () => clearInterval(timer)
-  }, [editar, leituraExpandida, total, indice])
+  }, [editar, leituraExpandida, pausado, total, indice])
   function mudar(passo) { setIndice((posicao + passo + total) % total) }
   const podeLer = ehAdmin || acessos[item?.livroId]?.ativo === true
   const abrirLivro = () => navigate(`/biblioteca/${encodeURIComponent(item.livroId)}${podeLer ? '/ler' : ''}`)
@@ -59,7 +64,7 @@ export default function DestaquesMenu({ ehAdmin, children }) {
       const dados = {}
       for (const entrada of rascunho) {
         if (entrada.tipo === 'livro' && contarApresentacao(entrada.texto) > LIMITE_APRESENTACAO) throw new Error(`A apresentação deve ter até ${LIMITE_APRESENTACAO} caracteres. Reduza o texto antes de salvar.`)
-        if (!entrada.titulo?.trim() || (entrada.tipo === 'livro' ? !entrada.livroId : !entrada.texto?.trim())) throw new Error('Preencha o título e o conteúdo de cada destaque.')
+        if (entrada.tipo === 'livro' ? !entrada.livroId : !entrada.texto?.trim()) throw new Error('Escolha o livro ou preencha o texto de cada destaque.')
         if (entrada.inicioEm && entrada.fimEm && entrada.fimEm <= entrada.inicioEm) throw new Error('O fim deve ser posterior ao início.')
         const { id, ...campos } = entrada
         dados[id] = campos
@@ -86,15 +91,18 @@ export default function DestaquesMenu({ ehAdmin, children }) {
     {item && <Box sx={{ position: 'relative', p: item.tipo === 'livro' ? 0.75 : 2, borderRadius: 2, color: '#000', backgroundImage: `url("${urlFundoVersiculo({ arquivo: 'amanhecer.webp' })}")`, backgroundSize: 'cover', border: '1px solid #decda5', textShadow: '-1px -1px white, 1px 1px white, -1px 1px white, 1px -1px white' }}>
       <Typography variant="overline" fontWeight={900} sx={item.tipo === 'livro' ? { position: 'absolute', top: 12, left: 16, maxWidth: '48%', lineHeight: 1.3 } : {}}>{item.tipo === 'livro' ? 'Livro do dia' : item.tipo === 'trecho' ? 'Trecho de livro' : 'Mensagem do dia'}</Typography>
       <Stack direction="row" spacing={1.5} alignItems="center">
-        <Box sx={{ minWidth: 0, flex: 1, ...(item.tipo === 'livro' && { pl: 1.25, pt: 4 }) }}><Typography fontWeight={800}>{item.titulo}</Typography><TextoDestaque key={item.id} texto={item.texto || livro?.descricao || ''} formatado={item.tipo === 'livro'} alinhamento={item.alinhamento} onExpandidoChange={setLeituraExpandida} reiniciarExpansao={indice} />{item.autor && <Typography variant="caption">{item.autor}</Typography>}</Box>
+        <Box sx={{ minWidth: 0, flex: 1, ...(item.tipo === 'livro' && { pl: 1.25, pt: 4 }) }}><Typography fontWeight={800}>{item.titulo}</Typography><TextoDestaque key={item.id} texto={item.texto || livro?.descricao || ''} formatado={item.tipo === 'livro'} alinhamento={item.alinhamento} onExpandidoChange={setLeituraExpandida} reiniciarExpansao={indice} acoes={<AcoesDestaque key={item.id} item={item} livro={livro} />} />{item.autor && <Typography variant="caption">{item.autor}</Typography>}</Box>
         {item.tipo === 'livro' && <Box sx={{ width: { xs: '46%', sm: 210 }, flexShrink: 0, textAlign: 'center' }}>
-          <Button onClick={abrirLivro} aria-label={podeLer ? `Ler ${livro?.titulo}` : `Comprar ${livro?.titulo}`} sx={{ p: 0, width: '100%' }}>{livro?.capa ? <Box component="img" draggable={false} src={livro.capa} alt={`Capa de ${livro.titulo}`} sx={{ width: '100%', height: { xs: 205, sm: 220 }, objectFit: 'contain' }} /> : <Typography>{livro?.titulo}</Typography>}</Button>
+          <Button onClick={abrirLivro} aria-label={podeLer ? `Ler ${livro?.titulo}` : `Comprar ${livro?.titulo}`} sx={{ p: 0, width: '100%' }}><CapaDestaqueLivro livro={livro} /></Button>
           <Button variant="outlined" onClick={abrirLivro} sx={{ mt: 0.5, px: 1.5, py: 0.5, color: '#000', border: '1px solid #173e35', borderRadius: 2, boxShadow: '0 2px 4px rgba(0,0,0,.22)', background: 'transparent', '&:hover': { background: 'transparent', borderColor: '#000' }, textShadow: '-1px -1px white, 1px 1px white, -1px 1px white, 1px -1px white', fontWeight: 800 }}>{podeLer ? 'Ler agora' : 'Compre agora'}</Button>
         </Box>}
       </Stack>
     </Box>}
     </Box></Grid>
     <Grid item xs={12}><Stack direction="row" justifyContent="center" alignItems="center" spacing={1} sx={{ mt: -0.5, '& .MuiButton-root': { color: 'white' } }}>
+      {total > 1 && <Button size="small" aria-label={pausado ? 'Retomar troca automática dos destaques' : 'Pausar troca automática dos destaques'} title={pausado ? 'Retomar' : 'Pausar'} aria-pressed={pausado} onClick={() => setPausado((valor) => !valor)} sx={{ minWidth: 32, width: 32, height: 32, p: 0 }}>
+        {pausado ? <PlayArrowIcon /> : <PauseIcon />}
+      </Button>}
       {total > 1 && <Stack direction="row" spacing={0.25} role="group" aria-label="Escolher destaque">{Array.from({ length: total }, (_, numero) => <Button key={numero} aria-label={`Mostrar destaque ${numero + 1}`} aria-current={posicao === numero ? 'true' : undefined} onClick={() => setIndice(numero)} sx={{ minWidth: 24, width: 24, height: 24, p: 0 }}><Box sx={{ width: 9, height: 9, borderRadius: '50%', background: posicao === numero ? '#e4bd68' : 'transparent', border: '1px solid #e4bd68' }} /></Button>)}</Stack>}
       {ehAdmin && <Button size="small" sx={{ color: 'white' }} onClick={() => { setErro(''); setRascunho(itens.map((valor) => ({ ...valor }))); setEditar(true) }}>Editar destaques</Button>}
     </Stack></Grid>
@@ -103,11 +111,11 @@ export default function DestaquesMenu({ ehAdmin, children }) {
       {erro && <Alert severity="error">{erro}</Alert>}
       {rascunho.map((entrada) => <Stack key={entrada.id} spacing={1.5} sx={{ py: 2, borderBottom: '1px solid #ddd' }}>
         <TextField select label="Tipo" value={entrada.tipo} onChange={(event) => alterar(entrada.id, 'tipo', event.target.value)}>{[['mensagem', 'Mensagem'], ['trecho', 'Trecho de livro'], ['livro', 'Livro do dia']].map(([valor, titulo]) => <MenuItem key={valor} value={valor}>{titulo}</MenuItem>)}</TextField>
-        <TextField label="Título" value={entrada.titulo} inputProps={{ maxLength: 180 }} onChange={(event) => alterar(entrada.id, 'titulo', event.target.value)} />
+        <TextField label="Título (opcional)" value={entrada.titulo || ''} inputProps={{ maxLength: 180 }} onChange={(event) => alterar(entrada.id, 'titulo', event.target.value)} />
         {entrada.tipo === 'livro' && <TextField select label="Livro" value={entrada.livroId || ''} onChange={(event) => alterar(entrada.id, 'livroId', event.target.value)}>{livros.filter((valor) => valor.publicado && !valor.excluido).map((valor) => <MenuItem key={valor.id} value={valor.id}>{valor.titulo}</MenuItem>)}</TextField>}
         {entrada.tipo === 'livro' ? <EditorApresentacao texto={entrada.texto || ''} alinhamento={entrada.alinhamento} limite={LIMITE_APRESENTACAO} onTexto={(valor) => alterar(entrada.id, 'texto', valor)} onAlinhamento={(valor) => alterar(entrada.id, 'alinhamento', valor)} /> : <TextField label="Texto" multiline minRows={3} value={entrada.texto || ''} inputProps={{ maxLength: 6000 }} helperText={`${6000 - (entrada.texto || '').length} caracteres restantes`} onChange={(event) => alterar(entrada.id, 'texto', event.target.value)} />}
         {entrada.tipo === 'livro' && entrada.livroId === 'luz-dos-tempos-antigos' && <Button onClick={() => alterar(entrada.id, 'texto', APRESENTACAO_LUZ_TEMPOS)}>Usar apresentação de Luz dos Tempos Antigos</Button>}
-        <TextField label="Autor / origem" value={entrada.autor || ''} inputProps={{ maxLength: 180 }} onChange={(event) => alterar(entrada.id, 'autor', event.target.value)} />
+        <TextField label="Autor / origem (opcional)" value={entrada.autor || ''} inputProps={{ maxLength: 180 }} onChange={(event) => alterar(entrada.id, 'autor', event.target.value)} />
         {['inicioEm', 'fimEm'].map((campo) => <TextField key={campo} type="datetime-local" label={campo === 'inicioEm' ? 'Início' : 'Fim'} InputLabelProps={{ shrink: true }} value={dataCampo(entrada[campo])} onChange={(event) => alterar(entrada.id, campo, event.target.value ? new Date(event.target.value).getTime() : 0)} />)}
         <Button color="error" onClick={() => setRascunho((lista) => lista.filter((valor) => valor.id !== entrada.id))}>Remover da lista</Button>
       </Stack>)}

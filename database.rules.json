@@ -439,11 +439,30 @@
       ".read": false,
       ".write": false
     },
+    "destaquesMenuCurtidas": {
+      "$destaqueId": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": false,
+          ".validate": "newData.isBoolean() && newData.val() === true"
+        }
+      }
+    },
+    "destaquesMenuInteracoes": {
+      ".write": false,
+      "$destaqueId": {
+        "likesCount": { ".read": true },
+        "sharesCount": { ".read": true },
+        "curtidas": {
+          "$uid": { ".read": "auth != null && auth.uid === $uid" }
+        }
+      }
+    },
     "destaquesMenu": {
       ".read": true,
       ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
       "$id": {
-        ".validate": "newData.hasChildren(['tipo', 'titulo', 'texto'])",
+        ".validate": "newData.hasChildren(['tipo', 'texto'])",
         "tipo": { ".validate": "newData.val() === 'mensagem' || newData.val() === 'trecho' || newData.val() === 'livro'" },
         "titulo": { ".validate": "newData.isString() && newData.val().length <= 180" },
         "texto": { ".validate": "newData.isString() && newData.val().length <= 6000" },
@@ -475,6 +494,10 @@
     },
     "bibliotecaLicencas": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
+      ".write": false
+    },
+    "bibliotecaVinculosVisitantes": {
+      ".read": false,
       ".write": false
     },
     "bibliotecaAcessos": {

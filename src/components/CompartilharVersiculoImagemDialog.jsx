@@ -17,7 +17,7 @@ import {
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined'
-import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
+import IosShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'

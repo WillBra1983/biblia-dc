@@ -66,3 +66,24 @@ export function prioridadePaginaPdf(numero, atual, direcao = 1) {
   const distancia = numero - atual
   return Math.abs(distancia) * 2 + (distancia * direcao < 0 ? 1 : 0)
 }
+
+export function escalaBitmapPdf(largura, altura, zoom = 1, dpr = 1, visivel = true) {
+  const desejada = Math.max(1, Math.min(dpr || 1, 3)) * (visivel ? zoom : 1)
+  return Math.min(desejada, Math.sqrt((visivel ? 6000000 : 1800000) / Math.max(1, largura * altura)))
+}
+
+// Mede apenas a geometria, sem rasterizar centenas de páginas.
+export async function medirPaginasPdf(documento, ate, conhecidas = {}) {
+  const medidas = { ...conhecidas }
+  let proxima = 1
+  await Promise.all(Array.from({ length: 4 }, async () => {
+    while (proxima <= ate) {
+      const numero = proxima++
+      if (medidas[numero]) continue
+      const pagina = await documento.getPage(numero)
+      const viewport = pagina.getViewport({ scale: 1 })
+      medidas[numero] = viewport.height / viewport.width
+    }
+  }))
+  return medidas
+}

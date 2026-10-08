@@ -1,5 +1,5 @@
 import { Button, IconButton, Tooltip } from '@mui/material'
-import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
+import IosShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 import { compartilharLivro } from '../utils/livroShare'
 import { mostrarSnackbar } from '../utils/uiDialogs'
 

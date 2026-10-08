@@ -1,7 +1,7 @@
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from '@mui/material'
 import { localizarReferenciasBiblicas } from '../utils/referenciasBiblicasEpub'
-import { CachePaginasPdf, FilaRenderPdf, prioridadePaginaPdf } from '../utils/pdfLeituraRecursos'
+import { CachePaginasPdf, FilaRenderPdf, prioridadePaginaPdf, escalaBitmapPdf, medirPaginasPdf } from '../utils/pdfLeituraRecursos'
 import { normalizarSumarioLivro, paginaDestinoPdf } from '../utils/sumarioLivro'
 import SumarioLivro from './SumarioLivro'
 
@@ -16,7 +16,7 @@ function carregarPdfJs() {
   return pdfjsPromise
 }
 
-const PdfPage = memo(function PdfPage({ documento, numero, largura, zoom, aoReferencia, aoVisivel, scrollRoot, preserve, restore, recursos }) {
+const PdfPage = memo(function PdfPage({ documento, numero, largura, zoom, proporcaoConhecida, aoReferencia, aoVisivel, scrollRoot, preserve, restore, recursos }) {
   const hostRef = useRef(null)
   const canvasRef = useRef(null)
   const textoRef = useRef(null)
@@ -26,7 +26,11 @@ const PdfPage = memo(function PdfPage({ documento, numero, largura, zoom, aoRefe
   const visivelRef = useRef(false)
   const [previa, setPrevia] = useState('')
   const [bitmapLargura, setBitmapLargura] = useState(0)
-  const [proporcao, setProporcao] = useState(1.42)
+  const [proporcaoLocal, setProporcao] = useState(1.42)
+  const proporcao = proporcaoConhecida || proporcaoLocal
+  const [zoomBitmap, setZoomBitmap] = useState(zoom)
+  useEffect(() => { const timer = setTimeout(() => setZoomBitmap(zoom), 180); return () => clearTimeout(timer) }, [zoom])
+  const resolucaoZoom = visivel ? zoomBitmap : 1
   const proporcaoRef = useRef(proporcao)
   proporcaoRef.current = proporcao
   const [pronto, setPronto] = useState(false)
@@ -64,8 +68,10 @@ const PdfPage = memo(function PdfPage({ documento, numero, largura, zoom, aoRefe
     }
     let cancelado = false
     let render
-    setLinks([]); setErro('')
-    const chave = `${numero}:${Math.round(largura)}`
+    // O zoom redesenha só a imagem; as áreas de referência continuam
+    // na mesma escala lógica e não precisam desaparecer durante o gesto.
+    setErro('')
+    const chave = `${numero}:${largura.toFixed(2)}:${resolucaoZoom.toFixed(2)}:${window.devicePixelRatio || 1}:${visivel}`
     const mostrar = (resultado) => {
       if (cancelado || !resultado) return
       if (Math.abs(proporcaoRef.current - resultado.proporcao) > .001) {
@@ -96,7 +102,7 @@ const PdfPage = memo(function PdfPage({ documento, numero, largura, zoom, aoRefe
       }
       // Nunca desenha nem cancela uma renderização sobre o canvas visível.
       const canvas = document.createElement('canvas')
-      const ratio = Math.min(window.devicePixelRatio || 1, 1.5, Math.sqrt(1800000 / (viewport.width * viewport.height)))
+      const ratio = escalaBitmapPdf(viewport.width, viewport.height, resolucaoZoom, window.devicePixelRatio, visivel)
       canvas.width = Math.floor(viewport.width * ratio)
       canvas.height = Math.floor(viewport.height * ratio)
       canvas.style.width = `${viewport.width}px`
@@ -116,7 +122,7 @@ const PdfPage = memo(function PdfPage({ documento, numero, largura, zoom, aoRefe
       if (!cancelado && e.name !== 'RenderingCancelledException' && e.name !== 'AbortException') setErro(`Não foi possível mostrar a página ${numero}.`)
     })
     return () => { cancelado = true; tarefa.cancelar(); render?.cancel() }
-  }, [documento, numero, largura, perto, preserve, recursos])
+  }, [documento, numero, largura, perto, preserve, recursos, resolucaoZoom, visivel])
 
   // Os links só são preparados depois da imagem e apenas nas páginas na tela.
   useEffect(() => {
@@ -196,6 +202,21 @@ export default function BibliotecaPdfReader({ url, storageKey, onBibleReference,
   const [navegandoSumario, setNavegandoSumario] = useState(false)
   const [erroSumario, setErroSumario] = useState('')
   const [paginaDigitada, setPaginaDigitada] = useState('')
+  const [proporcoes, setProporcoes] = useState({})
+  const proporcoesRef = useRef({})
+  const destinoPendenteRef = useRef(null)
+  const navegacaoRef = useRef(0)
+  useEffect(() => { navegacaoRef.current++; proporcoesRef.current = {}; setProporcoes({}); destinoPendenteRef.current = null }, [documento])
+  useLayoutEffect(() => {
+    const numero = destinoPendenteRef.current
+    const root = rootRef.current
+    const page = root?.querySelector(`[data-pdf-page="${numero}"]`)
+    if (!page) return
+    anchorRef.current = null
+    root.scrollTo({ top: root.scrollTop + page.getBoundingClientRect().top - root.getBoundingClientRect().top - root.clientTop })
+    destinoPendenteRef.current = null
+    onVisibleRef.current(numero)
+  }, [proporcoes])
   const anchorRef = useRef(null)
   const gestureRef = useRef(null)
   const lastTapRef = useRef(null)
@@ -336,14 +357,19 @@ export default function BibliotecaPdfReader({ url, storageKey, onBibleReference,
   useEffect(() => {
     if (!documento || !largura) return
     if (restauradoRef.current === documento) return
-    const frame = requestAnimationFrame(() => { ir(paginaRef.current); restauradoRef.current = documento })
+    const frame = requestAnimationFrame(() => { void ir(paginaRef.current).catch(() => setErro('Não foi possível restaurar a página.')); restauradoRef.current = documento })
     return () => cancelAnimationFrame(frame)
   }, [documento, largura])
-  const ir = (numero) => {
+  const ir = async (numero) => {
     if (restricao && numero > documento.numPages) { onLimit?.(); return }
-    const root = rootRef.current
-    const page = root?.querySelector(`[data-pdf-page="${numero}"]`)
-    if (page) root.scrollTo({ top: root.scrollTop + page.getBoundingClientRect().top - root.getBoundingClientRect().top })
+    if (!Number.isInteger(numero) || numero < 1 || numero > documento.numPages) return
+    const geracao = ++navegacaoRef.current
+    const medidas = await medirPaginasPdf(documento, numero, proporcoesRef.current)
+    if (geracao !== navegacaoRef.current) return
+    anchorRef.current = null
+    proporcoesRef.current = medidas
+    destinoPendenteRef.current = numero
+    setProporcoes(medidas)
   }
   return <Box sx={{ width: '100%', height: immersive ? '100dvh' : '80dvh', display: 'flex', flexDirection: 'column' }}>
     <Box sx={{ display: 'flex', justifyContent: 'center', bgcolor: 'background.paper', flexShrink: 0 }}>
@@ -351,7 +377,7 @@ export default function BibliotecaPdfReader({ url, storageKey, onBibleReference,
     </Box>
     <Box ref={rootRef} onDoubleClick={(event) => { if (Date.now() < suppressTapRef.current || event.target.closest?.('button, input')) return; event.preventDefault(); toggleRef.current() }} sx={{ flex: 1, minHeight: 0, overflow: 'auto', touchAction: 'pan-x pan-y', overscrollBehavior: 'contain', borderRadius: immersive ? 0 : 1 }}>
     {erro ? <Alert severity="error">{erro}</Alert> : !documento ? <Box sx={{ textAlign: 'center', p: 8 }}><CircularProgress /></Box> : <Stack spacing={2} sx={{ bgcolor: '#777', py: 1, minWidth: largura * zoom }}>
-      {Array.from({ length: documento.numPages }, (_, index) => <PdfPage key={index + 1} preserve={preserveRef.current} restore={restoreRef.current} scrollRoot={rootRef} documento={documento} numero={index + 1} largura={largura} zoom={zoom} recursos={recursos} aoReferencia={aoReferenciaRef.current} aoVisivel={onVisibleRef.current} />)}
+      {Array.from({ length: documento.numPages }, (_, index) => <PdfPage key={index + 1} proporcaoConhecida={proporcoes[index + 1]} preserve={preserveRef.current} restore={restoreRef.current} scrollRoot={rootRef} documento={documento} numero={index + 1} largura={largura} zoom={zoom} recursos={recursos} aoReferencia={aoReferenciaRef.current} aoVisivel={onVisibleRef.current} />)}
     </Stack>}
     </Box>
     <Dialog open={escolherPagina} onClose={() => setEscolherPagina(false)} fullWidth maxWidth="sm">
@@ -360,12 +386,12 @@ export default function BibliotecaPdfReader({ url, storageKey, onBibleReference,
         {erroSumario && <Alert severity="warning" sx={{ mt: 2 }}>{erroSumario}</Alert>}
         <SumarioLivro itens={sumario} carregando={carregandoSumario} navegando={navegandoSumario} onSelect={async (item) => {
           setNavegandoSumario(true); setErroSumario('')
-          try { const numero = await paginaDestinoPdf(documento, item.destino); ir(numero); setEscolherPagina(false) }
+          try { const numero = await paginaDestinoPdf(documento, item.destino); await ir(numero); setEscolherPagina(false) }
           catch (falha) { setErroSumario(falha.message || 'Não foi possível abrir este capítulo.') }
           finally { setNavegandoSumario(false) }
         }} />
       </DialogContent>
-      <DialogActions><Button onClick={() => setEscolherPagina(false)}>Cancelar</Button><Button disabled={!Number.isInteger(Number(paginaDigitada)) || Number(paginaDigitada) < 1 || Number(paginaDigitada) > (restricao?.totalOriginal || documento?.numPages || 0)} onClick={() => { ir(Number(paginaDigitada)); setEscolherPagina(false) }}>Ir à página</Button></DialogActions>
+      <DialogActions><Button disabled={navegandoSumario} onClick={() => setEscolherPagina(false)}>Cancelar</Button><Button disabled={navegandoSumario || !Number.isInteger(Number(paginaDigitada)) || Number(paginaDigitada) < 1 || Number(paginaDigitada) > (restricao?.totalOriginal || documento?.numPages || 0)} onClick={async () => { setNavegandoSumario(true); setErroSumario(''); try { await ir(Number(paginaDigitada)); setEscolherPagina(false) } catch { setErroSumario('Não foi possível abrir esta página.') } finally { setNavegandoSumario(false) } }}>Ir à página</Button></DialogActions>
     </Dialog>
     <Dialog open={!!referenciaSelecionada} onClose={() => setReferenciaSelecionada('')}>
       <DialogTitle>{referenciaSelecionada}</DialogTitle>

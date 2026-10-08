@@ -13,6 +13,7 @@ const { decidirArquivo } = require('./bibliotecaDegustacao')
 const { gerarAmostraAutomatica, VERSAO_AMOSTRA } = require('./bibliotecaAmostraAutomatica')
 const { createHash } = require('node:crypto')
 const { personalizarExemplar, VERSAO_EXEMPLAR } = require('./bibliotecaExemplarPersonalizado')
+const { identificarLeitor } = require('./bibliotecaVisitante')
 
 const R2_ACCOUNT_ID = defineSecret('R2_ACCOUNT_ID')
 const R2_ACCESS_KEY_ID = defineSecret('R2_ACCESS_KEY_ID')
@@ -122,8 +123,7 @@ exports.confirmarUploadLivroBiblioteca = onCall(OPCOES, async (req) => {
 })
 
 exports.obterArquivoLivroBiblioteca = onCall({ ...OPCOES, memory: '1GiB', concurrency: 1, timeoutSeconds: 180 }, async (req) => {
-  const uid = req.auth?.uid
-  if (!uid) throw new HttpsError('unauthenticated', 'Entre na sua conta para ler.')
+  const uid = await identificarLeitor(req)
   const livroId = idSeguro(req.data?.livroId)
   const finalidade = normalizarFinalidade(req.data?.finalidade)
   if (!livroId) throw new HttpsError('invalid-argument', 'Livro inválido.')
@@ -149,7 +149,7 @@ exports.obterArquivoLivroBiblioteca = onCall({ ...OPCOES, memory: '1GiB', concur
   let restricao = null
   let codigoExemplar = null
   if (req.data?.download === true && !ehAdmin) {
-    const conta = await admin.auth().getUser(uid)
+    const conta = uid.startsWith('visitante_') ? {} : await admin.auth().getUser(uid)
     const nomeComprador = texto(conta.displayName, 100) || 'Comprador identificado pela licença'
     codigoExemplar = `BDC-${createHash('sha256').update(JSON.stringify([uid, livroId])).digest('hex').slice(0, 20).toUpperCase()}`
     const hash = createHash('sha256').update(JSON.stringify([arquivo.chave, arquivo.atualizadoEm, arquivo.tamanho, codigoExemplar, nomeComprador, VERSAO_EXEMPLAR])).digest('hex')

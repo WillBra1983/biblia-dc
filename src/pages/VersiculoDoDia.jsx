@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, TextField, Tooltip, Typography, useTheme } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
+import IosShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 import HistoryIcon from '@mui/icons-material/History'
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges'
 import FavoriteIcon from '@mui/icons-material/Favorite'
@@ -291,11 +291,11 @@ export default function VersiculoDoDia() {
               </IconButton>
             </span>
           </Tooltip>
-          <Typography sx={{ minWidth: 28, fontWeight: 800 }}>{interacoes.likesCount}</Typography>
+          {interacoes.likesCount > 0 && <Typography sx={{ minWidth: 28, fontWeight: 800 }}>{interacoes.likesCount}</Typography>}
           <IconButton onClick={() => setCompartilhar(true)} aria-label="Compartilhar versículo do dia">
             <IosShareOutlinedIcon />
           </IconButton>
-          <Typography sx={{ minWidth: 28, fontWeight: 800 }}>{interacoes.sharesCount}</Typography>
+          {interacoes.sharesCount > 0 && <Typography sx={{ minWidth: 28, fontWeight: 800 }}>{interacoes.sharesCount}</Typography>}
         </Box>
         <Box sx={{ p: { xs: 2, sm: 4.5 }, color: 'inherit' }}>
           {comentario ? (

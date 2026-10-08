@@ -7,9 +7,18 @@ export async function conectarDestaques() {
   const api = await import('firebase/database')
   const db = getFirebaseDatabase()
   if (!db) throw new Error('Não foi possível conectar. Tente novamente.')
-  return { api, referencia: api.ref(db, 'destaquesMenu') }
+  return { api, db, referencia: api.ref(db, 'destaquesMenu') }
 }
 
 export function destaquesAtivos(itens, agora = Date.now()) {
   return itens.filter((item) => item.ativo !== false && (!item.inicioEm || item.inicioEm <= agora) && (!item.fimEm || item.fimEm > agora))
+}
+
+export async function registrarInteracaoDestaque(dados) {
+  const { getFirebaseFunctions, loadFirebaseModules } = await import('../config/firebase')
+  await loadFirebaseModules()
+  const functions = getFirebaseFunctions()
+  if (!functions) throw new Error('Serviço temporariamente indisponível.')
+  const { httpsCallable } = await import('firebase/functions')
+  return (await httpsCallable(functions, 'registrarInteracaoDestaque')(dados)).data
 }

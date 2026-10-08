@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Paper, Stack, Typography, Select, MenuItem } from '@mui/material'
-import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
+import IosShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 import CompartilharTrechoLivroDialog from './CompartilharTrechoLivroDialog'
 import CompartilharLivroButton from './CompartilharLivroButton'
 import VersiculoPopup from './VersiculoPopup'
@@ -15,7 +15,8 @@ import { posicaoAtualEpub } from '../utils/epubPosicaoResize'
 import { atualizarPaginasEpub, cancelarLimpezaEpub } from '../utils/epubRolagemEstavel'
 import { normalizarSumarioLivro } from '../utils/sumarioLivro'
 import SumarioLivro from './SumarioLivro'
-import { posicaoTrocaModoEpub } from '../utils/epubTrocaModo'
+import { posicaoTrocaModoEpub, restaurarLinhaTopoEpub } from '../utils/epubTrocaModo'
+import { navegarDestinoEpub } from '../utils/epubDestinoIndice'
 
 let epubjsPromise
 
@@ -115,7 +116,8 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
     let restaurando = true
     // Capture antes de montar o novo leitor: eventos da montagem não podem
     // substituir o destino escolhido durante a troca de modo.
-    const localizacaoSalva = (posicaoTrocaRef.current?.storageKey === storageKey ? posicaoTrocaRef.current.cfi : null) || localStorage.getItem(storageKey) || undefined
+    const posicaoTroca = posicaoTrocaRef.current?.storageKey === storageKey ? posicaoTrocaRef.current.cfi : null
+    const localizacaoSalva = posicaoTroca || localStorage.getItem(storageKey) || undefined
     posicaoTrocaRef.current = null
     setCarregando(true); setErro(''); setCapaUrl(''); setExibindoCapa(false); setTotal(0)
     setSumario([]); setCarregandoSumario(true); setErroSumario('')
@@ -149,8 +151,9 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
       if (!ativo || !areaRef.current) return
       const rendition = livro.renderTo(areaRef.current, {
         width: '100%',
-        height: '72vh',
+        height: areaRef.current.clientHeight || '72vh',
         spread: 'none',
+        ignoreClass: 'leitor-ancora-topo',
         flow: modo === 'rolagem' ? 'scrolled-doc' : 'paginated',
         manager: modo === 'rolagem' ? ManagerContinuoSemUnload : ManagerSemUnload,
       })
@@ -249,6 +252,12 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
         await rendition.display(livro.spine?.first?.()?.href || undefined)
       }
       if (!ativo) return
+      // Uma falha no alinhamento fino não deve apagar a posição e reiniciar o livro.
+      if (posicaoTroca) {
+        try { await restaurarLinhaTopoEpub(rendition, posicaoTroca, modo) }
+        catch { /* O display anterior mantém o destino original como alternativa. */ }
+      }
+      if (!ativo) return
       restaurando = false
       if (compacto) void livro.locations.generate(1500).then(() => {
         if (!ativo) return
@@ -335,7 +344,6 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
         <Button onClick={() => setTamanho((v) => Math.max(80, v - 10))}>A−</Button>
         <Button onClick={() => setTamanho((v) => Math.min(160, v + 10))}>A+</Button>
       </BibliotecaReaderToolbar>}
-      {carregando && <EstadoCarregando />}
       {exibindoCapa && capaUrl && <Box onDoubleClick={(event) => { if (Date.now() - ultimoGestoRef.current < 500) return; event.preventDefault(); onPageTap?.() }} onTouchStart={(event) => { const touch = event.touches[0]; gestureRef.current = { x: touch.clientX, y: touch.clientY } }} onTouchEnd={(event) => {
         const start = gestureRef.current; gestureRef.current = null; const touch = event.changedTouches[0]
         if (!start || !touch) return
@@ -347,14 +355,17 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
       }} sx={{ touchAction: 'manipulation', height: immersive ? '100dvh' : '72dvh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)', display: 'grid', placeItems: 'center', p: { xs: 1.5, sm: 3 } }}>
         <Box component="img" src={capaUrl} alt="Capa do livro" sx={{ display: 'block', maxWidth: '100%', maxHeight: '68vh', objectFit: 'contain', borderRadius: 0.75, boxShadow: '0 8px 24px rgba(0,0,0,.2)' }} />
       </Box>}
-      <Box ref={areaRef} sx={{ display: carregando || exibindoCapa ? 'none' : 'block', height: immersive ? (compacto ? 'calc(100dvh - 40px)' : '100dvh') : '72svh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)' }} />
+      <Box sx={{ position: 'relative', display: exibindoCapa ? 'none' : 'block' }}>
+        <Box ref={areaRef} sx={{ visibility: carregando ? 'hidden' : 'visible', height: immersive ? (compacto ? 'calc(100dvh - 40px)' : '100dvh') : '72svh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)' }} />
+        {carregando && <Box sx={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }}><EstadoCarregando /></Box>}
+      </Box>
       <Dialog open={escolherPagina} onClose={() => setEscolherPagina(false)} fullWidth maxWidth="sm">
         <DialogTitle>Escolher posição ou capítulo</DialogTitle>
         <DialogContent><Typography variant="body2" sx={{ mb: 2 }}>No EPUB, as posições são fixas, mas a quantidade de telas muda conforme o tamanho da letra.</Typography><TextField fullWidth disabled={!total} label="Posição de leitura" helperText={total ? `Escolha uma posição de 1 a ${total}.` : 'Preparando as posições de leitura…'} type="number" value={paginaDigitada} onChange={(event) => setPaginaDigitada(event.target.value)} inputProps={{ min: 1, max: total, inputMode: 'numeric' }} />
           {erroSumario && <Alert severity="warning" sx={{ mt: 2 }}>{erroSumario}</Alert>}
           <SumarioLivro itens={sumario} carregando={carregandoSumario} navegando={navegandoSumario} onSelect={async (item) => {
             setNavegandoSumario(true); setErroSumario('')
-            try { setExibindoCapa(false); await renditionRef.current?.display(item.destino); setEscolherPagina(false) }
+            try { setExibindoCapa(false); await navegarDestinoEpub(renditionRef.current, item.destino, modo); setEscolherPagina(false) }
             catch { setErroSumario('Não foi possível abrir este capítulo. Use a posição de leitura.') }
             finally { setNavegandoSumario(false) }
           }} />

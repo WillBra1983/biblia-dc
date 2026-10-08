@@ -37,7 +37,7 @@ import PeopleIcon from '@mui/icons-material/People'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
-import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined'
+import IosShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 import { chavesMetricaParaPathMenu, registarVisualizacaoSecaoSeNecessario } from '../utils/sectionViewKeys'
 import { prefetchRota, prefetchRotasComuns } from '../utils/routePrefetch'
 import { urlFundoVersiculo, urlLogoApp } from '../utils/versiculoImagem'
@@ -144,7 +144,7 @@ function VersiculoDoDiaMenu({ ehAdmin, onExpandidoChange, reiniciarExpansao }) {
         >
           “
         </Typography>
-        <TextoDestaque onExpandidoChange={onExpandidoChange} reiniciarExpansao={reiniciarExpansao} texto={item?.texto || 'A Palavra para o seu dia está sendo escolhida.'} linhas={5} sx={{
+        <TextoDestaque onExpandidoChange={onExpandidoChange} reiniciarExpansao={reiniciarExpansao} texto={item?.texto || 'A Palavra para o seu dia está sendo escolhida.'} linhas={0} sx={{
           gridColumn: 2,
           maxWidth: '100%',
           fontFamily: 'Georgia, serif',
@@ -152,22 +152,18 @@ function VersiculoDoDiaMenu({ ehAdmin, onExpandidoChange, reiniciarExpansao }) {
           lineHeight: 1.3,
           fontWeight: 700,
         }} />
-        <Box sx={{ gridColumn: 2, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
+        <Box sx={{ gridColumn: 2, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.75, mt: 0.75 }}>
           <Box
             component="img"
             src={urlLogoApp()}
             alt=""
-            sx={{ width: 23, height: 23, borderRadius: 0.6, objectFit: 'cover', flexShrink: 0 }}
+            sx={{ width: 27, height: 27, borderRadius: 0.6, objectFit: 'cover', flexShrink: 0 }}
           />
-          <Typography variant="caption" sx={{ fontWeight: 800 }}>{item?.referencia || 'Toque para abrir'}</Typography>
-          <IconButton size="small" onClick={curtir} disabled={!user?.uid} title={user?.uid ? (curtido ? 'Remover curtida' : 'Curtir') : 'Entre na conta para curtir'} aria-label={curtido ? 'Remover curtida' : 'Curtir'} sx={{ color: curtido ? '#d93025' : '#79581b', p: 0.45 }}>
-            {curtido ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
-          </IconButton>
-          <Typography variant="caption" sx={{ fontWeight: 900, minWidth: 18 }}>{interacoes.likesCount}</Typography>
-          <IconButton size="small" onClick={abrirCompartilhamento} title="Compartilhar" aria-label="Compartilhar versículo do dia" sx={{ color: '#79581b', p: 0.45, ml: 0.5 }}>
-            <IosShareOutlinedIcon fontSize="small" />
-          </IconButton>
-          <Typography variant="caption" sx={{ fontWeight: 900, minWidth: 18 }}>{interacoes.sharesCount}</Typography>
+          <Typography variant="caption" sx={{ fontWeight: 800, fontSize: '0.82rem', textAlign: 'right' }}>{item?.referencia || 'Toque para abrir'}</Typography>
+        </Box>
+        <Box onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()} sx={{ gridColumn: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.75, color: '#000', textShadow: '-1px -1px white, 1px 1px white, -1px 1px white, 1px -1px white', '& .MuiButton-root': { minHeight: 40, px: 0.5, color: '#000', fontWeight: 800, textShadow: 'inherit', backgroundColor: 'transparent', '&:hover': { backgroundColor: 'transparent' } }, '& .MuiSvgIcon-root': { filter: 'drop-shadow(1px 0 0 white) drop-shadow(-1px 0 0 white)' } }}>
+          <Button size="small" onClick={curtir} disabled={!user?.uid} aria-pressed={curtido} startIcon={curtido ? <FavoriteIcon sx={{ color: '#bd2635' }} /> : <FavoriteBorderIcon />}>{curtido ? 'Curtido' : 'Curtir'} {interacoes.likesCount > 0 ? interacoes.likesCount : ''}</Button>
+          <Button size="small" onClick={abrirCompartilhamento} startIcon={<IosShareOutlinedIcon />}>Compartilhar {interacoes.sharesCount > 0 ? interacoes.sharesCount : ''}</Button>
         </Box>
         <Box sx={{ gridColumn: '2 / -1' }}>
           <AdminSectionViewCounts ehAdmin={ehAdmin} keys={['versiculo_do_dia']} />

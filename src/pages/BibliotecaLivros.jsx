@@ -36,6 +36,11 @@ import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { useEhAdmin } from '../hooks/useEhAdmin'
 import {
   assinarCatalogoLivros,
+  AVISO_COMPRA_SEM_LOGIN,
+  catalogoVisitante,
+  dispositivoBiblioteca,
+  prepararLeituraOffline,
+  vincularComprasVisitante,
   assinarAcessosBiblioteca,
   assinarConfiguracaoPixBiblioteca,
   assinarPedidosPixAdmin,
@@ -63,6 +68,7 @@ import {
 import EpubPrimeiraPaginaMiniatura from '../components/EpubPrimeiraPaginaMiniatura'
 import PreviaLivroComprado from '../components/PreviaLivroComprado'
 import { abrirUrlExterna } from '../utils/abrirUrlExterna'
+import { amostraLivroDisponivel } from '../utils/disponibilidadeAmostraLivro'
 
 const PLATAFORMA = Capacitor.getPlatform()
 const CHAVE_COMPRAS = 'biblioteca-digital-compras-v1'
@@ -170,6 +176,7 @@ function SelosModalidades({ livro, compacto = false }) {
 }
 
 function OpcoesDialog({ livro, comprasConfirmadas, onConfirmarCompra, onClose }) {
+  const { user } = useFirebaseAuth()
   const navigate = useNavigate()
   const opcoes = livro ? opcoesLivro(livro) : []
   const [ultimaOpcao, setUltimaOpcao] = useState(null)
@@ -213,6 +220,7 @@ function OpcoesDialog({ livro, comprasConfirmadas, onConfirmarCompra, onClose })
       <DialogTitle>Opções do livro</DialogTitle>
       <DialogContent>
         <Typography color="text.secondary" sx={{ mb: 2 }}>{livro?.titulo}</Typography>
+        {!user && <Alert severity="info" sx={{ mb: 2 }}>{AVISO_COMPRA_SEM_LOGIN}</Alert>}
         <Stack spacing={1.2}>
           {opcoes.map((opcao) => {
             const comprada = foiComprada(opcao)
@@ -229,6 +237,7 @@ function OpcoesDialog({ livro, comprasConfirmadas, onConfirmarCompra, onClose })
             <Box component="img" src={pedidoPix.qrCodeDataUrl} alt="QR Code para pagamento Pix" sx={{ display: 'block', width: '100%', maxWidth: 260, mx: 'auto', my: 1.2 }} />
             <Button startIcon={<ContentCopyIcon />} onClick={() => navigator.clipboard.writeText(pedidoPix.pixCopiaCola)} fullWidth>Copiar código Pix</Button>
             <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>Pedido {pedidoPix.codigo}. Após pagar, avise para conferirmos o recebimento.</Typography>
+            {!user && <><Button onClick={() => navigator.clipboard.writeText(dispositivoBiblioteca())} fullWidth>Copiar chave de recuperação</Button><Typography variant="caption">Guarde esta chave em local seguro. Ela comprova a posse das compras deste aparelho; não a compartilhe.</Typography></>}
             {pedidoPix.informado
               ? <Alert severity="success" sx={{ mt: 1.5, textAlign: 'left' }}>Aviso enviado. Assim que o pagamento for conferido, o botão mudará para “Abrir”.</Alert>
               : <Button variant="contained" color="success" size="large" startIcon={<CheckCircleOutlinedIcon />} onClick={avisarPagamento} disabled={processandoPix} fullWidth sx={{ mt: 1.5 }}>{processandoPix ? 'Enviando…' : 'Já fiz o Pix'}</Button>}
@@ -609,6 +618,9 @@ function LeitorLivro({ livro, uid, finalidade = 'completo', acessoDigital = fals
   const [expirado, setExpirado] = useState(false)
   const [fimAmostra, setFimAmostra] = useState(false)
   const [limiteAtingido, setLimiteAtingido] = useState(false)
+  const [preparandoOffline, setPreparandoOffline] = useState(false)
+  const [avisoOffline, setAvisoOffline] = useState('')
+  const arquivoLocal = useRef(null)
 
   useEffect(() => {
     if (finalidade === 'amostra' && acessoDigital) navigate(`/biblioteca/${livro.id}/ler`, { replace: true })
@@ -635,13 +647,14 @@ function LeitorLivro({ livro, uid, finalidade = 'completo', acessoDigital = fals
     setCarregando(true); setErro(''); setArquivo(null); setExpirado(false); setFimAmostra(false)
     void obterArquivoLivroBiblioteca(livro.id, finalidade, false, eventoLeitura.current)
       .then((dados) => {
-        if (!ativo) return
+        if (!ativo) { if (dados.offline) URL.revokeObjectURL(dados.url); return }
         const chave = `biblioteca-progresso:${uid}:${livro.id}:leitura`
         if (!localStorage.getItem(chave)) {
           const anterior = localStorage.getItem(`biblioteca-progresso:${uid}:${livro.id}:${finalidade}:${dados.versao || 'original'}`)
           if (anterior) localStorage.setItem(chave, anterior)
         }
         setArquivo(dados)
+        if (dados.offline) arquivoLocal.current = dados.url
       })
       .catch((falha) => {
         if (!ativo) return
@@ -657,8 +670,8 @@ function LeitorLivro({ livro, uid, finalidade = 'completo', acessoDigital = fals
             : 'Não foi possível abrir o livro agora.')
       })
       .finally(() => { if (ativo) setCarregando(false) })
-    return () => { ativo = false }
-  }, [livro.id, finalidade, livro.degustacao?.modo, livro.degustacao?.inicioEm, livro.degustacao?.fimEm, livro.degustacao?.percentual])
+    return () => { ativo = false; if (arquivoLocal.current) { URL.revokeObjectURL(arquivoLocal.current); arquivoLocal.current = null } }
+  }, [uid, livro.id, finalidade, livro.degustacao?.modo, livro.degustacao?.inicioEm, livro.degustacao?.fimEm, livro.degustacao?.percentual])
 
   if (carregando) return <Box sx={{ py: 12, textAlign: 'center' }}><CircularProgress /><Typography color="text.secondary" sx={{ mt: 2 }}>Abrindo o livro…</Typography></Box>
   if (erro || expirado || limiteAtingido) return <Container maxWidth="sm" sx={{ py: 6 }}><Alert severity="info">{limiteAtingido ? 'Você chegou ao limite da amostra gratuita. Compre para continuar a leitura.' : expirado ? 'O período gratuito terminou. Compre para continuar a leitura.' : erro}</Alert><Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate(`/biblioteca/${livro.id}`)}>Ver opções de compra</Button></Container>
@@ -677,6 +690,14 @@ function LeitorLivro({ livro, uid, finalidade = 'completo', acessoDigital = fals
 
       <Container maxWidth="lg" sx={{ py: { xs: 1.5, sm: 3 } }} onContextMenu={(event) => event.preventDefault()}>
         {arquivo?.acessoAte && <Alert severity="info" sx={{ mb: 1 }}>Leitura gratuita até {new Date(arquivo.acessoAte).toLocaleString('pt-BR')}. Depois, compre para continuar.</Alert>}
+        {finalidade === 'completo' && !arquivo?.offline && <Button disabled={preparandoOffline} onClick={async () => {
+          setPreparandoOffline(true); setAvisoOffline('')
+          try { await prepararLeituraOffline(livro.id); setAvisoOffline('Livro preparado para leitura sem internet neste aparelho, dentro do aplicativo.') }
+          catch (falha) { setAvisoOffline(falha.message || 'Não foi possível preparar a leitura offline.') }
+          finally { setPreparandoOffline(false) }
+        }}>{preparandoOffline ? 'Preparando…' : 'Preparar leitura sem internet'}</Button>}
+        {arquivo?.offline && <Alert severity="info">Leitura sem internet — exemplar deste aparelho.</Alert>}
+        {avisoOffline && <Alert severity="info">{avisoOffline}</Alert>}
         <BibliotecaArquivoReader arquivo={arquivo} storageKey={`biblioteca-progresso:${uid}:${livro.id}:leitura`} livro={livro} onEnd={() => setFimAmostra(true)} onLimit={() => setLimiteAtingido(true)} />
         {finalidade === 'amostra' && !acessoDigital && <Paper sx={{ p: 2, mt: 2 }}><Typography>{fimAmostra && !arquivo?.acessoAte ? 'Você chegou ao fim da amostra. ' : ''}Gostou da leitura? Compre para continuar com acesso ao livro completo.</Typography><Button variant="contained" sx={{ mt: 1 }} onClick={() => navigate(`/biblioteca/${livro.id}`)}>Comprar para continuar</Button></Paper>}
       </Container>
@@ -727,6 +748,28 @@ function EstadoCarregandoLivro({ mensagem }) {
 }
 
 function DetalheLivro({ livro, comprasConfirmadas, ehAdmin, onConfirmarCompra, onEditar, onExcluir }) {
+  const [agora, setAgora] = useState(Date.now)
+  useEffect(() => {
+    let timer
+    const atualizar = () => {
+      clearTimeout(timer)
+      const instante = Date.now()
+      setAgora(instante)
+      if (livro.degustacao?.modo !== 'tempo') return
+      const proximo = [Number(livro.degustacao.inicioEm), Number(livro.degustacao.fimEm)]
+        .filter((prazo) => Number.isFinite(prazo) && prazo > instante).sort((a, b) => a - b)[0]
+      if (proximo) timer = setTimeout(atualizar, Math.min(proximo - instante, 2147483647))
+    }
+    atualizar()
+    window.addEventListener('focus', atualizar)
+    document.addEventListener('visibilitychange', atualizar)
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('focus', atualizar)
+      document.removeEventListener('visibilitychange', atualizar)
+    }
+  }, [livro.id, livro.degustacao?.modo, livro.degustacao?.inicioEm, livro.degustacao?.fimEm])
+  const amostraDisponivel = amostraLivroDisponivel(livro, agora)
   const [baixando, setBaixando] = useState(false)
   const [erroDownload, setErroDownload] = useState('')
   const baixar = async () => {
@@ -753,27 +796,32 @@ function DetalheLivro({ livro, comprasConfirmadas, ehAdmin, onConfirmarCompra, o
       <Container maxWidth="md" sx={{ py: { xs: 2.5, md: 4.5 } }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}><Button onClick={() => navigate('/biblioteca')} sx={{ px: 0.5 }}>Voltar à Biblioteca</Button>{ehAdmin && <Stack direction="row"><IconButton onClick={() => onEditar(livro)}><EditOutlinedIcon /></IconButton><IconButton color="error" onClick={() => onExcluir(livro)}><DeleteOutlineIcon /></IconButton></Stack>}</Stack>
         <Paper elevation={0} sx={{ p: { xs: 2, sm: 3.5, md: 4 }, borderRadius: 3, border: 1, borderColor: 'rgba(10,81,68,.18)', overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 18px 48px rgba(24,38,34,.09)' }}>
-          <Grid container spacing={{ xs: 3, md: 4.5 }} alignItems="flex-start">
-            <Grid item xs={12} sm={5} sx={{ display: 'flex', justifyContent: 'center' }}><CapaLivro livro={livro} onClick={() => opcoes.length ? setOpcoesAbertas(true) : undefined} grande /></Grid>
-            <Grid item xs={12} sm={7}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 5fr) minmax(0, 7fr)' }, gridTemplateAreas: { xs: '"info" "capa" "extras"', md: '"capa info" "capa extras"' }, columnGap: { md: 4.5 }, rowGap: 2.5, alignItems: 'start' }}>
+            <Box sx={{ gridArea: 'info', minWidth: 0 }}>
               <SelosModalidades livro={livro} />
               <Typography component="h1" sx={{ mt: 1.6, fontFamily: 'Lora, Georgia, serif', fontSize: { xs: '1.85rem', md: '2.45rem' }, lineHeight: 1.12, fontWeight: 800 }}>{livro.titulo}</Typography>
               <Typography variant="h6" color="text.secondary" sx={{ mt: 0.8, fontWeight: 500 }}>{livro.autor}</Typography>
               <Box sx={{ width: 58, height: 3, borderRadius: 2, bgcolor: '#b98322', my: 2.2 }} />
               <Typography sx={{ lineHeight: 1.78, color: 'text.secondary', whiteSpace: 'pre-wrap', textAlign: livro.descricaoAlinhamento === 'justify' ? 'justify' : 'left' }}>{partesApresentacao(livro.descricao).map((parte, indice) => <Box key={indice} component="span" sx={{ fontWeight: parte.tipo.includes('negrito') ? 700 : 'inherit', fontStyle: parte.tipo.includes('italico') ? 'italic' : 'normal' }}>{parte.texto}</Box>)}</Typography>
               <Typography variant="body2" sx={{ mt: 2, fontWeight: 700 }}>Tradução, revisão e organização de Wilson Lucas Ferreira.</Typography>
-              <Stack spacing={1.2} sx={{ mt: 3 }}>
-                {temDegustacao(livro) && !acessoDigital && <Button variant="outlined" size="large" startIcon={<AutoStoriesOutlinedIcon />} onClick={() => navigate(`/biblioteca/${livro.id}/amostra`)} fullWidth>{livro.degustacao?.modo === 'tempo' ? 'Ver leitura gratuita por tempo' : livro.degustacao?.modo === 'percentual' ? `Ler amostra (${livro.degustacao.percentual}%)` : 'Ler amostra'}</Button>}
-                {livro.degustacao?.modo === 'tempo' && livro.degustacao.fimEm > 0 && <Typography variant="caption">Promoção: {new Date(livro.degustacao.inicioEm).toLocaleString('pt-BR')} até {new Date(livro.degustacao.fimEm).toLocaleString('pt-BR')}.</Typography>}
+              <Stack spacing={1} sx={{ mt: 2.5 }}>
+                {!acessoDigital && opcoes.some((opcao) => opcao.id === 'pix') && Number(livro.precoPixCentavos) > 0 && <Typography sx={{ fontWeight: 800, color: 'primary.main' }}>No Pix: {(livro.precoPixCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</Typography>}
                 {acessoDigital && livro.arquivos?.completo
-                  ? <Button variant="contained" size="large" startIcon={<VerifiedOutlinedIcon />} onClick={() => navigate(`/biblioteca/${livro.id}/ler`)} fullWidth>Ler livro</Button>
+                  ? <Button variant="contained" size="large" startIcon={<AutoStoriesOutlinedIcon />} onClick={() => navigate(`/biblioteca/${livro.id}/ler`)} fullWidth>Ler agora</Button>
                   : opcoes.length ? <Button variant="contained" size="large" startIcon={comprado ? <VerifiedOutlinedIcon /> : <ShoppingCartOutlinedIcon />} onClick={() => setOpcoesAbertas(true)} fullWidth>{comprado ? 'Abrir' : 'Comprar'}</Button> : ehAdmin ? <Alert severity="warning">Rascunho administrativo: cadastre Android, Apple, Amazon ou Pix para publicar.</Alert> : null}
+              </Stack>
+            </Box>
+            <Box sx={{ gridArea: 'capa', display: 'flex', justifyContent: 'center', '& > button': { maxWidth: { xs: 260, sm: 290, md: 330 } } }}><CapaLivro livro={livro} onClick={() => acessoDigital && livro.arquivos?.completo ? navigate(`/biblioteca/${livro.id}/ler`) : opcoes.length ? setOpcoesAbertas(true) : undefined} grande /></Box>
+            <Box sx={{ gridArea: 'extras', minWidth: 0 }}>
+              <Stack spacing={1.2}>
+                {amostraDisponivel && !acessoDigital && <Button variant="outlined" size="large" startIcon={<AutoStoriesOutlinedIcon />} onClick={() => navigate(`/biblioteca/${livro.id}/amostra`)} fullWidth>{livro.degustacao?.modo === 'tempo' ? 'Ver leitura gratuita por tempo' : livro.degustacao?.modo === 'percentual' ? `Ler amostra (${livro.degustacao.percentual}%)` : 'Ler amostra'}</Button>}
+                {amostraDisponivel && !acessoDigital && livro.degustacao?.modo === 'tempo' && <Typography variant="caption">Promoção: {new Date(livro.degustacao.inicioEm).toLocaleString('pt-BR')} até {new Date(livro.degustacao.fimEm).toLocaleString('pt-BR')}.</Typography>}
                 <CompartilharLivroButton livro={livro} fullWidth />
                 {acessoDigital && !ehAdmin && livro.downloadPermitido && livro.arquivos?.completo && <Button variant="outlined" disabled={baixando} onClick={baixar}>{baixando ? 'Preparando seu exemplar…' : 'Baixar exemplar de uso pessoal'}</Button>}
                 {erroDownload && <Alert severity="warning">{erroDownload}</Alert>}
               </Stack>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </Paper>
       </Container>
       <OpcoesDialog livro={opcoesAbertas ? livro : null} comprasConfirmadas={comprasConfirmadas} onConfirmarCompra={onConfirmarCompra} onClose={() => setOpcoesAbertas(false)} />
@@ -806,6 +854,18 @@ export default function BibliotecaLivros() {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
   const [editando, setEditando] = useState(null)
+  const [recuperandoCompras, setRecuperandoCompras] = useState(false)
+  const [chaveRecuperacao, setChaveRecuperacao] = useState('')
+  const [vinculandoCompras, setVinculandoCompras] = useState(false)
+  const [avisoVinculo, setAvisoVinculo] = useState('')
+  useEffect(() => {
+    if (!user?.uid) return
+    const chavePendente = sessionStorage.getItem('biblioteca-recuperacao-pendente')
+    if (!chavePendente) return
+    sessionStorage.removeItem('biblioteca-recuperacao-pendente')
+    setChaveRecuperacao(chavePendente)
+    setRecuperandoCompras(true)
+  }, [user?.uid])
   const [excluindo, setExcluindo] = useState(null)
   const [salvando, setSalvando] = useState(false)
   const [comprasConfirmadas, setComprasConfirmadas] = useState(() => lerComprasConfirmadas(user?.uid))
@@ -838,8 +898,7 @@ export default function BibliotecaLivros() {
 
   useEffect(() => {
     setAcessosCarregados(false)
-    if (!user?.uid) { setAcessosPix(new Set()); return undefined }
-    return assinarAcessosBiblioteca(user.uid, (acessos) => {
+    return assinarAcessosBiblioteca(user?.uid, (acessos) => {
       setAcessosPix(new Set(Object.entries(acessos || {}).filter(([, acesso]) => acesso?.ativo === true).map(([id]) => chaveCompra(id, 'pix'))))
       setAcessosCarregados(true)
     }, () => { setAcessosPix(new Set()); setAcessosCarregados(true) })
@@ -872,7 +931,11 @@ export default function BibliotecaLivros() {
     if (!user?.uid) {
       setLivros(obterCatalogoLivrosLocal())
       setCarregando(false)
-      return undefined
+      let ativo = true
+      const atualizar = () => { if (navigator.onLine) void catalogoVisitante().then((catalogo) => { if (ativo) setLivros(catalogo) }).catch(() => {}) }
+      atualizar()
+      window.addEventListener('online', atualizar)
+      return () => { ativo = false; window.removeEventListener('online', atualizar) }
     }
 
     return assinarCatalogoLivros(
@@ -990,7 +1053,39 @@ export default function BibliotecaLivros() {
   return (
     <>
       {erro && <Alert severity="error" onClose={() => setErro('')} sx={{ borderRadius: 0 }}>{erro}</Alert>}
+      {!livroId && !livroPessoalId && (!user || avisoVinculo) && <Box sx={{ px: 2, py: 1 }}>
+        {!user && <Alert severity="info" action={<Button onClick={() => navigate('/chat?returnTo=%2Fbiblioteca')}>Conectar conta</Button>}>{AVISO_COMPRA_SEM_LOGIN}</Alert>}
+        {avisoVinculo && <Alert severity="success">{avisoVinculo}</Alert>}
+      </Box>}
       {conteudo}
+      {!livroId && !livroPessoalId && !user && <Container maxWidth="lg" sx={{ py: 2 }}>
+        <Button onClick={() => setRecuperandoCompras(true)}>Recuperar compras efetuadas sem login</Button>
+      </Container>}
+      <Dialog open={recuperandoCompras} onClose={vinculandoCompras ? undefined : () => setRecuperandoCompras(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Recuperar compras efetuadas sem login</DialogTitle>
+        {!user && <DialogContent>
+          <Typography sx={{ mb: 2 }}>Neste aparelho, basta conectar uma conta para vincular suas compras. Para recuperar compras de outro aparelho, informe a chave guardada nele e conecte-se.</Typography>
+          <Button onClick={async () => {
+            try { await navigator.clipboard.writeText(dispositivoBiblioteca()); setAvisoVinculo('Chave copiada. Guarde em local seguro e não compartilhe.') }
+            catch { setErro('Não foi possível copiar a chave. Tente novamente no navegador do aparelho.') }
+          }}>Copiar chave de recuperação deste aparelho</Button>
+          <Typography variant="caption" display="block" sx={{ mb: 2 }}>A chave comprova a posse das compras deste aparelho. Não a compartilhe.</Typography>
+          <TextField label="Chave de outro aparelho (opcional)" value={chaveRecuperacao} onChange={(event) => setChaveRecuperacao(event.target.value)} fullWidth autoComplete="off" />
+        </DialogContent>}
+        {!user && <DialogActions><Button onClick={() => setRecuperandoCompras(false)}>Cancelar</Button><Button disabled={Boolean(chaveRecuperacao.trim()) && !/^[a-f0-9]{64}$/.test(chaveRecuperacao.trim())} onClick={() => {
+          if (chaveRecuperacao.trim()) sessionStorage.setItem('biblioteca-recuperacao-pendente', chaveRecuperacao.trim())
+          navigate('/chat?returnTo=%2Fbiblioteca')
+        }}>Conectar conta</Button></DialogActions>}
+        {user && <>
+        <DialogContent><Typography sx={{ mb: 2 }}>As compras feitas neste aparelho são vinculadas ao conectar a conta. Para recuperar as de outro aparelho, informe a chave que você guardou. A vinculação é definitiva e somente uma conta poderá receber essas compras.</Typography><TextField label="Chave de recuperação" value={chaveRecuperacao} onChange={(event) => setChaveRecuperacao(event.target.value)} fullWidth autoComplete="off" /></DialogContent>
+        <DialogActions><Button disabled={vinculandoCompras} onClick={() => setRecuperandoCompras(false)}>Cancelar</Button><Button disabled={vinculandoCompras || !/^[a-f0-9]{64}$/.test(chaveRecuperacao.trim())} onClick={async () => {
+          setVinculandoCompras(true)
+          try { await vincularComprasVisitante(chaveRecuperacao.trim(), true); setAvisoVinculo('Compras verificadas e vinculadas à sua conta.'); setRecuperandoCompras(false); setChaveRecuperacao('') }
+          catch (falha) { setErro(falha.message || 'Não foi possível recuperar as compras.') }
+          finally { setVinculandoCompras(false) }
+        }}>Vincular</Button></DialogActions>
+        </>}
+      </Dialog>
       {ehAdmin && <EditarLivroDialog livro={editando} aberto={Boolean(editando)} uid={user?.uid} onClose={() => setEditando(null)} onSalvar={salvar} salvando={salvando} />}
       {ehAdmin && <ConfiguracaoPixDialog aberto={configurandoPix} configuracao={configuracaoPix} onClose={() => setConfigurandoPix(false)} onSalvar={salvarPix} salvando={salvando} />}
       {ehAdmin && <PedidosPixDialog aberto={vendoPedidos} pedidos={pedidosPix} onClose={() => setVendoPedidos(false)} onDecidir={decidirPedido} processando={processandoPedido} />}

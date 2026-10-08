@@ -2,6 +2,7 @@ const admin = require('./firebaseAdmin')
 const QRCode = require('qrcode')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { enviarParaUsuarios } = require('./push')
+const { identificarLeitor } = require('./bibliotecaVisitante')
 
 const OPCOES = { region: 'us-central1', maxInstances: 5, cors: true }
 
@@ -71,8 +72,7 @@ exports.salvarConfiguracaoPixBiblioteca = onCall(OPCOES, async (req) => {
 })
 
 exports.criarPedidoPixBiblioteca = onCall(OPCOES, async (req) => {
-  const uid = req.auth?.uid
-  if (!uid) throw new HttpsError('unauthenticated', 'Entre na sua conta para comprar.')
+  const uid = await identificarLeitor(req)
   const livroId = texto(req.data?.livroId, 100).replace(/[^a-zA-Z0-9_-]/g, '')
   if (!livroId) throw new HttpsError('invalid-argument', 'Livro inválido.')
 
@@ -117,7 +117,7 @@ exports.criarPedidoPixBiblioteca = onCall(OPCOES, async (req) => {
   })
   const qrCodeDataUrl = await QRCode.toDataURL(payload, { width: 420, margin: 2, errorCorrectionLevel: 'M' })
   const agora = Date.now()
-  const token = req.auth.token || {}
+  const token = req.auth?.token || {}
   await pedidoRef.set({
     uid, email: texto(token.email, 240), nomeComprador: texto(token.name || token.email, 160),
     livroId, livroTitulo: texto(livro.titulo, 180), valorCentavos,
@@ -127,13 +127,13 @@ exports.criarPedidoPixBiblioteca = onCall(OPCOES, async (req) => {
 })
 
 exports.informarPagamentoPixBiblioteca = onCall(OPCOES, async (req) => {
-  const uid = req.auth?.uid
-  if (!uid) throw new HttpsError('unauthenticated', 'É preciso estar autenticado.')
+  const uid = await identificarLeitor(req)
   const pedidoId = texto(req.data?.pedidoId, 120).replace(/[^a-zA-Z0-9_-]/g, '')
   const ref = admin.database().ref(`bibliotecaPedidos/${pedidoId}`)
   const snap = await ref.get()
   const pedido = snap.val()
-  if (!pedido || pedido.uid !== uid) throw new HttpsError('not-found', 'Pedido não encontrado.')
+  const vinculo = pedido?.uid?.startsWith('visitante_') ? (await admin.database().ref(`bibliotecaVinculosVisitantes/${pedido.uid}`).get()).val() : null
+  if (!pedido || (pedido.uid !== uid && vinculo?.uid !== uid)) throw new HttpsError('not-found', 'Pedido não encontrado.')
   if (pedido.status === 'aprovado') return { ok: true, aprovado: true }
   if (!['aguardando_pagamento', 'pagamento_informado'].includes(pedido.status)) {
     throw new HttpsError('failed-precondition', 'Este pedido não pode mais ser confirmado.')
@@ -174,8 +174,12 @@ exports.decidirPedidoPixBiblioteca = onCall(OPCOES, async (req) => {
     ativo: true, origem: 'pix', pedidoId, adquiridoEm: agora,
   }
   await db.ref().update(atualizacoes)
+  // Leia o vínculo depois da liberação. A migração também relê os acessos
+  // depois de reservar a conta, cobrindo aprovação e login simultâneos.
+  const vinculo = pedido.uid.startsWith('visitante_') ? (await db.ref(`bibliotecaVinculosVisitantes/${pedido.uid}`).get()).val() : null
+  if (aprovado && vinculo?.uid) await db.ref(`bibliotecaAcessos/${vinculo.uid}/${pedido.livroId}`).transaction((atual) => atual?.ativo === true ? atual : { ativo: true, origem: 'pix', pedidoId, adquiridoEm: agora })
   await enviarParaUsuarios({
-    uids: [pedido.uid],
+    uids: pedido.uid.startsWith('visitante_') ? (vinculo?.uid ? [vinculo.uid] : []) : [pedido.uid],
     notification: aprovado
       ? { title: 'Pagamento confirmado', body: `Seu acesso a “${pedido.livroTitulo}” foi liberado.` }
       : { title: 'Pagamento não localizado', body: `Não conseguimos confirmar o Pix de “${pedido.livroTitulo}”. Fale com o suporte para conferirmos.` },

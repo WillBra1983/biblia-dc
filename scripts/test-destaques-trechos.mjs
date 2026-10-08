@@ -15,12 +15,39 @@ const { partesApresentacao, contarApresentacao } = carregar('src/utils/apresenta
 assert.equal(contarApresentacao('**Negrito** e *itálico*'), 'Negrito e itálico'.length)
 assert.equal(partesApresentacao('***Ambos***')[0].tipo, 'negritoitalico')
 assert.equal(contarApresentacao('***Ambos***'), 5)
+let fontesTrecho = new Set()
+let alinhamentosTrecho = new Set()
 const canvasFactory = () => {
   const canvas = createCanvas(1080, 1350)
+  const ctx = canvas.getContext('2d')
+  const desenhar = ctx.fillText.bind(ctx)
+  ctx.fillText = (texto, x, y) => {
+    if (ctx.font.includes('Georgia') && y < 960) { fontesTrecho.add(ctx.font); alinhamentosTrecho.add(`${ctx.textAlign}:${x}`) }
+    desenhar(texto, x, y)
+  }
   canvas.toBlob = (callback) => callback(new Blob([canvas.toBuffer('image/png')], { type: 'image/png' }))
   return canvas
 }
 const funcoes = carregar('src/utils/livroTrechoImagem.js', { normalizarTrechoLivro, document: { createElement: canvasFactory }, Blob })
+assert.equal(funcoes.aspasTrechoImagem('Trecho', 1, 1), '“Trecho”')
+assert.equal(funcoes.aspasTrechoImagem('Início', 1, 4), '“Início')
+assert.equal(funcoes.aspasTrechoImagem('Continuação', 2, 4), 'Continuação')
+assert.equal(funcoes.aspasTrechoImagem('Continuação', 3, 4), 'Continuação')
+assert.equal(funcoes.aspasTrechoImagem('Fim', 4, 4), 'Fim”')
+const medir = (texto) => texto.length * 25
+assert.equal(funcoes.ultimaLinhaPermitida('uma linha com quatro', medir), true)
+assert.equal(funcoes.ultimaLinhaPermitida('apenas três palavras', medir), false)
+assert.equal(funcoes.ultimaLinhaPermitida('extraordinariamente incompreensivelmente', medir), true)
+assert.equal(funcoes.ultimaLinhaPermitida('que', medir), false)
+assert.deepEqual(Array.from(funcoes.ajustarUltimaLinha(['marido e mulher são', 'pessoas'], medir)), ['marido e mulher são pessoas'])
+assert.equal(funcoes.ultimaLinhaPermitida('ordem.', medir), true)
+assert.equal(funcoes.ultimaLinhaPermitida('ordem.”', medir), true)
+assert.deepEqual(Array.from(funcoes.ajustarUltimaLinha(['sociedade é mantida em', 'ordem.'], medir)), ['sociedade é mantida em', 'ordem.'])
+assert.equal(funcoes.ultimaLinhaPermitida('ordem', medir), false)
+assert.equal(funcoes.ajustarUltimaLinha(['parágrafo anterior', '', 'que'], medir), null)
+assert.ok(funcoes.penalidadeFinalQuadro(['relações entre marido e mulher', 'que'], medir) > funcoes.penalidadeFinalQuadro(['relações entre marido e mulher'], medir))
+assert.equal(funcoes.penalidadeFinalQuadro(['O parágrafo termina aqui.'], medir), 0)
+assert.ok(funcoes.penalidadeFinalQuadro(['Uma frase que termina em que'], medir) > 0)
 const original = 'Pergunta 9\nMinistro: Como faremos isso?\n\nDiscípulo: Conhecendo-o como todo-poderoso e perfeitamente bom. '.repeat(8)
 const partes = funcoes.dividirTrechoEmPartes(original, (texto) => texto.length <= 240)
 assert.ok(partes.length > 1)
@@ -31,7 +58,44 @@ assert.ok(imagens.length > 1)
 assert.ok(imagens.every((imagem) => imagem.type === 'image/png' && imagem.size > 10000))
 const menores = await funcoes.gerarImagensTrechoLivro({ trecho: original, titulo: 'Livro de teste', dividir: true, reduzirFonte: true })
 assert.ok(menores.length <= imagens.length)
-await assert.rejects(funcoes.gerarImagensTrechoLivro({ trecho: original, dividir: false }), /muito longo/)
+fontesTrecho = new Set()
+alinhamentosTrecho = new Set()
+const escolhidas = await funcoes.gerarImagensTrechoLivro({ trecho: original, titulo: 'Livro de teste', dividir: true, quantidadeQuadros: 6 })
+assert.equal(escolhidas.length, 6)
+assert.equal(fontesTrecho.size, 1, 'Os seis quadros devem desenhar o trecho com a mesma fonte.')
+assert.deepEqual([...alinhamentosTrecho], ['left:115'], 'Os trechos devem ter a mesma margem e alinhamento em todos os quadros.')
+await assert.rejects(funcoes.gerarImagensTrechoLivro({ trecho: original, quantidadeQuadros: 1 }), /não cabe/)
+const seisPartes = funcoes.dividirTrechoEmPartes(original, (texto) => texto.length <= 240, 6)
+assert.equal(seisPartes.length, 6)
+assert.equal(seisPartes.join(' ').replace(/\s+/g, ' ').trim(), original.replace(/\s+/g, ' ').trim())
+let enviado
+class Arquivo extends Blob { constructor(conteudo, nome, opcoes) { super(conteudo, opcoes); this.name = nome } }
+const envioWeb = carregar('src/utils/livroTrechoImagem.js', {
+  normalizarTrechoLivro, Capacitor: { isNativePlatform: () => false }, File: Arquivo,
+  navigator: { canShare: ({ files }) => files.length > 0, share: async (dados) => { enviado = dados } },
+})
+await envioWeb.compartilharImagemTrechoLivro(escolhidas, { titulo: 'Teste', urlLivro: 'https://example.org/livro' })
+assert.equal(enviado.files.length, 6)
+assert.equal(enviado.text, undefined)
+assert.equal(enviado.url, undefined)
+assert.ok(enviado.files.every((arquivo) => arquivo.type === 'image/png'))
+let nativo, apagados = 0
+class LeitorTeste { readAsDataURL() { this.result = 'data:image/png;base64,teste'; this.onload() } }
+const envioNativo = carregar('src/utils/livroTrechoImagem.js', {
+  normalizarTrechoLivro, Capacitor: { isNativePlatform: () => true }, FileReader: LeitorTeste, Directory: { Cache: 'CACHE' },
+  Filesystem: { writeFile: async () => {}, getUri: async ({ path }) => ({ uri: `file:///cache/${path}` }), deleteFile: async () => { apagados++ } },
+  Share: { share: async (dados) => { nativo = dados } }, window: { setTimeout: () => {} },
+})
+await envioNativo.compartilharImagemTrechoLivro(escolhidas, { titulo: 'Teste' })
+assert.equal(nativo.files.length, 6)
+assert.equal(nativo.text, undefined)
+assert.equal(apagados, 0)
+console.log('OK: quantidade escolhida, preservação do texto e envio web/nativo com PNGs sem link ou exclusão prematura (simulados).')
+await assert.rejects(funcoes.gerarImagensTrechoLivro({ trecho: original, dividir: false }), /não cabe/)
+const plano = funcoes.planejarImagensTrecho(canvasFactory().getContext('2d'), { trecho: original, quantidadeQuadros: 6 })
+assert.equal(plano.partes.length, 6)
+assert.ok(plano.tamanhoFonte >= 46 && plano.tamanhoFonte <= 60)
+assert.equal(plano.partes.join(' ').replace(/\s+/g, ' ').trim(), original.replace(/\s+/g, ' ').trim())
 const { destaquesAtivos, LIMITE_APRESENTACAO, APRESENTACAO_LUZ_TEMPOS } = carregar('src/services/destaquesMenuService.js')
 assert.ok(APRESENTACAO_LUZ_TEMPOS.length <= LIMITE_APRESENTACAO)
 assert.ok(APRESENTACAO_LUZ_TEMPOS.includes('William Gurnall'))

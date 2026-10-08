@@ -16,6 +16,7 @@ const PREFIXOS_CONTA_OU_NUVEM = [
 ]
 
 const PREFIXOS_CONTEUDO_LOCAL = [
+  '/biblioteca',
   '/biblia',
   '/discipulado',
   '/quiz-retiro',

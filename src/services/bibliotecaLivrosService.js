@@ -2,6 +2,29 @@ import { livrosCatalogo } from '../data/livrosCatalogo'
 import { contarApresentacao } from '../utils/apresentacaoFormatada'
 
 const CAMINHO = 'bibliotecaLivros'
+export const AVISO_COMPRA_SEM_LOGIN = 'Se você comprar sem efetuar login, não poderá acessar seus livros em outros aparelhos. Caso queira recuperar suas compras, e ler seu(s) livro(s) em outros aparelhos, conecte-se em alguma conta.'
+export function dispositivoBiblioteca() {
+  let token = localStorage.getItem('biblioteca-dispositivo-v1')
+  if (!token) {
+    token = Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) => byte.toString(16).padStart(2, '0')).join('')
+    localStorage.setItem('biblioteca-dispositivo-v1', token)
+  }
+  return token
+}
+async function donoOffline() {
+  const { getFirebaseAuth } = await import('../config/firebase')
+  return getFirebaseAuth()?.currentUser?.uid || `aparelho:${dispositivoBiblioteca()}`
+}
+export async function prepararLeituraOffline(livroId) {
+  const { prepararLivroOffline } = await import('./bibliotecaOfflineService')
+  // Renova a autorização e o endereço, que expira durante uma leitura longa.
+  const autorizado = await chamarFuncao('obterArquivoLivroBiblioteca', { livroId, finalidade: 'completo', download: false })
+  await prepararLivroOffline(`${await donoOffline()}:${livroId}`, autorizado)
+}
+export async function vincularComprasVisitante(token = dispositivoBiblioteca(), recuperar = false) {
+  const dados = await chamarFuncao('vincularComprasBibliotecaVisitante', { dispositivoBiblioteca: token, recuperar })
+  return dados
+}
 
 function texto(valor, limite = 1200) {
   return String(valor || '').trim().slice(0, limite)
@@ -69,7 +92,13 @@ function catalogoMesclado(remotos = {}) {
 }
 
 export function obterCatalogoLivrosLocal() {
-  return catalogoMesclado()
+  try { return catalogoMesclado(JSON.parse(localStorage.getItem('biblioteca-catalogo-offline') || '{}')) }
+  catch { return catalogoMesclado() }
+}
+export async function catalogoVisitante() {
+  const livros = await chamarFuncao('catalogoBibliotecaVisitante')
+  localStorage.setItem('biblioteca-catalogo-offline', JSON.stringify(livros))
+  return catalogoMesclado(livros)
 }
 
 async function obterRtdb() {
@@ -93,7 +122,7 @@ export function assinarCatalogoLivros(callback, onError) {
     const { db, api } = rtdb
     cancelar = api.onValue(
       api.ref(db, CAMINHO),
-      (snap) => callback(catalogoMesclado(snap.val() || {})),
+      (snap) => { const livros = snap.val() || {}; localStorage.setItem('biblioteca-catalogo-offline', JSON.stringify(livros)); callback(catalogoMesclado(livros)) },
       (erro) => {
         callback(catalogoMesclado())
         onError?.(erro)
@@ -207,23 +236,37 @@ async function chamarFuncao(nome, dados = {}) {
   const functions = getFirebaseFunctions()
   if (!functions) throw new Error('Serviço temporariamente indisponível.')
   const { httpsCallable } = await import('firebase/functions')
-  const resultado = await httpsCallable(functions, nome)(dados)
+  const visitante = ['criarPedidoPixBiblioteca', 'informarPagamentoPixBiblioteca', 'obterArquivoLivroBiblioteca', 'acessosBibliotecaVisitante', 'vincularComprasBibliotecaVisitante'].includes(nome)
+  const resultado = await httpsCallable(functions, nome)({ ...(visitante ? { dispositivoBiblioteca: dispositivoBiblioteca() } : {}), ...dados })
   return resultado?.data || {}
 }
 
 export function assinarAcessosBiblioteca(uid, callback, onError) {
   let cancelar = () => {}
   let ativo = true
-  if (!uid) { callback({}); return cancelar }
+  const cache = `biblioteca-acessos-offline:${uid || dispositivoBiblioteca()}`
+  try { callback(JSON.parse(localStorage.getItem(cache) || '{}')) } catch { callback({}) }
+  const entregar = (dados) => { if (ativo) { try { localStorage.setItem(cache, JSON.stringify(dados)) } catch { /* Não interrompa o acesso online por falta de espaço. */ } callback(dados) } }
+  if (!uid) {
+    const atualizar = () => { if (navigator.onLine) void chamarFuncao('acessosBibliotecaVisitante').then(entregar).catch((erro) => onError?.(erro)) }
+    atualizar()
+    const timer = setInterval(atualizar, 15000)
+    window.addEventListener('online', atualizar)
+    return () => { ativo = false; clearInterval(timer); window.removeEventListener('online', atualizar) }
+  }
+  const vincular = () => { if (navigator.onLine) void vincularComprasVisitante().catch(() => {}) }
+  vincular()
+  window.addEventListener('online', vincular)
+  window.addEventListener('focus', vincular)
   void obterRtdb().then((rtdb) => {
     if (!ativo || !rtdb) return callback({})
     cancelar = rtdb.api.onValue(
       rtdb.api.ref(rtdb.db, `bibliotecaAcessos/${uid}`),
-      (snap) => callback(snap.val() || {}),
+      (snap) => entregar(snap.val() || {}),
       (erro) => onError?.(erro),
     )
   }).catch((erro) => onError?.(erro))
-  return () => { ativo = false; cancelar() }
+  return () => { ativo = false; cancelar(); window.removeEventListener('online', vincular); window.removeEventListener('focus', vincular) }
 }
 
 export function assinarPedidosPixAdmin(callback, onError) {
@@ -285,8 +328,13 @@ export async function enviarArquivoLivroBiblioteca(livroId, finalidade, arquivo)
   return confirmado.arquivo
 }
 
-export const obterArquivoLivroBiblioteca = (livroId, finalidade = 'completo', download = false, eventoId = null) =>
-  chamarFuncao('obterArquivoLivroBiblioteca', { livroId, finalidade, download, eventoId })
+export async function obterArquivoLivroBiblioteca(livroId, finalidade = 'completo', download = false, eventoId = null) {
+  if (!navigator.onLine && finalidade === 'completo' && !download) {
+    const { abrirLivroOffline } = await import('./bibliotecaOfflineService')
+    return abrirLivroOffline(`${await donoOffline()}:${livroId}`)
+  }
+  return chamarFuncao('obterArquivoLivroBiblioteca', { livroId, finalidade, download, eventoId })
+}
 
 export const registrarAcessoBiblioteca = (dados) => chamarFuncao('registrarAcessoBiblioteca', dados)
 export const listarAcessosBibliotecaAdmin = (inicio, fim) => chamarFuncao('listarAcessosBibliotecaAdmin', { inicio, fim })

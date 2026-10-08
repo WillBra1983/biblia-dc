@@ -218,6 +218,8 @@ export default function BibliotecaPdfReader({ url, storageKey, onBibleReference,
     onVisibleRef.current(numero)
   }, [proporcoes])
   const anchorRef = useRef(null)
+  const ancoraEstavelRef = useRef(null)
+  const tamanhoEstavelRef = useRef(null)
   const gestureRef = useRef(null)
   const lastTapRef = useRef(null)
   const suppressTapRef = useRef(0)
@@ -246,8 +248,16 @@ export default function BibliotecaPdfReader({ url, storageKey, onBibleReference,
     const bounds = page.getBoundingClientRect()
     root.scrollTo({ top: root.scrollTop + bounds.top - rect.top + bounds.height * anchor.y - anchor.screenY, left: root.scrollLeft + bounds.left - rect.left + bounds.width * anchor.x - anchor.screenX })
     anchorRef.current = null
+    onVisibleRef.current?.(Number(anchor.numero))
   })
-  useLayoutEffect(() => { restoreRef.current() }, [zoom, largura, immersive])
+  useLayoutEffect(() => {
+    restoreRef.current()
+    const root = rootRef.current
+    if (root) {
+      tamanhoEstavelRef.current = { largura: root.clientWidth, altura: root.clientHeight }
+      ancoraEstavelRef.current = getAnchorRef.current()
+    }
+  }, [zoom, largura, immersive, proporcoes])
   const toggleRef = useRef(null)
   toggleRef.current = () => { preserveRef.current(); onPageTap() }
   const [pagina, setPagina] = useState(() => Math.max(1, Number(localStorage.getItem(storageKey)) || 1))
@@ -265,10 +275,21 @@ export default function BibliotecaPdfReader({ url, storageKey, onBibleReference,
   useEffect(() => {
     const observer = new ResizeObserver(([entry]) => {
       const novaLargura = Math.max(240, Math.min(entry.contentRect.width - 16, 1100))
-      if (Math.abs(novaLargura - larguraRef.current) < .5) return
-      preserveRef.current()
+      const root = rootRef.current
+      const tamanho = tamanhoEstavelRef.current
+      const mudouAltura = tamanho && tamanho.altura !== root.clientHeight
+      const mudouLargura = Math.abs(novaLargura - larguraRef.current) >= .5
+      if (!mudouLargura && !mudouAltura) return
+      // ResizeObserver já recebe o tamanho novo: usar a âncora capturada
+      // antes da rotação, não a página que apareceu no rearranjo provisório.
+      anchorRef.current ||= ancoraEstavelRef.current || getAnchorRef.current()
       larguraRef.current = novaLargura
       setLargura(novaLargura)
+      if (!mudouLargura) {
+        restoreRef.current()
+        tamanhoEstavelRef.current = { largura: root.clientWidth, altura: root.clientHeight }
+        ancoraEstavelRef.current = getAnchorRef.current()
+      }
     })
     observer.observe(rootRef.current)
     return () => observer.disconnect()
@@ -375,7 +396,12 @@ export default function BibliotecaPdfReader({ url, storageKey, onBibleReference,
     <Box sx={{ display: 'flex', justifyContent: 'center', bgcolor: 'background.paper', flexShrink: 0 }}>
       <Button size="small" disabled={!documento} aria-label="Escolher página ou capítulo do PDF" onClick={() => { setPaginaDigitada(String(pagina)); setEscolherPagina(true) }}>{pagina} de {documento?.numPages || '…'}</Button>
     </Box>
-    <Box ref={rootRef} onDoubleClick={(event) => { if (Date.now() < suppressTapRef.current || event.target.closest?.('button, input')) return; event.preventDefault(); toggleRef.current() }} sx={{ flex: 1, minHeight: 0, overflow: 'auto', touchAction: 'pan-x pan-y', overscrollBehavior: 'contain', borderRadius: immersive ? 0 : 1 }}>
+      <Box ref={rootRef} onScroll={() => {
+        const root = rootRef.current
+        const tamanho = tamanhoEstavelRef.current
+        if (!root || !tamanho || anchorRef.current || root.clientWidth !== tamanho.largura || root.clientHeight !== tamanho.altura) return
+        ancoraEstavelRef.current = getAnchorRef.current()
+      }} onDoubleClick={(event) => { if (Date.now() < suppressTapRef.current || event.target.closest?.('button, input')) return; event.preventDefault(); toggleRef.current() }} sx={{ flex: 1, minHeight: 0, overflow: 'auto', overflowAnchor: 'none', touchAction: 'pan-x pan-y', overscrollBehavior: 'contain', borderRadius: immersive ? 0 : 1 }}>
     {erro ? <Alert severity="error">{erro}</Alert> : !documento ? <Box sx={{ textAlign: 'center', p: 8 }}><CircularProgress /></Box> : <Stack spacing={2} sx={{ bgcolor: '#777', py: 1, minWidth: largura * zoom }}>
       {Array.from({ length: documento.numPages }, (_, index) => <PdfPage key={index + 1} proporcaoConhecida={proporcoes[index + 1]} preserve={preserveRef.current} restore={restoreRef.current} scrollRoot={rootRef} documento={documento} numero={index + 1} largura={largura} zoom={zoom} recursos={recursos} aoReferencia={aoReferenciaRef.current} aoVisivel={onVisibleRef.current} />)}
     </Stack>}

@@ -2660,7 +2660,9 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             pointerEvents: 'none',
           }}
         />
-        <Box sx={{ width: '100%', maxWidth: 1180, mx: 'auto', px: 1, boxSizing: 'border-box' }}>
+        <Box sx={{ width: '100%', maxWidth: 1180, mx: 'auto', px: 1, boxSizing: 'border-box', ...(resultados.length > 0 && {
+          bgcolor: (theme) => theme.palette.mode === 'dark' ? '#000000' : '#fffaf0',
+        }) }}>
         {erro ? (
           <Typography color="error" align="center">
             {erro}

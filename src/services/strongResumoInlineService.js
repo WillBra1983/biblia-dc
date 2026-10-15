@@ -137,8 +137,6 @@ async function resolverLemmaTexto({ codeNorm, detalhe, user, forcar, aplicarCach
 
   const gerado = await gerarResumoLemmaStrongGemini({ detalhe })
   if (!gerado.ok || !gerado.text) {
-    const fb = montarFallbackLexicalCurto(detalhe)
-    if (fb) return { ok: true, text: fb, fonte: 'fallback' }
     return { ok: false, error: gerado.error || 'Não foi possível gerar o resumo do léma.' }
   }
 

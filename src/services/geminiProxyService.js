@@ -22,7 +22,7 @@ export async function chamarGeminiViaProxy(model, body) {
   }
 
   const { httpsCallable } = await import('firebase/functions')
-  const fn = httpsCallable(fns, 'geminiGenerateContent', { timeout: 120_000 })
+  const fn = httpsCallable(fns, 'geminiGenerateContent', { timeout: 240_000 })
 
   try {
     const res = await fn({ model, body })

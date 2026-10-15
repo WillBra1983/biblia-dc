@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Paper, Stack, Typography, Select, MenuItem } from '@mui/material'
 import IosShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
+import FullscreenIcon from '@mui/icons-material/Fullscreen'
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
 import CompartilharTrechoLivroDialog from './CompartilharTrechoLivroDialog'
 import CompartilharLivroButton from './CompartilharLivroButton'
 import VersiculoPopup from './VersiculoPopup'
@@ -327,8 +329,11 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
   return (
     <Stack spacing={compacto ? 0 : 1.5}>
       {erro && <Alert severity="error">{erro}</Alert>}
-      {compacto && <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ height: 40, flexShrink: 0 }}>
+      {compacto && <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5} sx={{ minHeight: 44, flexShrink: 0, flexWrap: 'wrap' }}>
+        <Button size="small" disabled={carregando || tamanho <= 80} aria-label="Diminuir letras do EPUB" title="Diminuir letras" sx={{ minWidth: 44, minHeight: 44, fontSize: '1.5rem' }} onClick={() => setTamanho((v) => Math.max(80, v - 10))}>−</Button>
         <Button size="small" disabled={carregando} aria-label="Escolher posição ou capítulo do EPUB" title="Escolha uma posição de leitura ou um capítulo do sumário." onClick={() => { setPaginaDigitada(String(pagina)); setEscolherPagina(true) }}>{pagina} de {total || '…'}</Button>
+        <Button size="small" disabled={carregando || tamanho >= 160} aria-label="Ampliar letras do EPUB" title="Ampliar letras" sx={{ minWidth: 44, minHeight: 44, fontSize: '1.5rem' }} onClick={() => setTamanho((v) => Math.min(160, v + 10))}>+</Button>
+        <Button size="small" aria-label={immersive ? 'Sair da tela cheia' : 'Entrar em tela cheia'} title={immersive ? 'Sair da tela cheia' : 'Entrar em tela cheia'} sx={{ minWidth: 44, minHeight: 44 }} onClick={() => onPageTap?.()}>{immersive ? <FullscreenExitIcon /> : <FullscreenIcon />}</Button>
         <Select size="small" value={modo} disabled={carregando} inputProps={{ 'aria-label': 'Modo de leitura do EPUB' }} onChange={(event) => {
           const cfi = posicaoTrocaModoEpub(renditionRef.current, localStorage.getItem(storageKey))
           posicaoTrocaRef.current = { storageKey, cfi }
@@ -356,7 +361,7 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
         <Box component="img" src={capaUrl} alt="Capa do livro" sx={{ display: 'block', maxWidth: '100%', maxHeight: '68vh', objectFit: 'contain', borderRadius: 0.75, boxShadow: '0 8px 24px rgba(0,0,0,.2)' }} />
       </Box>}
       <Box sx={{ position: 'relative', display: exibindoCapa ? 'none' : 'block' }}>
-        <Box ref={areaRef} sx={{ visibility: carregando ? 'hidden' : 'visible', height: immersive ? (compacto ? 'calc(100dvh - 40px)' : '100dvh') : '72svh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)' }} />
+        <Box ref={areaRef} sx={{ visibility: carregando ? 'hidden' : 'visible', height: immersive ? (compacto ? 'calc(100dvh - 88px)' : '100dvh') : '72svh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)' }} />
         {carregando && <Box sx={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }}><EstadoCarregando /></Box>}
       </Box>
       <Dialog open={escolherPagina} onClose={() => setEscolherPagina(false)} fullWidth maxWidth="sm">

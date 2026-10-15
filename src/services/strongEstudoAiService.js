@@ -23,9 +23,9 @@ import {
  * Resumo lexical via Google Gemini (mesmo ecossistema que o módulo Android de exemplo).
  * A chave exposta no bundle só é aceitável em builds privados; para produção pública use um proxy (Cloud Function, etc.).
  *
- * Enriquecimento (VITE_GEMINI_LEXICAL_WEB_ENRICHMENT não '0'):
+ * Pesquisa externa obrigatória para novas gerações (validada no proxy):
  * — Dados locais como âncora factual (Strong, BDB, STEPBible SQLite, TWOT, ocorrências, léxico PT-BR).
- * — `google_search` do Gemini absorve material de STEPBible.org, Blue Letter Bible e TWOT na síntese final.
+ * — Google Search consulta o catálogo acadêmico selecionado no servidor; sem evidências não há nova geração.
  * — O aluno vê prosa integrada em pt-BR, sem URLs nem bibliografia.
  */
 export function iaGeminiDisponivel() {
@@ -49,10 +49,9 @@ function obterListaModelosTentativa() {
   return [...new Set(ordered)]
 }
 
-/** `VITE_GEMINI_LEXICAL_WEB_ENRICHMENT` !== '0' → tenta Google Search no Gemini (grounding oficial). */
+/** Pesquisa obrigatória para novos resumos; uma variável de build não a desativa. */
 export function lexicalWebEnrichmentAtivo() {
-  const v = import.meta.env.VITE_GEMINI_LEXICAL_WEB_ENRICHMENT
-  return v !== '0' && v !== 'false'
+  return true
 }
 
 /**
@@ -441,8 +440,9 @@ function montarCorpoPedidoGemini(contexto, { modoPrompt, usarGoogleSearch, tipo 
       topP: 0.92,
     },
   }
-  if (usarGoogleSearch && !isToken) {
+  if (usarGoogleSearch) {
     body.tools = [{ google_search: {} }]
+    body.pesquisaBiblicaObrigatoria = true
   }
   return body
 }
@@ -602,31 +602,13 @@ async function executarGeminiResumo({ montarTentativas, maxChars = MAX_CHARS_RES
 }
 
 function montarTentativasLemma(contextoLexical) {
-  const webOn = lexicalWebEnrichmentAtivo()
-  return webOn
-    ? [
+  return [
         {
           body: montarCorpoPedidoGemini(
             { contextoLexical },
             { modoPrompt: 'enriquecido', usarGoogleSearch: true, tipo: 'lemma' }
           ),
           label: 'web',
-        },
-        {
-          body: montarCorpoPedidoGemini(
-            { contextoLexical },
-            { modoPrompt: 'enriquecido', usarGoogleSearch: false, tipo: 'lemma' }
-          ),
-          label: 'enriquecido_sem_busca',
-        },
-      ]
-    : [
-        {
-          body: montarCorpoPedidoGemini(
-            { contextoLexical },
-            { modoPrompt: 'local', usarGoogleSearch: false, tipo: 'lemma' }
-          ),
-          label: 'local',
         },
       ]
 }
@@ -657,7 +639,7 @@ export async function gerarResumoTokenStrongGemini({ detalhe, token, ehGrego, re
       {
         body: montarCorpoPedidoGemini(
           { promptUsuario },
-          { modoPrompt: 'local', usarGoogleSearch: false, tipo: 'token' }
+          { modoPrompt: 'enriquecido', usarGoogleSearch: true, tipo: 'token' }
         ),
         label: 'token',
       },

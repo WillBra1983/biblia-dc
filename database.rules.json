@@ -1,5 +1,10 @@
 {
   "rules": {
+    "analiseTextual": {
+      ".read": false,
+      ".write": false,
+      "revisoes": { ".indexOn": ["em"] }
+    },
     "chats": {
       "$chatId": {
         ".write": "auth != null && !newData.exists() && data.exists() && data.child('participants').child(auth.uid).exists() && data.child('createdByFirstMessage').exists() && data.child('createdByFirstMessage').val() === auth.uid",

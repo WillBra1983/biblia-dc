@@ -1,0 +1,15 @@
+[
+  {"nome":"Bill Mounce — Greek New Testament Dictionary","url":"https://www.billmounce.com/greek-dictionary/","uso":"Léxico grego do NT com lemas, formas e concordância. Verificar o verbete específico; não tratar concordâncias ou frequência como exegese suficiente. Comparar com outras fontes quando houver divergência."},
+  {"nome":"STEPBible / Tyndale House","url":"https://www.stepbible.org/","uso":"Léxicos bíblicos, lemas, concordância e morfologia; base prioritária."},
+  {"nome":"Perseus / Tufts University","url":"https://atlas.perseus.tufts.edu/","uso":"LSJ e corpus grego; distinguir uso clássico, helenístico e bíblico."},
+  {"nome":"Perseus Digital Library","url":"https://www.perseus.tufts.edu/","uso":"Léxicos e textos gregos de referência."},
+  {"nome":"Logeion / University of Chicago","url":"https://logeion.uchicago.edu/","uso":"Comparação de léxicos gregos; não impor sentidos clássicos ao NT."},
+  {"nome":"Comprehensive Aramaic Lexicon / Hebrew Union College","url":"https://cal.huc.edu/","uso":"Aramaico: distinguir dialetos, períodos e ocorrência bíblica."},
+  {"nome":"Tyndale House","url":"https://tyndalehouse.com/","uso":"Pesquisa filológica e notas públicas do THGNT; não presumir aparato pago."},
+  {"nome":"Tyndale Bulletin","url":"https://tyndalebulletin.org/","uso":"Artigos acadêmicos pertinentes: autor, título, ano e localização quando disponíveis."},
+  {"nome":"INTF / Universität Münster","url":"https://ntvmr.uni-muenster.de/","uso":"Manuscritos e crítica textual; citar testemunhos apenas quando verificáveis."},
+  {"nome":"Blue Letter Bible","url":"https://www.blueletterbible.org/","uso":"Thayer, Gesenius e Strong: fontes históricas auxiliares, não autoridade exclusiva."},
+  {"nome":"MorphGNT","url":"https://github.com/morphgnt/","uso":"Documentação dos códigos de parsing e texto original."},
+  {"nome":"Open Scriptures","url":"https://github.com/openscriptures/","uso":"Documentação da morfologia hebraica e aramaica."},
+  {"nome":"Orthodox Presbyterian Church","url":"https://www.opc.org/","uso":"Verificar Confissão e Catecismos de Westminster; não é fonte lexical."}
+]

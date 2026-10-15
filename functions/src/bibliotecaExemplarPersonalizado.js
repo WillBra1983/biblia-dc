@@ -1,8 +1,8 @@
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib')
 const JSZip = require('jszip')
 const { DOMParser, XMLSerializer } = require('@xmldom/xmldom')
-const AVISO = 'Uso pessoal. Os direitos autorais do livro não permite redistribuição.'
-const VERSAO_EXEMPLAR = 2
+const AVISO = 'Os direitos autorais da tradução, revisão e organização editorial pertencem à Bíblia do Discípulo Cristão. Não é permitida a redistribuição deste arquivo.'
+const VERSAO_EXEMPLAR = 3
 async function personalizarExemplar(bytes, formato, codigo, nomeComprador = 'Comprador identificado pela licença') {
   const nome = String(nomeComprador).replace(/[\r\n\t]/g, ' ').trim().slice(0, 100) || 'Comprador identificado pela licença'
   if (!/^BDC-[A-F0-9]{20}$/.test(codigo)) throw new Error('Código de exemplar inválido.')
@@ -17,13 +17,28 @@ async function personalizarExemplar(bytes, formato, codigo, nomeComprador = 'Com
       pagina.setCropBox(crop.x, crop.y - 22, crop.width, crop.height + 22)
       pagina.drawText(`Exemplar ${codigo} - Uso pessoal`, { x: crop.x + 8, y: crop.y - 14, size: Math.min(7, (crop.width - 16) / fonte.widthOfTextAtSize(`Exemplar ${codigo} - Uso pessoal`, 1)), font: fonte, color: rgb(.3, .3, .3) })
     }
-    const identificacao = doc.insertPage(0, [420, 300])
-    identificacao.drawText('Exemplar de uso pessoal', { x: 30, y: 240, size: 18, font: fonte })
+    const identificacao = doc.insertPage(0, [420, 440])
+    identificacao.drawText('Exemplar de uso pessoal', { x: 30, y: 380, size: 18, font: fonte })
     const nomePdf = Array.from(nome).map((char) => { try { fonte.encodeText(char); return char } catch { return '?' } }).join('')
-    identificacao.drawText(`Exemplar licenciado para ${nomePdf}`, { x: 30, y: 205, size: 11, font: fonte, maxWidth: 360, lineHeight: 16 })
-    identificacao.drawText(`Compra: ${codigo}`, { x: 30, y: 150, size: 11, font: fonte })
-    identificacao.drawText('Uso pessoal. Os direitos autorais do livro', { x: 30, y: 110, size: 12, font: fonte })
-    identificacao.drawText('não permite redistribuição.', { x: 30, y: 90, size: 12, font: fonte })
+    let y = 350
+    const escrever = (texto) => {
+      const linhas = []
+      let linha = ''
+      for (const palavra of texto.split(/\s+/)) {
+        const candidata = linha ? `${linha} ${palavra}` : palavra
+        if (linha && fonte.widthOfTextAtSize(candidata, 11) > 360) { linhas.push(linha); linha = palavra }
+        else linha = candidata
+      }
+      if (linha) linhas.push(linha)
+      for (const textoLinha of linhas) {
+        identificacao.drawText(textoLinha, { x: 30, y, size: 11, font: fonte })
+        y -= 16
+      }
+      y -= 12
+    }
+    escrever(`Exemplar licenciado para ${nomePdf} pela Bíblia do Discípulo Cristão.`)
+    escrever(`Código do exemplar: ${codigo}`)
+    escrever(`Este exemplar destina-se exclusivamente ao uso pessoal de ${nomePdf}. ${AVISO}`)
     return Buffer.from(await doc.save())
   }
   if (formato !== 'epub') throw new Error('Formato indisponível.')
@@ -50,7 +65,7 @@ async function personalizarExemplar(bytes, formato, codigo, nomeComprador = 'Com
   const ref = doc.createElementNS(spine.namespaceURI, 'itemref')
   ref.setAttribute('idref', id); spine.insertBefore(ref, spine.firstChild)
   const nomeXml = nome.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  zip.file(base + arquivo, `<?xml version="1.0" encoding="UTF-8"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Exemplar de uso pessoal</title></head><body><h1>Exemplar de uso pessoal</h1><p>Exemplar licenciado para ${nomeXml}</p><p>Compra: ${codigo}</p><p>${AVISO}</p></body></html>`)
+  zip.file(base + arquivo, `<?xml version="1.0" encoding="UTF-8"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Exemplar de uso pessoal</title></head><body><h1>Exemplar de uso pessoal</h1><p>Exemplar licenciado para ${nomeXml} pela Bíblia do Discípulo Cristão.</p><p>Código do exemplar: ${codigo}</p><p>Este exemplar destina-se exclusivamente ao uso pessoal de ${nomeXml}. ${AVISO}</p></body></html>`)
   zip.file(pacote, new XMLSerializer().serializeToString(doc))
   zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' })
   return zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' })

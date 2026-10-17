@@ -74,7 +74,7 @@ function getPageTitleFromPathname(pathname) {
   if (path.startsWith('/mais-de-deus')) return 'Mais de Deus'
   if (path.startsWith('/youtube')) return 'YouTube'
   if (path.startsWith('/quiz-retiro')) return 'Quiz Bíblico'
-  if (path.startsWith('/biblioteca/') || path === '/biblioteca') return 'Comprar Livros'
+  if (path.startsWith('/biblioteca/') || path === '/biblioteca') return 'Livraria Cristã'
   if (path.startsWith('/biblioteca-estudos')) return 'Bíblia comentada'
   if (path === '/estudos-biblicos/gerir') return 'Gerenciar estudos'
   /** Comentários gerados/curados pertencem ao acervo da Bíblia comentada. */

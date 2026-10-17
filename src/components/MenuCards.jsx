@@ -245,7 +245,7 @@ const menuItems = [
     fundo: 'menu-fundos/biblia.webp'
   },
   {
-    text: 'Comprar Livros',
+    text: 'Livraria Cristã',
     icon: <TabletMacOutlinedIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/biblioteca',
     description: 'Adquira nossas traduções e use nossa biblioteca',

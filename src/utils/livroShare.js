@@ -1,18 +1,23 @@
 import { openNativeShareSheet } from './nativeShare'
+import { partesApresentacao } from './apresentacaoFormatada'
+import { obterLivroCatalogo } from '../data/livrosCatalogo'
+import { versaoCompartilhamentoLivro } from './livroShareVersao'
 
 const SITE_PUBLICO_PADRAO = 'https://foundcine.com/biblia'
 
 export function linkCompartilhamentoLivro(livroId) {
   const baseConfigurada = typeof import.meta !== 'undefined' && import.meta.env?.VITE_PUBLIC_APP_URL
   const base = String(baseConfigurada || SITE_PUBLICO_PADRAO).replace(/\/$/, '')
-  return `${base}/compartilhar/livro/${encodeURIComponent(String(livroId || ''))}.html`
+  const livro = obterLivroCatalogo(livroId)
+  const versao = livro ? `?v=${versaoCompartilhamentoLivro(livro)}` : ''
+  return `${base}/compartilhar/livro/${encodeURIComponent(String(livroId || ''))}.html${versao}`
 }
 
 export async function compartilharLivro(livro) {
   const url = linkCompartilhamentoLivro(livro?.id)
   const titulo = String(livro?.titulo || 'Livro da Biblioteca Digital').trim()
   const autor = String(livro?.autor || '').trim()
-  const descricao = String(livro?.descricao || '').trim()
+  const descricao = partesApresentacao(livro?.descricao).map((parte) => parte.texto).join('').trim()
   const texto = [
     `Conheça “${titulo}”${autor ? `, de ${autor}` : ''}, na Biblioteca do Discípulo Cristão.`,
     descricao,

@@ -2,6 +2,7 @@ import { livrosCatalogo } from '../data/livrosCatalogo'
 import { contarApresentacao } from '../utils/apresentacaoFormatada'
 
 const CAMINHO = 'bibliotecaLivros'
+const VERSAO_DESCRICAO_EDITORIAL = 2
 export const AVISO_COMPRA_SEM_LOGIN = 'Se você comprar sem efetuar login, não poderá acessar seus livros em outros aparelhos. Caso queira recuperar suas compras, e ler seu(s) livro(s) em outros aparelhos, conecte-se em alguma conta.'
 export function dispositivoBiblioteca() {
   let token = localStorage.getItem('biblioteca-dispositivo-v1')
@@ -45,6 +46,7 @@ function normalizarLivro(id, valor = {}) {
     autor: texto(valor.autor, 140),
     capa: texto(valor.capa, 600),
     descricao: texto(valor.descricao, 6000),
+    versaoDescricaoEditorial: Math.max(0, Number(valor.versaoDescricaoEditorial) || 0),
     descricaoAlinhamento: valor.descricaoAlinhamento === 'justify' ? 'justify' : 'left',
     amazonUrl: texto(valor.amazonUrl, 700),
     androidUrl: texto(valor.androidUrl, 700),
@@ -86,7 +88,13 @@ function catalogoMesclado(remotos = {}) {
   const mapa = new Map(livrosCatalogo.map((livro) => [livro.id, normalizarLivro(livro.id, livro)]))
   Object.entries(remotos || {}).forEach(([id, remoto]) => {
     const base = mapa.get(id) || { id }
-    mapa.set(id, normalizarLivro(id, { ...base, ...(remoto || {}) }))
+    const mesclado = { ...base, ...(remoto || {}) }
+    // As novas sinopses substituem as anteriores uma vez; futuras edições no painel prevalecem.
+    if (base.descricao && (Number(remoto?.versaoDescricaoEditorial) || 0) < VERSAO_DESCRICAO_EDITORIAL) {
+      mesclado.descricao = base.descricao
+      mesclado.versaoDescricaoEditorial = VERSAO_DESCRICAO_EDITORIAL
+    }
+    mapa.set(id, normalizarLivro(id, mesclado))
   })
   return Array.from(mapa.values()).filter((livro) => !livro.excluido)
 }
@@ -145,6 +153,7 @@ export async function salvarLivroBiblioteca(livro, uid) {
   if (!rtdb) throw new Error('Firebase não disponível.')
   const payload = normalizarLivro(livro.id, {
     ...livro,
+    versaoDescricaoEditorial: VERSAO_DESCRICAO_EDITORIAL,
     excluido: false,
     atualizadoEm: Date.now(),
   })

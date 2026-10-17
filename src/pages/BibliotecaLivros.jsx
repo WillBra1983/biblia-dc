@@ -5,7 +5,7 @@ import {
   Alert, Box, Button, Card, CardActions, CardContent, Chip, CircularProgress,
   Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControlLabel,
   Grid, IconButton, InputAdornment, Paper, Stack, Switch, TextField,
-  Tooltip, Typography, Select, MenuItem,
+  Tooltip, Typography, Select, MenuItem, Tabs, Tab,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import AndroidIcon from '@mui/icons-material/Android'
@@ -552,7 +552,8 @@ function MeusLivrosPessoais({ livros, carregando, importando, onImportar, onExcl
   </Box>
 }
 
-function Catalogo({ livros, carregando, comprasConfirmadas, ehAdmin, onConfirmarCompra, onNovo, onEditar, onExcluir, onConfigurarPix, onVerPedidos, pedidosPendentes, livrosPessoais, carregandoPessoais, importandoPessoal, onImportarPessoal, onExcluirPessoal }) {
+function Catalogo({ livros, carregando, comprasConfirmadas, ehAdmin, onConfirmarCompra, onNovo, onEditar, onExcluir, onConfigurarPix, onVerPedidos, onVerAcessos, pedidosPendentes, livrosPessoais, carregandoPessoais, importandoPessoal, onImportarPessoal, onExcluirPessoal }) {
+  const [aba, setAba] = useState('acervo')
   const [busca, setBusca] = useState('')
   const [infoAberta, setInfoAberta] = useState(false)
   const [livroOpcoes, setLivroOpcoes] = useState(null)
@@ -582,10 +583,16 @@ function Catalogo({ livros, carregando, comprasConfirmadas, ehAdmin, onConfirmar
         </Container>
       </Box>
       <Container maxWidth="lg" sx={{ py: { xs: 2.8, md: 4.2 } }}>
-        <MeusLivrosPessoais livros={livrosPessoais} carregando={carregandoPessoais} importando={importandoPessoal} onImportar={onImportarPessoal} onExcluir={onExcluirPessoal} />
-        <Divider sx={{ mb: 3.2 }} />
+        <Tabs value={aba} onChange={(_, valor) => setAba(valor)} aria-label="Seções da biblioteca" variant="fullWidth" sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
+          <Tab value="acervo" label="Acervo" id="biblioteca-aba-acervo" aria-controls="biblioteca-painel-acervo" icon={<StorefrontOutlinedIcon />} iconPosition="start" />
+          <Tab value="pessoal" label="Biblioteca pessoal" id="biblioteca-aba-pessoal" aria-controls="biblioteca-painel-pessoal" icon={<AutoStoriesOutlinedIcon />} iconPosition="start" />
+        </Tabs>
+        <Box role="tabpanel" id="biblioteca-painel-pessoal" aria-labelledby="biblioteca-aba-pessoal" hidden={aba !== 'pessoal'}>
+          {aba === 'pessoal' && <MeusLivrosPessoais livros={livrosPessoais} carregando={carregandoPessoais} importando={importandoPessoal} onImportar={onImportarPessoal} onExcluir={onExcluirPessoal} />}
+        </Box>
+        <Box role="tabpanel" id="biblioteca-painel-acervo" aria-labelledby="biblioteca-aba-acervo" hidden={aba !== 'acervo'}>
         <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ sm: 'center' }} justifyContent="space-between" spacing={1.5} sx={{ mb: 2.7 }}>
-          <Box><Typography variant="h5" sx={{ fontFamily: 'Lora, Georgia, serif', fontWeight: 800 }}>Acervo</Typography><Typography variant="body2" color="text.secondary">Escolha um título e veja as opções disponíveis para o seu aparelho.</Typography></Box>
+          <Box><Typography variant="h5" sx={{ fontFamily: 'Lora, Georgia, serif', fontWeight: 800 }}>Acervo</Typography><Typography variant="body2" color="text.secondary">Escolha um título e veja as opções disponíveis para o seu aparelho.</Typography>{ehAdmin && <Button variant="outlined" onClick={onVerAcessos} sx={{ mt: 1.5 }}>Acessos à biblioteca</Button>}</Box>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ width: { xs: '100%', sm: 'auto' } }}>
             <TextField value={busca} onChange={(event) => setBusca(event.target.value)} placeholder="Buscar livro ou autor" size="small" inputProps={{ 'aria-label': 'Buscar livro ou autor' }} InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> }} sx={{ width: { xs: '100%', sm: 300 }, bgcolor: 'background.paper' }} />
             {ehAdmin && <><Button variant="outlined" startIcon={<SettingsOutlinedIcon />} onClick={onConfigurarPix} sx={{ whiteSpace: 'nowrap' }}>Configurar Pix</Button><Button variant="outlined" color={pedidosPendentes ? 'warning' : 'primary'} startIcon={<NotificationsActiveOutlinedIcon />} onClick={onVerPedidos} sx={{ whiteSpace: 'nowrap' }}>Pagamentos{pedidosPendentes ? ` (${pedidosPendentes})` : ''}</Button><Button variant="contained" startIcon={<AddIcon />} onClick={onNovo} sx={{ whiteSpace: 'nowrap' }}>Novo livro</Button></>}
@@ -601,6 +608,7 @@ function Catalogo({ livros, carregando, comprasConfirmadas, ehAdmin, onConfirmar
             <Grid container spacing={{ xs: 1.6, sm: 2, md: 2.5 }}>{acervo.map((livro) => <LivroCard key={livro.id} livro={livro} comprasConfirmadas={comprasConfirmadas} ehAdmin={ehAdmin} onOpcoes={setLivroOpcoes} onEditar={onEditar} onExcluir={onExcluir} />)}</Grid>
           </Box>}
         </Stack> : <Alert severity="info">{busca ? 'Nenhum livro encontrado para essa busca.' : 'Nenhum título está disponível para este aparelho no momento.'}</Alert>}
+        </Box>
       </Container>
       <InformacoesDialog aberto={infoAberta} onClose={() => setInfoAberta(false)} />
       <OpcoesDialog livro={livroOpcoes} comprasConfirmadas={comprasConfirmadas} onConfirmarCompra={onConfirmarCompra} onClose={() => setLivroOpcoes(null)} />
@@ -1041,7 +1049,7 @@ export default function BibliotecaLivros() {
 
   let conteudo
   if (livroPessoalId) conteudo = <LeitorLivroPessoal id={livroPessoalId} proprietario={proprietarioPessoal} />
-  else if (!livroId) conteudo = <Catalogo livros={livros} carregando={carregando} comprasConfirmadas={comprasDisponiveis} ehAdmin={ehAdmin} onConfirmarCompra={confirmarCompra} onNovo={() => setEditando({ titulo: '', autor: '', descricao: '', capa: '', androidUrl: '', appleUrl: '', amazonUrl: '', pixAtivo: false, precoPixCentavos: 0, publicado: false })} onEditar={setEditando} onExcluir={setExcluindo} onConfigurarPix={() => setConfigurandoPix(true)} onVerPedidos={() => setVendoPedidos(true)} pedidosPendentes={pedidosPendentes} livrosPessoais={livrosPessoais} carregandoPessoais={carregandoPessoais} importandoPessoal={importandoPessoal} onImportarPessoal={importarPessoal} onExcluirPessoal={setExcluindoPessoal} />
+  else if (!livroId) conteudo = <Catalogo livros={livros} carregando={carregando} comprasConfirmadas={comprasDisponiveis} ehAdmin={ehAdmin} onConfirmarCompra={confirmarCompra} onNovo={() => setEditando({ titulo: '', autor: '', descricao: '', capa: '', androidUrl: '', appleUrl: '', amazonUrl: '', pixAtivo: false, precoPixCentavos: 0, publicado: false })} onEditar={setEditando} onExcluir={setExcluindo} onConfigurarPix={() => setConfigurandoPix(true)} onVerPedidos={() => setVendoPedidos(true)} onVerAcessos={() => setVendoAcessos(true)} pedidosPendentes={pedidosPendentes} livrosPessoais={livrosPessoais} carregandoPessoais={carregandoPessoais} importandoPessoal={importandoPessoal} onImportarPessoal={importarPessoal} onExcluirPessoal={setExcluindoPessoal} />
   else if (carregando || (modoLeitura && !ehAdmin && !acessosCarregados)) conteudo = <Box sx={{ py: 10, textAlign: 'center' }}><CircularProgress /></Box>
   else if (modoAmostra && livro && (ehAdmin || (livro.publicado !== false && temDegustacao(livro)))) conteudo = <LeitorLivro livro={livro} uid={user?.uid} finalidade="amostra" acessoDigital={acessoLeitura} />
   else if (modoAmostra) conteudo = <Container maxWidth="sm" sx={{ py: 5 }}><Alert severity="warning" action={<Button onClick={() => navigate(`/biblioteca/${livroId}`)}>Voltar</Button>}>Este livro ainda não possui uma amostra disponível.</Alert></Container>
@@ -1089,7 +1097,7 @@ export default function BibliotecaLivros() {
       {ehAdmin && <EditarLivroDialog livro={editando} aberto={Boolean(editando)} uid={user?.uid} onClose={() => setEditando(null)} onSalvar={salvar} salvando={salvando} />}
       {ehAdmin && <ConfiguracaoPixDialog aberto={configurandoPix} configuracao={configuracaoPix} onClose={() => setConfigurandoPix(false)} onSalvar={salvarPix} salvando={salvando} />}
       {ehAdmin && <PedidosPixDialog aberto={vendoPedidos} pedidos={pedidosPix} onClose={() => setVendoPedidos(false)} onDecidir={decidirPedido} processando={processandoPedido} />}
-      {ehAdmin && <Button variant="outlined" sx={{ m: 2 }} onClick={() => setVendoAcessos(true)}>Acessos à biblioteca</Button>}
+      {ehAdmin && livroId && <Button variant="outlined" sx={{ m: 2 }} onClick={() => setVendoAcessos(true)}>Acessos à biblioteca</Button>}
       {ehAdmin && <BibliotecaAcessosDialog aberto={vendoAcessos} livros={livros} onClose={() => setVendoAcessos(false)} />}
       <Dialog open={Boolean(excluindo)} onClose={salvando ? undefined : () => setExcluindo(null)} maxWidth="xs" fullWidth>
         <DialogTitle>Excluir livro?</DialogTitle>

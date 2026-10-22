@@ -69,6 +69,7 @@ import EpubPrimeiraPaginaMiniatura from '../components/EpubPrimeiraPaginaMiniatu
 import PreviaLivroComprado from '../components/PreviaLivroComprado'
 import { abrirUrlExterna } from '../utils/abrirUrlExterna'
 import { amostraLivroDisponivel } from '../utils/disponibilidadeAmostraLivro'
+import { livroVisivelNoAcervo } from '../utils/disponibilidadeLivro'
 
 const PLATAFORMA = Capacitor.getPlatform()
 const CHAVE_COMPRAS = 'biblioteca-digital-compras-v1'
@@ -138,9 +139,6 @@ function rotuloAcaoOpcao(acao, opcao) {
   return `${acao} ${preposicao} ${opcao.label}`
 }
 
-function temModalidade(livro) {
-  return Boolean(livro.pixAtivo || livro.androidUrl || livro.appleUrl || livro.amazonUrl)
-}
 
 function CapaLivro({ livro, onClick, grande = false, permitirPrevia = false }) {
   return (
@@ -167,7 +165,7 @@ function SelosModalidades({ livro, compacto = false }) {
     livro.amazonUrl && { id: 'amazon', label: 'Amazon', icon: <StorefrontOutlinedIcon /> },
     PLATAFORMA === 'web' && livro.pixAtivo && livro.arquivos?.completo && { id: 'pix', label: 'Pix', icon: <PixIcon /> },
   ].filter(Boolean)
-  if (!itens.length) return <Chip size="small" label="Rascunho" color="warning" variant="outlined" />
+  if (!itens.length) return <Chip size="small" label={livroVisivelNoAcervo(livro) ? 'Livro digital' : 'Rascunho'} color={livroVisivelNoAcervo(livro) ? 'default' : 'warning'} variant="outlined" />
   return (
     <Stack direction="row" spacing={0.6} useFlexGap flexWrap="wrap">
       {itens.map((item) => <Chip key={item.id} size="small" icon={item.icon} label={compacto ? undefined : item.label} aria-label={`Disponível em ${item.label}`} sx={{ height: 25, bgcolor: 'rgba(7,60,53,.08)', '& .MuiChip-icon': { color: '#0a6656' } }} />)}
@@ -489,7 +487,7 @@ function LivroCard({ livro, comprasConfirmadas, ehAdmin, onOpcoes, onEditar, onE
         </CardContent>
         <CardActions sx={{ px: 1.2, pb: 1.2, pt: 0.5 }}>
           <Button size="small" onClick={() => navigate(`/biblioteca/${livro.id}`)}>Detalhes</Button>
-          {opcoes.length > 0 && <Button size="small" variant="contained" startIcon={acessoDigital ? <AutoStoriesOutlinedIcon /> : comprado ? <LaunchIcon /> : <ShoppingCartOutlinedIcon />} onClick={() => acessoDigital ? navigate(`/biblioteca/${livro.id}/ler`) : onOpcoes(livro)}>{acessoDigital ? 'Ler' : comprado ? 'Abrir' : 'Comprar'}</Button>}
+          {(opcoes.length > 0 || (acessoDigital && livro.arquivos?.completo)) && <Button size="small" variant="contained" startIcon={acessoDigital ? <AutoStoriesOutlinedIcon /> : comprado ? <LaunchIcon /> : <ShoppingCartOutlinedIcon />} onClick={() => acessoDigital ? navigate(`/biblioteca/${livro.id}/ler`) : onOpcoes(livro)}>{acessoDigital ? 'Ler' : comprado ? 'Abrir' : 'Comprar'}</Button>}
         </CardActions>
       </Card>
     </Grid>
@@ -558,7 +556,7 @@ function Catalogo({ livros, carregando, comprasConfirmadas, ehAdmin, onConfirmar
   const [infoAberta, setInfoAberta] = useState(false)
   const [livroOpcoes, setLivroOpcoes] = useState(null)
   const livrosVisiveis = useMemo(() => {
-    const permitidos = ehAdmin ? livros : livros.filter((livro) => livro.publicado !== false && temModalidade(livro) && opcoesLivro(livro).length > 0)
+    const permitidos = ehAdmin ? livros : livros.filter(livroVisivelNoAcervo)
     const termo = normalizarBusca(busca.trim())
     if (!termo) return permitidos
     return permitidos.filter((livro) => normalizarBusca(`${livro.titulo} ${livro.autor}`).includes(termo))
@@ -964,7 +962,7 @@ export default function BibliotecaLivros() {
   const modoLeitura = Boolean(livroId && location.pathname.endsWith('/ler'))
   const modoAmostra = Boolean(livroId && location.pathname.endsWith('/amostra'))
   const acessoLeitura = Boolean(livro && (ehAdmin || acessosPix.has(chaveCompra(livro.id, 'pix'))))
-  const visivelAoLeitor = livro ? livro.publicado !== false && temModalidade(livro) && opcoesLivro(livro).length > 0 : false
+  const visivelAoLeitor = livroVisivelNoAcervo(livro)
   const abrirSolicitado = new URLSearchParams(location.search).get('abrir') === '1'
 
   useEffect(() => {

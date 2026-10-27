@@ -605,7 +605,7 @@ export default function PlanoRankingLeitura({
                   sx={{
                     borderRadius: 2,
                     overflow: 'hidden',
-                    bgcolor: 'rgba(255,255,255,0.95)',
+                    bgcolor: 'background.paper',
                     color: 'text.primary',
                   }}
                 >

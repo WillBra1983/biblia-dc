@@ -168,6 +168,9 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
         })
         const doc = contents?.document
         if (!doc) return
+        // Reserve o gesto horizontal para o leitor, mantendo a rolagem vertical
+        // e o zoom do navegador disponíveis dentro do iframe.
+        if (modo === 'paginas') doc.documentElement.style.touchAction = 'pan-y pinch-zoom'
         const distance = (touches) => Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY)
         doc.addEventListener('touchstart', (event) => {
           if (compacto && event.touches.length === 2) {
@@ -183,6 +186,13 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
         }, { passive: false })
         doc.addEventListener('touchmove', (event) => {
           const gesto = gestureRef.current
+          if (modo === 'paginas' && gesto && !gesto.pinch && event.touches.length === 1) {
+            const dx = event.touches[0].clientX - gesto.x
+            const dy = event.touches[0].clientY - gesto.y
+            if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.5 && !doc.defaultView?.getSelection()?.toString()) {
+              if (event.cancelable) event.preventDefault()
+            }
+          }
           if (!compacto || !gesto?.pinch || event.touches.length !== 2) return
           event.preventDefault()
           gesto.novo = Math.round(Math.max(70, Math.min(220, gesto.tamanho * distance(event.touches) / Math.max(1, gesto.distance))))

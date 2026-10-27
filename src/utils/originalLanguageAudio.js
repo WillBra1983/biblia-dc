@@ -86,7 +86,7 @@ export function tipoAudioLinguaOriginal(livroId) {
 function faixaHebraica(codigo, capitulo, inicio = 0, fim = null, marcacoes = {}) {
   const arquivo = codigo === 'Oba'
     ? 'hbofOba.mp3'
-    : `hbof${codigo}_${String(capitulo).padStart(2, '0')}.mp3`
+    : `hbof${codigo}_${String(capitulo).padStart(codigo === 'Psa' ? 3 : 2, '0')}.mp3`
   return {
     src: `${HEBREW_AUDIO_BASE}/${arquivo}`,
     inicio,

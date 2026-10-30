@@ -1,3 +1,5 @@
+import epubAlinhamentoTopo from '../../functions/src/epubAlinhamentoTopo.json'
+import { useControlesLeitura } from '../hooks/useControlesLeitura'
 import { useEffect, useRef, useState } from 'react'
 import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Paper, Stack, Typography, Select, MenuItem } from '@mui/material'
 import IosShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
@@ -75,6 +77,7 @@ export async function carregarEpubJs() {
 
 
 function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap, onEnd, onLimit, restricao, immersive, compacto = false }) {
+  const { barraVisivel, registrarToque } = useControlesLeitura(immersive, onPageTap)
   const fimRestritoRef = useRef(false)
   const areaRef = useRef(null)
   const livroRef = useRef(null)
@@ -95,18 +98,17 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
   const [erroSumario, setErroSumario] = useState('')
   const [paginaDigitada, setPaginaDigitada] = useState('')
   const [referenciaSelecionada, setReferenciaSelecionada] = useState('')
-  const lastTapRef = useRef(null)
   const tamanhoRef = useRef(tamanho)
   tamanhoRef.current = tamanho
   const onSelectionRef = useRef(onSelection)
   const onBibleReferenceRef = useRef(onBibleReference)
-  const onPageTapRef = useRef(onPageTap)
+  const onPageTapRef = useRef(registrarToque)
   const onEndRef = useRef(onEnd)
   onEndRef.current = onEnd
   const gestureRef = useRef(null)
   const ultimoGestoRef = useRef(0)
   const navigationRef = useRef({})
-  onPageTapRef.current = onPageTap
+  onPageTapRef.current = registrarToque
 
   useEffect(() => { onSelectionRef.current = onSelection }, [onSelection])
   useEffect(() => { onBibleReferenceRef.current = onBibleReference }, [onBibleReference])
@@ -168,6 +170,9 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
         })
         const doc = contents?.document
         if (!doc) return
+        const estiloTopo = doc.createElement('style')
+        estiloTopo.textContent = epubAlinhamentoTopo
+        doc.head?.appendChild(estiloTopo)
         // Reserve o gesto horizontal para o leitor, mantendo a rolagem vertical
         // e o zoom do navegador disponíveis dentro do iframe.
         if (modo === 'paginas') doc.documentElement.style.touchAction = 'pan-y pinch-zoom'
@@ -176,7 +181,6 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
           if (compacto && event.touches.length === 2) {
             event.preventDefault()
             gestureRef.current = { pinch: true, distance: distance(event.touches), tamanho: tamanhoRef.current, novo: tamanhoRef.current }
-            lastTapRef.current = null
             ultimoGestoRef.current = Date.now()
             return
           }
@@ -216,28 +220,20 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
             ultimoGestoRef.current = Date.now()
             if (dx < 0) navigationRef.current.next?.()
             else navigationRef.current.prev?.()
-          } else if (compacto && Math.hypot(dx, dy) < 12 && Date.now() - start.time < 300 && !start.target?.closest?.('a, button, input') && !doc.defaultView?.getSelection()?.toString()) {
-            const last = lastTapRef.current
-            if (last && Date.now() - last.time < 320 && Math.hypot(last.x - touch.clientX, last.y - touch.clientY) < 30) {
-              event.preventDefault()
-              ultimoGestoRef.current = Date.now()
-              lastTapRef.current = null
-              onPageTapRef.current?.()
-            } else lastTapRef.current = { time: Date.now(), x: touch.clientX, y: touch.clientY }
+          } else if (Math.hypot(dx, dy) < 12 && Date.now() - start.time < 300 && !start.target?.closest?.('a, button, input, [data-biblia-referencia]') && !doc.defaultView?.getSelection()?.toString()) {
+            if (Date.now() - ultimoGestoRef.current < 80) return
+            event.preventDefault()
+            ultimoGestoRef.current = Date.now()
+            onPageTapRef.current?.()
           }
         }, { passive: false })
         doc.addEventListener('touchcancel', () => { gestureRef.current = null }, { passive: true })
         doc.addEventListener('click', (event) => {
-          if (compacto) return
           if (Date.now() - ultimoGestoRef.current < 500) return
           if (event.target?.closest?.('a, button, input, [data-biblia-referencia]') || doc.defaultView?.getSelection()?.toString()) return
           onPageTapRef.current?.()
         })
-        doc.addEventListener('dblclick', (event) => {
-          if (!compacto || Date.now() - ultimoGestoRef.current < 500 || event.target?.closest?.('a, button, input')) return
-          event.preventDefault()
-          onPageTapRef.current?.()
-        })
+
       })
       rendition.themes.default({ body: { 'font-family': 'Georgia, serif', 'line-height': '1.7', padding: '0 4%' } })
       rendition.themes.fontSize(`${tamanhoRef.current}%`)
@@ -339,7 +335,7 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
   return (
     <Stack spacing={compacto ? 0 : 1.5}>
       {erro && <Alert severity="error">{erro}</Alert>}
-      {compacto && <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5} sx={{ minHeight: 44, flexShrink: 0, flexWrap: 'wrap' }}>
+      {compacto && (!immersive || barraVisivel) && <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5} sx={{ minHeight: 44, flexShrink: 0, flexWrap: 'wrap' }}>
         <Button size="small" disabled={carregando || tamanho <= 80} aria-label="Diminuir letras do EPUB" title="Diminuir letras" sx={{ minWidth: 44, minHeight: 44, fontSize: '1.5rem' }} onClick={() => setTamanho((v) => Math.max(80, v - 10))}>−</Button>
         <Button size="small" disabled={carregando} aria-label="Escolher posição ou capítulo do EPUB" title="Escolha uma posição de leitura ou um capítulo do sumário." onClick={() => { setPaginaDigitada(String(pagina)); setEscolherPagina(true) }}>{pagina} de {total || '…'}</Button>
         <Button size="small" disabled={carregando || tamanho >= 160} aria-label="Ampliar letras do EPUB" title="Ampliar letras" sx={{ minWidth: 44, minHeight: 44, fontSize: '1.5rem' }} onClick={() => setTamanho((v) => Math.min(160, v + 10))}>+</Button>
@@ -359,19 +355,18 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
         <Button onClick={() => setTamanho((v) => Math.max(80, v - 10))}>A−</Button>
         <Button onClick={() => setTamanho((v) => Math.min(160, v + 10))}>A+</Button>
       </BibliotecaReaderToolbar>}
-      {exibindoCapa && capaUrl && <Box onDoubleClick={(event) => { if (Date.now() - ultimoGestoRef.current < 500) return; event.preventDefault(); onPageTap?.() }} onTouchStart={(event) => { const touch = event.touches[0]; gestureRef.current = { x: touch.clientX, y: touch.clientY } }} onTouchEnd={(event) => {
+      {exibindoCapa && capaUrl && <Box onClick={(event) => { if (Date.now() - ultimoGestoRef.current < 500) return; event.preventDefault(); registrarToque() }} onTouchStart={(event) => { const touch = event.touches[0]; gestureRef.current = { x: touch.clientX, y: touch.clientY } }} onTouchEnd={(event) => {
         const start = gestureRef.current; gestureRef.current = null; const touch = event.changedTouches[0]
-        if (!start || !touch) return
-        if (start.x - touch.clientX > 55 && Math.abs(touch.clientY - start.y) < 60) { proximaPagina(); return }
+        if (!start || !touch || event.touches.length) return
+        if (start.x - touch.clientX > 55 && Math.abs(touch.clientY - start.y) < 60) { ultimoGestoRef.current = Date.now(); proximaPagina(); return }
         if (Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 12) return
-        const last = lastTapRef.current
-        if (last && Date.now() - last.time < 350 && Math.hypot(last.x - touch.clientX, last.y - touch.clientY) < 30) { event.preventDefault(); lastTapRef.current = null; ultimoGestoRef.current = Date.now(); onPageTap?.() }
-        else lastTapRef.current = { time: Date.now(), x: touch.clientX, y: touch.clientY }
+        if (Date.now() - ultimoGestoRef.current < 80) return
+        event.preventDefault(); ultimoGestoRef.current = Date.now(); registrarToque()
       }} sx={{ touchAction: 'manipulation', height: immersive ? '100dvh' : '72dvh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)', display: 'grid', placeItems: 'center', p: { xs: 1.5, sm: 3 } }}>
         <Box component="img" src={capaUrl} alt="Capa do livro" sx={{ display: 'block', maxWidth: '100%', maxHeight: '68vh', objectFit: 'contain', borderRadius: 0.75, boxShadow: '0 8px 24px rgba(0,0,0,.2)' }} />
       </Box>}
       <Box sx={{ position: 'relative', display: exibindoCapa ? 'none' : 'block' }}>
-        <Box ref={areaRef} sx={{ visibility: carregando ? 'hidden' : 'visible', height: immersive ? (compacto ? 'calc(100dvh - 88px)' : '100dvh') : '72svh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)' }} />
+        <Box ref={areaRef} sx={{ visibility: carregando ? 'hidden' : 'visible', height: immersive ? (barraVisivel ? 'calc(100dvh - 88px - env(safe-area-inset-top) - env(safe-area-inset-bottom))' : 'calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom))') : '72svh', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,.09)' }} />
         {carregando && <Box sx={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }}><EstadoCarregando /></Box>}
       </Box>
       <Dialog open={escolherPagina} onClose={() => setEscolherPagina(false)} fullWidth maxWidth="sm">

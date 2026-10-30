@@ -88,7 +88,7 @@ exports.enviarAvisoAdmin = onCall(
       }
 
       const agora = Date.now()
-      await avisoRef.set({
+      if (avisoRef) await avisoRef.set({
         titulo,
         mensagem,
         url: data.url,
@@ -105,6 +105,7 @@ exports.enviarAvisoAdmin = onCall(
       logger.info('Aviso admin enviado', { uid, topic, messageId })
       return { ok: true, messageId }
     } catch (e) {
+      if (e instanceof HttpsError) throw e
       logger.error('Falha ao enviar aviso admin', { uid, topic, err: e?.message })
       throw new HttpsError('internal', e?.message || 'Falha ao enviar.')
     }

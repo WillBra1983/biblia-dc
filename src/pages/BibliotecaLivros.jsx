@@ -69,7 +69,7 @@ import EpubPrimeiraPaginaMiniatura from '../components/EpubPrimeiraPaginaMiniatu
 import PreviaLivroComprado from '../components/PreviaLivroComprado'
 import { abrirUrlExterna } from '../utils/abrirUrlExterna'
 import { amostraLivroDisponivel } from '../utils/disponibilidadeAmostraLivro'
-import { livroVisivelNoAcervo } from '../utils/disponibilidadeLivro'
+import { livroVisivelNoAcervo, compraPixDisponivel } from '../utils/disponibilidadeLivro'
 
 const PLATAFORMA = Capacitor.getPlatform()
 const CHAVE_COMPRAS = 'biblioteca-digital-compras-v1'
@@ -118,7 +118,7 @@ function criarIdLivro(titulo) {
 
 function opcoesLivro(livro) {
   const opcoes = []
-  if (PLATAFORMA === 'web' && livro.pixAtivo && Number(livro.precoPixCentavos) > 0 && livro.arquivos?.completo) {
+  if (compraPixDisponivel(livro)) {
     opcoes.push({ id: 'pix', label: 'Pix', tipo: 'pix', icon: <PixIcon /> })
   }
   if ((PLATAFORMA === 'android' || PLATAFORMA === 'web') && livro.androidUrl) {
@@ -163,7 +163,7 @@ function SelosModalidades({ livro, compacto = false }) {
     livro.androidUrl && { id: 'android', label: 'Android', icon: <AndroidIcon /> },
     livro.appleUrl && { id: 'apple', label: 'Apple', icon: <AppleIcon /> },
     livro.amazonUrl && { id: 'amazon', label: 'Amazon', icon: <StorefrontOutlinedIcon /> },
-    PLATAFORMA === 'web' && livro.pixAtivo && livro.arquivos?.completo && { id: 'pix', label: 'Pix', icon: <PixIcon /> },
+    compraPixDisponivel(livro) && { id: 'pix', label: 'Pix', icon: <PixIcon /> },
   ].filter(Boolean)
   if (!itens.length) return <Chip size="small" label={livroVisivelNoAcervo(livro) ? 'Livro digital' : 'Rascunho'} color={livroVisivelNoAcervo(livro) ? 'default' : 'warning'} variant="outlined" />
   return (
@@ -376,7 +376,7 @@ function EditarLivroDialog({ livro, aberto, uid, onClose, onSalvar, salvando }) 
             <Grid item xs={12}>
               <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2 }}>
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
-                  <FormControlLabel control={<Switch checked={form.pixAtivo === true} onChange={(event) => setForm((atual) => ({ ...atual, pixAtivo: event.target.checked }))} />} label="Vender diretamente por Pix no site" />
+                  <FormControlLabel control={<Switch checked={form.pixAtivo === true} onChange={(event) => setForm((atual) => ({ ...atual, pixAtivo: event.target.checked }))} />} label="Vender por Pix no site, Android e iOS" />
                   <TextField label="Preço no Pix" type="number" value={form.precoPixCentavos ? (form.precoPixCentavos / 100).toFixed(2) : ''} onChange={(event) => setForm((atual) => ({ ...atual, precoPixCentavos: Math.max(0, Math.round(Number(event.target.value.replace(',', '.')) * 100) || 0) }))} inputProps={{ min: 1, step: '0.01' }} InputProps={{ startAdornment: <InputAdornment position="start">R$</InputAdornment> }} disabled={!form.pixAtivo} sx={{ width: { xs: '100%', sm: 190 } }} />
                 </Stack>
               </Paper>
@@ -470,7 +470,34 @@ function PedidosPixDialog({ aberto, pedidos, onClose, onDecidir, processando }) 
   )
 }
 
+function useAmostraDisponivel(livro) {
+  const [agora, setAgora] = useState(Date.now)
+  useEffect(() => {
+    let timer
+    const atualizar = () => {
+      clearTimeout(timer)
+      const instante = Date.now()
+      setAgora(instante)
+      if (livro.degustacao?.modo !== 'tempo') return
+      const proximo = [Number(livro.degustacao.inicioEm), Number(livro.degustacao.fimEm)]
+        .filter((prazo) => Number.isFinite(prazo) && prazo > instante).sort((a, b) => a - b)[0]
+      if (proximo) timer = setTimeout(atualizar, Math.min(proximo - instante, 2147483647))
+    }
+    atualizar()
+    window.addEventListener('focus', atualizar)
+    document.addEventListener('visibilitychange', atualizar)
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('focus', atualizar)
+      document.removeEventListener('visibilitychange', atualizar)
+    }
+  }, [livro.id, livro.degustacao?.modo, livro.degustacao?.inicioEm, livro.degustacao?.fimEm])
+  return amostraLivroDisponivel(livro, agora)
+}
+
 function LivroCard({ livro, comprasConfirmadas, ehAdmin, onOpcoes, onEditar, onExcluir }) {
+  const amostraDisponivel = useAmostraDisponivel(livro)
+  const gratuitoPorTempo = livro.degustacao?.modo === 'tempo' && amostraDisponivel
   const navigate = useNavigate()
   const opcoes = opcoesLivro(livro)
   const comprado = opcoes.some((opcao) => comprasConfirmadas.has(chaveCompra(livro.id, opcao.id)))
@@ -482,10 +509,17 @@ function LivroCard({ livro, comprasConfirmadas, ehAdmin, onOpcoes, onEditar, onE
         <Box sx={{ p: 1.15, pb: 0 }}><CapaLivro livro={livro} permitirPrevia={acessoDigital} onClick={() => navigate(`/biblioteca/${livro.id}`)} /></Box>
         <CardContent sx={{ display: 'flex', flexDirection: 'column', flex: 1, p: 1.5, '&:last-child': { pb: 0.7 } }}>
           <SelosModalidades livro={livro} compacto />
+          {gratuitoPorTempo && <Box sx={{ mt: 1 }}>
+            <Chip size="small" color="success" label="Leitura gratuita" sx={{ maxWidth: '100%' }} />
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+              Até {new Date(livro.degustacao.fimEm).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+            </Typography>
+          </Box>}
           <Typography variant="subtitle2" sx={{ mt: 1, fontFamily: 'Lora, Georgia, serif', fontWeight: 800, lineHeight: 1.24 }}>{livro.titulo}</Typography>
           <Typography variant="caption" color="text.secondary" sx={{ mt: 0.45 }}>{livro.autor}</Typography>
         </CardContent>
-        <CardActions sx={{ px: 1.2, pb: 1.2, pt: 0.5 }}>
+        <CardActions sx={{ px: 1.2, pb: 1.2, pt: 0.5, flexWrap: 'wrap', gap: 0.5 }}>
+          {gratuitoPorTempo && !acessoDigital && <Button size="small" color="success" variant="outlined" fullWidth startIcon={<AutoStoriesOutlinedIcon />} onClick={() => navigate(`/biblioteca/${livro.id}/amostra`)}>Ler grátis</Button>}
           <Button size="small" onClick={() => navigate(`/biblioteca/${livro.id}`)}>Detalhes</Button>
           {(opcoes.length > 0 || (acessoDigital && livro.arquivos?.completo)) && <Button size="small" variant="contained" startIcon={acessoDigital ? <AutoStoriesOutlinedIcon /> : comprado ? <LaunchIcon /> : <ShoppingCartOutlinedIcon />} onClick={() => acessoDigital ? navigate(`/biblioteca/${livro.id}/ler`) : onOpcoes(livro)}>{acessoDigital ? 'Ler' : comprado ? 'Abrir' : 'Comprar'}</Button>}
         </CardActions>
@@ -754,28 +788,7 @@ function EstadoCarregandoLivro({ mensagem }) {
 }
 
 function DetalheLivro({ livro, comprasConfirmadas, ehAdmin, onConfirmarCompra, onEditar, onExcluir }) {
-  const [agora, setAgora] = useState(Date.now)
-  useEffect(() => {
-    let timer
-    const atualizar = () => {
-      clearTimeout(timer)
-      const instante = Date.now()
-      setAgora(instante)
-      if (livro.degustacao?.modo !== 'tempo') return
-      const proximo = [Number(livro.degustacao.inicioEm), Number(livro.degustacao.fimEm)]
-        .filter((prazo) => Number.isFinite(prazo) && prazo > instante).sort((a, b) => a - b)[0]
-      if (proximo) timer = setTimeout(atualizar, Math.min(proximo - instante, 2147483647))
-    }
-    atualizar()
-    window.addEventListener('focus', atualizar)
-    document.addEventListener('visibilitychange', atualizar)
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('focus', atualizar)
-      document.removeEventListener('visibilitychange', atualizar)
-    }
-  }, [livro.id, livro.degustacao?.modo, livro.degustacao?.inicioEm, livro.degustacao?.fimEm])
-  const amostraDisponivel = amostraLivroDisponivel(livro, agora)
+  const amostraDisponivel = useAmostraDisponivel(livro)
   const [baixando, setBaixando] = useState(false)
   const [erroDownload, setErroDownload] = useState('')
   const baixar = async () => {

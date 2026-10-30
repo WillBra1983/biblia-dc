@@ -1071,7 +1071,7 @@ export default function Chat() {
       await ensureChatMembership(cid, user.uid, peerUid)
       setActiveChatId(cid)
       setActivePeerUid(peerUid)
-      setPeerUidInput('')
+      setPeerDialogInput('')
       setLastError(null)
       setChatListNotice('')
     } catch (e) {
@@ -1091,7 +1091,7 @@ export default function Chat() {
 
   const openPeerDialog = (mode) => {
     setPeerDialog(mode)
-    setPeerDialogInput(peerUidInput.trim())
+    setPeerDialogInput('')
     setPeerDialogError('')
     setLastError(null)
   }
@@ -1148,7 +1148,7 @@ export default function Chat() {
         await sendFriendRequest(user.uid, peerUid)
         setChatListNotice('Pedido de amizade enviado.')
       }
-      setPeerUidInput('')
+      setPeerDialogInput('')
       closePeerDialog()
     } catch (e) {
       setPeerDialogError(e?.message || 'Não foi possível concluir.')

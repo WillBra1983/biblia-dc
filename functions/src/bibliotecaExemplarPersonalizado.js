@@ -1,8 +1,9 @@
+const epubAlinhamentoTopo = require('./epubAlinhamentoTopo.json')
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib')
 const JSZip = require('jszip')
 const { DOMParser, XMLSerializer } = require('@xmldom/xmldom')
 const AVISO = 'Os direitos autorais da tradução, revisão e organização editorial pertencem à Bíblia do Discípulo Cristão. Não é permitida a redistribuição deste arquivo.'
-const VERSAO_EXEMPLAR = 3
+const VERSAO_EXEMPLAR = 4
 async function personalizarExemplar(bytes, formato, codigo, nomeComprador = 'Comprador identificado pela licença') {
   const nome = String(nomeComprador).replace(/[\r\n\t]/g, ' ').trim().slice(0, 100) || 'Comprador identificado pela licença'
   if (!/^BDC-[A-F0-9]{20}$/.test(codigo)) throw new Error('Código de exemplar inválido.')
@@ -55,6 +56,26 @@ async function personalizarExemplar(bytes, formato, codigo, nomeComprador = 'Com
   const doc = parse(await zip.file(pacote).async('string'))
   const manifest = encontrar(doc, 'manifest'), spine = encontrar(doc, 'spine')
   if (!manifest || !spine) throw new Error('EPUB sem sequência de leitura.')
+  // Incorpora o alinhamento no exemplar, para leitores externos que respeitam CSS.
+  const itens = Array.from(manifest.getElementsByTagName('*'))
+  for (const referencia of Array.from(spine.getElementsByTagName('*'))) {
+    const item = itens.find(n => n.getAttribute('id') === referencia.getAttribute('idref'))
+    if (!item || item.getAttribute('media-type') !== 'application/xhtml+xml') continue
+    const basePacote = pacote.includes('/') ? pacote.slice(0, pacote.lastIndexOf('/') + 1) : ''
+    const caminho = require('node:path').posix.normalize(basePacote + decodeURIComponent(item.getAttribute('href').split('#')[0]))
+    if (caminho.startsWith('../') || caminho.startsWith('/')) throw new Error('Caminho EPUB inválido.')
+    const entrada = zip.file(caminho)
+    if (!entrada) throw new Error('Capítulo EPUB ausente.')
+    const capitulo = parse(await entrada.async('string'))
+    const html = capitulo.documentElement
+    let head = encontrar(capitulo, 'head')
+    if (!head) { head = capitulo.createElementNS(html.namespaceURI, 'head'); html.insertBefore(head, html.firstChild) }
+    const style = capitulo.createElementNS(html.namespaceURI, 'style')
+    style.setAttribute('type', 'text/css')
+    style.appendChild(capitulo.createTextNode(epubAlinhamentoTopo))
+    head.appendChild(style)
+    zip.file(caminho, new XMLSerializer().serializeToString(capitulo))
+  }
   let id = 'bdc-licenca'
   while (Array.from(doc.getElementsByTagName('*')).some((n) => n.getAttribute('id') === id)) id += '-1'
   const base = pacote.includes('/') ? pacote.slice(0, pacote.lastIndexOf('/') + 1) : ''

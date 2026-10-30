@@ -5,3 +5,11 @@ export function livroVisivelNoAcervo(livro) {
     livro.pixAtivo && Number(livro.precoPixCentavos) > 0 && livro.arquivos?.completo
   ))
 }
+
+// A disponibilidade do Pix é a mesma no site, Android e iOS.
+export function compraPixDisponivel(livro) {
+  return Boolean(
+    livro && livro.publicado !== false && !livro.excluido &&
+    livro.pixAtivo && Number(livro.precoPixCentavos) > 0 && livro.arquivos?.completo
+  )
+}

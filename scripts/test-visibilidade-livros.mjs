@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import ts from 'typescript'
-import { livroVisivelNoAcervo } from '../src/utils/disponibilidadeLivro.js'
+import { livroVisivelNoAcervo, compraPixDisponivel } from '../src/utils/disponibilidadeLivro.js'
 
 const pix = { publicado: true, pixAtivo: true, precoPixCentavos: 2500, arquivos: { completo: { chave: 'livro.epub' } } }
 assert.equal(livroVisivelNoAcervo(pix), true)
@@ -22,8 +22,14 @@ const start = compiled.indexOf('function opcoesLivro(')
 const end = compiled.indexOf('function rotuloAcaoOpcao(', start)
 assert.ok(start >= 0 && end > start)
 for (const plataforma of ['web', 'android', 'ios']) {
-  const opcoes = new Function('PLATAFORMA', '_jsx', 'PixIcon', 'AndroidIcon', 'AppleIcon', 'StorefrontOutlinedIcon', `${compiled.slice(start, end)}; return opcoesLivro`)(plataforma, () => null, null, null, null, null)
+  const opcoes = new Function('compraPixDisponivel', 'PLATAFORMA', '_jsx', 'PixIcon', 'AndroidIcon', 'AppleIcon', 'StorefrontOutlinedIcon', `${compiled.slice(start, end)}; return opcoesLivro`)(compraPixDisponivel, plataforma, () => null, null, null, null, null)
   assert.equal(livroVisivelNoAcervo(pix), true)
-  assert.deepEqual(opcoes(pix).map(o => o.id), plataforma === 'web' ? ['pix'] : [])
+  assert.deepEqual(opcoes(pix).map(o => o.id), ['pix'])
+  for (const alteracao of [{ publicado: false }, { excluido: true }, { pixAtivo: false }, { precoPixCentavos: 0 }, { arquivos: {} }]) {
+    assert.deepEqual(opcoes({ ...pix, ...alteracao }), [])
+  }
+  const misto = { ...pix, androidUrl: 'https://example.com/android', appleUrl: 'https://example.com/apple', amazonUrl: 'https://example.com/amazon' }
+  const esperadas = plataforma === 'web' ? ['pix', 'android', 'apple', 'amazon'] : plataforma === 'android' ? ['pix', 'android', 'amazon'] : ['pix', 'apple', 'amazon']
+  assert.deepEqual(opcoes(misto).map(o => o.id), esperadas)
 }
-console.log('Aprovado: livros Pix visíveis no acervo, rascunhos e cadastros incompletos ocultos, compra Pix mantida na web e página válida.')
+console.log('Aprovado: livros Pix visíveis no acervo, rascunhos e cadastros incompletos ocultos, compra Pix disponível na web, Android e iOS e página válida.')

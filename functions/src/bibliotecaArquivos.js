@@ -38,6 +38,24 @@ function normalizarFinalidade(valor) {
   return valor
 }
 
+const FORMATOS = ['epub', 'pdf']
+
+function formatoSolicitado(valor) {
+  if (valor == null) return null
+  if (!FORMATOS.includes(valor)) throw new HttpsError('invalid-argument', 'Escolha EPUB ou PDF.')
+  return valor
+}
+
+function dadosUpload(dados) {
+  const formatoExplicito = /^completo-(epub|pdf)$/.exec(dados?.finalidade)?.[1]
+  const finalidade = formatoExplicito ? 'completo' : normalizarFinalidade(dados?.finalidade)
+  const tipo = normalizarFormato(dados?.nome, dados?.contentType)
+  if (formatoExplicito && formatoExplicito !== tipo.formato) {
+    throw new HttpsError('invalid-argument', 'O arquivo não corresponde ao formato escolhido.')
+  }
+  return { finalidade, ...tipo }
+}
+
 function normalizarFormato(nome, contentType) {
   const nomeNormalizado = texto(nome, 240).toLowerCase()
   const tipo = texto(contentType, 100).toLowerCase()
@@ -77,13 +95,12 @@ function clienteR2() {
 exports.prepararUploadLivroBiblioteca = onCall(OPCOES, async (req) => {
   await exigirAdmin(req.auth?.uid)
   const livroId = idSeguro(req.data?.livroId)
-  const finalidade = normalizarFinalidade(req.data?.finalidade)
+  const { finalidade, formato, contentType } = dadosUpload(req.data)
   const tamanho = Math.round(Number(req.data?.tamanho) || 0)
   if (!livroId) throw new HttpsError('invalid-argument', 'Livro inválido.')
   if (tamanho < 1 || tamanho > MAXIMO_BYTES) {
     throw new HttpsError('invalid-argument', 'O arquivo deve ter no máximo 100 MB.')
   }
-  const { formato, contentType } = normalizarFormato(req.data?.nome, req.data?.contentType)
   const chave = `biblioteca/${livroId}/${finalidade}.${formato}`
   const { client, bucket } = clienteR2()
   const url = await getSignedUrl(client, new PutObjectCommand({
@@ -97,8 +114,8 @@ exports.prepararUploadLivroBiblioteca = onCall(OPCOES, async (req) => {
 exports.confirmarUploadLivroBiblioteca = onCall(OPCOES, async (req) => {
   await exigirAdmin(req.auth?.uid)
   const livroId = idSeguro(req.data?.livroId)
-  const finalidade = normalizarFinalidade(req.data?.finalidade)
-  const { formato, contentType } = normalizarFormato(req.data?.nome, req.data?.contentType)
+  const { finalidade, formato, contentType } = dadosUpload(req.data)
+  if (!livroId) throw new HttpsError('invalid-argument', 'Livro inválido.')
   const chave = `biblioteca/${livroId}/${finalidade}.${formato}`
   const { client, bucket } = clienteR2()
   let cabecalho
@@ -117,7 +134,18 @@ exports.confirmarUploadLivroBiblioteca = onCall(OPCOES, async (req) => {
     atualizadoEm: agora,
     atualizadoPor: req.auth.uid,
   }
-  await admin.database().ref(`bibliotecaLivros/${livroId}/arquivos/${finalidade}`).set(metadados)
+  const arquivosRef = admin.database().ref(`bibliotecaLivros/${livroId}/arquivos`)
+  if (finalidade === 'completo') {
+    await arquivosRef.transaction((atual) => {
+      const arquivos = atual || {}
+      const anterior = arquivos.completo
+      const formatos = { ...arquivos.formatos }
+      if (anterior?.chave && FORMATOS.includes(anterior.formato) && !formatos[anterior.formato]) formatos[anterior.formato] = anterior
+      formatos[formato] = metadados
+      // Mantém o formato principal disponível para as versões antigas do aplicativo.
+      return { ...arquivos, formatos, completo: formatos[anterior?.formato] || formatos.epub || formatos.pdf }
+    })
+  } else await arquivosRef.child(finalidade).set(metadados)
   await admin.database().ref(`bibliotecaLivros/${livroId}/atualizadoEm`).set(agora)
   return { ok: true, arquivo: metadados }
 })
@@ -140,7 +168,12 @@ exports.obterArquivoLivroBiblioteca = onCall({ ...OPCOES, memory: '1GiB', concur
   const agora = Date.now()
   const decisao = decidirArquivo({ livro, finalidade, ehAdmin, comprado, download: req.data?.download === true, agora })
   if (decisao.erro) throw new HttpsError('permission-denied', decisao.erro)
-  const arquivo = livro.arquivos?.[decisao.finalidade]
+  const formato = formatoSolicitado(req.data?.formato)
+  const principal = livro.arquivos?.[decisao.finalidade]
+  const arquivo = formato && decisao.finalidade === 'completo'
+    ? livro.arquivos?.formatos?.[formato] || (principal?.formato === formato ? principal : null)
+    : principal
+  if (formato && arquivo?.formato !== formato) throw new HttpsError('not-found', 'O formato solicitado ainda não está disponível.')
   if (!arquivo?.chave || !['pdf', 'epub'].includes(arquivo.formato)) {
     throw new HttpsError('not-found', finalidade === 'amostra' ? 'Este livro ainda não possui amostra.' : 'O arquivo deste livro ainda não foi enviado.')
   }
@@ -229,6 +262,13 @@ exports.excluirArquivoLivroBiblioteca = onCall(OPCOES, async (req) => {
     const { client, bucket } = clienteR2()
     await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: arquivo.chave }))
   }
-  await ref.remove()
+  if (finalidade === 'completo' && arquivo?.formato) {
+    await ref.parent.transaction((atual) => {
+      if (!atual || atual.completo?.chave !== arquivo.chave) return undefined
+      const formatos = { ...atual.formatos }
+      delete formatos[arquivo.formato]
+      return { ...atual, formatos, completo: formatos.epub || formatos.pdf || null }
+    })
+  } else await ref.remove()
   return { ok: true }
 })

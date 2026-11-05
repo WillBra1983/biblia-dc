@@ -1,3 +1,4 @@
+import { dataCadastroLivro } from '../utils/bibliotecaOrdenacao'
 import { livrosCatalogo } from '../data/livrosCatalogo'
 import { contarApresentacao } from '../utils/apresentacaoFormatada'
 
@@ -16,11 +17,11 @@ async function donoOffline() {
   const { getFirebaseAuth } = await import('../config/firebase')
   return getFirebaseAuth()?.currentUser?.uid || `aparelho:${dispositivoBiblioteca()}`
 }
-export async function prepararLeituraOffline(livroId) {
+export async function prepararLeituraOffline(livroId, formato = null) {
   const { prepararLivroOffline } = await import('./bibliotecaOfflineService')
   // Renova a autorização e o endereço, que expira durante uma leitura longa.
-  const autorizado = await chamarFuncao('obterArquivoLivroBiblioteca', { livroId, finalidade: 'completo', download: false })
-  await prepararLivroOffline(`${await donoOffline()}:${livroId}`, autorizado)
+  const autorizado = await chamarFuncao('obterArquivoLivroBiblioteca', { livroId, finalidade: 'completo', download: false, formato })
+  await prepararLivroOffline(`${await donoOffline()}:${livroId}:${autorizado.formato}`, autorizado)
 }
 export async function vincularComprasVisitante(token = dispositivoBiblioteca(), recuperar = false) {
   const dados = await chamarFuncao('vincularComprasBibliotecaVisitante', { dispositivoBiblioteca: token, recuperar })
@@ -64,10 +65,15 @@ function normalizarLivro(id, valor = {}) {
     totalPartes: Math.max(0, Math.min(300, Number(valor.totalPartes) || 0)),
     destaque: Boolean(valor.destaque),
     excluido: Boolean(valor.excluido),
+    criadoEm: Math.max(0, Number(valor.criadoEm) || 0),
     atualizadoEm: Number(valor.atualizadoEm) || 0,
     arquivos: {
       completo: normalizarArquivo(valor.arquivos?.completo),
       amostra: normalizarArquivo(valor.arquivos?.amostra),
+      formatos: {
+        epub: normalizarArquivo(valor.arquivos?.formatos?.epub),
+        pdf: normalizarArquivo(valor.arquivos?.formatos?.pdf),
+      },
     },
   }
 }
@@ -155,9 +161,12 @@ export async function salvarLivroBiblioteca(livro, uid) {
     ...livro,
     versaoDescricaoEditorial: VERSAO_DESCRICAO_EDITORIAL,
     excluido: false,
+    criadoEm: dataCadastroLivro(livro) || Date.now(),
     atualizadoEm: Date.now(),
   })
-  await rtdb.api.set(rtdb.api.ref(rtdb.db, `${CAMINHO}/${payload.id}`), payload)
+  // Os arquivos são gerenciados pelas funções de upload, inclusive durante edições do título.
+  delete payload.arquivos
+  await rtdb.api.update(rtdb.api.ref(rtdb.db, `${CAMINHO}/${payload.id}`), payload)
 }
 
 export async function carregarConteudoLivroBiblioteca(id, uid) {
@@ -250,6 +259,9 @@ async function chamarFuncao(nome, dados = {}) {
   return resultado?.data || {}
 }
 
+export const listarVotosBiblioteca = () => chamarFuncao('listarVotosBiblioteca')
+export const votarLivroBiblioteca = (livroId, votou) => chamarFuncao('votarLivroBiblioteca', { livroId, votou })
+
 export function assinarAcessosBiblioteca(uid, callback, onError) {
   let cancelar = () => {}
   let ativo = true
@@ -337,12 +349,21 @@ export async function enviarArquivoLivroBiblioteca(livroId, finalidade, arquivo)
   return confirmado.arquivo
 }
 
-export async function obterArquivoLivroBiblioteca(livroId, finalidade = 'completo', download = false, eventoId = null) {
+export async function obterArquivoLivroBiblioteca(livroId, finalidade = 'completo', download = false, eventoId = null, formato = null) {
   if (!navigator.onLine && finalidade === 'completo' && !download) {
     const { abrirLivroOffline } = await import('./bibliotecaOfflineService')
-    return abrirLivroOffline(`${await donoOffline()}:${livroId}`)
+    const chave = `${await donoOffline()}:${livroId}`
+    if (formato) {
+      try { return await abrirLivroOffline(`${chave}:${formato}`) } catch { /* Tenta a cópia de versões antigas. */ }
+    }
+    const legado = await abrirLivroOffline(chave)
+    if (formato && legado.formato !== formato) {
+      URL.revokeObjectURL(legado.url)
+      throw new Error('Prepare este formato para leitura offline com internet.')
+    }
+    return legado
   }
-  return chamarFuncao('obterArquivoLivroBiblioteca', { livroId, finalidade, download, eventoId })
+  return chamarFuncao('obterArquivoLivroBiblioteca', { livroId, finalidade, download, eventoId, formato })
 }
 
 export const registrarAcessoBiblioteca = (dados) => chamarFuncao('registrarAcessoBiblioteca', dados)

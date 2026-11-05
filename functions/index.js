@@ -19,6 +19,9 @@ exports.enviarAvisoAdmin = require('./src/enviarAvisoAdmin').enviarAvisoAdmin
 
 // Capas da Biblioteca Digital — envio validado exclusivamente para administradores.
 exports.enviarCapaBiblioteca = require('./src/bibliotecaCapas').enviarCapaBiblioteca
+const bibliotecaVotos = require('./src/bibliotecaVotos')
+exports.listarVotosBiblioteca = bibliotecaVotos.listarVotosBiblioteca
+exports.votarLivroBiblioteca = bibliotecaVotos.votarLivroBiblioteca
 
 // Venda direta da Biblioteca por Pix, com conferência e liberação pelo administrador.
 const bibliotecaPix = require('./src/bibliotecaPix')

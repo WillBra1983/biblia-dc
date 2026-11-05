@@ -5,6 +5,8 @@ import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogCont
 import IosShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CompartilharTrechoLivroDialog from './CompartilharTrechoLivroDialog'
 import CompartilharLivroButton from './CompartilharLivroButton'
 import VersiculoPopup from './VersiculoPopup'
@@ -86,7 +88,7 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
   const [tamanho, setTamanho] = useState(105)
-  const [modo, setModo] = useState(() => localStorage.getItem(`${storageKey}:modo`) === 'rolagem' ? 'rolagem' : 'paginas')
+  const [modo, setModo] = useState(() => localStorage.getItem(`${storageKey}:modo`) === 'paginas' ? 'paginas' : 'rolagem')
   const [capaUrl, setCapaUrl] = useState('')
   const [exibindoCapa, setExibindoCapa] = useState(false)
   const [pagina, setPagina] = useState(1)
@@ -336,6 +338,7 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
     <Stack spacing={compacto ? 0 : 1.5}>
       {erro && <Alert severity="error">{erro}</Alert>}
       {compacto && (!immersive || barraVisivel) && <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5} sx={{ minHeight: 44, flexShrink: 0, flexWrap: 'wrap' }}>
+        {modo === 'paginas' && <Button size="small" disabled={carregando || exibindoCapa} aria-label="Página anterior" title="Página anterior" sx={{ minWidth: 44, minHeight: 44 }} onClick={paginaAnterior}><ChevronLeftIcon /></Button>}
         <Button size="small" disabled={carregando || tamanho <= 80} aria-label="Diminuir letras do EPUB" title="Diminuir letras" sx={{ minWidth: 44, minHeight: 44, fontSize: '1.5rem' }} onClick={() => setTamanho((v) => Math.max(80, v - 10))}>−</Button>
         <Button size="small" disabled={carregando} aria-label="Escolher posição ou capítulo do EPUB" title="Escolha uma posição de leitura ou um capítulo do sumário." onClick={() => { setPaginaDigitada(String(pagina)); setEscolherPagina(true) }}>{pagina} de {total || '…'}</Button>
         <Button size="small" disabled={carregando || tamanho >= 160} aria-label="Ampliar letras do EPUB" title="Ampliar letras" sx={{ minWidth: 44, minHeight: 44, fontSize: '1.5rem' }} onClick={() => setTamanho((v) => Math.min(160, v + 10))}>+</Button>
@@ -347,6 +350,7 @@ function EpubReader({ url, storageKey, onSelection, onBibleReference, onPageTap,
           localStorage.setItem(`${storageKey}:modo`, event.target.value)
           setModo(event.target.value)
         }} sx={{ height: 32, fontSize: '.8rem' }}><MenuItem value="paginas">Páginas</MenuItem><MenuItem value="rolagem">Rolagem vertical</MenuItem></Select>
+        {modo === 'paginas' && <Button size="small" disabled={carregando} aria-label="Próxima página" title="Próxima página" sx={{ minWidth: 44, minHeight: 44 }} onClick={proximaPagina}><ChevronRightIcon /></Button>}
       </Stack>}
       {!compacto && !immersive && <BibliotecaReaderToolbar onFullscreen={onPageTap}>
         <Button onClick={abrirCapa}>Início</Button>

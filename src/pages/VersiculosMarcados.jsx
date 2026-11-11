@@ -42,6 +42,7 @@ import { buildAppShareLink } from '../services/bibliaEstudosService'
 import { limparBibliaSessaoCache } from '../utils/bibliaSessionCache'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { resolveFontFamily } from '../utils/fontFamily'
+import { aplicarVersaoBiblica } from '../services/bibliaService'
 
 /** Conta quantos marcados legados (sem `grupoMarcacaoId`) compartilham o mesmo instante + livro + capítulo + cor. */
 function contarLegadoPorData(versiculos) {
@@ -145,9 +146,12 @@ export default function VersiculosMarcados() {
   }
 
   useEffect(() => {
-    const carregarVersiculos = () => {
+    let ativo = true, pedido = 0
+    const carregarVersiculos = async () => {
+      const atual = ++pedido
       const marcados = obterTodosVersiculosMarcados()
-      setVersiculosMarcados(marcados)
+      const exibidos = await Promise.all(marcados.map(v => aplicarVersaoBiblica(v).catch(() => ({ ...v, texto: 'Texto indisponível nesta versão bíblica.' }))))
+      if (ativo && atual === pedido) setVersiculosMarcados(exibidos)
     }
 
     carregarVersiculos()
@@ -156,7 +160,7 @@ export default function VersiculosMarcados() {
       carregarVersiculos()
     }
     window.addEventListener('versiculosMarcadosChange', handleChange)
-    return () => window.removeEventListener('versiculosMarcadosChange', handleChange)
+    return () => { ativo = false; window.removeEventListener('versiculosMarcadosChange', handleChange) }
   }, [])
 
   // Garante comportamento consistente do botão físico voltar nesta tela.

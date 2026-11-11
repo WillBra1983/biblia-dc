@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   Box,
   Typography,
@@ -18,8 +18,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import BarraFormatacaoApresentacao from '../components/BarraFormatacaoApresentacao'
 import { useLeituraApresentacao } from '../contexts/LeituraApresentacaoContext'
 import { hinarioService } from '../services/hinarioService'
-import { montarSlidesApresentacaoHino, limparRotulosDoTextoSlide } from '../utils/hinarioSlides'
-import { formatarNotasRodapeHinario } from '../utils/hinarioNotasFormat'
+import { montarSlidesApresentacaoHino } from '../utils/hinarioSlides'
 import { FUNDO_VERDE_PADRAO } from '../utils/fundoVerdePagina'
 import {
   estiloSombraApresentacao,
@@ -51,7 +50,8 @@ export default function HinarioApresentacao() {
   const sombraHino = useMemo(() => estiloSombraApresentacao(corLivro), [corLivro])
   const pesoTexto = pesoFonteApresentacao(negrito, 'texto')
   const pesoHino = pesoFonteApresentacao(negrito, 'livro')
-  const painelRef = useRef(null)
+  const areaSlideRef = useRef(null)
+  const textoSlideRef = useRef(null)
 
   const [hino, setHino] = useState(null)
   const [carregando, setCarregando] = useState(true)
@@ -104,9 +104,35 @@ export default function HinarioApresentacao() {
   const totalSlides = slides.length
   const slideAtual = slides[slideIdx]
   const ehSlideTitulo = slideAtual?.tipo === 'titulo'
-  const textoSlide = ehSlideTitulo
-    ? formatarNotasRodapeHinario(slideAtual?.texto ?? '')
-    : limparRotulosDoTextoSlide(slideAtual?.texto ?? '')
+  const textoSlide = slideAtual?.texto ?? ''
+
+  useLayoutEffect(() => {
+    const area = areaSlideRef.current
+    const texto = textoSlideRef.current
+    if (!area || !texto) return
+
+    const ajustar = () => {
+      texto.style.removeProperty('font-size')
+      const preferido = parseFloat(getComputedStyle(texto).fontSize)
+      const cabe = () => texto.offsetHeight <= area.clientHeight && texto.scrollWidth <= area.clientWidth
+      if (cabe()) return
+
+      let minimo = Math.min(preferido, 12)
+      let maximo = preferido
+      while (maximo - minimo > 0.5) {
+        const tamanho = (minimo + maximo) / 2
+        texto.style.fontSize = `${tamanho}px`
+        if (cabe()) minimo = tamanho
+        else maximo = tamanho
+      }
+      texto.style.fontSize = `${minimo}px`
+    }
+
+    ajustar()
+    const observer = new ResizeObserver(ajustar)
+    observer.observe(area)
+    return () => observer.disconnect()
+  }, [textoSlide, slideIdx, ff, lh, pesoTexto, escala, carregando])
 
   const marcarExibido = useCallback((idx) => {
     setExibidos((prev) => {
@@ -191,8 +217,8 @@ export default function HinarioApresentacao() {
   }
 
   const clicarArea = (e) => {
-    const limiteDir = window.innerWidth - (painelRef.current?.offsetWidth ?? LARGURA_PAINEL)
-    const x = e.clientX / Math.max(limiteDir, 1)
+    const { left, width } = e.currentTarget.getBoundingClientRect()
+    const x = (e.clientX - left) / Math.max(width, 1)
     if (x < 0.25) irAnterior()
     else if (x < 0.75) irProximo()
   }
@@ -300,37 +326,49 @@ export default function HinarioApresentacao() {
             sx={{
               flex: 1,
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              px: { xs: 3, sm: 6, md: 8 },
-              pb: { xs: 4, sm: 6 },
+              flexDirection: 'column',
+              overflow: 'auto',
+              px: { xs: 2, sm: 4, md: 6 },
+              py: 1,
               minHeight: 0,
             }}
           >
-            <Fade in key={slideIdx} timeout={220}>
-              <Typography
-                sx={{
-                  textAlign: textAlign || 'center',
-                  whiteSpace: 'pre-wrap',
-                  color: corTexto,
-                  fontWeight: pesoTexto,
-                  fontFamily: ff,
-                  fontSize: ehSlideTitulo
-                    ? `clamp(${1.5 * escala}rem, ${5 * escala}vw, ${3.25 * escala}rem)`
-                    : `clamp(${1.2 * escala}rem, ${3.6 * escala}vw, ${2.65 * escala}rem)`,
-                  lineHeight: lh,
-                  maxWidth: 'min(1000px, 88vw)',
-                  ...sombraTexto,
-                }}
-              >
-                {textoSlide}
-              </Typography>
-            </Fade>
+            <Box ref={areaSlideRef} sx={{ flex: 1, minHeight: 0, display: 'flex', overflow: 'auto' }}>
+              <Fade in key={slideIdx} timeout={160}>
+                <Typography
+                  ref={textoSlideRef}
+                  sx={{
+                    m: 'auto',
+                    overflowWrap: 'anywhere',
+                    textAlign: textAlign || 'center',
+                    whiteSpace: 'pre-wrap',
+                    color: corTexto,
+                    fontWeight: pesoTexto,
+                    fontFamily: ff,
+                    fontSize: ehSlideTitulo
+                      ? `clamp(${1.5 * escala}rem, ${5 * escala}vw, ${3.25 * escala}rem)`
+                      : `clamp(${1.2 * escala}rem, ${3.6 * escala}vw, ${2.65 * escala}rem)`,
+                    lineHeight: lh,
+                    maxWidth: 'min(1000px, 100%)',
+                    ...sombraTexto,
+                  }}
+                >
+                  {textoSlide}
+                </Typography>
+              </Fade>
+            </Box>
           </Box>
+          {hino.referencia && slideIdx === totalSlides - 1 ? (
+            <Typography
+              variant="caption"
+              sx={{ px: 3, pb: 1, opacity: 0.75, fontStyle: 'italic', color: corTexto, flexShrink: 0 }}
+            >
+              {hino.referencia}
+            </Typography>
+          ) : null}
         </Box>
 
         <Box
-          ref={painelRef}
           onClick={(e) => e.stopPropagation()}
           sx={{
             width: { xs: 168, sm: LARGURA_PAINEL },
@@ -400,6 +438,7 @@ export default function HinarioApresentacao() {
       </Box>
 
       <BarraFormatacaoApresentacao
+        emFluxo
         zIndex={1500}
         fullscreen={fullscreen}
         onToggleFullscreen={toggleFullscreen}
@@ -415,21 +454,6 @@ export default function HinarioApresentacao() {
         }}
       />
 
-      {hino.referencia && slideIdx === totalSlides - 1 ? (
-        <Typography
-          variant="caption"
-          sx={{
-            position: 'absolute',
-            bottom: 108,
-            left: 24,
-            opacity: 0.75,
-            fontStyle: 'italic',
-            color: corTexto,
-          }}
-        >
-          {hino.referencia}
-        </Typography>
-      ) : null}
     </Box>
   )
 }

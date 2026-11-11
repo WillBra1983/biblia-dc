@@ -33,8 +33,6 @@ export async function buscarVersiculo({ livroId, capitulo, versiculoInicio = 1, 
 
 export async function buscarReferencia(referencia) {
   try {
-    const db = await initDB()
-    
     // Extrai as referências do texto
     const referencias = extrairReferenciaBiblica(referencia)
     if (!referencias.length) {

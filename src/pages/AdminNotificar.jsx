@@ -91,7 +91,7 @@ const ROTAS_SUGERIDAS = [
   { label: 'Discipulado', value: '/discipulado' },
   { label: 'Devocional', value: '/devocional' },
   { label: 'Estudos Compartilhados', value: '/estudos-biblicos' },
-  { label: 'Bíblia comentada', value: '/biblioteca-estudos' },
+  { label: 'Versículos explicados', value: '/biblioteca-estudos' },
   { label: 'Biblioteca de livros', value: '/biblioteca' },
   { label: 'Hinário - Letra', value: '/hinario/letra' },
   { label: 'Hinário - Cifras', value: '/hinario/cifras' },

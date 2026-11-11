@@ -1,3 +1,4 @@
+import { forwardRef } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Box,
@@ -84,9 +85,9 @@ function iniciaisNome(nome) {
   return s.slice(0, 2).toUpperCase()
 }
 
-function Transition(props) {
-  return <Slide direction="up" {...props} />
-}
+const Transition = forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" {...props} ref={ref} />
+})
 
 function PodioDestaque({ primeiro, segundo, terceiro }) {
   const slots = [
@@ -433,7 +434,7 @@ export default function PlanoRankingLeitura({
             src={SRC_PLANO_RANKING}
             alt="Ranking da leitura"
             loading="eager"
-            fetchPriority="high"
+            fetchpriority="high"
             decoding="async"
             draggable={false}
             onLoad={() => setIconeRankingVisivel(true)}

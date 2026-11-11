@@ -2,6 +2,15 @@ import initSqlJs from 'sql.js';
 import { normalizarNomeLivro } from '../utils/biblia'
 import { obterSqliteAssetBytes } from '../utils/sqliteAssetCache'
 
+import { versaoBiblicaPorId } from '../data/bibliaVersoes'
+import { obterVersaoBiblica, definirVersaoBiblica } from '../utils/bibliaVersionStore'
+import { limparBibliaSessaoCache } from '../utils/bibliaSessionCache'
+
+function criarRuntimeBiblia(versao) {
+function normalizarLinhaBiblica(linha) {
+  if (linha.textoMarcado === linha.texto) delete linha.textoMarcado
+  return linha
+}
 let db = null;
 let SQL = null;
 
@@ -17,7 +26,7 @@ const pericopesCache = new Map()
 const PERICOPES_CACHE_MAX = 80
 // Deve mudar sempre que public/ara.sqlite for substituído. Evita que instalações
 // existentes continuem usando indefinidamente uma cópia antiga no IndexedDB.
-const ARA_SQLITE_CONTENT_REV = 'ea17063b'
+const ARA_SQLITE_CONTENT_REV = versao.revisao
 /** Primeiro livro do NT (Mateus); ids menores são AT. */
 const LIVRO_ID_NT_INICIO = 40
 
@@ -40,7 +49,7 @@ function escaparRegExp(s) {
  * "Palavra literal": o termo aparece como palavra inteira (bordas sem letra/número).
  * Ex.: "ira" casa em "… à ira …" / "ira,", mas não em "beira" / "cadeira".
  */
-export function contemPalavraLiteral(texto, termo) {
+function contemPalavraLiteral(texto, termo) {
   const t = String(texto || '')
   const p = String(termo || '').trim()
   if (!p || !t) return false
@@ -67,7 +76,7 @@ function gravarCacheLimitado(map, key, value, max) {
   map.set(key, value)
 }
 
-export async function initDB() {
+async function initDB() {
   if (db) return db;
   if (initPromise) return initPromise;
 
@@ -78,13 +87,13 @@ export async function initDB() {
       const rev = configuredRev
         ? `${ARA_SQLITE_CONTENT_REV}-${configuredRev}`
         : ARA_SQLITE_CONTENT_REV;
-      const url = `${base}ara.sqlite${rev ? `?v=${encodeURIComponent(rev)}` : ''}`;
+      const url = `${base}${versao.arquivo}${rev ? `?v=${encodeURIComponent(rev)}` : ''}`;
 
       SQL = await initSqlJs({
         locateFile: (file) => `${base}sql.js/${file}`
       });
 
-      const uint8Array = await obterSqliteAssetBytes('ara.sqlite', rev, async () => {
+      const uint8Array = await obterSqliteAssetBytes(versao.arquivo, rev, async () => {
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error('Falha ao carregar o banco de dados');
@@ -94,6 +103,12 @@ export async function initDB() {
       });
 
       db = new SQL.Database(uint8Array);
+      // As novas bases preservam a numeração explícita; ARA mantém sua ordem original.
+      const possuiNumero = db.exec('PRAGMA table_info(verse)')[0]?.values.some(row => row[1] === 'verse_number');
+        const textoLimpo = "REPLACE(REPLACE(REPLACE(REPLACE(text,'<J>',''),'</J>',''),'<j>',''),'</j>','')"
+        db.run(possuiNumero
+          ? `CREATE TEMP VIEW verse_versioned AS SELECT id,book_id,chapter,${textoLimpo} AS text,text AS textoMarcado,verse_number,verse_end FROM verse`
+          : `CREATE TEMP VIEW verse_versioned AS SELECT id,book_id,chapter,${textoLimpo} AS text,text AS textoMarcado,ROW_NUMBER() OVER (PARTITION BY book_id,chapter ORDER BY id) AS verse_number,ROW_NUMBER() OVER (PARTITION BY book_id,chapter ORDER BY id) AS verse_end FROM verse`);
       return db;
     } catch (error) {
       initPromise = null;
@@ -105,7 +120,7 @@ export async function initDB() {
   return initPromise;
 }
 
-export const verificarBanco = async () => {
+const verificarBanco = async () => {
   const db = await initDB();
   const query = `SELECT COUNT(*) as total FROM verse`;
 
@@ -120,7 +135,7 @@ export const verificarBanco = async () => {
   }
 };
 
-export const bibliaService = {
+const bibliaService = {
   async buscarCapitulo(livro, capitulo) {
     const cacheKey = `${livro}:${capitulo}`
     if (capituloCache.has(cacheKey)) {
@@ -129,8 +144,8 @@ export const bibliaService = {
     const db = await initDB();
     
     const query = `
-      SELECT text as texto
-      FROM verse v
+        SELECT text as texto, textoMarcado, verse_number as numero, verse_end as numeroFim
+      FROM verse_versioned v
       JOIN book b ON v.book_id = b.id
       WHERE b.id = ? AND v.chapter = ?
       ORDER BY v.id
@@ -141,7 +156,7 @@ export const bibliaService = {
       stmt.bind([livro, capitulo]);
       const result = [];
       while (stmt.step()) {
-        result.push(stmt.getAsObject());
+        result.push(normalizarLinhaBiblica(stmt.getAsObject()));
       }
       stmt.free();
       gravarCacheLimitado(capituloCache, cacheKey, result, CAPITULO_CACHE_MAX)
@@ -174,10 +189,8 @@ export const bibliaService = {
         return { versiculos: [] }
       }
 
-      const [, numero, livroNome, capitulo, versiculoInicio, versiculoFim] = match
-      const livroCompleto = numero 
-        ? `${numero} ${livroNome.trim()}`
-        : livroNome.trim()
+      const [, livroNome, capitulo, versiculoInicio, versiculoFim] = match
+      const livroCompleto = livroNome.trim()
       
       const livro = await buscarLivroPorNome(livroCompleto)
       
@@ -225,13 +238,11 @@ export const bibliaService = {
             b.name as livro, 
             v.chapter as capitulo,
             v.text as texto,
-            (SELECT COUNT(*) + 1 FROM verse v2 
-             WHERE v2.book_id = v.book_id 
-             AND v2.chapter = v.chapter 
-             AND v2.id < v.id) as versiculo,
+            v.textoMarcado,
+            v.verse_number as versiculo,
             b.id as livroId,
             NULL as pericope
-          FROM verse v
+          FROM verse_versioned v
           JOIN book b ON v.book_id = b.id
           WHERE LOWER(v.text) LIKE LOWER(?)
             ${filtroTestamento}
@@ -245,7 +256,7 @@ export const bibliaService = {
         const stmt1 = db.prepare(queryVersos);
         stmt1.bind(paramsVersos);
         while (stmt1.step()) {
-          const row = stmt1.getAsObject()
+          const row = normalizarLinhaBiblica(stmt1.getAsObject())
           if (!literal || contemPalavraLiteral(row.texto, termo)) {
             resultados.push(row)
           }
@@ -304,8 +315,8 @@ export const bibliaService = {
       const params = [
         parseInt(livroId),
         parseInt(capitulo),
-        parseInt(versiculoInicio || 1),
-        parseInt(versiculoFim || 999)
+        parseInt(versiculoFim || 999),
+        parseInt(versiculoInicio || 1)
       ]
 
       const query = `
@@ -315,11 +326,10 @@ export const bibliaService = {
             b.name as livro,
             v.chapter as capitulo,
             v.text as texto,
-            ROW_NUMBER() OVER (
-              PARTITION BY v.book_id, v.chapter 
-              ORDER BY v.id
-            ) as numero
-          FROM verse v
+            v.textoMarcado,
+            v.verse_number as numero,
+            v.verse_end as numeroFim
+          FROM verse_versioned v
           JOIN book b ON v.book_id = b.id
           WHERE v.book_id = ?
             AND v.chapter = ?
@@ -328,9 +338,11 @@ export const bibliaService = {
           livro,
           capitulo,
           numero,
-          texto
+          numeroFim,
+          texto,
+          textoMarcado
         FROM VersiculosNumerados
-        WHERE numero BETWEEN ? AND ?
+        WHERE numero <= ? AND numeroFim >= ?
         ORDER BY numero
       `
       
@@ -339,12 +351,15 @@ export const bibliaService = {
       
       const versiculos = []
       while (stmt.step()) {
-        const versiculo = stmt.getAsObject()
+        const versiculo = normalizarLinhaBiblica(stmt.getAsObject())
         versiculos.push({
           livro: versiculo.livro,
           capitulo: versiculo.capitulo,
           numero: versiculo.numero,
-          texto: versiculo.texto
+          numeroFim: versiculo.numeroFim,
+          versao: versao.sigla,
+          texto: versiculo.texto,
+          ...(versiculo.textoMarcado ? { textoMarcado: versiculo.textoMarcado } : {})
         })
       }
       stmt.free()
@@ -411,8 +426,8 @@ export const bibliaService = {
       const db = await initDB()
 
       const query = `
-        SELECT COUNT(*) as total
-        FROM verse v
+        SELECT MAX(verse_end) as total
+        FROM verse_versioned v
         WHERE v.book_id = ? AND v.chapter = ?
       `
 
@@ -449,7 +464,7 @@ const versiculosPorLivroPromises = new Map()
  * capítulos do livro. Idempotente: chamadas concorrentes compartilham a mesma
  * promessa, e chamadas após o resultado retornam o cache.
  */
-export async function contarVersiculosPorLivro(livroId) {
+async function contarVersiculosPorLivro(livroId) {
   if (versiculosPorLivroCache.has(livroId)) {
     return versiculosPorLivroCache.get(livroId)
   }
@@ -460,8 +475,9 @@ export async function contarVersiculosPorLivro(livroId) {
   const promise = (async () => {
     try {
       const db = await initDB()
+      const numeracaoExplicita = db.exec('PRAGMA table_info(verse)')[0]?.values.some(coluna => coluna[1] === 'verse_end')
       const stmt = db.prepare(`
-        SELECT chapter, COUNT(*) AS total
+        SELECT chapter, ${numeracaoExplicita ? 'MAX(verse_end)' : 'COUNT(*)'} AS total
         FROM verse
         WHERE book_id = ?
         GROUP BY chapter
@@ -491,11 +507,11 @@ export async function contarVersiculosPorLivro(livroId) {
  * Acesso síncrono ao cache. Retorna `null` se ainda não estiver carregado.
  * Útil para a UI saber se pode renderizar a grade imediatamente.
  */
-export function obterVersiculosPorLivroSync(livroId) {
+function obterVersiculosPorLivroSync(livroId) {
   return versiculosPorLivroCache.get(livroId) || null
 }
 
-export async function buscarLivroPorNome(nome) {
+async function buscarLivroPorNome(nome) {
   const nomeChave = String(nome || '').trim().toLowerCase()
   if (nomeChave && livroPorNomeCache.has(nomeChave)) {
     return livroPorNomeCache.get(nomeChave)
@@ -558,7 +574,7 @@ export async function buscarLivroPorNome(nome) {
   }
 }
 
-export const extrairReferenciaBiblica = (texto) => {
+const extrairReferenciaBiblica = (texto) => {
   // Garantir que o texto está limpo antes de processar
   const textoLimpo = texto.replace(/<[^>]*>/g, '').trim()
   
@@ -583,7 +599,7 @@ export const extrairReferenciaBiblica = (texto) => {
   return referencias;
 };
 
-export async function buscarReferencia(referencia) {
+async function buscarReferencia(referencia) {
   try {
     const db = await initDB()
     
@@ -610,9 +626,10 @@ export async function buscarReferencia(referencia) {
     const query = `
       SELECT 
         v.text as texto,
-        v.id as numero,
+        v.verse_number as numero,
+        v.verse_end as numeroFim,
         v.chapter as capitulo
-      FROM verse v
+      FROM verse_versioned v
       WHERE v.book_id = ? 
       AND v.chapter = ?
       ORDER BY v.id
@@ -634,9 +651,9 @@ export async function buscarReferencia(referencia) {
 
     // Se tem versículo específico, retorna apenas os solicitados
     if (ref.versiculoInicio) {
-      const inicio = ref.versiculoInicio - 1;
-      const fim = ref.versiculoFim ? ref.versiculoFim - 1 : inicio;
-      return todosVersiculos.slice(inicio, fim + 1);
+      const inicio = ref.versiculoInicio;
+      const fim = ref.versiculoFim || inicio;
+      return todosVersiculos.filter(v => v.numero <= fim && v.numeroFim >= inicio);
     }
 
     // Se não tem versículo específico, retorna o capítulo todo
@@ -647,7 +664,7 @@ export async function buscarReferencia(referencia) {
   }
 }
 
-export const carregarTodosLivros = async () => {
+const carregarTodosLivros = async () => {
   const db = await initDB();
   const query = `
     SELECT b.id, b.name as nome,
@@ -677,14 +694,59 @@ export const carregarTodosLivros = async () => {
   }
 };
 
-export const { 
+const { 
   buscarCapitulo,
   buscarTexto,
   buscarVersiculo,
 } = bibliaService;
 
-export const buscarIntervaloVersiculos = bibliaService.buscarIntervaloVersiculos;
-export const buscarPericopes = bibliaService.buscarPericopes;
-export const contarVersiculos = bibliaService.contarVersiculos;
+const buscarIntervaloVersiculos = bibliaService.buscarIntervaloVersiculos;
+const buscarPericopes = bibliaService.buscarPericopes;
+const contarVersiculos = bibliaService.contarVersiculos;
 
-export { db }
+
+return { initDB, verificarBanco, contemPalavraLiteral, bibliaService, contarVersiculosPorLivro, obterVersiculosPorLivroSync, buscarLivroPorNome, extrairReferenciaBiblica, buscarReferencia, carregarTodosLivros };
+}
+
+const runtimes = new Map()
+function runtime(id = obterVersaoBiblica()) {
+  const versao = versaoBiblicaPorId(id)
+  if (!versao) throw new Error('Versão bíblica não disponível.')
+  if (!runtimes.has(id)) runtimes.set(id, criarRuntimeBiblia(versao))
+  return runtimes.get(id)
+}
+export let db = null
+export async function initDB(id = obterVersaoBiblica()) {
+  const banco = await runtime(id).initDB()
+  if (id === obterVersaoBiblica()) db = banco
+  return banco
+}
+export async function alterarVersaoBiblica(id) {
+  await initDB(id)
+  limparBibliaSessaoCache()
+  definirVersaoBiblica(id)
+}
+/** Atualiza apenas a cópia de exibição; preserva os registros e notas do usuário. */
+export async function aplicarVersaoBiblica(item) {
+  if (!item) return item
+  const versao = versaoBiblicaPorId(obterVersaoBiblica())
+  const versos = await runtime(versao.id).bibliaService.buscarIntervaloVersiculos(item.livroId, item.capitulo, item.versiculo, item.versiculo)
+  if (!versos.versiculos.length) throw new Error('Texto indisponível nesta versão bíblica.')
+  const texto = versos.versiculos.map(v => v.texto.replace(/^\s*(?:\d+|[⁰¹²³⁴⁵⁶⁷⁸⁹]+)\s+/u, '')).join(' ')
+  return { ...item, texto, versaoBiblica: versao.id, versao: versao.sigla }
+}
+export const bibliaService = Object.fromEntries([
+  'buscarCapitulo','buscarVersiculo','buscarTexto','buscarIntervaloVersiculos','buscarPericopes','contarVersiculos'
+].map(nome => [nome, (...args) => runtime().bibliaService[nome](...args)]))
+export const { buscarCapitulo, buscarVersiculo, buscarTexto, buscarIntervaloVersiculos, buscarPericopes, contarVersiculos } = bibliaService
+export const verificarBanco = (...args) => runtime().verificarBanco(...args)
+export const contemPalavraLiteral = (...args) => runtime().contemPalavraLiteral(...args)
+export const contarVersiculosPorLivro = (...args) => runtime().contarVersiculosPorLivro(...args)
+export const obterVersiculosPorLivroSync = (...args) => runtime().obterVersiculosPorLivroSync(...args)
+export const buscarLivroPorNome = (...args) => runtime().buscarLivroPorNome(...args)
+export const extrairReferenciaBiblica = (...args) => runtime().extrairReferenciaBiblica(...args)
+export const buscarReferencia = (...args) => runtime().buscarReferencia(...args)
+export const carregarTodosLivros = (...args) => runtime().carregarTodosLivros(...args)
+// Consultas paralelas não alteram a tradução global nem a sessão de leitura.
+export const buscarCapituloNaVersao = (versao, ...args) => runtime(versao).bibliaService.buscarCapitulo(...args)
+export const buscarPericopesNaVersao = (versao, ...args) => runtime(versao).bibliaService.buscarPericopes(...args)

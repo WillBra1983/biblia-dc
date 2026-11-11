@@ -75,10 +75,10 @@ function getPageTitleFromPathname(pathname) {
   if (path.startsWith('/youtube')) return 'YouTube'
   if (path.startsWith('/quiz-retiro')) return 'Quiz Bíblico'
   if (path.startsWith('/biblioteca/') || path === '/biblioteca') return 'Livraria Cristã'
-  if (path.startsWith('/biblioteca-estudos')) return 'Bíblia comentada'
+  if (path.startsWith('/biblioteca-estudos')) return 'Versículos explicados'
   if (path === '/estudos-biblicos/gerir') return 'Gerenciar estudos'
-  /** Comentários gerados/curados pertencem ao acervo da Bíblia comentada. */
-  if (/^\/estudos-biblicos\/ia-(passagem|pericope)/.test(path)) return 'Bíblia comentada'
+  /** Comentários gerados/curados pertencem ao acervo de Versículos explicados. */
+  if (/^\/estudos-biblicos\/ia-(passagem|pericope)/.test(path)) return 'Versículos explicados'
   if (path.startsWith('/estudos-biblicos')) return 'Estudos Compartilhados'
   if (path.startsWith('/chat')) return 'Mensagens'
   if (path.startsWith('/perfil')) return 'Meu perfil'

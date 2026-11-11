@@ -1,3 +1,4 @@
+import { linhasCitacaoVersiculos } from '../utils/bibliaVersoesTexto'
 import { livros as livrosData } from '../data/biblia'
 import {
   buscarCapitulo,
@@ -121,12 +122,7 @@ export async function montarPassagemLida(livroId, capitulo, versiculosArr) {
     return { ok: false, error: 'Capítulo não disponível na tradução local.' }
   }
 
-  const linhas = []
-  for (const n of unicos) {
-    const row = rows[n - 1]
-    if (!row?.texto) continue
-    linhas.push(`${n} ${String(row.texto).trim()}`)
-  }
+  const linhas = linhasCitacaoVersiculos(rows, unicos)
   const blocos = blocosVersiculosContiguos(unicos)
   const referenciaCompacta = `${livro.abreviacao} ${capitulo}:${blocos.join(';')}`
   const textoCitacao = linhas.join('\n')
@@ -138,12 +134,7 @@ export async function montarPassagemLida(livroId, capitulo, versiculosArr) {
   try {
     const peri = await localizarPericope(livroId, capitulo, unicos[0])
     if (peri) {
-      const linhasPeri = []
-      for (let n = peri.inicio; n <= peri.fim; n++) {
-        const row = rows[n - 1]
-        if (!row?.texto) continue
-        linhasPeri.push(`${n} ${String(row.texto).trim()}`)
-      }
+      const linhasPeri = linhasCitacaoVersiculos(rows, Array.from({ length: peri.fim - peri.inicio + 1 }, (_, i) => peri.inicio + i))
       pericope = {
         titulo: peri.titulo,
         inicio: peri.inicio,
@@ -193,12 +184,7 @@ export async function montarPericopeLida(livroId, capitulo, inicio, fim, tituloH
   const rows = await buscarCapitulo(livroId, capitulo)
   if (!rows.length) return { ok: false, error: 'Capítulo não disponível na tradução local.' }
 
-  const linhas = []
-  for (let n = ini; n <= f; n++) {
-    const row = rows[n - 1]
-    if (!row?.texto) continue
-    linhas.push(`${n} ${String(row.texto).trim()}`)
-  }
+  const linhas = linhasCitacaoVersiculos(rows, Array.from({ length: f - ini + 1 }, (_, i) => ini + i))
   const texto = linhas.join('\n')
   if (!texto) return { ok: false, error: 'Sem texto bíblico para esta perícope.' }
 

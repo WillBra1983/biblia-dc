@@ -3,6 +3,7 @@ import { Typography, Box } from '@mui/material'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { useVersiculoMarcado } from '../hooks/useVersiculoMarcado'
+import TextoFalasJesus from './TextoFalasJesus'
 
 /**
  * Linha de um versículo na tela de leitura.
@@ -27,6 +28,7 @@ const VersiculoMarcavel = React.forwardRef(function VersiculoMarcavel(
     texto,
     numero,
     textoSemNumero,
+    textoMarcado,
     conteudoCustom,
     modoSelecao,
     modoInterlinearEscolha,
@@ -121,7 +123,7 @@ const VersiculoMarcavel = React.forwardRef(function VersiculoMarcavel(
           }}
         />
       )}
-      <b>{numero}</b>{conteudoCustom || textoSemNumero}
+      <b>{numero}</b>{conteudoCustom || <TextoFalasJesus texto={textoMarcado || textoSemNumero} semNumero={Boolean(textoMarcado)} />}
     </Typography>
   )
 })

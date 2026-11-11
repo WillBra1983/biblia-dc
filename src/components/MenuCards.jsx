@@ -275,7 +275,7 @@ const menuItems = [
     fundo: 'menu-fundos/estudos-compartilhados.webp'
   },
   {
-    text: 'Bíblia comentada',
+    text: 'Versículos explicados',
     icon: <LibraryBooksIcon sx={{ fontSize: ICON_SIZE }} />,
     path: '/biblioteca-estudos',
     description: 'Perícopes e versículos com comentários',

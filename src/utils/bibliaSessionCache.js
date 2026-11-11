@@ -3,6 +3,7 @@
  * Sobrevive à desmontagem ao navegar para Discipulado, Chat, etc.
  */
 
+import { obterVersaoBiblica } from './bibliaVersionStore.js'
 let snapshot = null
 
 export function gravarBibliaSessaoCache(data) {
@@ -10,6 +11,7 @@ export function gravarBibliaSessaoCache(data) {
     return
   }
   snapshot = {
+    versaoBiblica: data.versaoBiblica || obterVersaoBiblica(),
     livroId: data.livroId,
     capitulo: data.capitulo,
     livroAtual: data.livroAtual ?? null,
@@ -23,7 +25,7 @@ export function gravarBibliaSessaoCache(data) {
 }
 
 export function lerBibliaSessaoCache() {
-  return snapshot
+  return snapshot?.versaoBiblica === obterVersaoBiblica() ? snapshot : null
 }
 
 export function limparBibliaSessaoCache() {
@@ -32,6 +34,7 @@ export function limparBibliaSessaoCache() {
 
 /** Cache válido se bate livro/capítulo alvo. */
 export function bibliaSessaoCacheCasa(livroId, capitulo) {
+  if (snapshot?.versaoBiblica !== obterVersaoBiblica()) return false
   if (!snapshot?.resultados?.length) return false
   return snapshot.livroId === livroId && snapshot.capitulo === capitulo
 }

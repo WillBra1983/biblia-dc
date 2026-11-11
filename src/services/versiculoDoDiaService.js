@@ -1,3 +1,5 @@
+import { aplicarVersaoBiblica } from './bibliaService'
+
 function dataLocal() {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/Cuiaba',
@@ -44,20 +46,20 @@ export async function obterVersiculoDoDia({ selecionarSeAusente = true } = {}) {
   if (!snap.child('chave').exists() && selecionarSeAusente && fns) {
     try {
       const resultado = await functionsApi.httpsCallable(fns, 'selecionarVersiculoDoDia', { timeout: 30_000 })()
-      if (resultado?.data?.chave) return resultado.data
+      if (resultado?.data?.chave) return aplicarVersaoBiblica(resultado.data)
       snap = await dbApi.get(dbApi.ref(db, `versiculosDoDia/${hoje}`))
     } catch (_) {
       // O cron pode estar terminando a selecao; o menu mantem seu estado neutro.
     }
   }
-  return snap.child('chave').exists() ? snap.val() : null
+  return snap.child('chave').exists() ? aplicarVersaoBiblica(snap.val()) : null
 }
 
 export async function abrirVersiculoDoDia() {
   const { fns, functionsApi } = await firebase()
   if (!fns) throw new Error('Servico indisponivel no momento.')
   const resultado = await functionsApi.httpsCallable(fns, 'garantirVersiculoDoDia', { timeout: 240_000 })()
-  return resultado?.data?.chave ? resultado.data : null
+  return resultado?.data?.chave ? aplicarVersaoBiblica(resultado.data) : null
 }
 
 export async function substituirVersiculoDoDia(referencia) {
@@ -65,7 +67,7 @@ export async function substituirVersiculoDoDia(referencia) {
   if (!fns) throw new Error('Serviço indisponível no momento.')
   const chamada = functionsApi.httpsCallable(fns, 'substituirVersiculoDoDia', { timeout: 30_000 })
   const resultado = await chamada({ referencia: String(referencia || '').trim() })
-  return resultado?.data?.chave ? resultado.data : null
+  return resultado?.data?.chave ? aplicarVersaoBiblica(resultado.data) : null
 }
 
 export async function obterVersiculoDoDiaPorData(data) {
@@ -73,7 +75,7 @@ export async function obterVersiculoDoDiaPorData(data) {
   const { db, dbApi } = await firebase()
   if (!db) return null
   const snap = await dbApi.get(dbApi.ref(db, `versiculosDoDia/${data}`))
-  return snap.child('status').val() === 'pronto' ? snap.val() : null
+  return snap.child('status').val() === 'pronto' ? aplicarVersaoBiblica(snap.val()) : null
 }
 
 export async function obterComentarioDoDia(item) {
@@ -88,7 +90,7 @@ export async function obterComentarioDoDia(item) {
     const { db, dbApi } = await firebase()
     const snap = await dbApi.get(dbApi.ref(db, `${estudoColecao}/${estudoKey}`))
     const atual = String(snap.child('texto').val() || '').trim()
-    // A Biblia Comentada e a fonte atual. O registro diario conserva apenas
+    // Versículos explicados é a fonte atual. O registro diario conserva apenas
     // uma copia de contingencia para continuar abrindo durante falhas de rede.
     return atual || publicado
   } catch (_) {
@@ -105,5 +107,5 @@ export async function listarVersiculosDoDia() {
     const value = child.val() || {}
     if (value.status === 'pronto') itens.push({ ...value, data: value.data || child.key })
   })
-  return itens.sort((a, b) => String(b.data).localeCompare(String(a.data)))
+  return Promise.all(itens.sort((a, b) => String(b.data).localeCompare(String(a.data))).map(aplicarVersaoBiblica))
 }

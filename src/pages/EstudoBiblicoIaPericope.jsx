@@ -746,7 +746,7 @@ export default function EstudoBiblicoIaPericope() {
                 label="Compartilhar comentário"
                 tooltip="Compartilhar comentário"
                 linkUrl={linkCompartilharComentario}
-                linkTitle={`Bíblia comentada${referenciaExibicao ? ` — ${referenciaExibicao}` : ''}`}
+                linkTitle={`Versículos explicados${referenciaExibicao ? ` — ${referenciaExibicao}` : ''}`}
                 linkText={`Leia este comentário bíblico${referenciaExibicao ? ` sobre ${referenciaExibicao}` : ''}: ${linkCompartilharComentario}`}
               />
             )}
@@ -811,7 +811,7 @@ export default function EstudoBiblicoIaPericope() {
           <EditorialContentHeader
             title={tituloPericope || referenciaExibicao}
             subtitle={tituloPericope ? referenciaExibicao : 'Estudo do trecho bíblico em seu contexto'}
-            eyebrow="Bíblia comentada"
+            eyebrow="Versículos explicados"
             image={EDITORIAL_IMAGES.bibliaComentada}
             imagePosition="center 48%"
             sx={{ mb: 2, maxWidth: 920, mx: 'auto' }}

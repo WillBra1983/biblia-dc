@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
 import TextoComReferencias from './TextoComReferencias'
 
 function camadasImagem(image) {
@@ -24,6 +25,8 @@ export default function EditorialContentHeader({
   imagePosition = 'center',
   sx,
 }) {
+  const escuro = useTheme().palette.mode === 'dark'
+  const sombraTexto = escuro ? '0 1px 3px rgba(0,0,0,0.85)' : '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 1px 4px rgba(255,255,255,0.9)'
   if (!title) return null
 
   return (
@@ -36,7 +39,7 @@ export default function EditorialContentHeader({
         borderRadius: 2,
         border: '1px solid',
         borderColor: 'divider',
-        bgcolor: '#e8e5dc',
+        bgcolor: escuro ? 'background.paper' : '#e8e5dc',
         backgroundImage: camadasImagem(image),
         backgroundSize: 'cover',
         backgroundPosition: imagePosition,
@@ -63,8 +66,8 @@ export default function EditorialContentHeader({
           px: { xs: 2, sm: 3 },
           py: { xs: 2, sm: 2.4 },
           boxSizing: 'border-box',
-          background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,253,247,0.08) 100%)',
-          color: '#123d33',
+          background: escuro ? 'linear-gradient(180deg, rgba(18,18,22,0.86), rgba(18,18,22,0.96))' : 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,253,247,0.08) 100%)',
+          color: escuro ? '#f4f4f8' : '#123d33',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -75,12 +78,12 @@ export default function EditorialContentHeader({
             component="div"
             sx={{
               mb: 0.6,
-              color: '#85631b',
+              color: escuro ? '#f2d48d' : '#85631b',
               fontSize: '0.76rem',
               fontWeight: 800,
               textTransform: 'uppercase',
               letterSpacing: 0,
-              textShadow: '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 1px 4px rgba(255,255,255,0.9)',
+              textShadow: sombraTexto,
             }}
           >
             <TextoComReferencias
@@ -96,14 +99,14 @@ export default function EditorialContentHeader({
           component="h1"
           sx={{
             m: 0,
-            color: '#123d33',
+            color: escuro ? '#f4f4f8' : '#123d33',
             fontFamily: 'Georgia, "Times New Roman", serif',
             fontSize: { xs: '1.42rem', sm: '1.82rem' },
             fontWeight: 700,
             lineHeight: 1.18,
             letterSpacing: 0,
             overflowWrap: 'anywhere',
-            textShadow: '-1px -1px 0 rgba(255,255,255,0.98), 1px -1px 0 rgba(255,255,255,0.98), -1px 1px 0 rgba(255,255,255,0.98), 1px 1px 0 rgba(255,255,255,0.98), 0 2px 6px rgba(255,255,255,0.92)',
+            textShadow: sombraTexto,
           }}
         >
           <TextoComReferencias
@@ -120,14 +123,14 @@ export default function EditorialContentHeader({
             sx={{
               mt: 0.65,
               mb: 0,
-              color: '#6f5421',
+              color: escuro ? '#d1d1db' : '#6f5421',
               fontFamily: 'Georgia, "Times New Roman", serif',
               fontSize: { xs: '0.88rem', sm: '0.98rem' },
               fontStyle: 'italic',
               lineHeight: 1.35,
               letterSpacing: 0,
               overflowWrap: 'anywhere',
-              textShadow: '-1px -1px 0 rgba(255,255,255,0.98), 1px -1px 0 rgba(255,255,255,0.98), -1px 1px 0 rgba(255,255,255,0.98), 1px 1px 0 rgba(255,255,255,0.98), 0 1px 4px rgba(255,255,255,0.9)',
+              textShadow: sombraTexto,
             }}
           >
             <TextoComReferencias

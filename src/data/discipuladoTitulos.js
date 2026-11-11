@@ -79,5 +79,27 @@ export const discipuladoTitulos = [
         "titulo": "Jesus Cristo, único Mediador: obra e vida na presença de Deus"
       }
     ]
+  },
+  {
+    "id": 4,
+    "titulo": "A Vida do Discípulo",
+    "estudos": [
+      {
+        "id": 101,
+        "titulo": "Pertencer a Cristo e aprender de sua Palavra"
+      },
+      {
+        "id": 102,
+        "titulo": "Seguir a Cristo com obediência e perseverança"
+      },
+      {
+        "id": 103,
+        "titulo": "Viver em amor e na comunhão da Igreja"
+      },
+      {
+        "id": 104,
+        "titulo": "Servir e ajudar outros a seguir Jesus"
+      }
+    ]
   }
 ]

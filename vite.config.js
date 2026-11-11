@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
-import { resolve } from 'path'
+import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'fs'
 import { salvationBeastiesPlugin } from './vite-plugin-beasties.js'
 import { stripBiblicalAudioFromDist } from './vite-plugin-strip-biblical-audio.js'
@@ -34,6 +34,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
+        // Evita a minificação paralela do Workbox no build de pouca memória.
+        // O cache offline é gerado também nesse modo.
+        mode: lowMemoryBuild ? 'development' : 'production',
         /** Predefinição Workbox 2 MiB — o bundle principal ultrapassa (ex.: ~2,17 MB). */
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,ico,png,jpg,jpeg,webp,svg,woff2,wasm}'],
@@ -110,6 +113,8 @@ export default defineConfig({
     // (Chrome dev: ERR_INSUFFICIENT_RESOURCES ao carregar centenas de deps MUI).
     watch: {
       ignored: [
+        // Saídas locais e projetos nativos não participam da atualização do app web.
+        '**/{.cache,.gradle,.venv,.venv-aeneas,.venv-wsl,android,ios,artifacts,backups,output,tmp}/**',
         '**/public/sounds/strong-pron/**',
         '**/public/data/ot-hebrew-audio/**',
       ],
@@ -117,6 +122,8 @@ export default defineConfig({
   },
   publicDir: 'public',
   build: {
+    // O relatório gzip comprime vários chunks grandes ao mesmo tempo.
+    reportCompressedSize: !lowMemoryBuild,
     chunkSizeWarningLimit: 2000,
     minify: lowMemoryBuild ? false : 'esbuild',
     // O grafo do entry ainda referencia `import('firebase/...')` (auth listener).
@@ -132,7 +139,7 @@ export default defineConfig({
         )
     },
     rollupOptions: {
-      input: resolve(__dirname, 'index.html'),
+      input: fileURLToPath(new URL('./index.html', import.meta.url)),
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'ara.sqlite' ||

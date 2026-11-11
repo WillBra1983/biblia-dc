@@ -9,7 +9,7 @@ import devocionalDefault, {
 } from '../src/data/devocional.js'
 import { REGEX_CONF_LINK, parseNumeroRomanOuArabico } from '../src/utils/confissaoReferenciasLite.js'
 
-const EXPECTED = Object.freeze({ temas: 4, unidades: 23, questoes: 177, meditacoes: 105 })
+const EXPECTED = Object.freeze({ temas: 4, unidades: 19, questoes: 199, meditacoes: 105 })
 const erros = []
 const unidades = []
 const perguntasBreve = new Set(breveCatecismo.map((item) => Number(item.numero)))
@@ -151,7 +151,8 @@ for (const tema of discipuladoData) {
       if (!questao.explicacao?.trim()) erros.push(`${contexto}, questao ${questao.id}: explicacao vazia`)
     }
 
-    if (!apenasLeitura && (!Array.isArray(estudo.meditacao) || estudo.meditacao.length !== 7)) {
+    // Lições completas podem terminar no questionário, sem uma semana devocional.
+    if (!apenasLeitura && estudo.tipo !== 'licao' && (!Array.isArray(estudo.meditacao) || estudo.meditacao.length !== 7)) {
       erros.push(`${contexto}: esperadas sete meditacoes`)
     }
   }

@@ -60,6 +60,12 @@ import AppBarMaisMenu from '../components/AppBarMaisMenu'
 import PlanoEscadaBarraMedalhas from '../components/PlanoEscadaBarraMedalhas'
 import PlanoEscadaCelebracao from '../components/PlanoEscadaCelebracao'
 import StrongOriginalAudioPlayer from '../components/StrongOriginalAudioPlayer'
+import AraAudioPlayer from '../components/AraAudioPlayer'
+import BibliaVersaoSeletor from '../components/BibliaVersaoSeletor'
+import { sxBotaoCabecalhoBiblia } from '../utils/bibliaHeaderButton'
+import BibliaComparacaoDialog from '../components/BibliaComparacaoDialog'
+import { useVersaoBiblica } from '../hooks/useVersaoBiblica'
+import { tokensDoBloco } from '../utils/bibliaVersoesTexto'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { buildBibliaVersiculosExport } from '../utils/appExportPayload'
@@ -245,6 +251,8 @@ function capitulosVizinhosParaPrefetch(livros, livroAtual, capituloAtual) {
 }
 
 function Biblia({ ultimaLeitura: leituraInicial }) {
+  const versaoBiblica = useVersaoBiblica()
+  const [comparacao, setComparacao] = useState(null)
   const toRgba = (hex, alpha) => {
     if (!hex || typeof hex !== 'string') return `rgba(30, 122, 53, ${alpha})`
     const normalized = hex.replace('#', '')
@@ -370,6 +378,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const [ntProvaDisponivel, setNtProvaDisponivel] = useState(false)
   const [modoStrongProva, setModoStrongProva] = useState(false)
   const [versiculoAudioOriginalAtivo, setVersiculoAudioOriginalAtivo] = useState(null)
+  const [versiculoAudioAraAtivo, setVersiculoAudioAraAtivo] = useState(null)
   const [tokensNtCapitulo, setTokensNtCapitulo] = useState({})
   const [otStrongDisponivel, setOtStrongDisponivel] = useState(false)
   const [tokensOtCapitulo, setTokensOtCapitulo] = useState({})
@@ -395,6 +404,14 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     tokensNtCapitulo,
     tokensOtCapitulo,
   ])
+  useEffect(() => {
+    if (modoStrongProva || !versiculoAudioAraAtivo || !livroAtual?.id || !capitulo) return
+    const key = `${livroAtual.id}-${capitulo}-${versiculoAudioAraAtivo}`
+    const frame = requestAnimationFrame(() => {
+      versiculoRefs.current[key]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [modoStrongProva, versiculoAudioAraAtivo, livroAtual?.id, capitulo])
   /** Só para NT: vários possíveis Strong para o mesmo lema (escolhe e abre a página de estudo). */
   const [strongMatchDialog, setStrongMatchDialog] = useState({
     open: false,
@@ -1477,6 +1494,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   }, [modoImersivo])
 
   sessaoSnapshotRef.current = {
+    versaoBiblica,
     livroId: livroAtual?.id,
     capitulo,
     livroAtual,
@@ -1783,6 +1801,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
       setVersiculosRenderizados(versiculos.length)
       const livroGravado = opcoesLivros.find((l) => l.id === livroId) || livroAtual
       gravarBibliaSessaoCache({
+    versaoBiblica,
         livroId,
         capitulo: cap,
         livroAtual: livroGravado,
@@ -2211,7 +2230,6 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   }, [dialogoBuscaAberto, buscando, textosBiblicosBusca.length])
 
   const handleSelectLivro = React.useCallback((livro) => {
-    contarVersiculosPorLivro(livro.id).catch(() => {})
     // Só atualizar se for um livro diferente
     if (livroAtual?.id !== livro.id) {
       setLivroAtual(livro)
@@ -2704,10 +2722,27 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         ) : resultados.length > 0 ? (
           <>
             {livroAtual && (
-              <Box sx={{ textAlign: 'center', mb: 3 }}>
+              <Box sx={{ position: 'relative', textAlign: 'center', mb: 2 }}>
+                <Box sx={{ position: 'absolute', top: 0, left: 0 }}><BibliaVersaoSeletor /></Box>
+                <Tooltip title="Comparar traduções">
+                  <IconButton aria-label="Comparar traduções" sx={theme => ({ ...sxBotaoCabecalhoBiblia(theme), position: 'absolute', top: 0, right: 0, p: 0.5 })} onClick={() => {
+                    const limite = versiculoRefs.current.container?.getBoundingClientRect().top || 0
+                    const visivel = resultados.find(verso => {
+                      const elemento = document.getElementById(`versiculo-${livroAtual.id}-${capitulo}-${verso.numero}`)
+                      return elemento && elemento.getBoundingClientRect().bottom > limite + 8
+                    })
+                    setComparacao({ livroId: livroAtual.id, capituloInicial: capitulo, versiculoInicial: visivel?.numero || 1 })
+                  }}>
+                    <Box component="img" src={`${import.meta.env.BASE_URL}images/biblias-vs-comparacao.webp`}
+                      alt="" aria-hidden="true" width={54} height={36}
+                      sx={{ display: 'block', objectFit: 'contain' }} />
+                  </IconButton>
+                </Tooltip>
                 <Typography
                   sx={{
                     color: livroCorBase,
+                    maxWidth: 'calc(100% - 140px)',
+                    mx: 'auto',
                     fontWeight: 700,
                     fontSize: `${Math.round((fontSizeLeitura || 100) * BIBLIA_ESCALA_NOME_LIVRO_CABECALHO)}%`,
                     fontFamily: resolveFontFamily(fontFamily),
@@ -2738,16 +2773,38 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 cor={livroCorBase}
                 onVersiculoChange={setVersiculoAudioOriginalAtivo}
               />
+            ) : livroAtual && capitulo > 0 ? (
+              <AraAudioPlayer
+                versao={versaoBiblica}
+                livroId={livroAtual.id}
+                capitulo={capitulo}
+                livroNome={livroAtual.nome}
+                cor={livroCorBase}
+                onVersiculoChange={setVersiculoAudioAraAtivo}
+              />
             ) : null}
             {resultadosVisiveis.map((verso, index) => {
               const numeroVersiculo = verso.numero || index + 1;
               const keyAtual = `${livroAtual?.id}-${capitulo}-${numeroVersiculo}`;
+              const fimBloco = Number(verso.numeroFim) || numeroVersiculo
+              const audioOriginalNoBloco = versiculoAudioOriginalAtivo >= numeroVersiculo && versiculoAudioOriginalAtivo <= fimBloco
+              const audioAtivo = modoStrongProva ? versiculoAudioOriginalAtivo : versiculoAudioAraAtivo
+              const audioNoBloco = audioAtivo >= numeroVersiculo && audioAtivo <= fimBloco
+              const tokensNtBloco = modoStrongProva ? tokensDoBloco(tokensNtCapitulo, numeroVersiculo, fimBloco) : []
+              const tokensOtBloco = modoStrongProva ? tokensDoBloco(tokensOtCapitulo, numeroVersiculo, fimBloco) : []
+              const registrarRefBloco = (mapa, elemento) => {
+                for (let n = numeroVersiculo; n <= fimBloco; n++) {
+                  const chave = `${livroAtual?.id}-${capitulo}-${n}`
+                  if (elemento) mapa.current[chave] = elemento
+                  else delete mapa.current[chave]
+                }
+              }
               const pericopesVerso = pericopesPorVersiculo[numeroVersiculo]
               const resolvedFontFamily = resolveFontFamily(fontFamily)
 
               // Expressão regular para separar o número do texto
               const match = verso.texto.match(/^(\s*\d+\s*)(.*)$/s);
-              const numero = match ? match[1] : '';
+              const numero = verso.numeroFim > numeroVersiculo ? `${numeroVersiculo}–${verso.numeroFim} ` : match ? match[1] : versaoBiblica === 'ara' ? '' : `${numeroVersiculo} `;
               const textoSemNumero = match ? match[2] : verso.texto;
 
               return (
@@ -2796,11 +2853,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                   ) : null}
               <VersiculoMarcavel
                 data-pinch-anchor
-                ref={(el) => {
-                  if (el) {
-                    versiculoRefs.current[keyAtual] = el
-                  }
-                }}
+                ref={(el) => registrarRefBloco(versiculoRefs, el)}
                 id={`versiculo-${keyAtual}`}
                 livroId={livroAtual?.id}
                 capitulo={capitulo}
@@ -2808,6 +2861,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 texto={verso.texto}
                 numero={numero}
                 textoSemNumero={textoSemNumero}
+                textoMarcado={verso.textoMarcado}
                 modoSelecao={modoSelecao}
                 estaSelecionado={chavesSelecionadas.has(
                   `${livroAtual?.id}-${capitulo}-${numeroVersiculo}`
@@ -2819,7 +2873,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 lineHeight={lineHeight}
                 semEspacoEntreVersiculos={semEspacoEntreVersiculos}
                 sx={
-                  Number(numeroVersiculo) === versiculoAudioOriginalAtivo
+                  audioNoBloco
                     ? {
                         backgroundColor: toRgba(livroCorBase, 0.16),
                         boxShadow: `inset 4px 0 0 ${livroCorBase}`,
@@ -2833,26 +2887,23 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                       : undefined
                 }
               />
-                  {modoStrongProva && ehNovoTestamento && Array.isArray(tokensNtCapitulo?.[Number(numeroVersiculo)]) && (
+                  {modoStrongProva && ehNovoTestamento && tokensNtBloco.length > 0 && (
                     <Box
-                      ref={(el) => {
-                        if (el) versiculoOriginalAudioRefs.current[keyAtual] = el
-                        else delete versiculoOriginalAudioRefs.current[keyAtual]
-                      }}
+                      ref={(el) => registrarRefBloco(versiculoOriginalAudioRefs, el)}
                       sx={{
                         mt: 0.6,
                         mb: 0.8,
-                        px: Number(numeroVersiculo) === versiculoAudioOriginalAtivo ? 0.75 : 0.3,
-                        py: Number(numeroVersiculo) === versiculoAudioOriginalAtivo ? 0.55 : 0,
+                        px: audioOriginalNoBloco ? 0.75 : 0.3,
+                        py: audioOriginalNoBloco ? 0.55 : 0,
                         display: 'flex',
                         flexWrap: 'wrap',
                         gap: 0.5,
                         backgroundColor:
-                          Number(numeroVersiculo) === versiculoAudioOriginalAtivo
+                          audioOriginalNoBloco
                             ? toRgba(livroCorBase, 0.16)
                             : 'transparent',
                         boxShadow:
-                          Number(numeroVersiculo) === versiculoAudioOriginalAtivo
+                          audioOriginalNoBloco
                             ? `inset 4px 0 0 ${livroCorBase}`
                             : 'none',
                         borderRadius: 1,
@@ -2860,14 +2911,14 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                           'background-color 180ms ease, box-shadow 180ms ease, padding 180ms ease',
                       }}
                     >
-                      {tokensNtCapitulo[Number(numeroVersiculo)].map((tk) => (
+                      {tokensNtBloco.map((tk) => (
                         <Box
-                          key={`${keyAtual}-tk-${tk.token_idx}`}
+                          key={`${keyAtual}-tk-${tk.versiculoOrigem}-${tk.token_idx}`}
                           onClick={() =>
                             abrirStrongPorToken(tk, {
                               livroId: livroAtual?.id,
                               capitulo,
-                              versiculo: Number(numeroVersiculo),
+                              versiculo: tk.versiculoOrigem || Number(numeroVersiculo),
                             })
                           }
                           role="button"
@@ -2900,28 +2951,25 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                       ))}
                     </Box>
                   )}
-                  {modoStrongProva && !ehNovoTestamento && Array.isArray(tokensOtCapitulo?.[Number(numeroVersiculo)]) && (
+                  {modoStrongProva && !ehNovoTestamento && tokensOtBloco.length > 0 && (
                     <Box
-                      ref={(el) => {
-                        if (el) versiculoOriginalAudioRefs.current[keyAtual] = el
-                        else delete versiculoOriginalAudioRefs.current[keyAtual]
-                      }}
+                      ref={(el) => registrarRefBloco(versiculoOriginalAudioRefs, el)}
                       sx={{
                         mt: 0.6,
                         mb: 0.8,
-                        px: Number(numeroVersiculo) === versiculoAudioOriginalAtivo ? 0.75 : 0.3,
-                        py: Number(numeroVersiculo) === versiculoAudioOriginalAtivo ? 0.55 : 0,
+                        px: audioOriginalNoBloco ? 0.75 : 0.3,
+                        py: audioOriginalNoBloco ? 0.55 : 0,
                         display: 'flex',
                         flexWrap: 'wrap',
                         gap: 0.5,
                         direction: 'rtl',
                         justifyContent: 'flex-start',
                         backgroundColor:
-                          Number(numeroVersiculo) === versiculoAudioOriginalAtivo
+                          audioOriginalNoBloco
                             ? toRgba(livroCorBase, 0.16)
                             : 'transparent',
                         boxShadow:
-                          Number(numeroVersiculo) === versiculoAudioOriginalAtivo
+                          audioOriginalNoBloco
                             ? `inset -4px 0 0 ${livroCorBase}`
                             : 'none',
                         borderRadius: 1,
@@ -2929,14 +2977,14 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                           'background-color 180ms ease, box-shadow 180ms ease, padding 180ms ease',
                       }}
                     >
-                      {tokensOtCapitulo[Number(numeroVersiculo)].map((tk) => (
+                      {tokensOtBloco.map((tk) => (
                         <Box
-                          key={`${keyAtual}-ot-${tk.token_idx}`}
+                          key={`${keyAtual}-ot-${tk.versiculoOrigem}-${tk.token_idx}`}
                           onClick={() =>
                             abrirStrongPorToken(tk, {
                               livroId: livroAtual?.id,
                               capitulo,
-                              versiculo: Number(numeroVersiculo),
+                              versiculo: tk.versiculoOrigem || Number(numeroVersiculo),
                             })
                           }
                           role="button"
@@ -3676,6 +3724,9 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         onClose={() => setRefParalelaFragmento(null)}
         fontFamily={fontFamily}
       />
+      {comparacao && <BibliaComparacaoDialog {...comparacao} versaoInicial={versaoBiblica}
+        fontFamily={resolveFontFamily(fontFamily)} fontSize={fontSizeLeitura}
+        onClose={() => setComparacao(null)} />}
       <PlanoEscadaCelebracao
         aberto={Boolean(celebracaoPlanoAtual)}
         onFechar={fecharCelebracaoPlano}

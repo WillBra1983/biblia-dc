@@ -112,7 +112,7 @@ export default function AudioPlayer({ url, label = 'Áudio', compact = false }) 
           height: compact ? 32 : undefined,
           bgcolor: 'primary.main',
           color: 'primary.contrastText',
-          '&:hover': { bgcolor: 'primary.dark' }
+          '&:hover': { bgcolor: 'primary.main', filter: 'brightness(0.9)' }
         }}
       >
         {playing ? <Pause /> : <PlayArrow />}

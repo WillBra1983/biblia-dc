@@ -2855,8 +2855,8 @@ export default function Chat() {
                       px: 1.5,
                       py: 1,
                       background: mine ? 'linear-gradient(135deg, #004d40 0%, #00695c 100%)' : undefined,
-                      bgcolor: mine ? undefined : 'grey.300',
-                      color: mine ? 'primary.contrastText' : '#1a1a1a'
+                      bgcolor: mine ? undefined : 'action.selected',
+                      color: mine ? '#fff' : 'text.primary'
                     }}
                   >
                     <Typography

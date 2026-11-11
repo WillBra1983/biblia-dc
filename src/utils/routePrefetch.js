@@ -58,6 +58,7 @@ const carregadas = new Set()
 let rotasComunsAgendadas = false
 
 export function prefetchRota(nome) {
+  if (import.meta.env.DEV) return
   const fn = importers[nome]
   if (!fn || carregadas.has(nome)) return
   carregadas.add(nome)
@@ -73,7 +74,7 @@ export function prefetchRota(nome) {
 
 /** Atalho para prefetar várias rotas (ex.: ao abrir o menu principal). */
 export function prefetchRotasComuns() {
-  if (typeof window === 'undefined' || rotasComunsAgendadas) return
+  if (import.meta.env.DEV || typeof window === 'undefined' || rotasComunsAgendadas) return
   rotasComunsAgendadas = true
 
   // O plano é um dos primeiros itens do menu e ganha prioridade. As demais

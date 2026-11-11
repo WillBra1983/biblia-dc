@@ -9,6 +9,7 @@ import {
   Slider
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
+import TextoFalasJesus from './TextoFalasJesus'
 import {
   sxFullscreenFlexColumn,
   sxFullscreenScrollBody,
@@ -74,7 +75,8 @@ export default function VersiculoPopup({ versiculos, onClose }) {
       const cap = getCapitulo(v)
       const num = getNumero(v)
       if (!porCapitulo.has(cap)) porCapitulo.set(cap, new Set())
-      porCapitulo.get(cap).add(num)
+      const fim = Number(v.numeroFim) || num
+      for (let n = num; n <= fim; n++) porCapitulo.get(cap).add(n)
     }
 
     const formatarRanges = (numsSet) => {
@@ -139,7 +141,7 @@ export default function VersiculoPopup({ versiculos, onClose }) {
           gap: 1,
         }}
       >
-        <Typography sx={{ flex: 1, minWidth: 0, pr: 1, fontWeight: 700 }}>{titulo}</Typography>
+        <Typography sx={{ flex: 1, minWidth: 0, pr: 1, fontWeight: 700 }}>{titulo}{versiculos?.[0]?.versao ? ` · ${versiculos[0].versao}` : ''}</Typography>
         <IconButton
           onClick={onClose}
           aria-label="Fechar leitura"
@@ -179,10 +181,10 @@ export default function VersiculoPopup({ versiculos, onClose }) {
               >
                 {numero && !temNumeroOriginal ? (
                   <Box component="sup" sx={{ mr: 0.5, fontSize: '0.68em', color: 'text.secondary', fontWeight: 700 }}>
-                    {numero}
+                    {versiculo.numeroFim > numero ? `${numero}–${versiculo.numeroFim}` : numero}
                   </Box>
                 ) : null}
-                {texto}
+                <TextoFalasJesus texto={versiculo.textoMarcado || texto} />
               </Typography>
             )
           })}

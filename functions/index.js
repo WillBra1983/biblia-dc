@@ -11,6 +11,9 @@ if (!admin.apps.length) {
   admin.initializeApp()
 }
 
+// Narração ARA: resolve o MP3 a partir dos metadados públicos do capítulo.
+exports.obterAudioAra = require('./src/obterAudioAra').obterAudioAra
+
 // Push de chat (RTDB trigger)
 exports.pushChatMensagem = require('./src/onMensagemChat').pushChatMensagem
 

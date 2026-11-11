@@ -13,7 +13,6 @@ import getTheme from './theme/theme'
 import { AppProvider, useApp } from './contexts/AppContext'
 import { LeituraApresentacaoProvider } from './contexts/LeituraApresentacaoContext'
 import Layout from './components/Layout'
-import Biblia from './pages/Biblia'
 import ScrollToTop from './components/ScrollToTop'
 import SplashScreen from './components/SplashScreen'
 import NativeDeepLinkHandler from './components/NativeDeepLinkHandler'
@@ -30,9 +29,11 @@ import { aguardarPosSplash, jaPassouDoSplash, marcarSplashFechado, splashUiJaCon
 import { lazy, Suspense, useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
+import { useVersaoBiblica } from './hooks/useVersaoBiblica'
 
-// Code-splitting: rotas secundárias sob demanda (a Bíblia, rota índice, fica estática
-// para abrir imediatamente após o splash; as outras carregam só quando o usuário navega).
+// Cada rota carrega sob demanda. A Bíblia começa a carregar atrás do splash
+// na rota inicial, sem entrar no carregamento de links diretos a outras telas.
+const Biblia = lazy(() => import('./pages/Biblia'))
 const StrongEstudo = lazy(() => import('./pages/StrongEstudo'))
 const StrongEstudoResumo = lazy(() => import('./pages/StrongEstudoResumo'))
 const StrongEstudoOcorrencias = lazy(() => import('./pages/StrongEstudoOcorrencias'))
@@ -124,6 +125,7 @@ function AppProvidersShell() {
 }
 
 function AppShell() {
+  const versaoBiblica = useVersaoBiblica()
   const { isDarkMode } = useApp()
   const theme = getTheme(isDarkMode ? 'dark' : 'light')
   const [splashComplete, setSplashComplete] = useState(() => splashUiJaConcluiu())
@@ -148,7 +150,7 @@ function AppShell() {
        *  `biblia-pronta`, o splash fecha e o conteúdo já está pronto — eliminando
        *  o "tempo morto" entre a tela verde e o aparecimento do texto bíblico,
        *  que era mais perceptível em contas com mais conteúdo. */}
-      <Layout>
+      <Layout key={versaoBiblica}>
         <IncentivosListener />
         <NativeDeepLinkHandler />
         <PushNotificationsBootstrap />

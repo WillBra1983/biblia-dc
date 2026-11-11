@@ -932,7 +932,7 @@ export default function EstudoBiblicoIaPassagem() {
                 label="Compartilhar comentário"
                 tooltip="Compartilhar comentário"
                 linkUrl={linkCompartilharComentario}
-                linkTitle={`Bíblia comentada${referenciaExibicao ? ` — ${referenciaExibicao}` : ''}`}
+                linkTitle={`Versículos explicados${referenciaExibicao ? ` — ${referenciaExibicao}` : ''}`}
                 linkText={`Leia este comentário bíblico${referenciaExibicao ? ` sobre ${referenciaExibicao}` : ''}: ${linkCompartilharComentario}`}
               />
             )}
@@ -1001,7 +1001,7 @@ export default function EstudoBiblicoIaPassagem() {
           <EditorialContentHeader
             title={referenciaExibicao}
             subtitle="Comentário bíblico para leitura e aprofundamento"
-            eyebrow="Bíblia comentada"
+            eyebrow="Versículos explicados"
             image={EDITORIAL_IMAGES.bibliaComentada}
             imagePosition="center 48%"
             sx={{ mb: 2, maxWidth: 920, mx: 'auto' }}

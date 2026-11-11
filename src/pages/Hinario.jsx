@@ -645,14 +645,14 @@ export default function Hinario() {
               onClick={irParaHinoAnterior}
               disabled={!podeAnterior}
               sx={{
-                bgcolor: 'rgba(0, 77, 64, 0.08)',
-                color: '#004d40',
+                bgcolor: 'action.hover',
+                color: 'primary.main',
                 '&:hover': {
-                  bgcolor: 'rgba(0, 77, 64, 0.15)'
+                  bgcolor: 'action.selected'
                 },
                 '&.Mui-disabled': {
-                  bgcolor: 'rgba(0, 0, 0, 0.04)',
-                  color: 'rgba(0, 0, 0, 0.26)'
+                  bgcolor: 'action.disabledBackground',
+                  color: 'action.disabled'
                 }
               }}
             >
@@ -663,14 +663,14 @@ export default function Hinario() {
               onClick={irParaProximoHino}
               disabled={!podeProximo}
               sx={{
-                bgcolor: 'rgba(0, 77, 64, 0.08)',
-                color: '#004d40',
+                bgcolor: 'action.hover',
+                color: 'primary.main',
                 '&:hover': {
-                  bgcolor: 'rgba(0, 77, 64, 0.15)'
+                  bgcolor: 'action.selected'
                 },
                 '&.Mui-disabled': {
-                  bgcolor: 'rgba(0, 0, 0, 0.04)',
-                  color: 'rgba(0, 0, 0, 0.26)'
+                  bgcolor: 'action.disabledBackground',
+                  color: 'action.disabled'
                 }
               }}
             >

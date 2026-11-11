@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Converte todo o hinario cifrado em area experimental e auditavel.
-
-Este arquivo nunca escreve nos bancos, paginas ou ativos usados pelo aplicativo.
-"""
+"""Converte o PDF do hinário em cifras transponíveis e gera um relatório de auditoria."""
 
 from __future__ import annotations
 
@@ -45,7 +42,7 @@ EDITORIAL_SOURCE_OVERRIDES = {
         "O amor de Cristo e seu perdão": ["O gozo deste coração"],
     },
 }
-SECTION_PATTERN = re.compile(r"(?i)^\s*(estrofe\s+\d+|coro|estribilho|refr[aã]o|ponte)\s*:?\s*$")
+SECTION_PATTERN = re.compile(r"(?i)^\s*(estrofe\s+\d+|coro(?: da \d+ª música)?|estribilho|refr[aã]o|ponte)\s*:?\s*$")
 
 
 def clean_lyric_text(value: str) -> str:
@@ -84,61 +81,39 @@ def load_lyrics_reference(path: Path) -> tuple[dict[str, list[dict]], dict[str, 
             line = line.strip()
             section_match = SECTION_PATTERN.fullmatch(line)
             if section_match:
-                pending_section = section_match.group(1).strip().title()
+                pending_section = section_match.group(1).strip().capitalize()
                 continue
             compact = comparable_text(line)
             if compact:
                 candidates.append({"texto": line, "comparavel": compact})
                 if pending_section:
-                    sections.append({"texto": pending_section, "ancora": line})
+                    sections.append({"texto": pending_section, "indice_editorial": len(candidates) - 1})
                     pending_section = None
         result[hymn_id] = candidates
         sections_by_hymn[hymn_id] = sections
     return result, sections_by_hymn
 
 
-def section_anchor_score(anchor: str, lines: list[str], start: int) -> float:
-    anchor_compact = comparable_text(anchor)
-    return max(
-        difflib.SequenceMatcher(None, anchor_compact, comparable_text(" ".join(lines[start : start + size]))).ratio()
-        for size in range(1, min(4, len(lines) - start) + 1)
-    )
-
-
 def resolve_lyric_sections(hymn_id: str, structured: list[dict]) -> list[dict]:
-    candidates = [
-        (index, line.get("letra") or line.get("texto") or "")
-        for index, line in enumerate(structured)
-        if line.get("letra") or line.get("texto")
-    ]
-    texts = [text for _, text in candidates]
-    cursor = 0
+    sections = LYRICS_SECTIONS.get(hymn_id, [])
+    if not sections:
+        return []
+
+    # Cada fragmento e repetição mantém a identidade da linha editorial.
+    # Assim uma linha curta do fim do coro não vira o início da estrofe seguinte.
+    start_by_target = {
+        section["indice_editorial"]: section["texto"]
+        for section in sections
+    }
     resolved = []
-    for section in LYRICS_SECTIONS.get(hymn_id, []):
-        found = None
-        for position in range(cursor, len(texts)):
-            score = section_anchor_score(section["ancora"], texts, position)
-            if score >= 0.78:
-                found = (position, score)
-                break
-        if found is None:
-            options = [
-                (section_anchor_score(section["ancora"], texts, position), position)
-                for position in range(cursor, len(texts))
-            ]
-            best_score, best_position = max(options, default=(0, 0))
-            if best_score >= 0.68:
-                found = (best_position, best_score)
-        if found is None:
-            continue
-        position, score = found
-        resolved.append({
-            "indice_linha": candidates[position][0],
-            "texto": section["texto"],
-            "similaridade": round(score, 3),
-            "origem": "public/hinario.db",
-        })
-        cursor = position + 1
+    for index, line in enumerate(structured):
+        target = line.get("indice_editorial")
+        if target in start_by_target:
+            resolved.append({
+                "indice_linha": index,
+                "texto": start_by_target.pop(target),
+                "origem": "public/hinario.db",
+            })
     return resolved
 
 
@@ -608,6 +583,7 @@ def apply_editorial_lyrics(hymn_id: str, structured: list[dict]) -> list[dict]:
                 "cifras_detalhadas": details,
                 "correcao_editorial": {"origem": "public/hinario.db", "exata": True},
                 "repeticao_pdf": event["repetition"],
+                "indice_editorial": target_index,
                 "alinhamento_pdf": {
                     "indice_linha": source_structured_index,
                     "letra": source_line.get("letra") if source_line else None,

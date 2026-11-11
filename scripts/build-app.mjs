@@ -26,7 +26,7 @@ try {
     console.log('Computador com pouca memoria: build limitado a 1 GB de heap e um trabalhador nativo.')
   }
   const codigo = await new Promise((resolveExit, reject) => {
-    const child = spawn(process.execPath, [resolve(raiz, 'node_modules/vite/bin/vite.js'), 'build'], { cwd: raiz, env: envBuild, stdio: 'inherit', windowsHide: true })
+    const child = spawn(process.execPath, [resolve(raiz, 'node_modules/vite/bin/vite.js'), 'build', ...process.argv.slice(2)], { cwd: raiz, env: envBuild, stdio: 'inherit', windowsHide: true })
     child.once('error', reject)
     child.once('exit', (code) => resolveExit(code ?? 1))
   })

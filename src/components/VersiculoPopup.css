@@ -53,7 +53,7 @@
 }
 
 .versiculo-numero {
-  color: #666;
+  color: var(--app-muted, #666);
   margin-right: 5px;
   font-size: 0.8em;
   vertical-align: super;

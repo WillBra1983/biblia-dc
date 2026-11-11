@@ -30,9 +30,20 @@ export default function CapitulosCards({
       setVersiculosPorCap(sync)
       return
     }
-    contarVersiculosPorLivro(livro.id)
-      .then((map) => setVersiculosPorCap(map))
-      .catch(() => {})
+    // A consulta SQLite é síncrona após carregar a base. Execute somente
+    // depois do primeiro paint, para não bloquear a abertura dos capítulos.
+    let cancelado = false
+    let timer
+    setVersiculosPorCap(null)
+    const frame = requestAnimationFrame(() => {
+      timer = setTimeout(() => {
+        if (cancelado) return
+        contarVersiculosPorLivro(livro.id)
+          .then(map => { if (!cancelado) setVersiculosPorCap(map) })
+          .catch(() => {})
+      }, 0)
+    })
+    return () => { cancelado = true; cancelAnimationFrame(frame); clearTimeout(timer) }
   }, [open, livro?.id])
 
   // Suporte ao botão de voltar do navegador/celular

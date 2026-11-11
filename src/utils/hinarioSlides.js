@@ -1,4 +1,4 @@
-import { formatarNotasRodapeHinario } from './hinarioNotasFormat'
+import { formatarNotasRodapeHinario } from './hinarioNotasFormat.js'
 
 /**
  * Divide o texto do hino em blocos (estrofes) para modo apresentação.
@@ -46,11 +46,14 @@ function normalizarTextoSlide(texto) {
 }
 
 function inferirLabelSlide(texto, { nEstrofe, nCoro, textosVistos }) {
-  const primeira = String(texto || '').split('\n')[0]?.trim() || ''
+  const linhas = String(texto || '').split('\n')
+  const primeira = (linhas.find((linha) => /^coro da \d+ª música/i.test(linha)) || linhas[0] || '').trim()
 
-  if (/^coro\b|^refr[aã]o\b/i.test(primeira)) {
+  if (/^(?:coro|refr[aã]o|estribilho)\b/i.test(primeira)) {
     const prox = nCoro + 1
-    return { tipo: 'coro', label: prox > 1 ? `CORO ${prox}` : 'CORO', nCoro: prox, nEstrofe }
+    const variante = primeira.match(/^coro da \d+ª música/i)?.[0]
+    const label = variante ? variante.toUpperCase() : prox > 1 ? `CORO ${prox}` : 'CORO'
+    return { tipo: 'coro', label, nCoro: prox, nEstrofe }
   }
 
   if (/^estrofe\s*(\d+)/i.test(primeira)) {
@@ -84,7 +87,7 @@ export function montarSlidesApresentacaoHino(conteudo, { numero = '', titulo = '
       id: 0,
       tipo: 'titulo',
       label: 'Título',
-      texto: `${numero}. ${titulo}`.trim(),
+      texto: formatarNotasRodapeHinario([numero, titulo].filter(Boolean).join('. ')),
     },
   ]
 
@@ -92,26 +95,53 @@ export function montarSlidesApresentacaoHino(conteudo, { numero = '', titulo = '
   let nCoro = 0
   const textosVistos = new Set()
 
-  for (const texto of partes) {
-    const norm = normalizarTextoSlide(texto)
+  const secoes = partes.map((texto) => {
     const info = inferirLabelSlide(texto, { nEstrofe, nCoro, textosVistos })
     nEstrofe = info.nEstrofe
     nCoro = info.nCoro
-    textosVistos.add(norm)
+    textosVistos.add(normalizarTextoSlide(texto))
+    return { tipo: info.tipo, label: info.label, texto: limparRotulosDoTextoSlide(texto) }
+  }).filter((secao) => secao.texto)
 
-    slides.push({
-      id: slides.length,
-      tipo: info.tipo,
-      label: info.label,
-      texto,
-    })
-  }
+  // Repete o coro comum entre estrofes. Coros com variantes ou restritos a
+  // outra melodia seguem as posições registradas no hinário.
+  const indiceCoro = secoes.findIndex((secao) => secao.tipo === 'coro')
+  const coroComum = nCoro === 1 && secoes[indiceCoro]?.label === 'CORO' &&
+    indiceCoro === 1 && secoes[0].tipo === 'estrofe' ? secoes[indiceCoro] : null
+
+  secoes.forEach((secao, index) => {
+    // Mantém cada coro em uma tela. Divide as estrofes longas em partes equilibradas.
+    const linhas = secao.texto.split('\n')
+    const repetirCoro = coroComum && index > indiceCoro && secao.tipo === 'estrofe' &&
+      !/^amém[.!]?$/i.test(secao.texto)
+    const amemFinal = repetirCoro && index === secoes.length - 1 && /^amém[.!]?$/i.test(linhas.at(-1))
+      ? linhas.pop()
+      : null
+    const total = secao.tipo === 'estrofe' ? Math.ceil(linhas.length / 6) : 1
+    for (let parte = 0; parte < total; parte += 1) {
+      const inicio = Math.ceil(parte * linhas.length / total)
+      const fim = Math.ceil((parte + 1) * linhas.length / total)
+      slides.push({
+        id: slides.length,
+        tipo: secao.tipo,
+        label: total > 1 ? `${secao.label} · ${parte + 1}/${total}` : secao.label,
+        texto: linhas.slice(inicio, fim).join('\n'),
+      })
+    }
+
+    if (repetirCoro) {
+      slides.push({ ...coroComum, id: slides.length })
+    }
+    if (amemFinal) {
+      slides.push({ id: slides.length, tipo: 'estrofe', label: 'AMÉM', texto: amemFinal })
+    }
+  })
 
   return slides
 }
 
 const RE_LINHA_SO_ROTULO =
-  /^(?:(?:estrofe|est\.?)\s*\d+|coro|refr[aã]o)\s*:?\s*$/i
+  /^(?:(?:estrofe|est\.?)\s*\d+|coro(?: da \d+ª música)?|refr[aã]o|estribilho)\s*:?\s*$/i
 
 /**
  * Remove rótulos ("Estrofe 3:", "Coro", etc.) do texto projetado no slide.
@@ -131,8 +161,7 @@ export function limparRotulosDoTextoSlide(texto) {
 
     let limpa = linha
       .replace(/^(?:estrofe|est\.?)\s*\d+\s*:\s*/i, '')
-      .replace(/^coro\s*:\s*/i, '')
-      .replace(/^refr[aã]o\s*:\s*/i, '')
+      .replace(/^(?:coro(?: da \d+ª música)?|refr[aã]o|estribilho)\s*:\s*/i, '')
 
     if (limpa.trim()) limpas.push(limpa)
   }

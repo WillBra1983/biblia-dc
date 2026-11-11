@@ -1,3 +1,4 @@
+import { linhasCitacaoVersiculos } from '../utils/bibliaVersoesTexto'
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import {
   Box,
@@ -84,12 +85,7 @@ async function textoEstudoFromVersiculos(livroId, capitulo, versiculos) {
   if (!livro) return { textoEstudo: '', referenciaCompacta: '' }
   const rows = await buscarCapitulo(livroId, capitulo)
   const unicos = [...new Set(versiculos)].sort((a, b) => a - b)
-  const versosTexto = []
-  for (const n of unicos) {
-    const row = rows[n - 1]
-    if (!row?.texto) continue
-    versosTexto.push(String(row.texto).trim())
-  }
+  const versosTexto = linhasCitacaoVersiculos(rows, unicos)
 
   const blocos = []
   if (unicos.length > 0) {

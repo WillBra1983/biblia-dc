@@ -82,9 +82,9 @@ export function montarSlidesModoVersiculo(resultados) {
     slides.push({
       id: `versiculo-${numeroVersiculo}`,
       tipo: 'versiculo',
-      label: `v. ${numeroVersiculo}`,
+      label: verso.numeroFim > numeroVersiculo ? `v. ${numeroVersiculo}–${verso.numeroFim}` : `v. ${numeroVersiculo}`,
       versiculo: numeroVersiculo,
-      numero,
+      numero: verso.numeroFim > numeroVersiculo ? `${numeroVersiculo}–${verso.numeroFim}` : numero,
       textoSemNumero,
       texto: verso.texto,
     })
@@ -94,19 +94,18 @@ export function montarSlidesModoVersiculo(resultados) {
 
 /** Um slide por bloco de perícope (título + versículos do trecho). */
 export function montarSlidesModoPericope(resultados, pericopesCapitulo = []) {
-  const total = (resultados || []).length
+  const total = Math.max(0, ...(resultados || []).map((v,i) => Number(v.numeroFim || v.numero) || i + 1))
   const blocos = calcularBlocosPericopeCapitulo(pericopesCapitulo, total)
 
   return blocos.map((bloco, bi) => {
     const versiculos = []
-    for (let v = bloco.inicio; v <= bloco.fim; v++) {
-      const verso = resultados[v - 1]
-      if (!verso) continue
-      const numeroVersiculo = verso.numero || v
+    for (const [index, verso] of (resultados || []).entries()) {
+      const numeroVersiculo = verso.numero || index + 1
+      if (numeroVersiculo > bloco.fim || (verso.numeroFim || numeroVersiculo) < bloco.inicio) continue
       const { numero, textoSemNumero } = separarNumeroVersiculoDoTexto(verso.texto, numeroVersiculo)
       versiculos.push({
         versiculo: numeroVersiculo,
-        numero,
+        numero: verso.numeroFim > numeroVersiculo ? `${numeroVersiculo}–${verso.numeroFim}` : numero,
         textoSemNumero,
         texto: verso.texto,
       })

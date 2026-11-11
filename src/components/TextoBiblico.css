@@ -3,11 +3,11 @@
 }
 
 .referencia-biblica {
-  color: #2563eb;
+  color: var(--app-link, #2563eb);
   cursor: pointer;
   text-decoration: underline;
 }
 
 .referencia-biblica:hover {
-  color: #1d4ed8;
+  color: var(--app-link-hover, #1d4ed8);
 } 

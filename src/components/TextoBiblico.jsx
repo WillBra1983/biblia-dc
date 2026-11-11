@@ -7,6 +7,7 @@ import { useApp } from '../contexts/AppContext'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { usePinchNumeric } from '../hooks/usePinchNumeric'
+import TextoFalasJesus from './TextoFalasJesus'
 
 export default function TextoBiblico({ livroId, capitulo }) {
   const { isDarkMode, fontFamily, textAlign, lineHeight, semEspacoEntreVersiculos } = useApp()
@@ -155,7 +156,8 @@ export default function TextoBiblico({ livroId, capitulo }) {
                 color: isDarkMode ? 'white' : 'black'
               }}
             >
-              {versiculo.texto}
+              {!/^\s*(?:\d+|[⁰¹²³⁴⁵⁶⁷⁸⁹]+)\s+/u.test(versiculo.texto) && <Box component="sup" sx={{ mr: 0.5 }}>{versiculo.numeroFim > versiculo.numero ? `${versiculo.numero}–${versiculo.numeroFim}` : versiculo.numero}</Box>}
+              <TextoFalasJesus texto={versiculo.textoMarcado || versiculo.texto} />
             </Typography>
           </React.Fragment>
         ))}

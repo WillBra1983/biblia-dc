@@ -430,7 +430,7 @@ export default function EstudoBiblicoVer() {
                     border: '2px solid',
                     borderColor: atual ? 'primary.main' : anterior ? 'success.main' : 'divider',
                     bgcolor: atual ? 'primary.main' : anterior ? 'success.main' : 'background.paper',
-                    color: atual || anterior ? 'primary.contrastText' : 'text.secondary',
+                    color: atual ? 'primary.contrastText' : anterior ? 'success.contrastText' : 'text.secondary',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',

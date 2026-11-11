@@ -22,6 +22,7 @@ export default function BarraFormatacaoApresentacao({
   onToggleFullscreen = null,
   /** { modo: 'versiculo'|'pericope', onAlternarModo: (modo) => void } */
   modoBiblia = null,
+  emFluxo = false,
   zIndex = 1400,
 }) {
   const { corLetra, negrito, setCorLetra, toggleNegrito } = useLeituraApresentacao()
@@ -55,7 +56,8 @@ export default function BarraFormatacaoApresentacao({
         <Box
           onClick={(e) => e.stopPropagation()}
           sx={{
-            position: 'fixed',
+            position: emFluxo ? 'relative' : 'fixed',
+            flexShrink: 0,
             left: 0,
             right: 0,
             bottom: 0,

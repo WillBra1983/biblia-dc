@@ -62,6 +62,18 @@ const getTheme = (mode) => {
     ...palette,
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        ':root': {
+          '--app-background': palette.background.default,
+          '--app-text': palette.text.primary,
+          '--app-muted': palette.text.secondary,
+          '--app-link': palette.secondary.main,
+          '--app-link-hover': mode === 'dark' ? palette.secondary.light : palette.secondary.dark,
+        },
+        body: { backgroundColor: palette.background.default, color: palette.text.primary },
+      },
+    },
     MuiContainer: {
       styleOverrides: {
         root: {

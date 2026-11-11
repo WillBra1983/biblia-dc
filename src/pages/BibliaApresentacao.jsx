@@ -426,7 +426,7 @@ export default function BibliaApresentacao() {
           {slideAtual.versiculos.map((item, vi) => (
             <Typography key={item.versiculo} component="div" sx={{ ...estiloVerso, ...(vi > 0 ? { mt: 1.25 } : {}) }}>
               <Box component="span" sx={numeroSx}>
-                {item.versiculo}
+                  {item.numero}
               </Box>
               {item.textoSemNumero}
             </Typography>

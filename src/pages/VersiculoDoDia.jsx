@@ -138,7 +138,7 @@ export default function VersiculoDoDia() {
         setItem(valor)
         setCarregando(false)
 
-        // A Biblia Comentada e a fonte de verdade. Se o estudo ja existe,
+        // Versículos explicados é a fonte de verdade. Se o estudo ja existe,
         // mostre-o imediatamente mesmo enquanto a Function reconcilia o
         // status do registro diario em segundo plano.
         const comentarioExistente = await obterComentarioDoDia(valor)
@@ -269,7 +269,7 @@ export default function VersiculoDoDia() {
             <Typography component="blockquote" sx={{ m: 0, fontFamily: 'Georgia, serif', fontSize: { xs: '1.45rem', sm: '2rem' }, lineHeight: 1.48, fontWeight: 700 }}>
               “{item.texto}”
             </Typography>
-            <Typography sx={{ mt: 2.5, fontWeight: 900, fontSize: '1.05rem' }}>{item.referencia}</Typography>
+            <Typography sx={{ mt: 2.5, fontWeight: 900, fontSize: '1.05rem' }}>{item.referencia}{item.versao ? ` · ${item.versao}` : ''}</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, textShadow: '0 2px 7px rgba(0,0,0,.72)' }}>
             <Box
@@ -321,7 +321,7 @@ export default function VersiculoDoDia() {
       <CompartilharVersiculoImagemDialog
         open={compartilhar}
         onClose={() => setCompartilhar(false)}
-        referencia={item.referencia}
+        referencia={item.versao ? `${item.referencia} (${item.versao})` : item.referencia}
         texto={item.texto}
         url={link}
         fundoFixoId={item.fundoId}
@@ -339,7 +339,7 @@ export default function VersiculoDoDia() {
         <DialogTitle>Escolher versículo do dia</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Digite a referência completa. Se já houver comentário na Bíblia Comentada, ele será reutilizado.
+            Digite a referência completa. Se já houver comentário em Versículos explicados, ele será reutilizado.
           </Typography>
           <TextField
             autoFocus

@@ -1,8 +1,20 @@
+import { useEffect, useState } from 'react'
+import { Capacitor } from '@capacitor/core'
+import { App } from '@capacitor/app'
 import { Box, Container, Paper, Typography, Link as MuiLink } from '@mui/material'
 import { Link } from 'react-router-dom'
 import StrongLexiconAttributions from '../components/StrongLexiconAttributions'
 
 export default function Sobre() {
+  const [versao, setVersao] = useState(typeof __PACKAGE_VERSION__ !== 'undefined' ? __PACKAGE_VERSION__ : '')
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return
+    let ativo = true
+    App.getInfo().then(info => {
+      if (ativo) setVersao(info.version)
+    }).catch(() => { /* Mantém a versão do pacote se a consulta nativa falhar. */ })
+    return () => { ativo = false }
+  }, [])
   return (
     <Container maxWidth="md" sx={{ py: 2 }}>
       <Paper variant="outlined" sx={{ p: 2 }}>
@@ -14,7 +26,7 @@ export default function Sobre() {
           discipulado, devocionais, hinário e mais conteúdos de apoio cristão.
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 0.75 }}>
-          Versão 1.2.4
+          Versão {versao}
         </Typography>
         <Typography variant="body2" sx={{ mb: 0.75 }}>
           Desenvolvido por Pastor Wilson Lucas Ferreira.

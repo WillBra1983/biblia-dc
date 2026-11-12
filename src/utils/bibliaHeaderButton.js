@@ -1,7 +1,7 @@
 // Mesma moldura elevada para os controles de versão e comparação.
 export const sxBotaoCabecalhoBiblia = theme => ({
-  minWidth: 44,
-  minHeight: 44,
+  minWidth: 40,
+  minHeight: 40,
   border: '1px solid',
   borderColor: theme.palette.mode === 'dark' ? 'grey.600' : 'grey.400',
   borderRadius: 1.5,

@@ -39,7 +39,7 @@ function host(carregarAudio, opcoes = {}) {
   vm.runInNewContext(codigo, { URL: class extends URL { static createObjectURL(arquivo) { const url = `blob:offline-${criados.length + 1}`; criados.push({ arquivo, url }); return url } static revokeObjectURL(url) { revogados.push(url) } }, module: mod, exports: mod.exports, require(nome) {
     if (nome === 'react') return react
     if (nome === 'react/jsx-runtime') return { jsx: elemento, jsxs: elemento }
-    if (nome === '@mui/material') return Object.fromEntries(['Alert', 'Box', 'Button', 'IconButton', 'Menu', 'MenuItem', 'Typography'].map(n => [n, n]))
+    if (nome === '@mui/material') return Object.fromEntries(['Alert', 'Box', 'Button', 'Checkbox', 'Dialog', 'DialogActions', 'DialogContent', 'DialogTitle', 'FormControlLabel', 'IconButton', 'Menu', 'MenuItem', 'Typography'].map(n => [n, n]))
     if (nome.startsWith('@mui/icons-material/')) return { default: nome }
     if (nome === '../services/araAudioService') return { obterAudioAra: carregarAudio, obterAudioAraSalvo: () => null }
     if (nome === '../utils/araAudioTimings') return timings
@@ -239,4 +239,48 @@ await teste('Salvar online conclui mesmo ao fechar; trocar capítulo evita grava
  g.render({capitulo:2}); outro.resolve(arquivo); await antigo; g.render()
  assert.equal(g.itensSalvos.size,0)
 })
+await teste('Continuação online abre o próximo áudio com reprodução automática', async () => {
+ let consumidos=0
+ const h=host(async()=>fonte,{continuacaoAudio:'online',onConsumirContinuacao:()=>consumidos++})
+ await new Promise(setImmediate); h.render({continuacaoAudio:null})
+ assert.equal(consumidos,1)
+ assert.equal(h.todos().find(n=>n.type==='audio').props.autoPlay,true)
+})
+await teste('Continuação offline sem arquivo não consulta o servidor', async () => {
+ let consultas=0
+ const h=host(async()=>{consultas++;return fonte},{continuacaoAudio:'offline'})
+ await new Promise(setImmediate); h.render({continuacaoAudio:null})
+ assert.equal(consultas,0)
+ assert.ok(!h.todos().some(n=>n.type==='audio'))
+})
+await teste('Registro de leitura exige escolha e capítulo compatível; mantém escolha no próximo', async () => {
+ const chamadas=[];
+ const h=host(async()=>fonte,{podeMarcarComoLido:true,onCapituloTerminado:(...args)=>chamadas.push(args)});
+ await h.botao('Ouvir').props.onClick();h.render();
+ const audio=()=>h.todos().find(n=>n.type==='audio');
+ const checkbox=()=>h.todos().find(n=>n.type==='FormControlLabel').props.control;
+ assert.equal(chamadas.length,0);
+ audio().props.onEnded();assert.deepEqual(chamadas.pop(),['online',false]);
+ checkbox().props.onChange({target:{checked:true}});h.render();
+ audio().props.onEnded();assert.deepEqual(chamadas.pop(),['online',true]);
+ h.render({podeMarcarComoLido:false});
+ assert.equal(checkbox().props.disabled,true);
+ audio().props.onEnded();assert.deepEqual(chamadas.pop(),['online',false]);
+ h.render({capitulo:2,podeMarcarComoLido:true});
+ await h.botao('Ouvir').props.onClick();h.render();
+ assert.equal(checkbox().props.checked,true);
+ checkbox().props.onChange({target:{checked:false}});h.render();
+ audio().props.onEnded();assert.deepEqual(chamadas.pop(),['online',false]);
+});
+await teste('Créditos e fonte ficam no diálogo de informações',async()=>{
+ const h=host(async()=>fonte);
+ await h.botao('Ouvir').props.onClick();h.render();
+ const dialog=()=>h.todos().find(n=>n.type==='Dialog');
+ assert.equal(dialog().props.open,false);
+ h.todos().find(n=>n.props?.['aria-label']==='Informações do áudio').props.onClick();h.render();
+ assert.equal(dialog().props.open,true);
+ assert.ok(h.todos().some(n=>n.props?.children===fonte.credito));
+ assert.equal(h.botao('Fonte: bible.com').props.href,fonte.paginaFonte);
+ dialog().props.onClose();h.render();assert.equal(dialog().props.open,false);
+});
 console.log(`${grupos}/${grupos} grupos aprovados (100%); falhas: 0%; tempo: ${((performance.now() - inicio) / 1000).toFixed(2)} s.`)

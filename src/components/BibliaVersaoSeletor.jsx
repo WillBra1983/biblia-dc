@@ -22,7 +22,7 @@ export default function BibliaVersaoSeletor() {
   const fechar = () => { if (!carregando) setAberto(false) }
   return <>
     <Button size="small" onClick={() => setAberto(true)} aria-label={`Versão da Bíblia: ${versaoBiblicaPorId(versao)?.sigla}. Escolher versão`}
-      sx={theme => ({ ...sxBotaoCabecalhoBiblia(theme), px: 1, py: 0.5, fontWeight: 700, color: 'text.secondary', fontSize: '0.9rem' })}>
+      sx={theme => ({ ...sxBotaoCabecalhoBiblia(theme), px: 0.75, py: 0.25, fontWeight: 700, color: 'text.secondary', fontSize: '0.8rem' })}>
       {versaoBiblicaPorId(versao)?.sigla}
     </Button>
     <Dialog open={aberto} onClose={fechar} fullWidth maxWidth="sm">

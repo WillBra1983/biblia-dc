@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Box, Button, IconButton, Menu, MenuItem, Typography } from '@mui/material'
+import { Alert, Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, IconButton, Menu, MenuItem, Typography } from '@mui/material'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import HeadphonesIcon from '@mui/icons-material/Headphones'
 import CloseIcon from '@mui/icons-material/Close'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
@@ -14,7 +15,8 @@ async function baixarAudio(url) {
   return resposta.blob()
 }
 
-export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, versao = 'ara', onVersiculoChange, carregarAudio = obterAudioAra, carregarSalvo = obterAudioAraSalvo, repositorioOffline = bibliaAudioOfflineService, baixarArquivo = baixarAudio }) {
+export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, versao = 'ara', onVersiculoChange, onCapituloTerminado, podeMarcarComoLido = false, continuacaoAudio, onConsumirContinuacao, carregarAudio = obterAudioAra, carregarSalvo = obterAudioAraSalvo, repositorioOffline = bibliaAudioOfflineService, baixarArquivo = baixarAudio }) {
+  const autoPlayRef = useRef(false)
   const audioRef = useRef(null)
   const pedidoRef = useRef(0)
   const versiculoAtivoRef = useRef(null)
@@ -30,6 +32,8 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
   const [salvando, setSalvando] = useState(false)
   const [erroOffline, setErroOffline] = useState('')
   const [menuAnchor, setMenuAnchor] = useState(null)
+  const [infoAberta, setInfoAberta] = useState(false)
+  const [marcarComoLido, setMarcarComoLido] = useState(false)
   const sigla = versaoBiblicaPorId(versao)?.sigla || 'ARA'
   const referencia = `${versao}:${livroId}:${capitulo}`
 
@@ -44,6 +48,7 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
     if (audio) { audio.pause(); audio.removeAttribute('src'); audio.load() }
   }
   const fechar = () => {
+    autoPlayRef.current = false
     pedidoRef.current++
     parar()
     setAberto(false)
@@ -173,6 +178,13 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
       if (pedidoRef.current === pedido) setCarregando(false)
     }
   }
+  useEffect(() => {
+    if (!continuacaoAudio) return
+    autoPlayRef.current = true
+    if (continuacaoAudio === 'offline') void abrirOffline()
+    else void carregar()
+    onConsumirContinuacao?.()
+  }, [livroId, capitulo, versao, continuacaoAudio])
   const dadosAtuais = dados?.referenciaPlayer === referencia ? dados : null
   const atualizarVersiculo = (audio) => publicarVersiculo(acompanhar && !erro
     ? versiculoAraNoTempo(dadosAtuais?.marcacoes || [], audio.currentTime) : null)
@@ -186,6 +198,7 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
           <Typography sx={{ fontWeight: 700 }}>{modoArquivo ? 'Áudio do aparelho' : `Áudio ${sigla} · ${livroNome} ${capitulo}`}</Typography>
           <Box sx={{ display: 'flex' }}>
+            <IconButton size="small" aria-label="Informações do áudio" onClick={() => setInfoAberta(true)}><InfoOutlinedIcon fontSize="small" /></IconButton>
             <IconButton size="small" aria-label="Opções do áudio" onClick={evento => setMenuAnchor(evento.currentTarget)}><MoreVertIcon fontSize="small" /></IconButton>
             <IconButton size="small" aria-label={`Fechar áudio ${sigla}`} onClick={fechar}><CloseIcon fontSize="small" /></IconButton>
           </Box>
@@ -195,17 +208,16 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
         {erroOffline && <Alert severity="warning" sx={{ my: 1 }}>{erroOffline}</Alert>}
         {erro && <Alert severity="warning" sx={{ my: 1 }} action={modoArquivo ? undefined : <Button color="inherit" size="small" onClick={() => carregar(true)}>Tentar novamente</Button>}>{erro}</Alert>}
         {dadosAtuais && <>
-          <audio key={dadosAtuais.url} ref={audioRef} controls preload={dadosAtuais.local ? 'metadata' : 'none'} src={dadosAtuais.url}
+          <audio key={dadosAtuais.url} ref={audioRef} autoPlay={autoPlayRef.current} controls preload={dadosAtuais.local ? 'metadata' : 'none'} src={dadosAtuais.url}
             aria-label={dadosAtuais.local ? `Áudio salvo: ${dadosAtuais.nomeArquivo}` : `Narração ${sigla} de ${livroNome} ${capitulo}`} style={{ width: '100%', marginTop: 8 }}
             onTimeUpdate={(evento) => atualizarVersiculo(evento.currentTarget)}
             onSeeked={(evento) => atualizarVersiculo(evento.currentTarget)}
             onPlay={(evento) => atualizarVersiculo(evento.currentTarget)}
-            onEnded={() => publicarVersiculo(null)}
+            onEnded={() => { publicarVersiculo(null); onCapituloTerminado?.(dadosAtuais.local ? 'offline' : 'online', marcarComoLido && podeMarcarComoLido) }}
             onError={() => { publicarVersiculo(null); setErro(dadosAtuais.local ? 'Não foi possível reproduzir esse arquivo. Selecione outro áudio salvo em formato compatível.' : 'A reprodução foi interrompida. Tente carregar o áudio novamente.') }} />
-          {dadosAtuais.local ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.75, overflowWrap: 'anywhere' }}>Offline · {dadosAtuais.nomeArquivo}</Typography> : <>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.75 }}>{dadosAtuais.credito}</Typography>
-            <Button size="small" component="a" href={dadosAtuais.paginaFonte} target="_blank" rel="noopener noreferrer" sx={{ textTransform: 'none' }}>Fonte: bible.com</Button>
-          </>}
+          <FormControlLabel sx={{ m: 0, display: 'flex', width: 'fit-content', maxWidth: '100%', mx: 'auto', justifyContent: 'center', '& .MuiFormControlLabel-label': { fontSize: '0.8rem' } }}
+            control={<Checkbox size="small" checked={marcarComoLido} disabled={!podeMarcarComoLido} onChange={evento => setMarcarComoLido(evento.target.checked)} />}
+            label="Marcar como lido ao terminar" />
         </>}
       </Box>}
       {audioSalvo && !aberto && <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -221,6 +233,18 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
           publicarVersiculo(ativar ? versiculoAraNoTempo(dadosAtuais.marcacoes, audioRef.current?.currentTime) : null)
         }}>{acompanhar ? 'Desativar acompanhamento' : dadosAtuais.local && !dadosAtuais.origemConferida ? `Confirmar gravação ${sigla} deste capítulo e acompanhar` : 'Acompanhar versículos'}</MenuItem>}
       </Menu>
+      <Dialog open={infoAberta} onClose={() => setInfoAberta(false)} fullWidth maxWidth="xs" aria-labelledby="audio-info-titulo">
+        <DialogTitle id="audio-info-titulo">Informações do áudio</DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body2" sx={{ mb: 1 }}>Ao terminar, a leitura continua no próximo capítulo. Ative “Marcar como lido ao terminar” para registrar a leitura no plano antes de avançar. Desativado, o áudio avança sem alterar a leitura registrada.</Typography>
+          {!podeMarcarComoLido && <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Este capítulo já está lido ou não pertence a um plano em andamento.</Typography>}
+          {dadosAtuais?.local ? <Typography variant="body2" sx={{ overflowWrap: 'anywhere' }}>Offline · {dadosAtuais.nomeArquivo}</Typography> : dadosAtuais && <>
+            <Typography variant="body2" color="text.secondary">{dadosAtuais.credito}</Typography>
+            <Button size="small" component="a" href={dadosAtuais.paginaFonte} target="_blank" rel="noopener noreferrer" sx={{ textTransform: 'none' }}>Fonte: bible.com</Button>
+          </>}
+        </DialogContent>
+        <DialogActions><Button onClick={() => setInfoAberta(false)}>Fechar</Button></DialogActions>
+      </Dialog>
       <input ref={arquivoInputRef} type="file" accept="audio/*,.mp3,.m4a,.mp4,.wav,.ogg,.oga,.aac,.flac,.opus,.webm" hidden aria-label="Selecionar áudio salvo no aparelho" onChange={abrirArquivo} />
     </Box>
   )

@@ -253,6 +253,7 @@ function capitulosVizinhosParaPrefetch(livros, livroAtual, capituloAtual) {
 function Biblia({ ultimaLeitura: leituraInicial }) {
   const versaoBiblica = useVersaoBiblica()
   const [comparacao, setComparacao] = useState(null)
+  const [continuacaoAudio, setContinuacaoAudio] = useState(null)
   const toRgba = (hex, alpha) => {
     if (!hex || typeof hex !== 'string') return `rgba(30, 122, 53, ${alpha})`
     const normalized = hex.replace('#', '')
@@ -2734,7 +2735,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                     setComparacao({ livroId: livroAtual.id, capituloInicial: capitulo, versiculoInicial: visivel?.numero || 1 })
                   }}>
                     <Box component="img" src={`${import.meta.env.BASE_URL}images/biblias-vs-comparacao.webp`}
-                      alt="" aria-hidden="true" width={54} height={36}
+                      alt="" aria-hidden="true" width={38} height={26}
                       sx={{ display: 'block', objectFit: 'contain' }} />
                   </IconButton>
                 </Tooltip>
@@ -2781,6 +2782,18 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 livroNome={livroAtual.nome}
                 cor={livroCorBase}
                 onVersiculoChange={setVersiculoAudioAraAtivo}
+                continuacaoAudio={continuacaoAudio?.livroId === livroAtual.id && continuacaoAudio?.capitulo === capitulo && continuacaoAudio?.versao === versaoBiblica ? continuacaoAudio.modo : null}
+                onConsumirContinuacao={() => setContinuacaoAudio(null)}
+                podeMarcarComoLido={capitulosPendentesIds.length > 0}
+                onCapituloTerminado={(modo, marcarComoLido) => {
+                  if (loading) return
+                  if (marcarComoLido && capitulosPendentesIds.length > 0) executarAcaoPlanos(capitulosPendentesIds, 'marcar')
+                  const indice = opcoesLivros.findIndex(l => l.id === livroAtual.id)
+                  const proximoLivro = capitulo < livroAtual.maxCapitulos ? livroAtual : opcoesLivros[indice + 1]
+                  if (!proximoLivro) return
+                  setContinuacaoAudio({ livroId: proximoLivro.id, capitulo: proximoLivro.id === livroAtual.id ? capitulo + 1 : 1, versao: versaoBiblica, modo })
+                  irParaProximoCapitulo()
+                }}
               />
             ) : null}
             {resultadosVisiveis.map((verso, index) => {

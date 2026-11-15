@@ -11,7 +11,7 @@ async function identificarLeitor(req) {
   if (req.auth?.uid) return req.auth.uid
   const uid = uidVisitante(req.data?.dispositivoBiblioteca)
   const vinculo = (await admin.database().ref(`bibliotecaVinculosVisitantes/${uid}`).get()).val()
-  if (vinculo?.uid) throw new HttpsError('permission-denied', 'Conecte-se à conta vinculada às compras deste aparelho.')
+  if (vinculo?.uid) throw new HttpsError('permission-denied', 'Conecte-se à conta vinculada às compras deste aparelho.', { motivo: 'visitante_vinculado' })
   return uid
 }
 exports.uidVisitante = uidVisitante

@@ -7,6 +7,7 @@ import {
   Typography
 } from '@mui/material'
 import MenuCards from './MenuCards'
+import AvisosPedidosPix from './AvisosPedidosPix'
 import MenuIcon from '@mui/icons-material/Menu'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import { useState, useEffect, useLayoutEffect, useRef } from 'react'
@@ -30,6 +31,7 @@ import {
 } from '../utils/sectionViewKeys'
 import { setAppIconBadgeCount } from '../utils/appIconBadge'
 import { aguardarPosSplash } from '../utils/posSplash'
+import { registrarNavegacaoMaisVistos } from '../utils/menuMaisVistos'
 
 /**
  * Título da tela na AppBar e na aba do navegador.
@@ -71,21 +73,21 @@ function getPageTitleFromPathname(pathname) {
   if (path.startsWith('/catecismo-maior')) return 'Catecismo Maior'
   if (path.startsWith('/catecismo-breve')) return 'Catecismo Breve'
   if (path.startsWith('/devocional')) return 'Devocional'
-  if (path.startsWith('/mais-de-deus')) return 'Mais de Deus'
-  if (path.startsWith('/youtube')) return 'YouTube'
+  if (path.startsWith('/mais-de-deus')) return 'Conteúdos teológicos'
+  if (path.startsWith('/youtube')) return 'Vídeos'
   if (path.startsWith('/quiz-retiro')) return 'Quiz Bíblico'
   if (path.startsWith('/biblioteca/') || path === '/biblioteca') return 'Livraria Cristã'
-  if (path.startsWith('/biblioteca-estudos')) return 'Versículos explicados'
+  if (path.startsWith('/biblioteca-estudos')) return 'Comentários bíblicos'
   if (path === '/estudos-biblicos/gerir') return 'Gerenciar estudos'
-  /** Comentários gerados/curados pertencem ao acervo de Versículos explicados. */
-  if (/^\/estudos-biblicos\/ia-(passagem|pericope)/.test(path)) return 'Versículos explicados'
+  /** Comentários gerados/curados pertencem ao acervo de Comentários bíblicos. */
+  if (/^\/estudos-biblicos\/ia-(passagem|pericope)/.test(path)) return 'Comentários bíblicos'
   if (path.startsWith('/estudos-biblicos')) return 'Estudos Compartilhados'
   if (path.startsWith('/chat')) return 'Mensagens'
   if (path.startsWith('/perfil')) return 'Meu perfil'
   if (path.startsWith('/admin/usuarios')) return 'Usuários'
   if (path.startsWith('/admin/notificar')) return 'Enviar aviso'
   if (path.startsWith('/versiculos-marcados')) return 'Versículos marcados'
-  if (path.startsWith('/versiculos-compartilhados')) return 'Versículos compartilhados'
+  if (path.startsWith('/versiculos-compartilhados')) return 'Mural de versículos'
   if (path === '/versiculo-do-dia') return 'Versículo do dia'
   if (path === '/versiculos-do-dia') return 'Versículos dos dias anteriores'
   if (path.startsWith('/biblia/apresentacao')) return 'Apresentação — Bíblia'
@@ -225,6 +227,12 @@ export default function Layout({ title, children }) {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   }, [location.pathname])
 
+  /** Histórico pessoal para os atalhos Mais vistos. */
+  useEffect(() => {
+    if (user === undefined) return
+    registrarNavegacaoMaisVistos(location.pathname, user?.uid)
+  }, [location.pathname, user?.uid, user === undefined])
+
   /** Métricas de secção (admin): uma vez por rota nesta entrada (sessionStorage). */
   useEffect(() => {
     if (!isFirebaseConfigured()) return
@@ -330,6 +338,7 @@ export default function Layout({ title, children }) {
 
   return (
     <Box sx={{ display: 'flex', ...sxFullViewportHeight() }}>
+      <AvisosPedidosPix />
       <AppBar 
         position="fixed" 
         color="inherit"
@@ -401,7 +410,9 @@ export default function Layout({ title, children }) {
             ) : (
               <IconButton
                 color="inherit"
-                aria-label="open drawer"
+                aria-label="Abrir menu principal"
+                aria-expanded={drawerOpen}
+                aria-controls="menu-principal"
                 edge="start"
                 onClick={handleDrawerToggle}
                 sx={{
@@ -599,6 +610,8 @@ export default function Layout({ title, children }) {
           <Box
             ref={menuPrincipalRef}
             component="nav"
+            id="menu-principal"
+            inert={!drawerOpen ? '' : undefined}
             aria-label="Menu principal"
             aria-hidden={!drawerOpen}
             sx={{

@@ -7,7 +7,8 @@ const admin = require('./firebaseAdmin')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { defineSecret } = require('firebase-functions/params')
 const { logger } = require('firebase-functions/v2')
-const { METODOLOGIA, promptPesquisa, extrairPesquisa } = require('./pesquisaBiblica')
+const { METODOLOGIA } = require('./pesquisaBiblica')
+const { obterPesquisaStrong } = require('./strongPesquisaService')
 
 const GEMINI_API_KEY = defineSecret('GEMINI_API_KEY')
 
@@ -64,14 +65,6 @@ exports.geminiGenerateContent = onCall(
     const exigePesquisa = body.pesquisaBiblicaObrigatoria === true
     const pedido = { ...body }
     delete pedido.pesquisaBiblicaObrigatoria
-    if (exigePesquisa) {
-      pedido.tools = [{ url_context: {} }]
-      pedido.generationConfig = {...(body.generationConfig || {}),thinkingConfig:{thinkingBudget:2048},temperature:0.2}
-      delete pedido.generationConfig.responseMimeType
-      delete pedido.generationConfig.responseSchema
-      pedido.contents = (body.contents || []).map((c,i,a)=>i===a.length-1 && c.role==='user' ? {...c,parts:[...(c.parts || []),{text:promptPesquisa(JSON.stringify(body.contents))}]} : c)
-      pedido.systemInstruction = { parts: [...(body.systemInstruction?.parts || []), {text: `${METODOLOGIA}\nFaça a leitura das páginas fornecidas na mensagem do usuário. As citações completas são necessárias para validação interna, mesmo se instruções anteriores solicitarem ocultá-las. A interface poderá ocultar a bibliografia depois da validação.`}] }
-    }
     const bodyStr = JSON.stringify(pedido)
     if (bodyStr.length > MAX_BODY_BYTES) {
       throw new HttpsError('invalid-argument', 'Corpo da requisição excede o limite permitido.')
@@ -92,11 +85,16 @@ exports.geminiGenerateContent = onCall(
     let res, pesquisaVerificada
     try {
       if (exigePesquisa) {
-        const pesquisaRes = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:bodyStr,signal:AbortSignal.timeout(90000)})
-        const pesquisaData = await pesquisaRes.json()
-        if (!pesquisaRes.ok) throw new HttpsError('unavailable','O serviço de pesquisa não respondeu.')
-        try { pesquisaVerificada = await extrairPesquisa(pesquisaData.candidates?.[0]) }
-        catch (e) { logger.warn('Pesquisa Strong rejeitada',{motivo:e.message,diagnostico:e.diagnostico || null}); throw new HttpsError('unavailable','Pesquisa externa sem fontes verificáveis suficientes. O Strong não gerará um novo resumo sem pesquisa. Tente novamente mais tarde.') }
+        try {
+          pesquisaVerificada = await obterPesquisaStrong({
+            body, logger,
+            chamar: pedidoPesquisa => fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(pedidoPesquisa), signal:AbortSignal.timeout(45000) }),
+            lerCache: async chave => (await admin.database().ref('strongPesquisaCacheV3/' + chave).get()).val(),
+            gravarCache: (chave, registro) => admin.database().ref('strongPesquisaCacheV3/' + chave).set(registro),
+          })
+        } catch (e) {
+          throw new HttpsError('unavailable', 'Não foi possível confirmar fontes suficientes para esta palavra após consultar alternativas. Nenhum novo resumo foi produzido. Aguarde um minuto antes de tentar novamente.', { etapa:'pesquisa', motivo:e.code || 'REDE_PESQUISA' })
+        }
       }
       const redacao = {...body}
       delete redacao.pesquisaBiblicaObrigatoria

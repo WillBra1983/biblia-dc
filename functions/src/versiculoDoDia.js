@@ -2,6 +2,7 @@ const fs = require('node:fs')
 const path = require('node:path')
 const zlib = require('node:zlib')
 const { randomUUID } = require('node:crypto')
+const { escolherVersiculoEditorial } = require('./versiculoDiaSelecao')
 const admin = require('./firebaseAdmin')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { onSchedule } = require('firebase-functions/v2/scheduler')
@@ -130,19 +131,6 @@ function hash(texto) {
   return value >>> 0
 }
 
-function candidatosElegiveis(catalogo, usados) {
-  return catalogo.filter((item) => {
-    if (usados[chaveVersiculo(item)]) return false
-    const texto = limparNumero(item.text)
-    return texto.length >= 55 && texto.length <= 290 && !/^[,;:)]/.test(texto)
-  })
-}
-
-function escolher(candidatos, data) {
-  if (!candidatos.length) throw new Error('Todos os versiculos elegiveis ja foram utilizados.')
-  return candidatos[hash(data) % candidatos.length]
-}
-
 function contextoDoVersiculo(catalogo, alvo) {
   const inicio = Number(alvo.pericopeStart) || Math.max(1, alvo.verse - 2)
   const fim = Number(alvo.pericopeEnd) || alvo.verse + 2
@@ -204,7 +192,7 @@ async function selecionarVersiculoDoDia(data = dataNoFuso()) {
         }
         const catalogo = carregarCatalogo()
         const usados = (await db.ref('versiculosDoDiaUsados').get()).val() || {}
-        const item = escolher(candidatosElegiveis(catalogo, usados), data)
+        const item = escolherVersiculoEditorial(catalogo, usados, data)
         const chave = chaveVersiculo(item)
         const registro = {
           status: 'selecionado',
@@ -216,6 +204,8 @@ async function selecionarVersiculoDoDia(data = dataNoFuso()) {
           versiculo: item.verse,
           referencia: referencia(item),
           texto: limparNumero(item.text),
+          editorialTema: item.editorialTema,
+          editorialVersao: item.editorialVersao,
           fundoId: FUNDOS[hash(chave) % FUNDOS.length],
           criadoEm: Date.now(),
         }
@@ -643,8 +633,7 @@ exports._test = {
   normalizarLivro,
   normalizarLivroEstrito,
   encontrarPorReferencia,
-  candidatosElegiveis,
-  escolher,
+  escolherVersiculoEditorial,
   comentarioIncompleto,
   contextoDoVersiculo,
   idDestaqueMural,

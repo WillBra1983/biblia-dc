@@ -47,6 +47,9 @@ export async function chamarGeminiViaProxy(model, body) {
     if (code.includes('resource-exhausted')) {
       return { ok: false, status: 429, error: msg, code: 'QUOTA_EXCEEDED' }
     }
+    if (code.includes('unavailable') && e?.details?.etapa === 'pesquisa') {
+      return { ok: false, status: 503, error: msg, code: 'RESEARCH_UNVERIFIED', motivo: e.details.motivo }
+    }
     if (code.includes('failed-precondition')) {
       return { ok: false, status: 503, error: msg, code: 'NO_SERVER_KEY' }
     }

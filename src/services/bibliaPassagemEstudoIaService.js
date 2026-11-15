@@ -1,9 +1,10 @@
+import { obterEstudoOriginal, pedidoAdaptacaoEstudo } from '../utils/estudoOriginal'
+import { validarTraducaoEstudo } from '../utils/estudoTraducao'
 import { linhasCitacaoVersiculos } from '../utils/bibliaVersoesTexto'
 import { livros as livrosData } from '../data/biblia'
 import {
-  buscarCapitulo,
-  buscarPericopes,
-  contarVersiculosPorLivro
+  buscarCapituloNaVersao,
+  buscarPericopesNaVersao
 } from './bibliaService'
 import { iaGeminiDisponivel, gerarConteudoGemini } from './strongEstudoAiService'
 import { addonTomIntegrado, normalizarTom } from '../utils/iaTonalidade'
@@ -66,13 +67,13 @@ export function formatarReferenciaCompactaPericope(livroId, capitulo, inicio, fi
  *
  * @returns {Promise<null | { titulo: string, inicio: number, fim: number }>}
  */
-async function localizarPericope(livroId, capitulo, primeiroVersiculo) {
+async function localizarPericope(livroId, capitulo, primeiroVersiculo, versaoBiblica = 'ara') {
   if (Number(livroId) === 19) {
     const estrutura = localizarEstruturaSalmo(capitulo, primeiroVersiculo)
     if (estrutura) return estrutura
   }
 
-  const lista = await buscarPericopes(livroId, capitulo)
+  const lista = await buscarPericopesNaVersao(versaoBiblica, livroId, capitulo)
   if (!Array.isArray(lista) || !lista.length) return null
   const ordenadas = [...lista]
     .map((p) => ({ titulo: String(p?.titulo || '').trim(), inicio: Number(p?.versiculo) || 0 }))
@@ -94,8 +95,8 @@ async function localizarPericope(livroId, capitulo, primeiroVersiculo) {
   if (proxima) {
     fim = Math.max(atual.inicio, proxima.inicio - 1)
   } else {
-    const totaisPorCap = await contarVersiculosPorLivro(livroId).catch(() => null)
-    fim = (totaisPorCap && totaisPorCap[capitulo]) || atual.inicio
+    const linhas = await buscarCapituloNaVersao(versaoBiblica, livroId, capitulo)
+    fim = linhas.reduce((max, linha) => Math.max(max, Number(linha.numeroFim || linha.numero) || 0), atual.inicio)
   }
   return { titulo: atual.titulo || '(sem título)', inicio: atual.inicio, fim }
 }
@@ -109,7 +110,7 @@ async function localizarPericope(livroId, capitulo, primeiroVersiculo) {
  *   | { ok: false, error: string }
  * >}
  */
-export async function montarPassagemLida(livroId, capitulo, versiculosArr) {
+export async function montarPassagemLida(livroId, capitulo, versiculosArr, versaoBiblica = 'ara') {
   const livro = livrosData.find((l) => l.id === livroId)
   if (!livro) return { ok: false, error: 'Livro inválido.' }
   const unicos = [...new Set((versiculosArr || []).map((n) => Number(n)))]
@@ -117,7 +118,7 @@ export async function montarPassagemLida(livroId, capitulo, versiculosArr) {
     .sort((a, b) => a - b)
   if (!unicos.length) return { ok: false, error: 'Nenhum versículo válido.' }
 
-  const rows = await buscarCapitulo(livroId, capitulo)
+  const rows = await buscarCapituloNaVersao(validarTraducaoEstudo(versaoBiblica).id, livroId, capitulo)
   if (!rows.length) {
     return { ok: false, error: 'Capítulo não disponível na tradução local.' }
   }
@@ -132,7 +133,7 @@ export async function montarPassagemLida(livroId, capitulo, versiculosArr) {
 
   let pericope = null
   try {
-    const peri = await localizarPericope(livroId, capitulo, unicos[0])
+    const peri = await localizarPericope(livroId, capitulo, unicos[0], versaoBiblica)
     if (peri) {
       const linhasPeri = linhasCitacaoVersiculos(rows, Array.from({ length: peri.fim - peri.inicio + 1 }, (_, i) => peri.inicio + i))
       pericope = {
@@ -155,6 +156,7 @@ export async function montarPassagemLida(livroId, capitulo, versiculosArr) {
     meta: {
       livroId,
       capitulo,
+      versaoBiblica,
       versiculos: unicos,
       referenciaCompacta,
       pericope: pericope
@@ -174,14 +176,14 @@ export async function montarPassagemLida(livroId, capitulo, versiculosArr) {
  * Usado pela página de estudo da perícope, quando o usuário pede explicitamente
  * o estudo da perícope.
  */
-export async function montarPericopeLida(livroId, capitulo, inicio, fim, tituloHint = '') {
+export async function montarPericopeLida(livroId, capitulo, inicio, fim, tituloHint = '', versaoBiblica = 'ara') {
   const livro = livrosData.find((l) => l.id === livroId)
   if (!livro) return { ok: false, error: 'Livro inválido.' }
   const ini = Math.max(1, Number(inicio) || 0)
   const f = Math.max(ini, Number(fim) || 0)
   if (!ini || !f) return { ok: false, error: 'Intervalo inválido.' }
 
-  const rows = await buscarCapitulo(livroId, capitulo)
+  const rows = await buscarCapituloNaVersao(validarTraducaoEstudo(versaoBiblica).id, livroId, capitulo)
   if (!rows.length) return { ok: false, error: 'Capítulo não disponível na tradução local.' }
 
   const linhas = linhasCitacaoVersiculos(rows, Array.from({ length: f - ini + 1 }, (_, i) => ini + i))
@@ -191,7 +193,7 @@ export async function montarPericopeLida(livroId, capitulo, inicio, fim, tituloH
   let titulo = String(tituloHint || '').trim()
   if (!titulo) {
     try {
-      const peri = await localizarPericope(livroId, capitulo, ini)
+      const peri = await localizarPericope(livroId, capitulo, ini, versaoBiblica)
       if (peri && peri.inicio === ini && peri.fim === f) titulo = peri.titulo
     } catch (_) {
       /* ignore */
@@ -203,7 +205,7 @@ export async function montarPericopeLida(livroId, capitulo, inicio, fim, tituloH
     referencia,
     titulo: titulo || '',
     texto,
-    meta: { livroId, capitulo, inicio: ini, fim: f, referencia, titulo: titulo || '' }
+    meta: { livroId, capitulo, inicio: ini, fim: f, referencia, titulo: titulo || '', versaoBiblica }
   }
 }
 
@@ -399,13 +401,15 @@ Encerre naturalmente no último parágrafo do comentário. Não acrescente notas
  * GERAÇÃO — perícope completa
  * ============================================================================ */
 
-function montarCorpoPedidoPericope({ referencia, titulo, texto, tom }, { usarGoogleSearch }) {
+function montarCorpoPedidoPericope({ referencia, titulo, texto, tom, versaoBiblica = 'ara' }, { usarGoogleSearch }) {
   const blocoTitulo = titulo ? ` ("${titulo}")` : ''
   const addon = addonTomIntegrado('pericope')
   const blocoTom = addon ? `\n\n${addon}` : ''
   const userPrompt = `PERÍCOPE: ${referencia}${blocoTitulo}
 
-TEXTO BÍBLICO (tradução local da aplicação):
+TRADUÇÃO BASE: ${validarTraducaoEstudo(versaoBiblica).sigla} — ${validarTraducaoEstudo(versaoBiblica).nome}. Use esta tradução nas citações e na análise de expressões. Não atribua a ela a redação de outra versão.
+
+TEXTO BÍBLICO:
 ---
 ${texto}
 ---
@@ -491,13 +495,29 @@ export function limparVazamentoRaciocinioIa(texto) {
   return s
 }
 
-export async function gerarEstudoPericopeCompleto({ referencia, titulo, texto, tom }) {
+/** O roteiro original permanece intacto; esta camada só entra quando há estudo-base. */
+function montarCorpoAdaptacao(body, { estudoBase, textoBiblicoBase, textoDestino, versaoBiblica, referencia }) {
+  return {
+    ...body,
+    systemInstruction: { parts: [...body.systemInstruction.parts, { text: 'Este pedido adapta um estudo já existente. Preserve o conteúdo válido, a profundidade, a progressão e a estrutura do original. Para esta adaptação, as orientações de concisão e de formato de estudos novos não autorizam resumir ou reorganizar o original. Revise rigorosamente as explicações que dependem da redação da tradução. Entregue o estudo completo adaptado.' }] },
+    contents: [{ role: 'user', parts: [{ text: pedidoAdaptacaoEstudo({ estudoBase, textoBiblicoBase, textoDestino, versaoDestino: versaoBiblica, referencia }) }] }],
+    generationConfig: { ...body.generationConfig, maxOutputTokens: 16384 },
+  }
+}
+
+export async function gerarEstudoPericopeCompleto({ referencia, titulo, texto, tom, versaoBiblica = 'ara', estudoBase = null, textoBiblicoBase = '' }) {
   const ref = String(referencia || '').trim()
   const t = String(texto || '').trim()
   if (!ref || !t) return { ok: false, error: 'Perícope incompleta para gerar o estudo.', code: 'EMPTY' }
 
-  const webOn = lexicalWebEnrichmentAtivo()
-  const ctx = { referencia: ref, titulo: titulo || '', texto: t, tom: normalizarTom(tom) }
+  let origemEstudo
+  try {
+    origemEstudo = obterEstudoOriginal(estudoBase)
+    if (estudoBase) pedidoAdaptacaoEstudo({ estudoBase, textoBiblicoBase, textoDestino: t, versaoDestino: versaoBiblica, referencia: ref })
+  } catch (e) { return { ok: false, error: e.message, code: 'ADAPTATION_INPUT' } }
+  if (origemEstudo?.versaoBiblica === versaoBiblica) return { ok: true, text: origemEstudo.texto, origemEstudo, geradoEm: origemEstudo.geradoEm || Date.now() }
+  const webOn = !estudoBase && lexicalWebEnrichmentAtivo()
+  const ctx = { referencia: ref, titulo: titulo || '', texto: t, tom: normalizarTom(tom), versaoBiblica }
   const tentativas = webOn
     ? [
         { body: montarCorpoPedidoPericope(ctx, { usarGoogleSearch: true }), label: 'web' },
@@ -509,8 +529,8 @@ export async function gerarEstudoPericopeCompleto({ referencia, titulo, texto, t
 
   let lastResult = null
   for (const { body, label } of tentativas) {
-    const r = await gerarConteudoGemini(body, { maxContinuacoes: 2 })
-    if (r.ok) return { ...r, text: limparVazamentoRaciocinioIa(r.text) }
+    const r = await gerarConteudoGemini(estudoBase ? montarCorpoAdaptacao(body, { estudoBase, textoBiblicoBase, textoDestino: t, versaoBiblica, referencia: ref }) : body, { maxContinuacoes: 2 })
+    if (r.ok) return { ...r, text: limparVazamentoRaciocinioIa(r.text), geradoEm: Date.now(), ...(origemEstudo ? { origemEstudo } : {}) }
     lastResult = r
     if (label === 'web' && erroIndicaToolIncompativel(r.error || '')) continue
     return r
@@ -523,7 +543,7 @@ export async function gerarEstudoPericopeCompleto({ referencia, titulo, texto, t
  * ============================================================================ */
 
 function montarCorpoPedidoVersiculo(
-  { referenciaCompacta, textoCitacao, estudoPericopeContexto, textoPericopeContexto, pericopeRefHint, tom },
+  { referenciaCompacta, textoCitacao, estudoPericopeContexto, textoPericopeContexto, pericopeRefHint, tom, versaoBiblica = 'ara' },
   { usarGoogleSearch }
 ) {
   const estudoContexto = String(estudoPericopeContexto || '').trim()
@@ -544,7 +564,9 @@ ${textoContexto}
 
   const userPrompt = `VERSÍCULOS SELECIONADOS: ${referenciaCompacta}
 
-TEXTO BÍBLICO (tradução local):
+TRADUÇÃO BASE: ${validarTraducaoEstudo(versaoBiblica).sigla} — ${validarTraducaoEstudo(versaoBiblica).nome}. Use esta tradução nas citações e na análise de expressões. Não atribua a ela a redação de outra versão.
+
+TEXTO BÍBLICO:
 ---
 ${textoCitacao}
 ---
@@ -577,19 +599,29 @@ export async function gerarComentarioVersiculo({
   estudoPericopeContexto = null,
   textoPericopeContexto = '',
   pericopeRefHint = '',
-  tom
+  tom,
+  versaoBiblica = 'ara',
+  estudoBase = null,
+  textoBiblicoBase = ''
 }) {
   const ref = String(referenciaCompacta || '').trim()
   const t = String(textoCitacao || '').trim()
   if (!ref || !t) return { ok: false, error: 'Passagem incompleta para gerar o comentário.', code: 'EMPTY' }
 
-  const webOn = lexicalWebEnrichmentAtivo()
+  let origemEstudo
+  try {
+    origemEstudo = obterEstudoOriginal(estudoBase)
+    if (estudoBase) pedidoAdaptacaoEstudo({ estudoBase, textoBiblicoBase, textoDestino: t, versaoDestino: versaoBiblica, referencia: ref })
+  } catch (e) { return { ok: false, error: e.message, code: 'ADAPTATION_INPUT' } }
+  if (origemEstudo?.versaoBiblica === versaoBiblica) return { ok: true, text: origemEstudo.texto, origemEstudo, geradoEm: origemEstudo.geradoEm || Date.now() }
+  const webOn = !estudoBase && lexicalWebEnrichmentAtivo()
   const ctx = {
     referenciaCompacta: ref,
     textoCitacao: t,
     estudoPericopeContexto,
     textoPericopeContexto,
     pericopeRefHint,
+    versaoBiblica,
     tom: normalizarTom(tom)
   }
   const tentativas = webOn
@@ -603,8 +635,8 @@ export async function gerarComentarioVersiculo({
 
   let lastResult = null
   for (const { body, label } of tentativas) {
-    const r = await gerarConteudoGemini(body)
-    if (r.ok) return { ...r, text: limparVazamentoRaciocinioIa(r.text) }
+    const r = await gerarConteudoGemini(estudoBase ? montarCorpoAdaptacao(body, { estudoBase, textoBiblicoBase, textoDestino: t, versaoBiblica, referencia: ref }) : body, estudoBase ? { maxContinuacoes: 2 } : undefined)
+    if (r.ok) return { ...r, text: limparVazamentoRaciocinioIa(r.text), geradoEm: Date.now(), ...(origemEstudo ? { origemEstudo } : {}) }
     lastResult = r
     if (label === 'web' && erroIndicaToolIncompativel(r.error || '')) continue
     return r

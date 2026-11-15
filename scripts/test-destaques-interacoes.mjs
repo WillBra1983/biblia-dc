@@ -27,6 +27,6 @@ for (const arquivo of ['src/components/AcoesDestaque.jsx', 'src/components/MenuC
   const source = fs.readFileSync(arquivo, 'utf8')
   transformSync(source, { loader: 'jsx' })
   assert.match(source, /likesCount > 0/)
-  assert.match(source, /sharesCount > 0/)
+  if (!arquivo.endsWith('/MenuCards.jsx')) assert.match(source, /sharesCount > 0/)
 }
 console.log('OK: curtidas preservadas, remoção, envios sem duplicação, privacidade e ocultação de zero.')

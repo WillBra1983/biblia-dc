@@ -249,14 +249,31 @@ export async function excluirLivroBiblioteca(id, uid) {
 }
 
 async function chamarFuncao(nome, dados = {}) {
-  const { getFirebaseFunctions, loadFirebaseModules } = await import('../config/firebase')
+  const { getFirebaseFunctions, getFirebaseAuth, loadFirebaseModules } = await import('../config/firebase')
   await loadFirebaseModules()
+  // Aguarda a restauração da sessão, inclusive para contas de e-mail e senha.
+  await getFirebaseAuth()?.authStateReady()
   const functions = getFirebaseFunctions()
   if (!functions) throw new Error('Serviço temporariamente indisponível.')
   const { httpsCallable } = await import('firebase/functions')
-  const visitante = ['criarPedidoPixBiblioteca', 'informarPagamentoPixBiblioteca', 'obterArquivoLivroBiblioteca', 'acessosBibliotecaVisitante', 'vincularComprasBibliotecaVisitante'].includes(nome)
-  const resultado = await httpsCallable(functions, nome)({ ...(visitante ? { dispositivoBiblioteca: dispositivoBiblioteca() } : {}), ...dados })
-  return resultado?.data || {}
+  const visitante = ['listarMeusPedidosPixBiblioteca', 'consultarPedidoPixBiblioteca', 'responderPagamentoNaoLocalizadoBiblioteca', 'criarPedidoPixBiblioteca', 'informarPagamentoPixBiblioteca', 'obterArquivoLivroBiblioteca', 'acessosBibliotecaVisitante', 'vincularComprasBibliotecaVisitante'].includes(nome)
+  const tokenInicial = visitante ? dispositivoBiblioteca() : null
+  const executar = () => httpsCallable(functions, nome)({ ...(visitante ? { dispositivoBiblioteca: dispositivoBiblioteca() } : {}), ...dados })
+  try {
+    return (await executar())?.data || {}
+  } catch (erro) {
+    const renovar = ['criarPedidoPixBiblioteca', 'acessosBibliotecaVisitante'].includes(nome)
+      && !getFirebaseAuth()?.currentUser
+      && (erro?.details?.motivo === 'visitante_vinculado' || /Conecte-se à conta vinculada às compras deste aparelho/.test(erro?.message || ''))
+    if (!renovar) throw erro
+    // O vínculo antigo continua exclusivo da conta. Novas compras usam outro visitante.
+    if (dispositivoBiblioteca() === tokenInicial) {
+      localStorage.removeItem(`biblioteca-acessos-offline:${tokenInicial}`)
+      localStorage.removeItem('biblioteca-dispositivo-v1')
+      dispositivoBiblioteca()
+    }
+    return (await executar())?.data || {}
+  }
 }
 
 export const listarVotosBiblioteca = () => chamarFuncao('listarVotosBiblioteca')
@@ -265,9 +282,9 @@ export const votarLivroBiblioteca = (livroId, votou) => chamarFuncao('votarLivro
 export function assinarAcessosBiblioteca(uid, callback, onError) {
   let cancelar = () => {}
   let ativo = true
-  const cache = `biblioteca-acessos-offline:${uid || dispositivoBiblioteca()}`
-  try { callback(JSON.parse(localStorage.getItem(cache) || '{}')) } catch { callback({}) }
-  const entregar = (dados) => { if (ativo) { try { localStorage.setItem(cache, JSON.stringify(dados)) } catch { /* Não interrompa o acesso online por falta de espaço. */ } callback(dados) } }
+  const cacheAtual = () => `biblioteca-acessos-offline:${uid || dispositivoBiblioteca()}`
+  try { callback(JSON.parse(localStorage.getItem(cacheAtual()) || '{}')) } catch { callback({}) }
+  const entregar = (dados) => { if (ativo) { try { localStorage.setItem(cacheAtual(), JSON.stringify(dados)) } catch { /* Não interrompa o acesso online por falta de espaço. */ } callback(dados) } }
   if (!uid) {
     const atualizar = () => { if (navigator.onLine) void chamarFuncao('acessosBibliotecaVisitante').then(entregar).catch((erro) => onError?.(erro)) }
     atualizar()
@@ -297,7 +314,7 @@ export function assinarPedidosPixAdmin(callback, onError) {
     if (!ativo || !rtdb) return callback([])
     cancelar = rtdb.api.onValue(
       rtdb.api.ref(rtdb.db, 'bibliotecaPedidos'),
-      (snap) => callback(Object.entries(snap.val() || {}).map(([id, pedido]) => ({ id, ...(pedido || {}) })).sort((a, b) => Number(b.criadoEm || 0) - Number(a.criadoEm || 0))),
+      (snap) => callback(Object.entries(snap.val() || {}).map(([id, pedido]) => ({ id, ...(pedido || {}) })).filter((pedido) => pedido.status !== 'aguardando_pagamento' || pedido.ocultoAdmin !== true).sort((a, b) => Number(b.criadoEm || 0) - Number(a.criadoEm || 0))),
       (erro) => onError?.(erro),
     )
   }).catch((erro) => onError?.(erro))
@@ -315,9 +332,13 @@ export function assinarConfiguracaoPixBiblioteca(callback, onError) {
 }
 
 export const salvarConfiguracaoPixBiblioteca = (configuracao) => chamarFuncao('salvarConfiguracaoPixBiblioteca', configuracao)
-export const criarPedidoPixBiblioteca = (livroId) => chamarFuncao('criarPedidoPixBiblioteca', { livroId })
+export const criarPedidoPixBiblioteca = (livroId, nomeComprador = '') => chamarFuncao('criarPedidoPixBiblioteca', { livroId, nomeComprador })
 export const informarPagamentoPixBiblioteca = (pedidoId) => chamarFuncao('informarPagamentoPixBiblioteca', { pedidoId })
-export const decidirPedidoPixBiblioteca = (pedidoId, aprovado) => chamarFuncao('decidirPedidoPixBiblioteca', { pedidoId, aprovado })
+export const removerPendenciaPixBiblioteca = (pedidoId) => chamarFuncao('removerPendenciaPixBiblioteca', { pedidoId })
+export const decidirPedidoPixBiblioteca = (pedidoId, aprovado, observacao = '') => chamarFuncao('decidirPedidoPixBiblioteca', { pedidoId, aprovado, observacao })
+export const listarMeusPedidosPixBiblioteca = () => chamarFuncao('listarMeusPedidosPixBiblioteca')
+export const consultarPedidoPixBiblioteca = (pedidoId, incluirPix = false) => chamarFuncao('consultarPedidoPixBiblioteca', { pedidoId, incluirPix })
+export const responderPagamentoNaoLocalizadoBiblioteca = (pedidoId) => chamarFuncao('responderPagamentoNaoLocalizadoBiblioteca', { pedidoId })
 
 export async function enviarArquivoLivroBiblioteca(livroId, finalidade, arquivo) {
   if (!livroId || !arquivo) throw new Error('Escolha o arquivo do livro.')

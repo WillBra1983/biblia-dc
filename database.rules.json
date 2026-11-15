@@ -502,6 +502,7 @@
       ".write": false
     },
     "bibliotecaVinculosVisitantes": {
+      ".indexOn": ["uid"],
       ".read": false,
       ".write": false
     },

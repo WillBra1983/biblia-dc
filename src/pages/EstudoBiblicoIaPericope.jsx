@@ -1,3 +1,6 @@
+import { criarCachePericopePorTraducao } from '../utils/bibliaIaPericopeCache'
+import { EstudoComTraducao, AvisoTraducaoEstudo } from '../components/EstudoTraducao'
+import { idEstudoNaTraducao } from '../utils/estudoTraducao'
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import {
   Box,
@@ -37,23 +40,14 @@ import EditorialProse from '../components/EditorialProse'
 import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 import {
   iaGeminiDisponivel,
-  montarPericopeLida,
+  montarPericopeLida as montarTextoNaTraducao,
   gerarEstudoPericopeCompleto,
   formatarReferenciaCompactaPericope,
   limparVazamentoRaciocinioIa
 } from '../services/bibliaPassagemEstudoIaService'
-import {
-  lerPericopeCurada,
-  lerPericopeCandidata,
-  salvarPericopeCurada,
-  removerPericopeCurada,
-  publicarPericopeCandidata,
-  descartarPericopeCandidata,
-  registrarVotoPericope,
-  lerMeuVotoPericope
-} from '../services/estudosCuradosService'
+import { criarRepositorioEstudosPorTraducao } from '../services/estudosCuradosService'
 import { sxCorpoTextoIa } from '../utils/iaTextoStyles'
-import { buscarIntervaloVersiculos } from '../services/bibliaService'
+import { buscarIntervaloVersiculosNaVersao } from '../services/bibliaService'
 import VersiculoPopup from '../components/VersiculoPopup'
 import TextoComReferencias from '../components/TextoComReferencias'
 import CompartilharMenu from '../components/CompartilharMenu'
@@ -69,7 +63,7 @@ import {
   podeGerar,
   marcarGerado
 } from '../utils/iaGeracaoLimites'
-import { normalizarTom, TONS_IDS, TOM_PADRAO, sufixoChaveCacheTom } from '../utils/iaTonalidade'
+import { normalizarTom, TONS_IDS, TOM_PADRAO } from '../utils/iaTonalidade'
 import {
   confirmarAsync,
   mostrarSnackbar
@@ -82,36 +76,6 @@ const ORDEM_CARGA_TONS = [TOM_PADRAO, ...TONS_IDS.filter((t) => t !== TOM_PADRAO
  * Cache local (localStorage) para o estudo da perícope.
  * A chave pode incluir sufixo de tom legado (`~…`); o padrão atual não usa sufixo.
  * ------------------------------------------------------------------ */
-const PREFIXO_CACHE_LOCAL = 'salvation-ia-pericope:'
-
-function chaveCachePericope(livroId, capitulo, inicio, fim, tom) {
-  return `${PREFIXO_CACHE_LOCAL}${Number(livroId) || 0}:${Number(capitulo) || 0}:${Number(inicio) || 0}:${Number(fim) || 0}${sufixoChaveCacheTom(tom)}`
-}
-function lerCachePericope(livroId, capitulo, inicio, fim, tom) {
-  try {
-    const raw = localStorage.getItem(chaveCachePericope(livroId, capitulo, inicio, fim, tom))
-    if (!raw) return null
-    const p = JSON.parse(raw)
-    if (!p || typeof p.texto !== 'string' || !p.texto.trim()) return null
-    return p
-  } catch (_) {
-    return null
-  }
-}
-function gravarCachePericope(livroId, capitulo, inicio, fim, payload, tom) {
-  try {
-    localStorage.setItem(
-      chaveCachePericope(livroId, capitulo, inicio, fim, tom),
-      JSON.stringify(payload)
-    )
-  } catch (_) { /* ignore */ }
-}
-function apagarCachePericope(livroId, capitulo, inicio, fim, tom) {
-  try {
-    localStorage.removeItem(chaveCachePericope(livroId, capitulo, inicio, fim, tom))
-  } catch (_) { /* ignore */ }
-}
-
 function renderInlineMarkdown(line) {
   const partes = []
   const regex = /\*\*([^*]+)\*\*/g
@@ -212,6 +176,21 @@ function renderLinhasEstudo(texto, lineHeightCss = 1.65) {
  * Cooldown 24h por perícope + cota global. `?refresh=1` só para admin.
  */
 export default function EstudoBiblicoIaPericope() {
+  return <EstudoComTraducao tipo="pericope" componente={ConteudoEstudoPericope} />
+}
+
+function ConteudoEstudoPericope({ versaoEstudo, versaoLeitura, onTrocarTraducao, estudoExistente, estudoBase, estudosDisponiveis, onEstudoGerado }) {
+  const { lerPericopeCurada,
+  lerPericopeCandidata,
+  salvarPericopeCurada,
+  removerPericopeCurada,
+  publicarPericopeCandidata,
+  descartarPericopeCandidata,
+  registrarVotoPericope,
+  lerMeuVotoPericope } = useMemo(() => criarRepositorioEstudosPorTraducao(versaoEstudo, { legadoAra: estudoExistente?.legado }), [versaoEstudo, estudoExistente?.legado])
+  const { lerCachePericope, gravarCachePericope, apagarCachePericope } = useMemo(() => criarCachePericopePorTraducao(versaoEstudo, { legadoAra: estudoExistente?.legado }), [versaoEstudo, estudoExistente?.legado])
+  const montarPericopeLida = useCallback((...args) => montarTextoNaTraducao(...args, versaoEstudo), [versaoEstudo])
+  const buscarIntervaloVersiculos = useCallback((...args) => buscarIntervaloVersiculosNaVersao(versaoEstudo, ...args), [versaoEstudo])
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { user } = useFirebaseAuth()
@@ -240,6 +219,8 @@ export default function EstudoBiblicoIaPericope() {
   const [erroParam, setErroParam] = useState('')
   const [cooldown, setCooldown] = useState(null)
   const [textoGerado, setTextoGerado] = useState('')
+  const [origemEstudo, setOrigemEstudo] = useState(estudoExistente?.origemEstudo || null)
+  const [geradoEm, setGeradoEm] = useState(estudoExistente?.geradoEm || 0)
   const [referencia, setReferencia] = useState('')
   const [tituloPericope, setTituloPericope] = useState('')
   const [origem, setOrigem] = useState('novo')
@@ -255,7 +236,7 @@ export default function EstudoBiblicoIaPericope() {
   const tentativaSaidaRef = useRef(null)
 
   const idCanonicoPassagem = useMemo(
-    () => (paramsValidos ? idCanonicoPericope(livroQ, capQ, iniQ, fimQ) : ''),
+    () => (paramsValidos ? idEstudoNaTraducao(idCanonicoPericope(livroQ, capQ, iniQ, fimQ), versaoEstudo) : ''),
     [paramsValidos, livroQ, capQ, iniQ, fimQ]
   )
 
@@ -338,7 +319,19 @@ export default function EstudoBiblicoIaPericope() {
       setReferencia(pass.referencia)
       setTituloPericope(pass.titulo || '')
 
+      let passagemBase = null
+      if (estudoBase) {
+        try { passagemBase = await montarTextoNaTraducao(livroQ, capQ, iniQ, fimQ, '', estudoBase.versaoBiblica) } catch (_) { /* A falha bloqueia a adaptação. */ }
+        if (!passagemBase?.ok || !passagemBase.texto?.trim()) {
+          setFase('error')
+          setErroIa('Não foi possível carregar o texto bíblico do estudo original. Nenhum novo estudo foi gerado.')
+          return
+        }
+      }
       const r = await gerarEstudoPericopeCompleto({
+        estudoBase,
+        textoBiblicoBase: passagemBase?.texto || '',
+        versaoBiblica: versaoEstudo,
         referencia: pass.referencia,
         titulo: pass.titulo,
         texto: pass.texto,
@@ -357,6 +350,8 @@ export default function EstudoBiblicoIaPericope() {
       }
       const texto = limparVazamentoRaciocinioIa(String(r.text || ''))
       setTextoGerado(texto)
+      setOrigemEstudo(r.origemEstudo || null)
+      setGeradoEm(r.geradoEm || Date.now())
       setOrigem('novo')
       setMeuVoto(null)
       setTomCarregado(tomAlvo)
@@ -365,9 +360,10 @@ export default function EstudoBiblicoIaPericope() {
         capQ,
         iniQ,
         fimQ,
-        { texto, titulo: pass.titulo, referencia: pass.referencia },
+        { texto, titulo: pass.titulo, referencia: pass.referencia, origemEstudo: r.origemEstudo || null, geradoEm: r.geradoEm || Date.now() },
         tomAlvo
       )
+      onEstudoGerado?.({ texto, titulo: pass.titulo, referencia: pass.referencia, tom: tomAlvo, fonte: 'cache', legado: false, versaoBiblica: versaoEstudo, origemEstudo: r.origemEstudo || null, geradoEm: r.geradoEm || Date.now() })
       marcarGerado({ tipo: 'pericope', id: idCanonicoPassagem, admin: ehAdmin })
       setFase('ready')
     },
@@ -382,6 +378,8 @@ export default function EstudoBiblicoIaPericope() {
 
       const curado = await lerPericopeCurada(livroQ, capQ, iniQ, fimQ, tomAlvo)
       if (curado?.texto) {
+        setOrigemEstudo(curado.origemEstudo || null)
+        setGeradoEm(curado.geradoEm || 0)
         setTextoGerado(limparVazamentoRaciocinioIa(curado.texto))
         setReferencia(curado.referencia || '')
         setTituloPericope(curado.titulo || '')
@@ -399,6 +397,8 @@ export default function EstudoBiblicoIaPericope() {
 
       const cand = await lerPericopeCandidata(livroQ, capQ, iniQ, fimQ, tomAlvo)
       if (cand?.texto) {
+        setOrigemEstudo(cand.origemEstudo || null)
+        setGeradoEm(cand.geradoEm || 0)
         setTextoGerado(limparVazamentoRaciocinioIa(cand.texto))
         setReferencia(cand.referencia || '')
         setTituloPericope(cand.titulo || '')
@@ -416,6 +416,8 @@ export default function EstudoBiblicoIaPericope() {
 
       const cache = lerCachePericope(livroQ, capQ, iniQ, fimQ, tomAlvo)
       if (cache?.texto) {
+        setOrigemEstudo(cache.origemEstudo || null)
+        setGeradoEm(cache.geradoEm || 0)
         setTextoGerado(limparVazamentoRaciocinioIa(cache.texto))
         setReferencia(cache.referencia || '')
         setTituloPericope(cache.titulo || '')
@@ -461,6 +463,16 @@ export default function EstudoBiblicoIaPericope() {
     setErroIa('')
 
     ;(async () => {
+      if (estudoExistente?.texto) {
+        setTextoGerado(limparVazamentoRaciocinioIa(estudoExistente.texto))
+        setReferencia(estudoExistente.referencia || '')
+        setTituloPericope(estudoExistente.titulo || '')
+        setOrigem(estudoExistente.fonte === 'cache' ? 'novo' : estudoExistente.fonte === 'oficial' ? 'oficial' : 'candidato')
+        setTomCarregado(estudoExistente.tom)
+        setMeuVoto(await lerMeuVotoPericope({ livroId: livroQ, capitulo: capQ, inicio: iniQ, fim: fimQ, uid: user.uid, tom: estudoExistente.tom }))
+        setFase('ready')
+        return
+      }
       const refreshEfetivo = forcarRefresh && ehAdmin
       if (refreshEfetivo) {
         for (const id of TONS_IDS) apagarCachePericope(livroQ, capQ, iniQ, fimQ, id)
@@ -497,6 +509,8 @@ export default function EstudoBiblicoIaPericope() {
       const tomVoto = normalizarTom(tomCarregado)
       if (origem === 'novo') {
         const publicacao = await publicarPericopeCandidata({
+          origemEstudo,
+          geradoEm,
           livroId: livroQ,
           capitulo: capQ,
           inicio: iniQ,
@@ -530,7 +544,7 @@ export default function EstudoBiblicoIaPericope() {
         severidade: 'error'
       })
     } finally { setSalvandoAcao(false) }
-  }, [user?.uid, textoGerado, origem, livroQ, capQ, iniQ, fimQ, referencia, tituloPericope, tomCarregado])
+  }, [origemEstudo, geradoEm, user?.uid, textoGerado, origem, livroQ, capQ, iniQ, fimQ, referencia, tituloPericope, tomCarregado])
 
   const votarNaoUtil = useCallback(async () => {
     if (!user?.uid) return
@@ -557,6 +571,8 @@ export default function EstudoBiblicoIaPericope() {
     setSalvandoAcao(true)
     try {
       const r = await salvarPericopeCurada({
+        origemEstudo,
+        geradoEm,
         livroId: livroQ, capitulo: capQ, inicio: iniQ, fim: fimQ,
         texto: textoGerado, titulo: tituloPericope || '', referencia,
         uidAutor: user.uid,
@@ -569,7 +585,7 @@ export default function EstudoBiblicoIaPericope() {
         mostrarSnackbar({ mensagem: `Não foi possível salvar: ${r.error || 'erro'}`, severidade: 'error' })
       }
     } finally { setSalvandoAcao(false) }
-  }, [ehAdmin, user?.uid, textoGerado, livroQ, capQ, iniQ, fimQ, referencia, tituloPericope, tomCarregado])
+  }, [origemEstudo, geradoEm, ehAdmin, user?.uid, textoGerado, livroQ, capQ, iniQ, fimQ, referencia, tituloPericope, tomCarregado])
 
   const removerCuradoria = useCallback(async () => {
     if (!ehAdmin) return
@@ -614,6 +630,8 @@ export default function EstudoBiblicoIaPericope() {
     setSalvandoAcao(true)
     try {
       const r = await salvarPericopeCurada({
+        origemEstudo,
+        geradoEm,
         livroId: livroQ,
         capitulo: capQ,
         inicio: iniQ,
@@ -641,7 +659,7 @@ export default function EstudoBiblicoIaPericope() {
     } finally {
       setSalvandoAcao(false)
     }
-  }, [
+  }, [origemEstudo, geradoEm,
     ehAdmin,
     user?.uid,
     rascunhoAdmin,
@@ -805,6 +823,8 @@ export default function EstudoBiblicoIaPericope() {
           </Stack>
         )}
       </Paper>
+      <AvisoTraducaoEstudo versaoEstudo={versaoEstudo} versaoLeitura={versaoLeitura}
+        onTrocar={onTrocarTraducao} disponiveis={estudosDisponiveis} ocupado={fase === 'loading' || salvandoAcao || editandoAdmin} />
 
       <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 1, sm: 2 }, py: 2, ...sxLeitura }}>
         {paramsValidos && referenciaExibicao ? (

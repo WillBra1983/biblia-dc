@@ -1,3 +1,5 @@
+import { EstudoComTraducao, AvisoTraducaoEstudo } from '../components/EstudoTraducao'
+import { idEstudoNaTraducao } from '../utils/estudoTraducao'
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import {
   Box,
@@ -38,28 +40,12 @@ import EditorialProse from '../components/EditorialProse'
 import { EDITORIAL_IMAGES } from '../utils/editorialThemes'
 import {
   iaGeminiDisponivel,
-  montarPassagemLida,
+  montarPassagemLida as montarTextoNaTraducao,
   gerarComentarioVersiculo,
   formatarReferenciaCompactaPassagem
 } from '../services/bibliaPassagemEstudoIaService'
-import {
-  lerEstudoCurado,
-  lerEstudoCandidato,
-  lerPericopeCurada,
-  lerPericopeCandidata,
-  salvarEstudoCurado,
-  removerEstudoCurado,
-  publicarEstudoCandidato,
-  descartarEstudoCandidato,
-  registrarVoto,
-  lerMeuVoto,
-  chavePericopeCurada
-} from '../services/estudosCuradosService'
-import {
-  lerCacheIaPassagem,
-  gravarCacheIaPassagem,
-  apagarCacheIaPassagem
-} from '../utils/bibliaIaPassagemCache'
+import { criarRepositorioEstudosPorTraducao } from '../services/estudosCuradosService'
+import { criarCachePassagemPorTraducao } from '../utils/bibliaIaPassagemCache'
 import {
   lerCooldownIa,
   registrarCooldownIa,
@@ -71,7 +57,7 @@ import {
   marcarGerado
 } from '../utils/iaGeracaoLimites'
 import { sxCorpoTextoIa } from '../utils/iaTextoStyles'
-import { buscarIntervaloVersiculos } from '../services/bibliaService'
+import { buscarIntervaloVersiculosNaVersao } from '../services/bibliaService'
 import VersiculoPopup from '../components/VersiculoPopup'
 import TextoComReferencias from '../components/TextoComReferencias'
 import CompartilharMenu from '../components/CompartilharMenu'
@@ -206,6 +192,26 @@ function separarNotaFinal(texto) {
  * Se não houver conteúdo salvo, gera automaticamente ao abrir (estado "Abrindo o estudo").
  */
 export default function EstudoBiblicoIaPassagem() {
+  return <EstudoComTraducao componente={ConteudoEstudoPassagem} />
+}
+
+function ConteudoEstudoPassagem({ versaoEstudo, versaoLeitura, onTrocarTraducao, estudoExistente, estudoBase, estudosDisponiveis, onEstudoGerado }) {
+  const { lerEstudoCurado,
+  lerEstudoCandidato,
+  lerPericopeCurada,
+  lerPericopeCandidata,
+  salvarEstudoCurado,
+  removerEstudoCurado,
+  publicarEstudoCandidato,
+  descartarEstudoCandidato,
+  registrarVoto,
+  lerMeuVoto,
+  chavePericopeCurada } = useMemo(() => criarRepositorioEstudosPorTraducao(versaoEstudo, { legadoAra: estudoExistente?.legado }), [versaoEstudo, estudoExistente?.legado])
+  const { lerCacheIaPassagem,
+  gravarCacheIaPassagem,
+  apagarCacheIaPassagem } = useMemo(() => criarCachePassagemPorTraducao(versaoEstudo, { legadoAra: estudoExistente?.legado }), [versaoEstudo, estudoExistente?.legado])
+  const montarPassagemLida = useCallback((...args) => montarTextoNaTraducao(...args, versaoEstudo), [versaoEstudo])
+  const buscarIntervaloVersiculos = useCallback((...args) => buscarIntervaloVersiculosNaVersao(versaoEstudo, ...args), [versaoEstudo])
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { user } = useFirebaseAuth()
@@ -229,6 +235,8 @@ export default function EstudoBiblicoIaPassagem() {
   const [erroIa, setErroIa] = useState('')
   const [cooldown, setCooldown] = useState(null)
   const [textoGerado, setTextoGerado] = useState('')
+  const [origemEstudo, setOrigemEstudo] = useState(estudoExistente?.origemEstudo || null)
+  const [geradoEm, setGeradoEm] = useState(estudoExistente?.geradoEm || 0)
   const [metaLocal, setMetaLocal] = useState(null)
   const [referencia, setReferencia] = useState('')
   const [origem, setOrigem] = useState('novo')
@@ -249,7 +257,7 @@ export default function EstudoBiblicoIaPassagem() {
   const cargaMountIdRef = useRef(0)
 
   const idCanonicoPassagem = useMemo(
-    () => (paramsValidos ? idCanonicoVersiculo(livroQ, capQ, versQ) : ''),
+    () => (paramsValidos ? idEstudoNaTraducao(idCanonicoVersiculo(livroQ, capQ, versQ), versaoEstudo) : ''),
     [paramsValidos, livroQ, capQ, versQ]
   )
 
@@ -362,7 +370,19 @@ export default function EstudoBiblicoIaPassagem() {
         }
       }
 
+      let passagemBase = null
+      if (estudoBase) {
+        try { passagemBase = await montarTextoNaTraducao(livroQ, capQ, versQ, estudoBase.versaoBiblica) } catch (_) { /* A falha bloqueia a adaptação. */ }
+        if (!passagemBase?.ok || !passagemBase.textoCitacao?.trim()) {
+          setFase('error')
+          setErroIa('Não foi possível carregar o texto bíblico do estudo original. Nenhum novo estudo foi gerado.')
+          return
+        }
+      }
       const r = await gerarComentarioVersiculo({
+        estudoBase,
+        textoBiblicoBase: passagemBase?.textoCitacao || '',
+        versaoBiblica: versaoEstudo,
         referenciaCompacta: pass.referenciaCompacta,
         textoCitacao: pass.textoCitacao,
         estudoPericopeContexto,
@@ -384,10 +404,13 @@ export default function EstudoBiblicoIaPassagem() {
 
       const texto = String(r.text || '')
       setTextoGerado(texto)
+      setOrigemEstudo(r.origemEstudo || null)
+      setGeradoEm(r.geradoEm || Date.now())
       setOrigem('novo')
       setMeuVoto(null)
       setTomCarregado(tomAlvo)
-      gravarCacheIaPassagem(livroQ, capQ, versQ, { texto, meta: pass.meta, tom: tomAlvo })
+      gravarCacheIaPassagem(livroQ, capQ, versQ, { texto, meta: pass.meta, tom: tomAlvo, origemEstudo: r.origemEstudo || null, geradoEm: r.geradoEm || Date.now() })
+      onEstudoGerado?.({ texto, meta: pass.meta, referenciaCompacta: pass.referenciaCompacta, tom: tomAlvo, fonte: 'cache', legado: false, versaoBiblica: versaoEstudo, origemEstudo: r.origemEstudo || null, geradoEm: r.geradoEm || Date.now() })
       marcarGerado({ tipo: 'versiculo', id: idCanonicoPassagem, admin: ehAdmin })
       setFase('ready')
     },
@@ -425,6 +448,8 @@ export default function EstudoBiblicoIaPassagem() {
 
       const curado = await lerEstudoCurado(livroQ, capQ, versQ, tomAlvo)
       if (curado?.texto) {
+        setOrigemEstudo(curado.origemEstudo || null)
+        setGeradoEm(curado.geradoEm || 0)
         setTextoGerado(curado.texto)
         setReferencia(curado.referenciaCompacta || '')
         setMetaLocal(null)
@@ -442,6 +467,8 @@ export default function EstudoBiblicoIaPassagem() {
 
       const cand = await lerEstudoCandidato(livroQ, capQ, versQ, tomAlvo)
       if (cand?.texto) {
+        setOrigemEstudo(cand.origemEstudo || null)
+        setGeradoEm(cand.geradoEm || 0)
         setTextoGerado(cand.texto)
         setReferencia(cand.referenciaCompacta || '')
         setMetaLocal(null)
@@ -459,6 +486,8 @@ export default function EstudoBiblicoIaPassagem() {
 
       const cache = lerCacheIaPassagem(livroQ, capQ, versQ, tomAlvo)
       if (cache?.texto) {
+        setOrigemEstudo(cache.origemEstudo || null)
+        setGeradoEm(cache.geradoEm || 0)
         setTextoGerado(cache.texto)
         setMetaLocal(cache.meta || null)
         setReferencia(cache.meta?.referenciaCompacta || '')
@@ -508,6 +537,16 @@ export default function EstudoBiblicoIaPassagem() {
     setErroIa('')
 
     ;(async () => {
+      if (estudoExistente?.texto) {
+        setTextoGerado(estudoExistente.texto)
+        setReferencia(estudoExistente.referenciaCompacta || estudoExistente.meta?.referenciaCompacta || '')
+        setMetaLocal(estudoExistente.meta || null)
+        setOrigem(estudoExistente.fonte === 'cache' ? 'novo' : estudoExistente.fonte === 'oficial' ? 'oficial' : 'candidato')
+        setTomCarregado(estudoExistente.tom)
+        setMeuVoto(await lerMeuVoto({ livroId: livroQ, capitulo: capQ, versArr: versQ, uid: user.uid, tom: estudoExistente.tom }))
+        setFase('ready')
+        return
+      }
       const refreshEfetivo = forcarRefresh && ehAdmin
 
       if (refreshEfetivo) {
@@ -565,6 +604,8 @@ export default function EstudoBiblicoIaPassagem() {
 
       if (origem === 'novo') {
         const publicacao = await publicarEstudoCandidato({
+          origemEstudo,
+          geradoEm,
           livroId: livroQ,
           capitulo: capQ,
           versArr: versQ,
@@ -608,7 +649,7 @@ export default function EstudoBiblicoIaPassagem() {
     } finally {
       setSalvandoAcao(false)
     }
-  }, [user?.uid, textoGerado, origem, metaLocal, livroQ, capQ, versQ, referencia, tomCarregado])
+  }, [origemEstudo, geradoEm, user?.uid, textoGerado, origem, metaLocal, livroQ, capQ, versQ, referencia, tomCarregado])
 
   const votarNaoUtil = useCallback(async () => {
     if (!user?.uid) return
@@ -665,6 +706,8 @@ export default function EstudoBiblicoIaPassagem() {
         ? chavePericopeCurada(livroQ, capQ, pericopeMeta.inicio, pericopeMeta.fim)
         : null
       const r = await salvarEstudoCurado({
+        origemEstudo,
+        geradoEm,
         livroId: livroQ,
         capitulo: capQ,
         versArr: versQ,
@@ -686,7 +729,7 @@ export default function EstudoBiblicoIaPassagem() {
     } finally {
       setSalvandoAcao(false)
     }
-  }, [ehAdmin, user?.uid, textoGerado, metaLocal, livroQ, capQ, versQ, referencia, tomCarregado])
+  }, [origemEstudo, geradoEm, ehAdmin, user?.uid, textoGerado, metaLocal, livroQ, capQ, versQ, referencia, tomCarregado])
 
   const removerCuradoria = useCallback(async () => {
     if (!ehAdmin) return
@@ -753,6 +796,8 @@ export default function EstudoBiblicoIaPassagem() {
         ? chavePericopeCurada(livroQ, capQ, pericopeMeta.inicio, pericopeMeta.fim)
         : null
       const r = await salvarEstudoCurado({
+        origemEstudo,
+        geradoEm,
         livroId: livroQ,
         capitulo: capQ,
         versArr: versQ,
@@ -779,7 +824,7 @@ export default function EstudoBiblicoIaPassagem() {
     } finally {
       setSalvandoAcao(false)
     }
-  }, [
+  }, [origemEstudo, geradoEm,
     ehAdmin,
     user?.uid,
     rascunhoAdmin,
@@ -995,6 +1040,8 @@ export default function EstudoBiblicoIaPassagem() {
           </Stack>
         )}
       </Paper>
+      <AvisoTraducaoEstudo versaoEstudo={versaoEstudo} versaoLeitura={versaoLeitura}
+        onTrocar={onTrocarTraducao} disponiveis={estudosDisponiveis} ocupado={fase === 'loading' || salvandoAcao || editandoAdmin} />
 
       <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 1, sm: 2 }, py: 2, ...sxLeitura }}>
         {paramsValidos && referenciaExibicao ? (

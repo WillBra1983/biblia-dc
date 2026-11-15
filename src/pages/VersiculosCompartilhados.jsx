@@ -299,13 +299,13 @@ export default function VersiculosCompartilhados() {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
         <IconButton onClick={() => navigate('/')} aria-label="Voltar"><ArrowBackIcon /></IconButton>
         <Box sx={{ minWidth: 0 }}>
-          <Typography component="h1" variant="h5" sx={{ fontWeight: 800 }}>Versículos compartilhados</Typography>
+          <Typography component="h1" variant="h5" sx={{ fontWeight: 800 }}>Mural de versículos</Typography>
           <Typography variant="body2" color="text.secondary">Um mural anônimo da Palavra, sem nomes ou perfis.</Typography>
         </Box>
       </Box>
       {!itemId && <Paper variant="outlined" sx={{ mb: 2, overflow: 'hidden' }}>
         <Tabs value={aba} onChange={(_, valor) => setAba(valor)} variant="fullWidth" sx={{ '& .MuiTab-root': { px: 0.75, fontSize: { xs: '0.7rem', sm: '0.82rem' }, lineHeight: 1.2 } }}>
-          <Tab icon={<PublicOutlinedIcon />} iconPosition="start" label="Versículos compartilhados" />
+          <Tab icon={<PublicOutlinedIcon />} iconPosition="start" label="Mural de versículos" />
           <Tab icon={<LockOutlinedIcon />} iconPosition="start" label="Meus versículos compartilhados" />
         </Tabs>
       </Paper>}
@@ -347,7 +347,7 @@ export default function VersiculosCompartilhados() {
 
           <Paper component="section" variant="outlined" sx={{ p: { xs: 1, sm: 2 }, bgcolor: 'background.paper' }}>
             <Typography component="h2" variant="h5" align="center" sx={{ fontWeight: 900, mb: 1.5 }}>
-              Versículos compartilhados
+              Mural de versículos
             </Typography>
             {versiculosPublicosOrdenados.length === 0 ? (
               <Typography color="text.secondary">Ainda não há outros versículos públicos no mural.</Typography>

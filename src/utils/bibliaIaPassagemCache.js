@@ -1,3 +1,4 @@
+import { sufixoTraducaoEstudo, validarTraducaoEstudo } from './estudoTraducao'
 /**
  * Cache local (localStorage) para estudos gerados pela IA em
  * `/estudos-biblicos/ia-passagem`.
@@ -24,17 +25,17 @@ import { sufixoChaveCacheTom } from './iaTonalidade'
 const PREFIXO = 'salvation-ia-passagem:'
 const VERSAO_ATUAL = 1
 
-export function chaveCacheIaPassagem(livroId, capitulo, versiculosArr, tom) {
+export function chaveCacheIaPassagem(livroId, capitulo, versiculosArr, tom, versaoBiblica) {
   const vers = [...new Set((versiculosArr || []).map((n) => Number(n)))]
     .filter((n) => Number.isInteger(n) && n > 0)
     .sort((a, b) => a - b)
     .join(',')
-  return `${PREFIXO}${Number(livroId) || 0}:${Number(capitulo) || 0}:${vers}${sufixoChaveCacheTom(tom)}`
+  return `${PREFIXO}${Number(livroId) || 0}:${Number(capitulo) || 0}:${vers}${sufixoChaveCacheTom(tom)}${sufixoTraducaoEstudo(versaoBiblica)}`
 }
 
-export function lerCacheIaPassagem(livroId, capitulo, versiculosArr, tom) {
+export function lerCacheIaPassagem(livroId, capitulo, versiculosArr, tom, versaoBiblica) {
   try {
-    const k = chaveCacheIaPassagem(livroId, capitulo, versiculosArr, tom)
+    const k = chaveCacheIaPassagem(livroId, capitulo, versiculosArr, tom, versaoBiblica)
     const raw = localStorage.getItem(k)
     if (!raw) return null
     const parsed = JSON.parse(raw)
@@ -46,12 +47,14 @@ export function lerCacheIaPassagem(livroId, capitulo, versiculosArr, tom) {
   }
 }
 
-export function gravarCacheIaPassagem(livroId, capitulo, versiculosArr, { texto, meta, tom }) {
+export function gravarCacheIaPassagem(livroId, capitulo, versiculosArr, { texto, meta, tom, versaoBiblica, origemEstudo = null, geradoEm }) {
   try {
-    const k = chaveCacheIaPassagem(livroId, capitulo, versiculosArr, tom)
+    const k = chaveCacheIaPassagem(livroId, capitulo, versiculosArr, tom, versaoBiblica)
     const payload = {
       versao: VERSAO_ATUAL,
-      geradoEm: Date.now(),
+      ...(versaoBiblica ? { versaoBiblica } : {}),
+      geradoEm: geradoEm || Date.now(),
+      ...(origemEstudo ? { origemEstudo } : {}),
       texto: String(texto || ''),
       meta: meta || null
     }
@@ -62,11 +65,21 @@ export function gravarCacheIaPassagem(livroId, capitulo, versiculosArr, { texto,
   }
 }
 
-export function apagarCacheIaPassagem(livroId, capitulo, versiculosArr, tom) {
+export function apagarCacheIaPassagem(livroId, capitulo, versiculosArr, tom, versaoBiblica) {
   try {
-    localStorage.removeItem(chaveCacheIaPassagem(livroId, capitulo, versiculosArr, tom))
+    localStorage.removeItem(chaveCacheIaPassagem(livroId, capitulo, versiculosArr, tom, versaoBiblica))
     return true
   } catch (_) {
     return false
+  }
+}
+
+export function criarCachePassagemPorTraducao(id, { legadoAra = false } = {}) {
+  const versao = validarTraducaoEstudo(id).id
+  const chaveVersao = legadoAra && versao === 'ara' ? undefined : versao
+  return {
+    lerCacheIaPassagem: (livro, cap, versos, tom) => lerCacheIaPassagem(livro, cap, versos, tom, chaveVersao),
+    apagarCacheIaPassagem: (livro, cap, versos, tom) => apagarCacheIaPassagem(livro, cap, versos, tom, chaveVersao),
+    gravarCacheIaPassagem: (livro, cap, versos, dados) => gravarCacheIaPassagem(livro, cap, versos, { ...dados, versaoBiblica: versao }),
   }
 }

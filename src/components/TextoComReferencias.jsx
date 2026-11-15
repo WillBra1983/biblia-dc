@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { TraducaoEstudoContext } from './EstudoTraducao'
+import React, { useState, useEffect, useCallback, useMemo, useContext } from 'react'
 import { Box, Typography, Link, useTheme } from '@mui/material'
 import { normalizarNomeLivro } from '../utils/biblia'
-import { buscarLivroPorNome, buscarIntervaloVersiculos } from '../services/bibliaService'
+import { buscarLivroPorNome, buscarIntervaloVersiculos as buscarIntervaloGlobal, buscarIntervaloVersiculosNaVersao } from '../services/bibliaService'
 import VersiculoPopup from './VersiculoPopup'
 import { lerFormatoEstudo } from '../utils/formatoEstudo'
 import CfwParagrafoPopup from './CfwParagrafoPopup'
@@ -179,6 +180,8 @@ function TextoComReferencias({
   descricao = null,
   style = {}
 }) {
+  const traducaoEstudo = useContext(TraducaoEstudoContext)
+  const buscarIntervaloVersiculos = useCallback((...args) => traducaoEstudo ? buscarIntervaloVersiculosNaVersao(traducaoEstudo, ...args) : buscarIntervaloGlobal(...args), [traducaoEstudo])
   const formatoEstudo = lerFormatoEstudo(texto)
   texto = formatoEstudo.texto
   if (formatoEstudo.alinhamento) style = { ...style, textAlign: formatoEstudo.alinhamento }
@@ -603,7 +606,7 @@ function TextoComReferencias({
     } catch (error) {
       console.error('Erro ao processar referência:', error);
     }
-  }, [])
+  }, [buscarIntervaloVersiculos])
 
   const abrirReferenciaConfessional = useCallback((parte) => {
     const sigla = String(parte.confSiglaRaw || '').toUpperCase()

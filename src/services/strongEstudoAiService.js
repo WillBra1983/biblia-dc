@@ -537,7 +537,7 @@ async function executarGeminiResumo({ montarTentativas, maxChars = MAX_CHARS_RES
       if (!invocacao.ok) {
         const msg = invocacao.msg || 'Erro da API Gemini'
         lastError = msg
-        const tipo = classificarErroIa(invocacao.status, msg) || invocacao.code
+        const tipo = invocacao.code === 'RESEARCH_UNVERIFIED' ? invocacao.code : classificarErroIa(invocacao.status, msg) || invocacao.code
         if (tipo && tipo !== 'API') {
           return { ok: false, error: msg, code: tipo, status: invocacao.status }
         }

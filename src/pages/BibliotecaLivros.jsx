@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Capacitor } from '@capacitor/core'
+import { contatoPagamentoPix } from '../utils/contatoPagamentoPix'
+import { observarRetornoPagamentoPix } from '../utils/retornoPagamentoPix'
 import {
   Alert, Box, Button, Card, CardActions, CardContent, Chip, CircularProgress,
   Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControlLabel,
@@ -47,6 +49,9 @@ import {
   assinarPedidosPixAdmin,
   criarPedidoPixBiblioteca,
   decidirPedidoPixBiblioteca,
+  consultarPedidoPixBiblioteca,
+  responderPagamentoNaoLocalizadoBiblioteca,
+  removerPendenciaPixBiblioteca,
   enviarArquivoLivroBiblioteca,
   enviarCapaLivroBiblioteca,
   excluirLivroBiblioteca,
@@ -178,25 +183,73 @@ function SelosModalidades({ livro, compacto = false }) {
   )
 }
 
-function OpcoesDialog({ livro, comprasConfirmadas, onConfirmarCompra, onClose }) {
+export function OpcoesDialog({ livro, comprasConfirmadas, onConfirmarCompra, onClose, pedidoInicial = null }) {
   const { user } = useFirebaseAuth()
   const navigate = useNavigate()
-  const opcoes = livro ? opcoesLivro(livro) : []
+  const opcoes = pedidoInicial ? [{ id: 'pix', label: 'Pix', icon: <PixIcon /> }] : livro ? opcoesLivro(livro) : []
   const [ultimaOpcao, setUltimaOpcao] = useState(null)
   const [pedidoPix, setPedidoPix] = useState(null)
   const [processandoPix, setProcessandoPix] = useState(false)
   const [erroPix, setErroPix] = useState('')
+  const [retornouAoPix, setRetornouAoPix] = useState(false)
+  const [nomeComprador, setNomeComprador] = useState('')
 
-  useEffect(() => { setUltimaOpcao(null); setPedidoPix(null); setErroPix('') }, [livro?.id])
+  useEffect(() => {
+    setUltimaOpcao(pedidoInicial ? { id: 'pix' } : null)
+    setPedidoPix(pedidoInicial); setErroPix(''); setNomeComprador(pedidoInicial?.nomeComprador || '')
+  }, [livro?.id, user?.uid, pedidoInicial])
+
+  useEffect(() => {
+    setRetornouAoPix(false)
+    if (!pedidoPix?.pedidoId || pedidoPix.informado || ['recusado', 'aprovado'].includes(pedidoPix.status)) return undefined
+    return observarRetornoPagamentoPix({
+      documento: document,
+      registrarEstadoNativo: Capacitor.isNativePlatform() ? async (callback) => {
+        const { App } = await import('@capacitor/app')
+        return App.addListener('appStateChange', callback)
+      } : undefined,
+      onRetorno: () => setRetornouAoPix(true),
+    })
+  }, [pedidoPix?.pedidoId, pedidoPix?.informado, pedidoPix?.status, livro?.id])
+
+  useEffect(() => {
+    if (!pedidoPix?.pedidoId || !livro) return undefined
+    let ativo = true
+    const pedidoId = pedidoPix.pedidoId
+    const atualizar = async () => {
+      if (document.visibilityState !== 'visible' || !navigator.onLine) return
+      try {
+        const dados = await consultarPedidoPixBiblioteca(pedidoId)
+        if (ativo) setPedidoPix((atual) => atual?.pedidoId === pedidoId ? { ...atual, ...dados } : atual)
+      } catch { /* Mantém a última situação conhecida quando estiver sem conexão. */ }
+    }
+    void atualizar()
+    const timer = setInterval(atualizar, 15000)
+    window.addEventListener('focus', atualizar)
+    document.addEventListener('visibilitychange', atualizar)
+    return () => { ativo = false; clearInterval(timer); window.removeEventListener('focus', atualizar); document.removeEventListener('visibilitychange', atualizar) }
+  }, [pedidoPix?.pedidoId, livro?.id])
+
+  const responderNaoPago = async () => {
+    if (!pedidoPix?.pedidoId || processandoPix) return
+    setProcessandoPix(true); setErroPix('')
+    try {
+      const resposta = await responderPagamentoNaoLocalizadoBiblioteca(pedidoPix.pedidoId)
+      setPedidoPix((atual) => ({ ...atual, ...resposta }))
+      window.dispatchEvent(new Event('biblioteca-pedidos-atualizados'))
+    } catch (erro) { setErroPix(erro?.message || 'Não foi possível enviar sua resposta.') }
+    finally { setProcessandoPix(false) }
+  }
 
   const foiComprada = (opcao) => Boolean(livro && comprasConfirmadas.has(chaveCompra(livro.id, opcao.id)))
 
   const abrirOpcao = async (opcao) => {
     if (opcao.id === 'pix') {
       if (foiComprada(opcao)) { onClose(); navigate(`/biblioteca/${livro.id}/ler`); return }
+      if (!user && !nomeComprador.trim()) { setErroPix('Informe seu nome completo para continuar com o Pix.'); return }
       setProcessandoPix(true); setErroPix('')
       try {
-        const pedido = await criarPedidoPixBiblioteca(livro.id)
+        const pedido = await criarPedidoPixBiblioteca(livro.id, user ? '' : nomeComprador)
         if (pedido.jaPossui) { onClose(); navigate(`/biblioteca/${livro.id}/ler`); return }
         setPedidoPix(pedido)
         setUltimaOpcao(opcao)
@@ -209,11 +262,13 @@ function OpcoesDialog({ livro, comprasConfirmadas, onConfirmarCompra, onClose })
   }
 
   const avisarPagamento = async () => {
-    if (!pedidoPix?.pedidoId) return
+    if (!pedidoPix?.pedidoId || !retornouAoPix || pedidoPix.informado) return
+    if (['recusado', 'aprovado'].includes(pedidoPix.status)) return
     setProcessandoPix(true); setErroPix('')
     try {
       await informarPagamentoPixBiblioteca(pedidoPix.pedidoId)
-      setPedidoPix((atual) => ({ ...atual, informado: true }))
+      setPedidoPix((atual) => ({ ...atual, informado: true, status: 'pagamento_informado' }))
+      window.dispatchEvent(new Event('biblioteca-pedidos-atualizados'))
     } catch (erro) { setErroPix(erro?.message || 'Não foi possível enviar o aviso.') }
     finally { setProcessandoPix(false) }
   }
@@ -225,11 +280,12 @@ function OpcoesDialog({ livro, comprasConfirmadas, onConfirmarCompra, onClose })
         <Typography color="text.secondary" sx={{ mb: 2 }}>{livro?.titulo}</Typography>
         {!user && <Alert severity="info" sx={{ mb: 2 }}>{AVISO_COMPRA_SEM_LOGIN}</Alert>}
         <Stack spacing={1.2}>
-          {opcoes.map((opcao) => {
+          {!user && !pedidoInicial && opcoes.some((opcao) => opcao.id === 'pix' && !foiComprada(opcao)) && <TextField label="Nome completo do comprador" value={nomeComprador} onChange={(event) => setNomeComprador(event.target.value)} required fullWidth autoComplete="name" inputProps={{ maxLength: 160 }} disabled={processandoPix} helperText="Informe nome e sobrenome. Esse nome aparecerá no seu pedido para identificarmos a compra. Não é necessário criar uma conta." />}
+          {!pedidoInicial && opcoes.map((opcao) => {
             const comprada = foiComprada(opcao)
             return (
               <Button key={opcao.id} variant={comprada ? 'contained' : 'outlined'} size="large" startIcon={opcao.icon} endIcon={opcao.id === 'pix' ? undefined : <LaunchIcon />} onClick={() => abrirOpcao(opcao)} disabled={processandoPix} fullWidth>
-                {rotuloAcaoOpcao(comprada ? 'Abrir' : 'Comprar', opcao)}
+                {opcao.id === 'pix' && !comprada ? 'Gerar ou retomar Pix' : rotuloAcaoOpcao(comprada ? 'Abrir' : 'Comprar', opcao)}
               </Button>
             )
           })}
@@ -237,13 +293,22 @@ function OpcoesDialog({ livro, comprasConfirmadas, onConfirmarCompra, onClose })
           {erroPix && <Alert severity="error">{erroPix}</Alert>}
           {pedidoPix && ultimaOpcao?.id === 'pix' && !foiComprada(ultimaOpcao) && <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
             <Typography fontWeight={800}>R$ {(pedidoPix.valorCentavos / 100).toFixed(2).replace('.', ',')}</Typography>
+            {pedidoPix.status === 'aguardando_pagamento' && <>
             <Box component="img" src={pedidoPix.qrCodeDataUrl} alt="QR Code para pagamento Pix" sx={{ display: 'block', width: '100%', maxWidth: 260, mx: 'auto', my: 1.2 }} />
-            <Button startIcon={<ContentCopyIcon />} onClick={() => navigator.clipboard.writeText(pedidoPix.pixCopiaCola)} fullWidth>Copiar código Pix</Button>
-            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>Pedido {pedidoPix.codigo}. Após pagar, avise para conferirmos o recebimento.</Typography>
+            <Button startIcon={<ContentCopyIcon />} onClick={async () => { try { await navigator.clipboard.writeText(pedidoPix.pixCopiaCola); setErroPix('') } catch { setErroPix('Não foi possível copiar. Tente novamente ou use o QR Code.') } }} fullWidth>Copiar código Pix</Button>
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>Se o banco pedir o valor, informe o preço exibido acima. Pedido {pedidoPix.codigo}. Após pagar, avise para conferirmos o recebimento.</Typography>
+            </>}
             {!user && <><Button onClick={() => navigator.clipboard.writeText(dispositivoBiblioteca())} fullWidth>Copiar chave de recuperação</Button><Typography variant="caption">Guarde esta chave em local seguro. Ela comprova a posse das compras deste aparelho; não a compartilhe.</Typography></>}
-            {pedidoPix.informado
+            {pedidoPix.respostaCliente && <Alert severity="info" sx={{ mt: 1.5, textAlign: 'left' }}>Sua resposta: {pedidoPix.respostaCliente}</Alert>}
+            {pedidoPix.status === 'recusado' ? <Stack spacing={1.2} sx={{ mt: 1.5, textAlign: 'left' }}>
+              <Alert severity="warning"><strong>Pagamento não localizado</strong><br />{pedidoPix.observacaoAdmin || 'Não localizamos o recebimento deste Pix. Se você pagou, fale conosco e envie o comprovante para conferência.'}</Alert>
+              <Button variant="contained" onClick={() => abrirUrlExterna(contatoPagamentoPix(pedidoPix, livro.titulo))}>Falar pelo WhatsApp / enviar comprovante</Button>
+              <Typography variant="caption" color="text.secondary">No WhatsApp, anexe o comprovante e mantenha o código do pedido na mensagem.</Typography>
+              <Button variant="outlined" onClick={responderNaoPago} disabled={processandoPix}>Ainda não fiz o pagamento</Button>
+            </Stack> : pedidoPix.status === 'aprovado' ? <Stack spacing={1}><Button variant="contained" onClick={() => { onClose(); navigate(`/biblioteca/${livro.id}/ler`) }}>Abrir livro</Button><Alert severity="success" sx={{ mt: 1.5 }}>Pagamento confirmado. Seu livro foi liberado.</Alert></Stack> : pedidoPix.informado
               ? <Alert severity="success" sx={{ mt: 1.5, textAlign: 'left' }}>Aviso enviado. Assim que o pagamento for conferido, o botão mudará para “Abrir”.</Alert>
-              : <Button variant="contained" color="success" size="large" startIcon={<CheckCircleOutlinedIcon />} onClick={avisarPagamento} disabled={processandoPix} fullWidth sx={{ mt: 1.5 }}>{processandoPix ? 'Enviando…' : 'Já fiz o Pix'}</Button>}
+              : retornouAoPix ? <Button variant="contained" color="success" size="large" startIcon={<CheckCircleOutlinedIcon />} onClick={avisarPagamento} disabled={processandoPix} fullWidth sx={{ mt: 1.5 }}>{processandoPix ? 'Enviando…' : 'Já fiz o Pix'}</Button>
+              : <Alert severity="info" sx={{ mt: 1.5, textAlign: 'left' }}>Copie o código Pix e abra o aplicativo do seu banco para pagar. Ao voltar aqui, você poderá avisar que fez o pagamento.</Alert>}
           </Paper>}
           {ultimaOpcao && ultimaOpcao.id !== 'pix' && !foiComprada(ultimaOpcao) && <>
             <Divider sx={{ my: 0.6 }} />
@@ -425,26 +490,27 @@ function EditarLivroDialog({ livro, aberto, uid, onClose, onSalvar, salvando }) 
 
 function ConfiguracaoPixDialog({ aberto, configuracao, onClose, onSalvar, salvando }) {
   const [form, setForm] = useState(configuracao || {})
-  useEffect(() => { if (aberto) setForm({ ativo: true, ...(configuracao || {}) }) }, [aberto, configuracao])
+  useEffect(() => { if (aberto) setForm({ ativo: true, ...(configuracao || {}), chave: configuracao?.pixCopiaCola || configuracao?.chave || '' }) }, [aberto, configuracao])
   const alterar = (campo) => (event) => setForm((atual) => ({ ...atual, [campo]: event.target.value }))
   return (
     <Dialog open={aberto} onClose={salvando ? undefined : onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Configurar recebimento por Pix</DialogTitle>
       <DialogContent dividers>
         <Stack spacing={1.6}>
-          <Alert severity="info">Use preferencialmente uma chave aleatória. A chave fica protegida na área administrativa e aparece apenas dentro do QR Code de pagamento.</Alert>
+          <Alert severity="info">Cole uma chave Pix ou o código Copia e Cola completo do banco. O código completo será preservado, incluindo a identificação do cofrinho. Prefira um código sem valor fixo para vender livros com preços diferentes.</Alert>
           <FormControlLabel control={<Switch checked={form.ativo !== false} onChange={(event) => setForm((atual) => ({ ...atual, ativo: event.target.checked }))} />} label="Aceitar pagamentos por Pix" />
-          <TextField label="Chave Pix" value={form.chave || ''} onChange={alterar('chave')} required={form.ativo !== false} helperText="Pode ser chave aleatória, e-mail, telefone ou CPF." />
+          <TextField label="Chave Pix ou Copia e Cola completo" multiline minRows={2} value={form.chave || ''} onChange={alterar('chave')} required={form.ativo !== false} helperText="Aceita chave aleatória, e-mail, telefone, CPF ou código completo. Ao colar o código completo, nome e cidade são obtidos dele." />
           <TextField label="Nome do recebedor" value={form.nome || ''} onChange={alterar('nome')} required={form.ativo !== false} inputProps={{ maxLength: 25 }} helperText="Como consta na conta bancária (até 25 caracteres)." />
           <TextField label="Cidade" value={form.cidade || ''} onChange={alterar('cidade')} required={form.ativo !== false} inputProps={{ maxLength: 15 }} />
         </Stack>
       </DialogContent>
-      <DialogActions><Button onClick={onClose} disabled={salvando}>Cancelar</Button><Button variant="contained" onClick={() => onSalvar(form)} disabled={salvando || (form.ativo !== false && (!form.chave?.trim() || !form.nome?.trim() || !form.cidade?.trim()))}>{salvando ? 'Salvando…' : 'Salvar Pix'}</Button></DialogActions>
+      <DialogActions><Button onClick={onClose} disabled={salvando}>Cancelar</Button><Button variant="contained" onClick={() => onSalvar(form)} disabled={salvando || (form.ativo !== false && (!form.chave?.trim() || (!form.chave.trim().startsWith('000201') && (!form.nome?.trim() || !form.cidade?.trim()))))}>{salvando ? 'Salvando…' : 'Salvar Pix'}</Button></DialogActions>
     </Dialog>
   )
 }
 
-function PedidosPixDialog({ aberto, pedidos, onClose, onDecidir, processando }) {
+function PedidosPixDialog({ aberto, pedidos, onClose, onDecidir, onRemover, processando }) {
+  const [observacoes, setObservacoes] = useState({})
   const rotulos = { aguardando_pagamento: 'Aguardando pagamento', pagamento_informado: 'Pagamento informado', aprovado: 'Aprovado', recusado: 'Não localizado' }
   return (
     <Dialog open={aberto} onClose={processando ? undefined : onClose} maxWidth="md" fullWidth scroll="paper">
@@ -458,10 +524,15 @@ function PedidosPixDialog({ aberto, pedidos, onClose, onDecidir, processando }) 
                 <Box sx={{ flex: 1 }}>
                   <Typography fontWeight={800}>{pedido.livroTitulo}</Typography>
                   <Typography variant="body2" color="text.secondary">{pedido.nomeComprador || pedido.email || 'Comprador'} · R$ {(Number(pedido.valorCentavos || 0) / 100).toFixed(2).replace('.', ',')}</Typography>
+                  {pedido.observacaoAdmin && <Alert severity="warning" sx={{ my: 1 }}>Mensagem enviada: {pedido.observacaoAdmin}</Alert>}
+                  {pedido.respostaCliente && <Alert severity="info" sx={{ my: 1 }}>Resposta do cliente: {pedido.respostaCliente}</Alert>}
+                  {pedido.status === 'pagamento_informado' && <TextField label="Observação para o cliente se o pagamento não for localizado" placeholder="Não localizamos seu Pix. Entre em contato e envie o comprovante, se já pagou." value={observacoes[pedido.id] || ''} onChange={(event) => setObservacoes((atual) => ({ ...atual, [pedido.id]: event.target.value }))} multiline minRows={2} fullWidth inputProps={{ maxLength: 1000 }} disabled={processando} sx={{ my: 1 }} helperText="Esta mensagem aparecerá na compra do cliente. Se deixar em branco, enviaremos uma orientação padrão." />}
                   <Typography variant="caption" color="text.secondary">{pedido.codigo} · {pedido.criadoEm ? new Date(pedido.criadoEm).toLocaleString('pt-BR') : ''}</Typography>
                 </Box>
                 <Chip label={rotulos[pedido.status] || pedido.status} color={pedido.status === 'pagamento_informado' ? 'warning' : pedido.status === 'aprovado' ? 'success' : 'default'} />
-                {pedido.status === 'pagamento_informado' && <Stack direction="row" spacing={0.7}><Button color="error" onClick={() => onDecidir(pedido.id, false)} disabled={processando}>Não localizar</Button><Button variant="contained" color="success" onClick={() => onDecidir(pedido.id, true)} disabled={processando}>Confirmar pagamento</Button></Stack>}
+                {pedido.status === 'recusado' && <Button variant="contained" color="success" onClick={() => onDecidir(pedido.id, true)} disabled={processando}>Confirmar após conferência</Button>}
+                {pedido.status === 'aguardando_pagamento' && <Button color="inherit" startIcon={<DeleteOutlineIcon />} onClick={() => onRemover(pedido.id)} disabled={processando}>Remover da lista</Button>}
+                {pedido.status === 'pagamento_informado' && <Stack direction="row" spacing={0.7}><Button color="error" onClick={() => onDecidir(pedido.id, false, observacoes[pedido.id] || '')} disabled={processando}>Informar pagamento não localizado</Button><Button variant="contained" color="success" onClick={() => onDecidir(pedido.id, true)} disabled={processando}>Confirmar pagamento</Button></Stack>}
               </Stack>
             </Paper>
           ))}
@@ -612,7 +683,7 @@ function Catalogo({ livros, votos, carregando, comprasConfirmadas, ehAdmin, onCo
           <Stack alignItems="center">
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.7} sx={{ color: '#e3bd68' }}>
               <AutoStoriesOutlinedIcon sx={{ fontSize: { xs: 19, md: 21 } }} />
-              <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: { xs: 1.05, md: 1.35 }, fontSize: { xs: '.64rem', sm: '.72rem' }, lineHeight: 1.25 }}>Biblioteca do Discípulo Cristão</Typography>
+              <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: { xs: 1.05, md: 1.35 }, fontSize: { xs: '.64rem', sm: '.72rem' }, lineHeight: 1.25 }}>Livraria Cristã</Typography>
               <Tooltip title="Sobre a Biblioteca">
                 <IconButton aria-label="Sobre a Biblioteca" size="small" onClick={() => setInfoAberta(true)} sx={{ color: '#f3d58d', p: 0.25 }}>
                   <InfoOutlinedIcon sx={{ fontSize: 19 }} />
@@ -623,8 +694,8 @@ function Catalogo({ livros, votos, carregando, comprasConfirmadas, ehAdmin, onCo
         </Container>
       </Box>
       <Container maxWidth="lg" sx={{ py: { xs: 2.8, md: 4.2 } }}>
-        <Tabs value={aba} onChange={(_, valor) => setAba(valor)} aria-label="Seções da biblioteca" variant="fullWidth" sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
-          <Tab value="acervo" label="Acervo" id="biblioteca-aba-acervo" aria-controls="biblioteca-painel-acervo" icon={<StorefrontOutlinedIcon />} iconPosition="start" />
+        <Tabs value={aba} onChange={(_, valor) => setAba(valor)} aria-label="Livraria e biblioteca pessoal" variant="fullWidth" sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
+          <Tab value="acervo" label="Livraria" id="biblioteca-aba-acervo" aria-controls="biblioteca-painel-acervo" icon={<StorefrontOutlinedIcon />} iconPosition="start" />
           <Tab value="pessoal" label="Biblioteca pessoal" id="biblioteca-aba-pessoal" aria-controls="biblioteca-painel-pessoal" icon={<AutoStoriesOutlinedIcon />} iconPosition="start" />
         </Tabs>
         <Box role="tabpanel" id="biblioteca-painel-pessoal" aria-labelledby="biblioteca-aba-pessoal" hidden={aba !== 'pessoal'}>
@@ -632,7 +703,7 @@ function Catalogo({ livros, votos, carregando, comprasConfirmadas, ehAdmin, onCo
         </Box>
         <Box role="tabpanel" id="biblioteca-painel-acervo" aria-labelledby="biblioteca-aba-acervo" hidden={aba !== 'acervo'}>
         <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ sm: 'center' }} justifyContent="space-between" spacing={1.5} sx={{ mb: 2.7 }}>
-          <Box><Typography variant="h5" sx={{ fontFamily: 'Lora, Georgia, serif', fontWeight: 800 }}>Acervo</Typography><Typography variant="body2" color="text.secondary">Escolha um título e veja as opções disponíveis para o seu aparelho.</Typography>{ehAdmin && <Button variant="outlined" onClick={onVerAcessos} sx={{ mt: 1.5 }}>Acessos à biblioteca</Button>}</Box>
+          <Box><Typography variant="h5" sx={{ fontFamily: 'Lora, Georgia, serif', fontWeight: 800 }}>Nossos livros</Typography><Typography variant="body2" color="text.secondary">Adquira nossos livros e use nossa biblioteca.</Typography>{ehAdmin && <Button variant="outlined" onClick={onVerAcessos} sx={{ mt: 1.5 }}>Acessos à biblioteca</Button>}</Box>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ width: { xs: '100%', sm: 'auto' } }}>
             <TextField value={busca} onChange={(event) => setBusca(event.target.value)} placeholder="Buscar livro ou autor" size="small" inputProps={{ 'aria-label': 'Buscar livro ou autor' }} InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> }} sx={{ width: { xs: '100%', sm: 300 }, bgcolor: 'background.paper' }} />
             {ehAdmin && <><Button variant="outlined" startIcon={<SettingsOutlinedIcon />} onClick={onConfigurarPix} sx={{ whiteSpace: 'nowrap' }}>Configurar Pix</Button><Button variant="outlined" color={pedidosPendentes ? 'warning' : 'primary'} startIcon={<NotificationsActiveOutlinedIcon />} onClick={onVerPedidos} sx={{ whiteSpace: 'nowrap' }}>Pagamentos{pedidosPendentes ? ` (${pedidosPendentes})` : ''}</Button><Button variant="contained" startIcon={<AddIcon />} onClick={onNovo} sx={{ whiteSpace: 'nowrap' }}>Novo livro</Button></>}
@@ -1125,9 +1196,16 @@ export default function BibliotecaLivros() {
     finally { setSalvando(false) }
   }
 
-  async function decidirPedido(pedidoId, aprovado) {
+  async function removerPendencia(pedidoId) {
     setProcessandoPedido(true); setErro('')
-    try { await decidirPedidoPixBiblioteca(pedidoId, aprovado) }
+    try { await removerPendenciaPixBiblioteca(pedidoId) }
+    catch (e) { setErro(e?.message || 'Não foi possível remover a pendência.') }
+    finally { setProcessandoPedido(false) }
+  }
+
+  async function decidirPedido(pedidoId, aprovado, observacao) {
+    setProcessandoPedido(true); setErro('')
+    try { await decidirPedidoPixBiblioteca(pedidoId, aprovado, observacao) }
     catch (e) { setErro(e?.message || 'Não foi possível analisar o pagamento.') }
     finally { setProcessandoPedido(false) }
   }
@@ -1181,7 +1259,7 @@ export default function BibliotecaLivros() {
       </Dialog>
       {ehAdmin && <EditarLivroDialog livro={editando} aberto={Boolean(editando)} uid={user?.uid} onClose={() => setEditando(null)} onSalvar={salvar} salvando={salvando} />}
       {ehAdmin && <ConfiguracaoPixDialog aberto={configurandoPix} configuracao={configuracaoPix} onClose={() => setConfigurandoPix(false)} onSalvar={salvarPix} salvando={salvando} />}
-      {ehAdmin && <PedidosPixDialog aberto={vendoPedidos} pedidos={pedidosPix} onClose={() => setVendoPedidos(false)} onDecidir={decidirPedido} processando={processandoPedido} />}
+      {ehAdmin && <PedidosPixDialog aberto={vendoPedidos} pedidos={pedidosPix} onClose={() => setVendoPedidos(false)} onDecidir={decidirPedido} onRemover={removerPendencia} processando={processandoPedido} />}
       {ehAdmin && livroId && <Button variant="outlined" sx={{ m: 2 }} onClick={() => setVendoAcessos(true)}>Acessos à biblioteca</Button>}
       {ehAdmin && <BibliotecaAcessosDialog aberto={vendoAcessos} livros={livros} onClose={() => setVendoAcessos(false)} />}
       <Dialog open={Boolean(excluindo)} onClose={salvando ? undefined : () => setExcluindo(null)} maxWidth="xs" fullWidth>

@@ -32,6 +32,7 @@ exports.salvarConfiguracaoPixBiblioteca = bibliotecaPix.salvarConfiguracaoPixBib
 exports.criarPedidoPixBiblioteca = bibliotecaPix.criarPedidoPixBiblioteca
 exports.informarPagamentoPixBiblioteca = bibliotecaPix.informarPagamentoPixBiblioteca
 exports.decidirPedidoPixBiblioteca = bibliotecaPix.decidirPedidoPixBiblioteca
+exports.removerPendenciaPixBiblioteca = bibliotecaPix.removerPendenciaPixBiblioteca
 
 // Arquivos PDF/EPUB privados. O catálogo guarda apenas metadados; o arquivo
 // completo é liberado por endereço temporário após conferir o acesso da conta.
@@ -126,3 +127,7 @@ const bibliotecaVisitante = require('./src/bibliotecaVisitante')
 exports.catalogoBibliotecaVisitante = bibliotecaVisitante.catalogoBibliotecaVisitante
 exports.acessosBibliotecaVisitante = bibliotecaVisitante.acessosBibliotecaVisitante
 exports.vincularComprasBibliotecaVisitante = bibliotecaVisitante.vincularComprasBibliotecaVisitante
+
+exports.consultarPedidoPixBiblioteca = bibliotecaPix.consultarPedidoPixBiblioteca
+exports.listarMeusPedidosPixBiblioteca = bibliotecaPix.listarMeusPedidosPixBiblioteca
+exports.responderPagamentoNaoLocalizadoBiblioteca = bibliotecaPix.responderPagamentoNaoLocalizadoBiblioteca

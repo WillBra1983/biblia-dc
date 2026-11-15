@@ -14,7 +14,7 @@ import { urlFundoVersiculo } from '../utils/versiculoImagem'
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
-export default function DestaquesMenu({ ehAdmin, children }) {
+export default function DestaquesMenu({ ehAdmin, children, livraria }) {
   const navigate = useNavigate()
   const { user } = useFirebaseAuth()
   const [acessos, setAcessos] = useState({})
@@ -44,9 +44,10 @@ export default function DestaquesMenu({ ehAdmin, children }) {
   }, [])
   useEffect(() => { const timer = setInterval(() => setAgora(Date.now()), 30000); return () => clearInterval(timer) }, [])
   const ativos = destaquesAtivos(itens, agora).filter((item) => item.tipo !== 'livro' || livros.some((livro) => livro.id === item.livroId && livro.publicado && !livro.excluido))
-  const total = ativos.length + 1
+  const quantidadeFixos = livraria ? 2 : 1
+  const total = ativos.length + quantidadeFixos
   const posicao = indice % total
-  const item = posicao ? ativos[posicao - 1] : null
+  const item = posicao >= quantidadeFixos ? ativos[posicao - quantidadeFixos] : null
   const livro = item && livros.find((valor) => valor.id === item.livroId)
   useEffect(() => {
     if (editar || leituraExpandida || pausado || total < 2) return undefined
@@ -87,7 +88,8 @@ export default function DestaquesMenu({ ehAdmin, children }) {
         if (passo) { ignorarCliqueAte.current = Date.now() + 500; mudar(passo) }
       }}
       onClickCapture={(event) => { if (Date.now() < ignorarCliqueAte.current) { event.preventDefault(); event.stopPropagation() } }}>
-    <Box sx={{ display: item ? 'none' : 'contents' }}>{cloneElement(children, { onExpandidoChange: setLeituraExpandida, reiniciarExpansao: indice })}</Box>
+    <Box sx={{ display: posicao === 0 ? 'contents' : 'none' }}>{cloneElement(children, { onExpandidoChange: setLeituraExpandida, reiniciarExpansao: indice })}</Box>
+    {livraria && posicao === 1 && livraria}
     {item && <Box sx={{ position: 'relative', p: item.tipo === 'livro' ? 0.75 : 2, borderRadius: 2, color: '#000', backgroundImage: `url("${urlFundoVersiculo({ arquivo: 'amanhecer.webp' })}")`, backgroundSize: 'cover', border: '1px solid #decda5', textShadow: '-1px -1px white, 1px 1px white, -1px 1px white, 1px -1px white' }}>
       <Typography variant="overline" fontWeight={900} sx={item.tipo === 'livro' ? { position: 'absolute', top: 12, left: 16, maxWidth: '48%', lineHeight: 1.3 } : {}}>{item.tipo === 'livro' ? 'Livro do dia' : item.tipo === 'trecho' ? 'Trecho de livro' : 'Mensagem do dia'}</Typography>
       <Stack direction="row" spacing={1.5} alignItems="center">

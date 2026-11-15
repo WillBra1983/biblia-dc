@@ -1,3 +1,4 @@
+import { semTraducaoNoId } from './estudoTraducao'
 /**
  * Limites diários para geração de estudos pela IA (anti-curiosidade
  * e proteção de cota Gemini).
@@ -154,7 +155,7 @@ export function podeGerar({ tipo, id, admin = false }) {
         mensagem: 'Estudo indisponível! Volte amanhã ou encontre outro estudo em nossa biblioteca, acima.'
       }
     }
-    if (cota.versiculos.length >= LIMITE_VERSICULO_DIA) {
+    if (new Set(cota.versiculos.map(semTraducaoNoId)).size >= LIMITE_VERSICULO_DIA && !cota.versiculos.some(gerado => semTraducaoNoId(gerado) === semTraducaoNoId(id))) {
       return {
         ok: false,
         motivo: 'limite_versiculo',
@@ -169,7 +170,7 @@ export function podeGerar({ tipo, id, admin = false }) {
         mensagem: 'Estudo indisponível! Volte amanhã ou encontre outro estudo em nossa biblioteca, acima.'
       }
     }
-    if (cota.pericope && cota.pericope !== id) {
+    if (cota.pericope && semTraducaoNoId(cota.pericope) !== semTraducaoNoId(id)) {
       return {
         ok: false,
         motivo: 'limite_pericope',

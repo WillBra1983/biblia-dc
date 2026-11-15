@@ -156,6 +156,18 @@ export async function obterCurtidasDoUsuario(uid) {
   return new Set(Object.keys(snap.val() || {}))
 }
 
+/** Acompanha somente a curtida do próprio usuário neste versículo. */
+export async function assinarCurtidaDoUsuario(uid, postId, callback, onError) {
+  await loadFirebaseModules()
+  const db = getFirebaseDatabase()
+  if (!db || !uid || !postId) return () => {}
+  return onValue(
+    ref(db, `users/${uid}/versiculosCompartilhadosCurtidas/${postId}`),
+    snap => callback(snap.exists()),
+    onError
+  )
+}
+
 export async function registrarRecompartilhamento(uid, postId) {
   const db = await contexto(uid)
   const itemUsuarioRef = ref(db, `users/${uid}/versiculosCompartilhados/${postId}`)

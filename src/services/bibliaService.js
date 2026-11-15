@@ -750,3 +750,5 @@ export const carregarTodosLivros = (...args) => runtime().carregarTodosLivros(..
 // Consultas paralelas não alteram a tradução global nem a sessão de leitura.
 export const buscarCapituloNaVersao = (versao, ...args) => runtime(versao).bibliaService.buscarCapitulo(...args)
 export const buscarPericopesNaVersao = (versao, ...args) => runtime(versao).bibliaService.buscarPericopes(...args)
+
+export const buscarIntervaloVersiculosNaVersao = (versao, ...args) => runtime(versao).bibliaService.buscarIntervaloVersiculos(...args)

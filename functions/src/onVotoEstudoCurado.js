@@ -164,6 +164,9 @@ exports.onVotoEstudoCurado = onValueWritten(
           referencia: String(cand.referencia || ''),
           atualizadoEm: agora,
           autorUid,
+          ...((cand.versaoBiblica || estudoKey.match(/~biblia_(ara|naa|ntlh)$/)?.[1]) ? { versaoBiblica: cand.versaoBiblica || estudoKey.match(/~biblia_(ara|naa|ntlh)$/)[1] } : {}),
+          ...(cand.origemEstudo ? { origemEstudo: cand.origemEstudo } : {}),
+          ...(cand.geradoEm ? { geradoEm: cand.geradoEm } : {}),
           versao: 1
         })
       } else {
@@ -173,6 +176,9 @@ exports.onVotoEstudoCurado = onValueWritten(
           pericopeKey: cand.pericopeKey != null ? cand.pericopeKey : null,
           atualizadoEm: agora,
           autorUid,
+          ...((cand.versaoBiblica || estudoKey.match(/~biblia_(ara|naa|ntlh)$/)?.[1]) ? { versaoBiblica: cand.versaoBiblica || estudoKey.match(/~biblia_(ara|naa|ntlh)$/)[1] } : {}),
+          ...(cand.origemEstudo ? { origemEstudo: cand.origemEstudo } : {}),
+          ...(cand.geradoEm ? { geradoEm: cand.geradoEm } : {}),
           versao: 1
         })
       }

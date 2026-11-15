@@ -376,6 +376,8 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const { user } = useFirebaseAuth()
   const [deepLinkVerse, setDeepLinkVerse] = useState(null)
   const [versiculosDestaqueLink, setVersiculosDestaqueLink] = useState([])
+  const destinoUrlPendenteRef = useRef(null)
+  const queryGeradaPelaBibliaRef = useRef(null)
   const [ntProvaDisponivel, setNtProvaDisponivel] = useState(false)
   const [modoStrongProva, setModoStrongProva] = useState(false)
   const [versiculoAudioOriginalAtivo, setVersiculoAudioOriginalAtivo] = useState(null)
@@ -951,28 +953,43 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     }
   }
 
-  /** Layout: hidrata `versiculosDestaqueLink` antes do efeito que sincroniza a URL (evita apagar `versiculos`). */
+  /** Links externos têm prioridade até livro, capítulo e destaque estarem aplicados. */
   useLayoutEffect(() => {
+    if (queryGeradaPelaBibliaRef.current != null &&
+        searchParamsSemanticallyEqual(location.search, queryGeradaPelaBibliaRef.current)) {
+      queryGeradaPelaBibliaRef.current = null
+      destinoUrlPendenteRef.current = null
+      return
+    }
+    queryGeradaPelaBibliaRef.current = null
+    navegacaoInternaRef.current = false
     const qs = new URLSearchParams(location.search)
     const livroQ = Number(qs.get('livro'))
     const capQ = Number(qs.get('capitulo') ?? qs.get('cap'))
-    const versiculosQ = parseVersiculosQuery(qs.get('versiculos'))
-    if (!Number.isInteger(livroQ) || livroQ < 1 || !Number.isInteger(capQ) || capQ < 1) {
-      setVersiculosDestaqueLink([])
-      return
-    }
-    setVersiculosDestaqueLink(versiculosQ)
+    const vQ = Number(qs.get('versiculo') ?? qs.get('v'))
+    const valido = Number.isInteger(livroQ) && livroQ > 0 && Number.isInteger(capQ) && capQ > 0
+    const versiculos = valido ? parseVersiculosQuery(qs.get('versiculos')) : []
+    const foco = valido ? (Number.isInteger(vQ) && vQ > 0 ? vQ : versiculos[0] ?? null) : null
+    destinoUrlPendenteRef.current = valido ? { livroId: livroQ, capitulo: capQ, versiculos, foco } : null
+    setVersiculosDestaqueLink(atual => atual.join(',') === versiculos.join(',') ? atual : versiculos)
+    setDeepLinkVerse(foco)
   }, [location.search])
 
   /** Estado → URL antes do efeito que aplica a URL ao estado (evita corrida com URL atrasada após loading). */
   useLayoutEffect(() => {
     if (carregandoInicial) return
     if (!livroAtual?.id || !capitulo) return
+    const pendente = destinoUrlPendenteRef.current
+    if (pendente) {
+      if (livroAtual.id !== pendente.livroId || capitulo !== pendente.capitulo ||
+          deepLinkVerse !== pendente.foco || versiculosDestaqueLink.join(',') !== pendente.versiculos.join(',')) return
+      destinoUrlPendenteRef.current = null
+    }
     const params = new URLSearchParams(location.search)
     params.set('livro', String(livroAtual.id))
     params.set('capitulo', String(capitulo))
     params.delete('cap')
-    if (Number.isInteger(deepLinkVerse) && deepLinkVerse > 0) {
+    if (Number.isInteger(deepLinkVerse) && deepLinkVerse > 0 && versiculosDestaqueLink.length === 0) {
       params.set('versiculo', String(deepLinkVerse))
       params.delete('v')
     } else {
@@ -986,6 +1003,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     }
     const next = `?${params.toString()}`
     if (!searchParamsSemanticallyEqual(next, location.search || '')) {
+      queryGeradaPelaBibliaRef.current = next
       navigate(`${location.pathname}${next}`, { replace: true })
     }
   }, [livroAtual?.id, capitulo, deepLinkVerse, versiculosDestaqueLink, location.pathname, location.search, navigate, carregandoInicial])
@@ -3160,6 +3178,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             padding: 1,
             borderRadius: '0 8px 8px 0'
           }}
+          aria-label="Capítulo anterior"
           onClick={irParaCapituloAnterior}
           disabled={!livroAtual || (livroAtual.id === 1 && capitulo === 1)}
         >
@@ -3195,6 +3214,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
             padding: 1,
             borderRadius: '8px 0 0 8px'
           }}
+          aria-label="Próximo capítulo"
           onClick={irParaProximoCapitulo}
           disabled={!livroAtual || (livroAtual.id === 66 && capitulo === livroAtual.maxCapitulos)}
         >

@@ -11,7 +11,7 @@ import CompartilharVersiculoImagemDialog from '../components/CompartilharVersicu
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { FUNDOS_VERSICULO, urlFundoVersiculo, urlLogoApp } from '../utils/versiculoImagem'
 import { abrirVersiculoDoDia, linkPaginaVersiculoDoDia, obterComentarioDoDia, obterVersiculoDoDia, obterVersiculoDoDiaPorData, substituirVersiculoDoDia } from '../services/versiculoDoDiaService'
-import { alternarCurtida, assinarDestaqueVersiculoDoDia, obterCurtidasDoUsuario, registrarCompartilhamentoVersiculoDoDia } from '../services/versiculosCompartilhadosService'
+import { alternarCurtida, assinarDestaqueVersiculoDoDia, assinarCurtidaDoUsuario, registrarCompartilhamentoVersiculoDoDia } from '../services/versiculosCompartilhadosService'
 import { useEhAdmin } from '../hooks/useEhAdmin'
 import TextoComReferencias from '../components/TextoComReferencias'
 
@@ -171,6 +171,7 @@ export default function VersiculoDoDia() {
     let ativo = true
     if (!item?.data) return () => { ativo = false }
     let unsubscribe = () => {}
+    let pararCurtida = () => {}
     assinarDestaqueVersiculoDoDia(
       item.data,
       (destaque) => {
@@ -188,16 +189,19 @@ export default function VersiculoDoDia() {
         else parar?.()
       })
       .catch(() => {})
+    setCurtido(false)
     if (user?.uid) {
-      obterCurtidasDoUsuario(user.uid)
-        .then((ids) => ativo && setCurtido(ids.has(`versiculo-dia-${item.data}`)))
-        .catch(() => {})
-    } else {
-      setCurtido(false)
+      assinarCurtidaDoUsuario(user.uid, `versiculo-dia-${item.data}`, valor => {
+        if (ativo) setCurtido(valor)
+      }, () => {}).then(parar => {
+        if (ativo) pararCurtida = parar
+        else parar?.()
+      }).catch(() => {})
     }
     return () => {
       ativo = false
       unsubscribe?.()
+      pararCurtida?.()
     }
   }, [item?.data, user?.uid])
 

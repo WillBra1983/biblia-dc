@@ -1,3 +1,4 @@
+import { sufixoTraducaoEstudo, validarTraducaoEstudo } from '../utils/estudoTraducao'
 /**
  * Camada de leitura/escrita para os **estudos curados** (aprovados pelo admin)
  * no Realtime Database.
@@ -52,14 +53,14 @@ function montarVersSet(versArr) {
  * `pastoral` mantém a chave antiga (sem sufixo). Outros tons sufixam
  * com `~<tom>`. Ver "Convenção de tom" no cabeçalho.
  */
-export function chaveEstudoCurado(livroId, capitulo, versArr, tom) {
+export function chaveEstudoCurado(livroId, capitulo, versArr, tom, versaoBiblica) {
   const base = `${Number(livroId) || 0}_${Number(capitulo) || 0}_${montarVersSet(versArr)}`
-  return `${base}${sufixoChaveRtdbTom(tom)}`
+  return `${base}${sufixoChaveRtdbTom(tom)}${sufixoTraducaoEstudo(versaoBiblica)}`
 }
 
-export function chavePericopeCurada(livroId, capitulo, inicio, fim, tom) {
+export function chavePericopeCurada(livroId, capitulo, inicio, fim, tom, versaoBiblica) {
   const base = `${Number(livroId) || 0}_${Number(capitulo) || 0}_${Number(inicio) || 0}_${Number(fim) || 0}`
-  return `${base}${sufixoChaveRtdbTom(tom)}`
+  return `${base}${sufixoChaveRtdbTom(tom)}${sufixoTraducaoEstudo(versaoBiblica)}`
 }
 
 async function obterRtdb() {
@@ -87,9 +88,9 @@ async function obterRtdb() {
  *   versao: number
  * }>}
  */
-export async function lerEstudoCurado(livroId, capitulo, versArr, tom) {
+export async function lerEstudoCurado(livroId, capitulo, versArr, tom, versaoBiblica) {
   try {
-    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom)
+    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom, versaoBiblica)
     const { db, dbApi } = await obterRtdb()
     const snap = await dbApi.get(dbApi.ref(db, `${PREFIXO_ESTUDO}/${k}`))
     if (!snap.exists()) return null
@@ -97,6 +98,9 @@ export async function lerEstudoCurado(livroId, capitulo, versArr, tom) {
     if (typeof v.texto !== 'string' || !v.texto.trim()) return null
     return {
       texto: v.texto,
+      versaoBiblica: v.versaoBiblica || versaoBiblica || null,
+      origemEstudo: v.origemEstudo || null,
+      geradoEm: Number(v.geradoEm) || 0,
       pericopeKey: v.pericopeKey || null,
       referenciaCompacta: v.referenciaCompacta || '',
       atualizadoEm: Number(v.atualizadoEm) || 0,
@@ -108,9 +112,9 @@ export async function lerEstudoCurado(livroId, capitulo, versArr, tom) {
   }
 }
 
-export async function lerPericopeCurada(livroId, capitulo, inicio, fim, tom) {
+export async function lerPericopeCurada(livroId, capitulo, inicio, fim, tom, versaoBiblica) {
   try {
-    const k = chavePericopeCurada(livroId, capitulo, inicio, fim, tom)
+    const k = chavePericopeCurada(livroId, capitulo, inicio, fim, tom, versaoBiblica)
     const { db, dbApi } = await obterRtdb()
     const snap = await dbApi.get(dbApi.ref(db, `${PREFIXO_PERICOPE}/${k}`))
     if (!snap.exists()) return null
@@ -119,6 +123,9 @@ export async function lerPericopeCurada(livroId, capitulo, inicio, fim, tom) {
     if (!texto.trim()) return null
     return {
       texto,
+      versaoBiblica: v.versaoBiblica || versaoBiblica || null,
+      origemEstudo: v.origemEstudo || null,
+      geradoEm: Number(v.geradoEm) || 0,
       titulo: v.titulo || '',
       referencia: v.referencia || '',
       atualizadoEm: Number(v.atualizadoEm) || 0,
@@ -170,7 +177,10 @@ export async function salvarEstudoCurado({
   referenciaCompacta = '',
   pericopeKey = null,
   uidAutor,
-  tom
+  tom,
+  versaoBiblica,
+  origemEstudo = null,
+  geradoEm = 0
 }) {
   if (!uidAutor) return { ok: false, error: 'Sem autorização.' }
   if (!texto || !String(texto).trim()) return { ok: false, error: 'Texto vazio.' }
@@ -178,9 +188,12 @@ export async function salvarEstudoCurado({
   try {
     const { db, dbApi } = await obterRtdb()
     const agora = Date.now()
-    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom)
+    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom, versaoBiblica)
     await dbApi.set(dbApi.ref(db, `${PREFIXO_ESTUDO}/${k}`), {
       texto: String(texto),
+      ...(versaoBiblica ? { versaoBiblica } : {}),
+      ...(origemEstudo ? { origemEstudo } : {}),
+      ...(geradoEm ? { geradoEm } : {}),
       referenciaCompacta: String(referenciaCompacta || ''),
       pericopeKey: pericopeKey || null,
       atualizadoEm: agora,
@@ -208,15 +221,21 @@ export async function salvarPericopeCurada({
   titulo = '',
   referencia = '',
   uidAutor,
-  tom
+  tom,
+  versaoBiblica,
+  origemEstudo = null,
+  geradoEm = 0
 }) {
   if (!uidAutor) return { ok: false, error: 'Sem autorização.' }
   if (!texto || !String(texto).trim()) return { ok: false, error: 'Texto vazio.' }
   try {
     const { db, dbApi } = await obterRtdb()
-    const k = chavePericopeCurada(livroId, capitulo, inicio, fim, tom)
+    const k = chavePericopeCurada(livroId, capitulo, inicio, fim, tom, versaoBiblica)
     await dbApi.set(dbApi.ref(db, `${PREFIXO_PERICOPE}/${k}`), {
       texto: String(texto),
+      ...(versaoBiblica ? { versaoBiblica } : {}),
+      ...(origemEstudo ? { origemEstudo } : {}),
+      ...(geradoEm ? { geradoEm } : {}),
       titulo: String(titulo || ''),
       referencia: String(referencia || ''),
       atualizadoEm: Date.now(),
@@ -234,10 +253,10 @@ export async function salvarPericopeCurada({
   }
 }
 
-export async function removerPericopeCurada(livroId, capitulo, inicio, fim, tom) {
+export async function removerPericopeCurada(livroId, capitulo, inicio, fim, tom, versaoBiblica) {
   try {
     const { db, dbApi } = await obterRtdb()
-    const k = chavePericopeCurada(livroId, capitulo, inicio, fim, tom)
+    const k = chavePericopeCurada(livroId, capitulo, inicio, fim, tom, versaoBiblica)
     await dbApi.remove(dbApi.ref(db, `${PREFIXO_PERICOPE}/${k}`))
     return { ok: true }
   } catch (e) {
@@ -245,10 +264,10 @@ export async function removerPericopeCurada(livroId, capitulo, inicio, fim, tom)
   }
 }
 
-export async function removerEstudoCurado(livroId, capitulo, versArr, tom) {
+export async function removerEstudoCurado(livroId, capitulo, versArr, tom, versaoBiblica) {
   try {
     const { db, dbApi } = await obterRtdb()
-    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom)
+    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom, versaoBiblica)
     await dbApi.remove(dbApi.ref(db, `${PREFIXO_ESTUDO}/${k}`))
     return { ok: true }
   } catch (e) {
@@ -256,11 +275,11 @@ export async function removerEstudoCurado(livroId, capitulo, versArr, tom) {
   }
 }
 
-export async function registrarFeedbackNegativo({ livroId, capitulo, versArr, motivo = '', uid, tom }) {
+export async function registrarFeedbackNegativo({ livroId, capitulo, versArr, motivo = '', uid, tom, versaoBiblica }) {
   if (!uid) return { ok: false, error: 'Sem autorização.' }
   try {
     const { db, dbApi } = await obterRtdb()
-    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom)
+    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom, versaoBiblica)
     await dbApi.set(dbApi.ref(db, `${PREFIXO_FEEDBACK}/${k}/${uid}`), {
       motivo: String(motivo || '').slice(0, 400),
       criadoEm: Date.now()
@@ -275,9 +294,9 @@ export async function registrarFeedbackNegativo({ livroId, capitulo, versArr, mo
  * CANDIDATOS — publicados por usuários comuns via 👍
  * ===================================================================== */
 
-export async function lerEstudoCandidato(livroId, capitulo, versArr, tom) {
+export async function lerEstudoCandidato(livroId, capitulo, versArr, tom, versaoBiblica) {
   try {
-    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom)
+    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom, versaoBiblica)
     const { db, dbApi } = await obterRtdb()
     const snap = await dbApi.get(dbApi.ref(db, `${PREFIXO_CANDIDATO}/${k}`))
     if (!snap.exists()) return null
@@ -285,6 +304,9 @@ export async function lerEstudoCandidato(livroId, capitulo, versArr, tom) {
     if (typeof v.texto !== 'string' || !v.texto.trim()) return null
     return {
       texto: v.texto,
+      versaoBiblica: v.versaoBiblica || versaoBiblica || null,
+      origemEstudo: v.origemEstudo || null,
+      geradoEm: Number(v.geradoEm) || 0,
       pericopeKey: v.pericopeKey || null,
       referenciaCompacta: v.referenciaCompacta || '',
       atualizadoEm: Number(v.atualizadoEm) || 0,
@@ -295,9 +317,9 @@ export async function lerEstudoCandidato(livroId, capitulo, versArr, tom) {
   }
 }
 
-export async function lerPericopeCandidata(livroId, capitulo, inicio, fim, tom) {
+export async function lerPericopeCandidata(livroId, capitulo, inicio, fim, tom, versaoBiblica) {
   try {
-    const k = chavePericopeCurada(livroId, capitulo, inicio, fim, tom)
+    const k = chavePericopeCurada(livroId, capitulo, inicio, fim, tom, versaoBiblica)
     const { db, dbApi } = await obterRtdb()
     const snap = await dbApi.get(dbApi.ref(db, `${PREFIXO_PERICOPE_CANDIDATA}/${k}`))
     if (!snap.exists()) return null
@@ -306,6 +328,9 @@ export async function lerPericopeCandidata(livroId, capitulo, inicio, fim, tom) 
     if (!texto.trim()) return null
     return {
       texto,
+      versaoBiblica: v.versaoBiblica || versaoBiblica || null,
+      origemEstudo: v.origemEstudo || null,
+      geradoEm: Number(v.geradoEm) || 0,
       titulo: v.titulo || '',
       referencia: v.referencia || '',
       atualizadoEm: Number(v.atualizadoEm) || 0,
@@ -324,7 +349,10 @@ export async function publicarEstudoCandidato({
   referenciaCompacta = '',
   pericopeKey = null,
   uidAutor,
-  tom
+  tom,
+  versaoBiblica,
+  origemEstudo = null,
+  geradoEm = 0
 }) {
   if (!uidAutor) return { ok: false, error: 'Sem autorização.' }
   if (!texto || !String(texto).trim()) return { ok: false, error: 'Texto vazio.' }
@@ -332,12 +360,15 @@ export async function publicarEstudoCandidato({
   try {
     const { db, dbApi } = await obterRtdb()
     const agora = Date.now()
-    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom)
+    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom, versaoBiblica)
     const refEst = dbApi.ref(db, `${PREFIXO_CANDIDATO}/${k}`)
     const snapEst = await dbApi.get(refEst)
     if (!snapEst.exists()) {
       await dbApi.set(refEst, {
         texto: String(texto),
+        ...(versaoBiblica ? { versaoBiblica } : {}),
+        ...(origemEstudo ? { origemEstudo } : {}),
+        ...(geradoEm ? { geradoEm } : {}),
         referenciaCompacta: String(referenciaCompacta || ''),
         pericopeKey: pericopeKey || null,
         atualizadoEm: agora,
@@ -350,10 +381,10 @@ export async function publicarEstudoCandidato({
   }
 }
 
-export async function descartarEstudoCandidato({ livroId, capitulo, versArr, tom }) {
+export async function descartarEstudoCandidato({ livroId, capitulo, versArr, tom, versaoBiblica }) {
   try {
     const { db, dbApi } = await obterRtdb()
-    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom)
+    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom, versaoBiblica)
     await Promise.allSettled([
       dbApi.remove(dbApi.ref(db, `${PREFIXO_CANDIDATO}/${k}`)),
       dbApi.remove(dbApi.ref(db, `${PREFIXO_VOTO}/${k}`))
@@ -364,10 +395,10 @@ export async function descartarEstudoCandidato({ livroId, capitulo, versArr, tom
   }
 }
 
-export async function descartarPericopeCandidata({ livroId, capitulo, inicio, fim, tom }) {
+export async function descartarPericopeCandidata({ livroId, capitulo, inicio, fim, tom, versaoBiblica }) {
   try {
     const { db, dbApi } = await obterRtdb()
-    const k = chavePericopeCurada(livroId, capitulo, inicio, fim, tom)
+    const k = chavePericopeCurada(livroId, capitulo, inicio, fim, tom, versaoBiblica)
     await Promise.allSettled([
       dbApi.remove(dbApi.ref(db, `${PREFIXO_PERICOPE_CANDIDATA}/${k}`)),
       dbApi.remove(dbApi.ref(db, `${PREFIXO_VOTO}/peri:${k}`))
@@ -387,18 +418,24 @@ export async function publicarPericopeCandidata({
   titulo = '',
   referencia = '',
   uidAutor,
-  tom
+  tom,
+  versaoBiblica,
+  origemEstudo = null,
+  geradoEm = 0
 }) {
   if (!uidAutor) return { ok: false, error: 'Sem autorização.' }
   if (!texto || !String(texto).trim()) return { ok: false, error: 'Texto vazio.' }
   try {
     const { db, dbApi } = await obterRtdb()
-    const k = chavePericopeCurada(livroId, capitulo, inicio, fim, tom)
+    const k = chavePericopeCurada(livroId, capitulo, inicio, fim, tom, versaoBiblica)
     const refPeri = dbApi.ref(db, `${PREFIXO_PERICOPE_CANDIDATA}/${k}`)
     const snap = await dbApi.get(refPeri)
     if (!snap.exists()) {
       await dbApi.set(refPeri, {
         texto: String(texto),
+        ...(versaoBiblica ? { versaoBiblica } : {}),
+        ...(origemEstudo ? { origemEstudo } : {}),
+        ...(geradoEm ? { geradoEm } : {}),
         titulo: String(titulo || ''),
         referencia: String(referencia || ''),
         atualizadoEm: Date.now(),
@@ -415,14 +452,14 @@ export async function publicarPericopeCandidata({
  * VOTOS — 1 voto por usuário por estudo (por tom)
  * ===================================================================== */
 
-export async function registrarVoto({ livroId, capitulo, versArr, voto, uid, tom }) {
+export async function registrarVoto({ livroId, capitulo, versArr, voto, uid, tom, versaoBiblica }) {
   if (!uid) return { ok: false, error: 'Sem autorização.' }
   if (voto !== 'positivo' && voto !== 'negativo') {
     return { ok: false, error: 'Voto inválido.' }
   }
   try {
     const { db, dbApi } = await obterRtdb()
-    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom)
+    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom, versaoBiblica)
     await dbApi.set(dbApi.ref(db, `${PREFIXO_VOTO}/${k}/${uid}`), {
       voto,
       criadoEm: Date.now()
@@ -433,11 +470,11 @@ export async function registrarVoto({ livroId, capitulo, versArr, voto, uid, tom
   }
 }
 
-export async function lerMeuVoto({ livroId, capitulo, versArr, uid, tom }) {
+export async function lerMeuVoto({ livroId, capitulo, versArr, uid, tom, versaoBiblica }) {
   if (!uid) return null
   try {
     const { db, dbApi } = await obterRtdb()
-    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom)
+    const k = chaveEstudoCurado(livroId, capitulo, versArr, tom, versaoBiblica)
     const snap = await dbApi.get(dbApi.ref(db, `${PREFIXO_VOTO}/${k}/${uid}`))
     if (!snap.exists()) return null
     const v = snap.val() || {}
@@ -447,12 +484,12 @@ export async function lerMeuVoto({ livroId, capitulo, versArr, uid, tom }) {
   }
 }
 
-export async function registrarVotoPericope({ livroId, capitulo, inicio, fim, voto, uid, tom }) {
+export async function registrarVotoPericope({ livroId, capitulo, inicio, fim, voto, uid, tom, versaoBiblica }) {
   if (!uid) return { ok: false, error: 'Sem autorização.' }
   if (voto !== 'positivo' && voto !== 'negativo') return { ok: false, error: 'Voto inválido.' }
   try {
     const { db, dbApi } = await obterRtdb()
-    const k = `peri:${chavePericopeCurada(livroId, capitulo, inicio, fim, tom)}`
+    const k = `peri:${chavePericopeCurada(livroId, capitulo, inicio, fim, tom, versaoBiblica)}`
     await dbApi.set(dbApi.ref(db, `${PREFIXO_VOTO}/${k}/${uid}`), {
       voto,
       criadoEm: Date.now()
@@ -463,11 +500,11 @@ export async function registrarVotoPericope({ livroId, capitulo, inicio, fim, vo
   }
 }
 
-export async function lerMeuVotoPericope({ livroId, capitulo, inicio, fim, uid, tom }) {
+export async function lerMeuVotoPericope({ livroId, capitulo, inicio, fim, uid, tom, versaoBiblica }) {
   if (!uid) return null
   try {
     const { db, dbApi } = await obterRtdb()
-    const k = `peri:${chavePericopeCurada(livroId, capitulo, inicio, fim, tom)}`
+    const k = `peri:${chavePericopeCurada(livroId, capitulo, inicio, fim, tom, versaoBiblica)}`
     const snap = await dbApi.get(dbApi.ref(db, `${PREFIXO_VOTO}/${k}/${uid}`))
     if (!snap.exists()) return null
     const v = snap.val() || {}
@@ -531,7 +568,7 @@ export async function lerStatusTonsPericope(livroId, capitulo, inicio, fim) {
  * ===================================================================== */
 
 function parseChaveEstudo(key) {
-  const { base, tom } = extrairTomDaChave(key)
+  const { base, tom } = extrairTomDaChave(String(key).replace(/~biblia_(ara|naa|ntlh)$/, ''))
   const parts = String(base || '').split('_')
   if (parts.length < 3) return null
   const livroId = Number(parts[0])
@@ -546,7 +583,7 @@ function parseChaveEstudo(key) {
 }
 
 function parseChavePericope(key) {
-  const { base, tom } = extrairTomDaChave(key)
+  const { base, tom } = extrairTomDaChave(String(key).replace(/~biblia_(ara|naa|ntlh)$/, ''))
   const parts = String(base || '').split('_')
   if (parts.length !== 4) return null
   const [livroId, capitulo, inicio, fim] = parts.map((x) => Number(x))
@@ -585,6 +622,8 @@ export async function listarEstudosVersiculo() {
   const itens = []
   for (const [chave, v] of Object.entries(oficiais)) {
     if (!v || typeof v.texto !== 'string' || !v.texto.trim()) continue
+    if (/~biblia_(naa|ntlh)$/.test(chave)) continue
+    if (!/~biblia_/.test(chave) && (oficiais[chave + '~biblia_ara'] || candidatos[chave + '~biblia_ara'])) continue
     const ids = parseChaveEstudo(chave)
     if (!ids) continue
     itens.push({
@@ -600,6 +639,8 @@ export async function listarEstudosVersiculo() {
   }
   for (const [chave, v] of Object.entries(candidatos)) {
     if (!v || typeof v.texto !== 'string' || !v.texto.trim()) continue
+    if (/~biblia_(naa|ntlh)$/.test(chave)) continue
+    if (!/~biblia_/.test(chave) && (oficiais[chave + '~biblia_ara'] || candidatos[chave + '~biblia_ara'])) continue
     const ids = parseChaveEstudo(chave)
     if (!ids) continue
     // Oficial do MESMO tom prevalece sobre candidato do mesmo tom.
@@ -639,6 +680,8 @@ export async function listarEstudosPericope() {
   const itens = []
   for (const [chave, v] of Object.entries(oficiais)) {
     if (!v || typeof v.texto !== 'string' || !v.texto.trim()) continue
+    if (/~biblia_(naa|ntlh)$/.test(chave)) continue
+    if (!/~biblia_/.test(chave) && (oficiais[chave + '~biblia_ara'] || candidatos[chave + '~biblia_ara'])) continue
     const ids = parseChavePericope(chave)
     if (!ids) continue
     itens.push({
@@ -655,6 +698,8 @@ export async function listarEstudosPericope() {
   }
   for (const [chave, v] of Object.entries(candidatos)) {
     if (!v || typeof v.texto !== 'string' || !v.texto.trim()) continue
+    if (/~biblia_(naa|ntlh)$/.test(chave)) continue
+    if (!/~biblia_/.test(chave) && (oficiais[chave + '~biblia_ara'] || candidatos[chave + '~biblia_ara'])) continue
     const ids = parseChavePericope(chave)
     if (!ids) continue
     if (oficiais[chave]) continue
@@ -671,4 +716,48 @@ export async function listarEstudosPericope() {
     })
   }
   return itens
+}
+
+/** Cada página mantém seu repositório fixado à tradução do estudo. */
+export function criarRepositorioEstudosPorTraducao(id, { legadoAra = false } = {}) {
+  const versao = legadoAra && id === 'ara' ? undefined : validarTraducaoEstudo(id).id
+  const posicional = (fn, quantidade) => (...args) => {
+    while (args.length < quantidade - 1) args.push(undefined)
+    return fn(...args, versao)
+  }
+  const objeto = fn => params => fn({ ...params, versaoBiblica: versao })
+  return {
+    lerEstudoCurado: posicional(lerEstudoCurado, 5), lerEstudoCandidato: posicional(lerEstudoCandidato, 5),
+    lerPericopeCurada: posicional(lerPericopeCurada, 6), lerPericopeCandidata: posicional(lerPericopeCandidata, 6),
+    chavePericopeCurada: posicional(chavePericopeCurada, 6),
+    removerEstudoCurado: posicional(removerEstudoCurado, 5), removerPericopeCurada: posicional(removerPericopeCurada, 6),
+    salvarEstudoCurado: objeto(salvarEstudoCurado), salvarPericopeCurada: objeto(salvarPericopeCurada),
+    publicarEstudoCandidato: objeto(publicarEstudoCandidato), publicarPericopeCandidata: objeto(publicarPericopeCandidata),
+    descartarEstudoCandidato: objeto(descartarEstudoCandidato), descartarPericopeCandidata: objeto(descartarPericopeCandidata),
+    registrarVoto: objeto(registrarVoto), registrarVotoPericope: objeto(registrarVotoPericope),
+    lerMeuVoto: objeto(lerMeuVoto), lerMeuVotoPericope: objeto(lerMeuVotoPericope),
+  }
+}
+
+/** Falha de rede é propagada: não podemos tratá-la como ausência e cobrar nova geração. */
+export async function consultarRegistrosEstudo({ tipo, livroId, capitulo, versArr, inicio, fim }) {
+  const { db, dbApi } = await obterRtdb()
+  const pericope = tipo === 'pericope'
+  const tarefas = []
+  for (const versao of [undefined, 'ara', 'naa', 'ntlh']) {
+    for (const tom of TONS_IDS) {
+      const chave = pericope
+        ? chavePericopeCurada(livroId, capitulo, inicio, fim, tom, versao)
+        : chaveEstudoCurado(livroId, capitulo, versArr, tom, versao)
+      for (const fonte of ['oficial', 'candidato']) {
+        const prefixo = pericope
+          ? (fonte === 'oficial' ? PREFIXO_PERICOPE : PREFIXO_PERICOPE_CANDIDATA)
+          : (fonte === 'oficial' ? PREFIXO_ESTUDO : PREFIXO_CANDIDATO)
+        tarefas.push(dbApi.get(dbApi.ref(db, prefixo + '/' + chave)).then(snap => ({
+          versao, tom, fonte, estudo: snap.exists() ? snap.val() : null
+        })))
+      }
+    }
+  }
+  return Promise.all(tarefas)
 }

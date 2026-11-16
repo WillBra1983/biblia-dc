@@ -337,8 +337,8 @@ export default function Layout({ title, children }) {
   const bibliaToolbarOverlay = mostrarBotoesBiblia && !apresentacaoTelaCheia
 
   return (
+    <AvisosPedidosPix>
     <Box sx={{ display: 'flex', ...sxFullViewportHeight() }}>
-      <AvisosPedidosPix />
       <AppBar 
         position="fixed" 
         color="inherit"
@@ -693,5 +693,6 @@ export default function Layout({ title, children }) {
         </GlobalPinchZoom>
       </Box>
     </Box>
+    </AvisosPedidosPix>
   )
 } 

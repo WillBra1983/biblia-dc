@@ -3,6 +3,8 @@ const { transformSync } = require('esbuild')
 const inicio = performance.now()
 let usuario = { uid: 'cliente' }, dadosLista, consultas = 0, copiado, retornou, informou = 0
 const listeners = new Map(), timers = new Set()
+const armazenamento = new Map()
+const localStorageFake = { getItem: chave => armazenamento.get(chave) || null, setItem: (chave, valor) => armazenamento.set(chave, valor) }
 const documento = { visibilityState: 'visible', addEventListener: (n, f) => listeners.set('doc:' + n, f), removeEventListener: n => listeners.delete('doc:' + n) }
 const janela = { addEventListener: (n, f) => listeners.set(n, f), removeEventListener: n => listeners.delete(n), dispatchEvent: e => listeners.get(e.type)?.() }
 const navegador = { onLine: true, clipboard: { writeText: async s => { copiado = s } } }
@@ -16,8 +18,9 @@ const servico = {
   informarPagamentoPixBiblioteca: async () => { informou++; return {} },
 }
 function carregar(arquivo) {
-  let cursor = 0, novos = [], estados = [], efeitos = []
+  let cursor = 0, novos = [], estados = [], efeitos = [], contexto
   const react = {
+    createContext: () => ({ Provider: 'PedidosPixProvider' }), useContext: () => contexto,
     lazy: () => 'OpcoesCompra', Suspense: 'Suspense',
     useState(initial) { const n = cursor++; if (!(n in estados)) estados[n] = typeof initial === 'function' ? initial() : initial; return [estados[n], v => { estados[n] = typeof v === 'function' ? v(estados[n]) : v }] },
     useEffect(fn, deps) { const n = cursor++, anterior = efeitos[n]; if (!anterior || deps.some((d,i) => d !== anterior.deps[i])) novos.push(() => { anterior?.limpar?.(); efeitos[n] = { deps, limpar: fn() } }) },
@@ -25,7 +28,7 @@ function carregar(arquivo) {
   const generico = new Proxy({ __esModule: true }, { get: (_, k) => k === '__esModule' ? true : () => null })
   const modulo = { exports: {} }
   vm.runInNewContext(transformSync(fs.readFileSync(arquivo, 'utf8'), { loader: 'jsx', jsx: 'automatic', format: 'cjs' }).code, {
-    module: modulo, exports: modulo.exports, console, Event, document: documento, window: janela, navigator: navegador,
+    module: modulo, exports: modulo.exports, console, Event, document: documento, window: janela, navigator: navegador, localStorage: localStorageFake,
     setInterval: f => { timers.add(f); return f }, clearInterval: f => timers.delete(f),
     require(n) {
       if (n === 'react') return react
@@ -41,7 +44,7 @@ function carregar(arquivo) {
     },
   })
   return {
-    render(nome, props) { cursor = 0; novos = []; const tree = modulo.exports[nome](props); novos.forEach(f => f()); return tree },
+    render(nome, props) { cursor = 0; novos = []; const tree = modulo.exports[nome](props); if (tree?.type === 'PedidosPixProvider') contexto = tree.props.value; novos.forEach(f => f()); return tree },
     limpar() { efeitos.forEach(e => e?.limpar?.()) },
   }
 }
@@ -59,7 +62,14 @@ const flush = () => new Promise(resolve => setImmediate(resolve))
   render(); await flush()
   let tree = render()
   assert.equal(achar(tree, n => n.type === 'Snackbar').props.open, true, 'Aviso aparece fora da livraria sem push')
-  botao(tree, 'Ver pedido').props.onClick(); tree = render()
+  achar(tree, n => n.type === 'IconButton' && n.props['aria-label'] === 'Fechar aviso de compra').props.onClick()
+  tree = render()
+  assert.equal(achar(tree, n => n.type === 'Snackbar').props.open, false, 'Usuário pode dispensar o aviso')
+  await listeners.get('focus')(); tree = render()
+  assert.equal(achar(tree, n => n.type === 'Snackbar').props.open, false, 'Consulta e retorno ao app não fazem o aviso reaparecer')
+  const lembrete = aviso.render('LembretePedidosPix')
+  assert.ok(botao(lembrete, 'Terminar compra'), 'Livraria mantém acesso à compra dispensada')
+  botao(lembrete, 'Terminar compra').props.onClick(); tree = render()
   assert.equal(achar(tree, n => n.type === 'Dialog').props.open, true)
   await botao(tree, 'continuar compra').props.onClick(); tree = render()
   assert.equal(achar(tree, n => n.type === 'OpcoesCompra').props.pedidoInicial.pedidoId, 'pedido', 'Abre o pagamento sem procurar o livro')
@@ -74,6 +84,18 @@ const flush = () => new Promise(resolve => setImmediate(resolve))
   aviso.limpar(); assert.equal(timers.size, 0); assert.equal(listeners.size, 0, 'Encerra observadores')
 
   usuario = { uid: 'cliente' }
+  const reaberto = carregar('src/components/AvisosPedidosPix.jsx')
+  reaberto.render('default'); await flush(); tree = reaberto.render('default')
+  assert.equal(achar(tree, n => n.type === 'Snackbar').props.open, false, 'Dispensa persiste após reabrir o aplicativo')
+  dadosLista = { pedidos: [{ ...original, observacaoAdmin: 'Nova mensagem da livraria.' }] }
+  await listeners.get('focus')(); tree = reaberto.render('default')
+  assert.equal(achar(tree, n => n.type === 'Snackbar').props.open, true, 'Nova mensagem relevante pode avisar novamente')
+  botao(tree, 'Ver pedido').props.onClick(); tree = reaberto.render('default')
+  botao(tree, 'Fechar').props.onClick(); tree = reaberto.render('default')
+  assert.equal(achar(tree, n => n.type === 'Snackbar').props.open, false, 'Fechar lista também dispensa o aviso flutuante')
+  reaberto.limpar()
+
+  usuario = { uid: 'cliente' }
   const tela = carregar('src/pages/BibliotecaLivros.jsx')
   const props = { livro: { id: 'livro', titulo: 'Meu livro' }, comprasConfirmadas: new Set(), pedidoInicial: original, onClose() {} }
   const renderCompra = () => tela.render('OpcoesDialog', props)
@@ -86,5 +108,5 @@ const flush = () => new Promise(resolve => setImmediate(resolve))
   assert.equal(botao(tree, 'Já fiz o Pix'), null, 'Aguarda ida ao banco')
   retornou(); tree = renderCompra(); await botao(tree, 'Já fiz o Pix').props.onClick(); assert.equal(informou, 1)
   tela.limpar()
-  console.log('Avisos e retomada Pix: 10/10 grupos aprovados (100%); falhas: 0%; tempo: ' + ((performance.now() - inicio) / 1000).toFixed(2) + ' s. Componentes executados com serviços simulados, sem pagamentos reais.')
+  console.log('Avisos e retomada Pix: 16/16 grupos aprovados (100%); falhas: 0%; tempo: ' + ((performance.now() - inicio) / 1000).toFixed(2) + ' s. Componentes executados com serviços simulados, sem pagamentos reais.')
 })().catch(e => { console.error(e); process.exitCode = 1 })

@@ -1,3 +1,4 @@
+import { LembretePedidosPix } from '../components/AvisosPedidosPix'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Capacitor } from '@capacitor/core'
@@ -694,6 +695,7 @@ function Catalogo({ livros, votos, carregando, comprasConfirmadas, ehAdmin, onCo
         </Container>
       </Box>
       <Container maxWidth="lg" sx={{ py: { xs: 2.8, md: 4.2 } }}>
+        <LembretePedidosPix />
         <Tabs value={aba} onChange={(_, valor) => setAba(valor)} aria-label="Livraria e biblioteca pessoal" variant="fullWidth" sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
           <Tab value="acervo" label="Livraria" id="biblioteca-aba-acervo" aria-controls="biblioteca-painel-acervo" icon={<StorefrontOutlinedIcon />} iconPosition="start" />
           <Tab value="pessoal" label="Biblioteca pessoal" id="biblioteca-aba-pessoal" aria-controls="biblioteca-painel-pessoal" icon={<AutoStoriesOutlinedIcon />} iconPosition="start" />

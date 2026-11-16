@@ -101,12 +101,14 @@ const APPBAR_HEIGHT_SM = '64px'
 /**
  * Padding-top do `<main>` global: altura do AppBar + safe-area + folga.
  * Usado no `Layout` e no espaçador interno da Bíblia (modo overlay).
+ * Use safeArea: false quando o contêiner já reservar o topo fora da rolagem.
  */
-export function sxMainBelowAppBar(extraGapPx = APP_MAIN_CONTENT_TOP_GAP_PX) {
+export function sxMainBelowAppBar(extraGapPx = APP_MAIN_CONTENT_TOP_GAP_PX, { safeArea = true } = {}) {
   const gap = `${extraGapPx}px`
+  const topo = safeArea ? ' + env(safe-area-inset-top, 0px)' : ''
   return {
-    xs: `calc(${APPBAR_HEIGHT_XS} + env(safe-area-inset-top, 0px) + ${gap})`,
-    sm: `calc(${APPBAR_HEIGHT_SM} + env(safe-area-inset-top, 0px) + ${gap})`,
+    xs: `calc(${APPBAR_HEIGHT_XS}${topo} + ${gap})`,
+    sm: `calc(${APPBAR_HEIGHT_SM}${topo} + ${gap})`,
   }
 }
 

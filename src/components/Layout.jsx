@@ -339,6 +339,12 @@ export default function Layout({ title, children }) {
   return (
     <AvisosPedidosPix>
     <Box sx={{ display: 'flex', ...sxFullViewportHeight() }}>
+      {bibliaToolbarOverlay && <Box aria-hidden sx={{
+        position: 'fixed', top: 0, left: 0, right: 0,
+        height: 'env(safe-area-inset-top, 0px)',
+        bgcolor: 'grey.900', pointerEvents: 'none',
+        zIndex: (theme) => theme.zIndex.appBar + 1,
+      }} />}
       <AppBar 
         position="fixed" 
         color="inherit"

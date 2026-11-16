@@ -439,7 +439,8 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const ignorarScrollImersivoRef = React.useRef(false)
   const LIMITE_ESCONDER_IMERSIVO = 96
   const LIMITE_MOSTRAR_IMERSIVO = 72
-  const sxPadToolbarBiblia = sxMainBelowAppBar()
+  // A área do sistema fica fora da rolagem; o espaçador inclui só a barra e a folga.
+  const sxPadToolbarBiblia = sxMainBelowAppBar(undefined, { safeArea: false })
   const pinchLeituraRef = React.useRef(null)
   // Multiplicador local do zoom da leitura aplicado pelo pinch de dedo.
   // É temporário (não persiste): o zoom permanente vive em `fontSize` (via
@@ -2623,6 +2624,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           // escondido. `100dvh` (dynamic viewport height) mede só a área
           // realmente visível.
           ...sxFullViewportHeight(),
+          ...sxSafeAreaTop(),
           overflow: 'hidden',
           position: 'relative'
         }}>
@@ -2673,7 +2675,8 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
           }
         }}
         sx={{ 
-        flex: 1, 
+        flex: 1,
+        minHeight: 0,
         overflow: 'auto',
         overflowAnchor: 'none',
         position: 'relative',

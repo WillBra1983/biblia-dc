@@ -3,7 +3,7 @@
  * Cada usuário publica em `quizBiblicoRanking/{uid}` com opt-in.
  */
 
-import { ref, get, set, remove, update, onValue, off } from 'firebase/database'
+import { ref, get, runTransaction, remove, update, onValue, off } from 'firebase/database'
 import { getFirebaseDatabase, isFirebaseConfigured, loadFirebaseModules } from '../config/firebase'
 import { ensurePublicProfileMirrorAuth } from './chatService'
 import { QUIZ_STORAGE_BEST_FASE1 } from '../constants/quizRetiroStorage'
@@ -98,7 +98,7 @@ export function lerMelhorPontuacaoQuizLocal() {
     const j = JSON.parse(localStorage.getItem(QUIZ_STORAGE_BEST_FASE1) || '{}')
     return {
       acertos: Math.max(0, Number(j.correct) || 0),
-      pontos: Math.max(0, Number(j.points) || 0),
+      pontos: Math.max(0, Number(j.correct) || 0) * 10,
     }
   } catch {
     return { acertos: 0, pontos: 0 }
@@ -107,7 +107,7 @@ export function lerMelhorPontuacaoQuizLocal() {
 
 function mapEntradaRanking(uid, data) {
   const total = Math.max(1, Number(data?.totalPerguntas) || 50)
-  const acertos = Math.max(0, Number(data?.acertos) || 0)
+  const acertos = Math.min(total, Math.max(0, Number(data?.acertos) || 0))
   const perguntasRespondidas = Math.max(
     0,
     Number(data?.perguntasRespondidas) || acertos
@@ -117,7 +117,7 @@ function mapEntradaRanking(uid, data) {
     displayName: typeof data?.displayName === 'string' ? data.displayName : 'Jogador',
     handle: typeof data?.handle === 'string' ? data.handle : '',
     photoURL: typeof data?.photoURL === 'string' ? data.photoURL : '',
-    pontos: Math.max(0, Number(data?.pontos) || 0),
+    pontos: acertos * 10,
     acertos,
     perguntasRespondidas: Math.min(perguntasRespondidas, total),
     totalPerguntas: total,
@@ -141,14 +141,14 @@ export function montarSnapshotRankingQuiz(
   perfil = {},
   authUser = null
 ) {
-  const pts = Math.max(0, Number(pontos) || 0)
+  const pts = Math.min(Math.max(1, Number(totalPerguntas) || 50), Math.max(0, Number(acertos) || 0)) * 10
   if (!uid || pts < 1) return null
 
   const p = mergePerfilComAuth(perfil, authUser)
   const handle =
     typeof p.handle === 'string' ? p.handle.trim().replace(/^@+/, '').toLowerCase() : ''
   const total = Math.max(1, Number(totalPerguntas) || 50)
-  const ac = Math.max(0, Number(acertos) || 0)
+  const ac = Math.min(total, Math.max(0, Number(acertos) || 0))
   const resp = Math.min(
     total,
     Math.max(0, Number(perguntasRespondidas) ?? ac)
@@ -174,9 +174,9 @@ function melhorResultado(...fontes) {
   let totalPerguntas = 50
   for (const f of fontes) {
     if (!f) continue
-    const p = Math.max(0, Number(f.pontos) || 0)
-    const a = Math.max(0, Number(f.acertos) || 0)
     const t = Math.max(1, Number(f.totalPerguntas) || 50)
+    const a = Math.min(t, Math.max(0, Number(f.acertos) || 0))
+    const p = a * 10
     const r = Math.min(t, Math.max(0, Number(f.perguntasRespondidas) || a))
     if (p > pontos) {
       pontos = p
@@ -267,12 +267,21 @@ export async function sincronizarMeuRankingQuiz(
   const melhor = melhorResultado(local, existente, nuvemMelhor, rodadaAtual)
   const payload = montarSnapshotRankingQuiz(uid, melhor, p, authUser)
   if (!payload || payload.pontos < 1) {
-    await remove(rankingRef).catch(() => {})
     return
   }
 
   try {
-    await set(rankingRef, payload)
+    await runTransaction(rankingRef, atual => {
+      const anterior = atual ? mapEntradaRanking(uid, atual) : null
+      const resultado = anterior?.pontos > payload.pontos ? {
+        pontos: anterior.pontos, acertos: anterior.acertos,
+        perguntasRespondidas: anterior.perguntasRespondidas, totalPerguntas: anterior.totalPerguntas,
+      } : payload
+      return {
+        ...atual, ...payload, ...resultado, pontuacaoVersao: 'fixo10',
+        ...(atual && atual.pontuacaoVersao !== 'fixo10' ? { pontosHistoricos: atual.pontos || 0 } : {}),
+      }
+    })
   } catch (err) {
     console.warn('[quizBiblicoRanking] falha ao publicar:', err?.message || err)
     throw err

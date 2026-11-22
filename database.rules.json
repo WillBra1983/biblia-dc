@@ -300,36 +300,36 @@
       "$torneioId": {
         "meta": {
           ".read": "auth != null",
-          ".write": "auth != null && auth.token.email_verified == true"
+          ".write": "auth != null && auth.token.email_verified == true && root.child('quizRetiroTorneios').child($torneioId).child('config').child('criadoPorUid').val() === auth.uid"
         },
         "config": {
           ".read": "auth != null",
-          ".write": "auth != null && auth.token.email_verified == true"
+          ".write": "auth != null && auth.token.email_verified == true && ((!data.exists() && newData.child('criadoPorUid').val() === auth.uid) || (data.child('criadoPorUid').val() === auth.uid && newData.child('criadoPorUid').val() === auth.uid))"
         },
         "participantes": {
           ".read": "auth != null",
           "$uid": {
-            ".write": "auth != null && (auth.uid === $uid || auth.token.email_verified == true)"
+            ".write": "auth != null && auth.token.email_verified == true && (auth.uid === $uid || (!newData.exists() && root.child('quizRetiroTorneios').child($torneioId).child('config').child('criadoPorUid').val() === auth.uid))"
           }
         },
         "reentradas": {
           ".read": "auth != null",
           "$uid": {
-            ".write": "auth != null && auth.token.email_verified == true"
+            ".write": "auth != null && auth.token.email_verified == true && (root.child('quizRetiroTorneios').child($torneioId).child('config').child('criadoPorUid').val() === auth.uid || (auth.uid === $uid && newData.child('status').val() === 'pendente' && !newData.child('respondidoEm').exists()))"
           }
         },
         "jogadores": {
           ".read": "auth != null",
           "$teamId": {
             "$uid": {
-              ".write": "auth != null && (auth.uid === $uid || auth.token.email_verified == true)"
+              ".write": "auth != null && auth.token.email_verified == true && (auth.uid === $uid || (!newData.exists() && root.child('quizRetiroTorneios').child($torneioId).child('config').child('criadoPorUid').val() === auth.uid))"
             }
           }
         },
         "timesBloqueados": {
           ".read": "auth != null",
           "$teamId": {
-            ".write": "auth != null && auth.token.email_verified == true"
+            ".write": "auth != null && auth.token.email_verified == true && root.child('quizRetiroTorneios').child($torneioId).child('config').child('criadoPorUid').val() === auth.uid"
           }
         },
         "progresso": {

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'none'; object-src 'none'; base-uri 'self'">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Bíblico</title>
+    <link rel="stylesheet" href="css/style.css?v=71">
+    <link rel="stylesheet" href="css/path-map.css">
+    <link rel="stylesheet" href="css/interface-biblia.css">
+</head>
+<body>
+    <div id="app">
+
+        <!-- Tela Inicial -->
+        <div id="start-screen" class="screen active">
+          <header class="quiz-hero">
+            <div class="quiz-kicker">Aprenda. Pratique. Cresça.</div>
+            <h1>Quanto você conhece<br>da Palavra?</h1>
+            <p>Explore as Escrituras, descubra novas respostas e avance no seu ritmo.</p>
+            <div class="quiz-stats"><span><strong id="home-question-count">799</strong>perguntas</span><span><strong id="home-phase-count">16</strong>fases para explorar</span><span><strong>10 pts</strong>por acerto</span></div>
+          </header>
+          <div id="saved-game-banner" class="saved-banner hidden"></div>
+          <h2 class="quiz-section-heading">Como você quer jogar hoje?</h2>
+          <div class="home-actions">
+            <button type="button" id="btn-play" class="quiz-option quiz-option-primary"><span class="quiz-option-icon " aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Z"/><path d="M12 6v14"/></svg></span><span><strong>Explorar trilhas</strong><small>Escolha um tema ou livro da Bíblia. Seu progresso fica salvo.</small></span><span class="quiz-option-arrow" aria-hidden="true">›</span></button>
+            <button type="button" id="btn-daily" class="quiz-option "><span class="quiz-option-icon amber" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></span><span><strong>Desafio do dia</strong><small>10 perguntas para exercitar seu conhecimento.</small></span><span class="quiz-option-arrow" aria-hidden="true">›</span></button>
+            <button type="button" id="btn-home-competition" class="quiz-option "><span class="quiz-option-icon blue" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m1-15a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 4v2"/></svg></span><span><strong>Competição em grupo</strong><small>Organize um torneio ou entre com sua equipe.</small></span><span class="quiz-option-arrow" aria-hidden="true">›</span></button>
+            <button type="button" id="btn-ranking" class="quiz-option "><span class="quiz-option-icon amber" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h10v6a5 5 0 0 1-10 0V3Zm0 2H3v3a4 4 0 0 0 4 4m10-7h4v3a4 4 0 0 1-4 4M12 14v6m-4 1h8"/></svg></span><span><strong>Ranking</strong><small>Veja os melhores resultados e acompanhe sua posição.</small></span><span class="quiz-option-arrow" aria-hidden="true">›</span></button>
+            <button type="button" id="btn-achievements" class="quiz-option "><span class="quiz-option-icon violet" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8 14-2 8 6-3 6 3-2-8m-6-5 1.5 1.5L15 7"/></svg></span><span><strong>Minhas conquistas</strong><small>Suas medalhas e os desafios que você já superou.</small></span><span class="quiz-option-arrow" aria-hidden="true">›</span></button>
+          </div>
+          <div class="quiz-scoring-note"><span class="score-mark">+10</span><div><strong>Cada acerto vale o mesmo.</strong><br>10 pontos por resposta certa. Um erro não tira os pontos conquistados.</div></div>
+          <p id="home-medalhas" class="home-medalhas"></p>
+          <section id="home-cloud-section" class="home-cloud-section">
+            <h2 class="home-cloud-title">Sua jornada na Palavra</h2>
+            <p class="home-cloud-hint">Jogue livremente. Com sua conta, você também participa do ranking e pode continuar em outro aparelho.</p>
+            <div id="home-firebase-auth-panel" class="firebase-auth-panel"></div><p id="home-cloud-status" class="firebase-status"></p>
+          </section>
+          <footer class="app-footer"><button type="button" id="btn-info" class="btn-info">Como jogar</button><span class="signature">Desenvolvido por Pr. Wilson Lucas Ferreira</span></footer>
+        </div>
+
+        <!-- Desafio Diário -->
+        <div id="daily-screen" class="screen">
+            <h2>📅 Desafio Diário</h2>
+            <p id="daily-desc" class="screen-desc"></p>
+            <div id="daily-stats" class="daily-stats"></div>
+            <button id="btn-daily-start" class="btn-primary">Começar desafio</button>
+            <button class="btn-back" data-back="start">← Voltar</button>
+        </div>
+
+        <!-- Grade de trilhas (diagrama — todas as fases) -->
+        <div id="trilha-screen" class="screen screen-trilha">
+            <header class="trilha-header">
+                <h2 class="trilha-app-title">Quiz Bíblico</h2>
+                <div class="trilha-comp-row">
+                    <button type="button" id="btn-competition-toggle" class="competition-chip competition-chip-outline" aria-pressed="false">🏆 Competição</button>
+                    <button type="button" class="btn-tip" data-tip="competition" aria-label="Informações sobre competição">i</button>
+                </div>
+            </header>
+
+            <section id="trilha-scoring-section" class="trilha-scoring-section">
+                <div class="trilha-section-head trilha-section-head-center">
+                    <span class="trilha-section-title">Pontuação simples:</span>
+                    <button type="button" class="btn-tip" data-tip="scoring" aria-label="Informações sobre pontuação">i</button>
+                </div>
+                <div id="scoring-toggle" class="scoring-toggle"></div>
+            </section>
+
+            <div id="competition-panel" class="competition-panel hidden">
+                <div id="competition-role-chooser" class="competition-role-chooser hidden">
+                    <p class="competition-intro">O que deseja fazer?</p>
+                    <div class="competition-role-buttons">
+                        <button type="button" id="btn-competition-organize" class="btn-primary">Organizar torneio</button>
+                    </div>
+                    <div class="competition-join-section">
+                        <p class="competition-join-label">Recebeu um código? Entre no torneio:</p>
+                        <div class="competition-join-row">
+                            <input type="text" id="competition-join-code" maxlength="20" placeholder="Digite o código" autocomplete="off" spellcheck="false">
+                            <button type="button" id="btn-competition-join" class="btn-primary small">Entrar</button>
+                        </div>
+                        <p id="competition-join-error" class="competition-join-error hidden"></p>
+                    </div>
+                </div>
+                <div id="competition-organizer-config" class="hidden">
+                <div class="competition-reset-top">
+                    <button type="button" id="btn-competition-reset" class="btn-danger small">Nova competição</button>
+                </div>
+                <div class="competition-code-row">
+                    <span class="competition-code-label">Código do evento</span>
+                    <code id="competition-code-display" class="competition-code">—</code>
+                </div>
+                <label class="competition-field">
+                    <span>Tipo de evento</span>
+                    <select id="competition-tournament"></select>
+                </label>
+                <label class="competition-field">
+                    <span>Nome do evento <small>(opcional)</small></span>
+                    <input type="text" id="competition-event-name" maxlength="60" placeholder="ex.: Retiro de Jovens 2026">
+                </label>
+                <label class="competition-field">
+                    <span>Perguntas na rodada</span>
+                    <select id="competition-question-count"></select>
+                </label>
+                <p id="competition-round-summary" class="competition-round-summary"></p>
+                <fieldset class="competition-field competition-access-mode">
+                    <legend>Como cada time joga</legend>
+                    <label><input type="radio" name="comp-access" value="individual" checked> Cada pessoa com seu nome</label>
+                    <label><input type="radio" name="comp-access" value="celular_equipe"> 1 celular por equipe</label>
+                </fieldset>
+                <div class="competition-teams">
+                    <span class="competition-field-label">Times</span>
+                    <div class="competition-team-add">
+                        <input type="text" id="competition-team-input" maxlength="40" placeholder="Nome do time">
+                        <button type="button" id="btn-competition-add-team" class="btn-secondary small">Adicionar</button>
+                    </div>
+                    <ul id="competition-team-list" class="competition-team-list"></ul>
+                    <p id="competition-my-team" class="competition-my-team hidden"></p>
+                </div>
+                <p id="competition-desc" class="competition-desc"></p>
+                <div id="competition-organizer-actions" class="competition-actions">
+                    <button type="button" id="btn-competition-share" class="btn-primary small">Compartilhar torneio</button>
+                    <button type="button" id="btn-competition-copy-link" class="btn-secondary small">Copiar mensagem</button>
+                    <button type="button" id="btn-competition-ranking" class="btn-secondary small">Ver ranking</button>
+                    <button type="button" id="btn-competition-block-entries" class="btn-secondary small">Bloquear entradas</button>
+                </div>
+                <div id="competition-reentradas" class="competition-reentradas hidden"></div>
+                <details id="competition-participantes" class="competition-participantes hidden">
+                    <summary>Participantes conectados</summary>
+                    <ul id="competition-participantes-list"></ul>
+                </details>
+                <div id="competition-progresso-vivo" class="competition-progresso-vivo hidden">
+                    <h4>📡 Progresso ao vivo</h4>
+                    <div id="competition-progresso-vivo-content"></div>
+                </div>
+                <details id="competition-jogadores-times" class="competition-jogadores-times hidden">
+                    <summary>Jogadores por time</summary>
+                    <div id="competition-jogadores-times-content"></div>
+                </details>
+                </div>
+                <p id="competition-participant-hint" class="competition-participant-hint hidden">Para convidar outros, encaminhe o código do torneio.</p>
+            </div>
+            <div id="competition-play-block" class="competition-play-block hidden">
+                <div id="competition-complete-banner" class="competition-complete-banner hidden"></div>
+                <h3 class="competition-play-title">Rodada de competição</h3>
+                <p id="competition-play-desc" class="screen-desc"></p>
+                <div class="competition-play-actions">
+                    <button type="button" id="btn-competition-start" class="btn-primary" disabled>Iniciar rodada</button>
+                    <button type="button" id="btn-competition-ranking-play" class="btn-secondary">Ver ranking</button>
+                </div>
+                <p id="competition-play-hint" class="competition-play-hint"></p>
+                <ul id="competition-checklist" class="competition-checklist hidden"></ul>
+            </div>
+            <div id="trilha-play-section" class="trilha-play-section">
+                <div id="trilha-grid" class="trilha-fases"></div>
+            </div>
+            <button class="btn-back" data-back="start">← Voltar</button>
+        </div>
+
+        <!-- Livros ou grupos (sub-trilha) -->
+        <div id="sub-trilha-screen" class="screen">
+            <h2 id="sub-trilha-title">Escolha</h2>
+            <p id="sub-trilha-desc" class="screen-desc"></p>
+            <div id="sub-trilha-list" class="card-grid"></div>
+            <button class="btn-back" data-back="trilha">← Trilhas</button>
+        </div>
+
+        <!-- Mapa de níveis (caminho) -->
+        <div id="path-screen" class="screen">
+            <h2 id="path-title">Caminho de níveis</h2>
+            <p id="path-desc" class="screen-desc">Complete cada nível para desbloquear o próximo · repita no máximo 1 vez para melhorar estrelas</p>
+            <div id="path-map" class="path-map"></div>
+            <button class="btn-back" data-back="trilha">← Trilhas</button>
+        </div>
+
+        <!-- Tela do Quiz -->
+        <div id="quiz-screen" class="screen">
+            <button type="button" id="btn-quiz-exit" class="btn-back quiz-exit-btn">← Sair</button>
+            <div class="quiz-top">
+                <span id="quiz-progress-label">1 / 10</span>
+                <div class="quiz-score-row">
+                    <span id="quiz-streak-label" class="quiz-streak hidden">Sequência: 0</span>
+                    <span id="quiz-points-label">Pontos: 0</span>
+                </div>
+            </div>
+            <div class="progress-bar"><div id="progress"></div></div>
+            <div id="question-numbers" class="question-numbers"></div>
+
+            <h2 id="question-text" class="question-text"></h2>
+            <p id="question-type-label" class="question-type-badge hidden"></p>
+            <div id="options-container"></div>
+
+            <div class="quiz-actions">
+                <button id="btn-hint" class="btn-hint hidden">💡 Dica</button>
+                <button id="confirm-btn" class="btn-primary" disabled>Confirmar resposta</button>
+            </div>
+
+            <div id="feedback" class="feedback hidden">
+                <p id="feedback-text"></p>
+                <div id="biblical-reference" class="biblical-ref">
+                    <p><strong>Referência:</strong> <span id="reference-text"></span></p>
+                    <div id="explanation-block" class="explanation-block hidden">
+                        <p><strong>📖 Explicação</strong></p>
+                        <p id="explanation-text"></p>
+                    </div>
+                    <div id="verse-block" class="verse-block hidden">
+                        <p><strong>Texto bíblico</strong></p>
+                        <p id="biblical-text" class="verse-text"></p>
+                        <button type="button" id="btn-expand-verse" class="btn-expand-verse hidden">Ver texto completo ▼</button>
+                        <div id="verse-full-block" class="verse-full-block hidden">
+                            <p id="biblical-text-full" class="verse-text verse-text-full"></p>
+                        </div>
+                    </div>
+                </div>
+                <button id="next-btn" class="btn-primary">Próxima pergunta</button>
+            </div>
+        </div>
+
+        <!-- Resultado -->
+        <div id="result-screen" class="screen">
+            <h2>Resultado</h2>
+            <div id="result-summary" class="result-summary"></div>
+            <div id="new-achievements" class="achievements-toast hidden"></div>
+
+            <input type="text" id="player-name" placeholder="Seu nome (compartilhar)" maxlength="40">
+
+            <div class="result-actions">
+                <button id="btn-result-path" class="btn-primary">Continuar nas trilhas</button>
+                <button id="share-whatsapp" class="btn-secondary">Compartilhar no WhatsApp</button>
+                <button id="btn-result-ranking" class="btn-secondary">Ver ranking</button>
+                <button id="btn-result-menu" class="btn-secondary">Menu</button>
+            </div>
+            <div class="signature">Desenvolvido por Pr. Wilson Lucas Ferreira</div>
+        </div>
+
+        <!-- Ranking (overlay) -->
+        <div id="ranking-overlay" class="overlay hidden">
+            <div class="overlay-panel ranking-panel">
+                <header class="overlay-header">
+                    <h2>🏆 Ranking</h2>
+                    <button id="close-ranking" class="btn-icon" aria-label="Fechar">✕</button>
+                </header>
+                <div class="ranking-tabs">
+                    <button class="tab active" data-tab="online">Ranking</button>
+                    <button class="tab" data-tab="torneio">Torneio</button>
+                </div>
+                <div id="ranking-online-tab" class="tab-content active">
+                    <p id="firebase-status" class="firebase-status"></p>
+                    <div class="ranking-board-selector">
+                        <label for="ranking-board-select">Trilha:</label>
+                        <select id="ranking-board-select"></select>
+                    </div>
+                    <div id="podium-online"></div>
+                    <div id="ranking-table-online"></div>
+                </div>
+                <div id="ranking-torneio-tab" class="tab-content hidden">
+                    <p id="firebase-status-torneio" class="firebase-status"></p>
+                    <div id="ranking-torneio-organizer-actions" class="ranking-organizer-actions hidden">
+                        <button type="button" id="btn-ranking-liberar" class="btn-primary small" disabled>Liberar ranking para participantes</button>
+                    </div>
+                    <div id="podium-torneio"></div>
+                    <div id="ranking-table-torneio"></div>
+                    <div id="ranking-detalhes-torneio" class="ranking-detalhes-torneio"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conquistas (overlay) -->
+        <div id="achievements-overlay" class="overlay hidden">
+            <div class="overlay-panel">
+                <header class="overlay-header">
+                    <h2>🎖️ Conquistas</h2>
+                    <button id="close-achievements" class="btn-icon" aria-label="Fechar">✕</button>
+                </header>
+                <div id="achievements-header" class="achievements-header"></div>
+                <div id="achievements-list" class="achievements-list"></div>
+            </div>
+        </div>
+
+        <!-- Escolha de time (competição) -->
+        <div id="dialog-competition-team" class="dialog hidden">
+            <div class="dialog-box">
+                <h3 id="dialog-team-title">Escolha seu time</h3>
+                <p id="dialog-team-desc" class="screen-desc">Selecione em qual time você está neste torneio.</p>
+                <div id="dialog-team-list" class="team-picker-list"></div>
+                <div id="dialog-team-name-wrap" class="dialog-team-name-wrap hidden">
+                    <label class="competition-field">
+                        <span>Seu nome</span>
+                        <input type="text" id="dialog-team-player-name" maxlength="40" placeholder="Como aparecer no ranking">
+                    </label>
+                </div>
+                <p id="dialog-team-error" class="firebase-auth-error hidden"></p>
+                <button type="button" id="dialog-team-confirm" class="btn-primary hidden">Confirmar e jogar</button>
+                <button type="button" id="dialog-team-organizer-skip" class="btn-text hidden">Continuar só como organizador</button>
+            </div>
+        </div>
+
+        <!-- Dialog info -->
+        <div id="dialog-info" class="dialog hidden">
+            <div class="dialog-box dialog-info-box">
+                <h3>Como jogar</h3>
+                <p class="info-intro">
+                    O Quiz Bíblico é uma forma envolvente de aprender — quanto mais perguntas você responde,
+                    mais aprofunda o conhecimento da Palavra.
+                </p>
+                <ul class="info-list">
+                    <li>Toque em <strong>Jogar</strong> e escolha fase e trilha na grade</li>
+                    <li>Em cada fase, escolha a trilha: <strong>Completo</strong>, <strong>Novo Testamento</strong> ou <strong>Antigo Testamento</strong></li>
+                    <li>NT e AT: modo <strong>Completo</strong>, <strong>Livros</strong> ou <strong>Grupo de Livros</strong></li>
+                    <li>Responda as perguntas <strong>uma a uma</strong>, na ordem da trilha — o progresso fica salvo</li>
+                    <li>Modo <strong>Competição</strong> — link automático com times; quem abre já entra configurado</li>
+                    <li>Ranking por trilha e quadro com sua conta da Bíblia</li>
+                    <li>Pontuação: <strong>10 pontos por acerto</strong>. Sem acumuladores ou desconto por erro.</li>
+                    <li><strong>Desafio Diário</strong> — 10 perguntas, uma tentativa por dia</li>
+                    <li>Perguntas em <strong>múltipla escolha</strong> ou <strong>verdadeiro/falso</strong></li>
+                    <li>Fases a cada <strong>50 perguntas</strong> — só a última fase fica incompleta até novas perguntas</li>
+                    <li>Medalhas: bronze (1★), prata (2★) e ouro (3★) conforme o percentual de acertos</li>
+                    <li>Após cada resposta: referência, explicação e texto bíblico</li>
+                </ul>
+                <button type="button" id="dialog-info-ok" class="btn-primary">Entendi</button>
+            </div>
+        </div>
+
+        <!-- Dialog dica (ícone i) -->
+        <div id="dialog-tip" class="dialog hidden">
+            <div class="dialog-box dialog-tip-box">
+                <h3 id="dialog-tip-title"></h3>
+                <div id="dialog-tip-body" class="dialog-tip-body"></div>
+                <button type="button" id="dialog-tip-ok" class="btn-primary">Entendi</button>
+            </div>
+        </div>
+
+        <!-- Dialog sair -->
+        <div id="dialog-leave" class="dialog hidden">
+            <div class="dialog-box">
+                <h3 id="dialog-leave-title">Sair do quiz?</h3>
+                <p id="dialog-leave-msg">O progresso fica salvo neste aparelho para continuar depois.</p>
+                <div class="dialog-actions dialog-actions-stack">
+                    <button id="dialog-leave-cancel" class="btn-secondary">Continuar jogando</button>
+                    <button id="dialog-leave-confirm" class="btn-primary">Sair e salvar</button>
+                    <button id="dialog-leave-discard" class="btn-secondary hidden">Descartar e sair</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dialog fase desbloqueada -->
+        <div id="dialog-unlock" class="dialog hidden">
+            <div class="dialog-box">
+                <h3>Parabéns! Novo nível desbloqueado!</h3>
+                <p id="dialog-unlock-msg"></p>
+                <button id="dialog-unlock-ok" class="btn-primary">Continuar</button>
+            </div>
+        </div>
+
+        <!-- Dialog medalha (arte Salvation) -->
+        <div id="dialog-medal" class="dialog dialog-medal hidden" aria-hidden="true">
+            <div class="dialog-box dialog-medal-box">
+                <img id="dialog-medal-img" class="quiz-medal-img quiz-medal-xl quiz-medal-pop" src="" alt="" />
+                <h3 id="dialog-medal-title" class="dialog-medal-title"></h3>
+                <p id="dialog-medal-msg" class="dialog-medal-msg"></p>
+                <button type="button" id="dialog-medal-ok" class="btn-primary">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/integracao-biblia.js"></script>
+<script src="js/config.js"></script>
+    <script src="js/quiz-scoring.js"></script>
+    <script src="js/question-id.js"></script>
+    <script src="js/question-format.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/question-history.js"></script>
+    <script src="js/question-swap.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/competition-questions.js"></script>
+    <script src="js/competition.js"></script>
+    
+    <script src="js/ranking.js"></script>
+    
+    <script src="js/questions.js"></script>
+    <script src="js/questions-fase2.js"></script>
+    <script src="js/questions-extra-fase1.js"></script>
+    <script src="js/questions-new-fase2.js"></script>
+    <script src="js/questions-extra-fase2.js"></script>
+    <script src="js/questions-teologia.js"></script>
+    <script src="js/questions-mixed-vf.js"></script>
+    <script src="js/questions-por-livro-lote1.js"></script>
+    <script src="js/questions-por-livro-lote2.js"></script>
+    <script src="js/questions-por-livro-lote3.js"></script>
+    <script src="js/questions-por-livro-lote4.js"></script>
+    <script src="js/questions-por-livro-lote5.js"></script>
+    <script src="js/questions-por-livro-lote6.js"></script>
+    <script src="js/questions-por-livro-lote7.js"></script>
+    <script src="js/questions-por-livro-lote8.js"></script>
+    <script src="js/questions-por-livro.js"></script>
+    <script src="js/questions-merge.js"></script>
+    <script src="js/trilhas.js"></script>
+    <script src="js/medalhas.js"></script>
+    <script src="js/levels.js"></script>
+    <script src="js/trilha-linear.js"></script>
+    <script src="js/daily-challenge.js"></script>
+    <script src="js/confetti.js"></script>
+    <script src="js/incentivos.js"></script>
+    <script src="js/nivel.js"></script>
+    
+    
+    <script src="js/firebase-cloud-sync.js"></script>
+    <script src="js/firebase-ranking.js"></script>
+    <script src="js/app.js"></script>
+    
+</body>
+</html>

@@ -1,0 +1,4278 @@
+{
+  "hinos": {
+    "1": {
+      "numero": "001",
+      "titulo": "Doxologia"
+    },
+    "2": {
+      "numero": "002",
+      "titulo": "Reverência"
+    },
+    "3": {
+      "numero": "003",
+      "titulo": "A Igreja em Adoração"
+    },
+    "4": {
+      "numero": "004",
+      "titulo": "Culto à Trindade"
+    },
+    "5": {
+      "numero": "005",
+      "titulo": "Trindade Adorada"
+    },
+    "6": {
+      "numero": "006",
+      "titulo": "Doxologia"
+    },
+    "7": {
+      "numero": "007",
+      "titulo": "Glória à Trindade"
+    },
+    "8": {
+      "numero": "008",
+      "titulo": "Adoração à Trindade"
+    },
+    "9": {
+      "numero": "009",
+      "titulo": "Aleluia ao Deus Trino"
+    },
+    "10": {
+      "numero": "010",
+      "titulo": "A Criação e Seu Criador"
+    },
+    "11": {
+      "numero": "011",
+      "titulo": "Trindade Santíssima"
+    },
+    "12": {
+      "numero": "012",
+      "titulo": "Glória a Deus"
+    },
+    "13": {
+      "numero": "013",
+      "titulo": "Contemplação"
+    },
+    "14": {
+      "numero": "014",
+      "titulo": "Louvor e Exaltação"
+    },
+    "15": {
+      "numero": "015",
+      "titulo": "Doxologia"
+    },
+    "16": {
+      "numero": "016",
+      "titulo": "Louvor ao Deus Soberano"
+    },
+    "17": {
+      "numero": "017",
+      "titulo": "Deus Seja Louvado"
+    },
+    "18": {
+      "numero": "018",
+      "titulo": "Deus dos Antigos"
+    },
+    "19": {
+      "numero": "019",
+      "titulo": "Rei Sublime"
+    },
+    "20": {
+      "numero": "020",
+      "titulo": "Glorificação à Trindade"
+    },
+    "21": {
+      "numero": "021",
+      "titulo": "Louvor ao Deus de Abraão"
+    },
+    "22": {
+      "numero": "022",
+      "titulo": "A Revelação de Deus"
+    },
+    "23": {
+      "numero": "023",
+      "titulo": "Adoração ao Criador e Salvador"
+    },
+    "24": {
+      "numero": "024",
+      "titulo": "Convite ao Louvor"
+    },
+    "25": {
+      "numero": "025",
+      "titulo": "Exaltação ao Criador e Salvador"
+    },
+    "26": {
+      "numero": "026",
+      "titulo": "Louvor ao Deus Grandioso"
+    },
+    "27": {
+      "numero": "027",
+      "titulo": "Um Hino ao Senhor"
+    },
+    "28": {
+      "numero": "028",
+      "titulo": "Coroação"
+    },
+    "29": {
+      "numero": "029",
+      "titulo": "Adoração ao Nosso Deus Sustentador"
+    },
+    "30": {
+      "numero": "030",
+      "titulo": "Providência de Deus (na Criação)"
+    },
+    "31": {
+      "numero": "031",
+      "titulo": "Providência de Deus (na Redenção)"
+    },
+    "32": {
+      "numero": "032",
+      "titulo": "O Deus Fiel às Suas Promessas"
+    },
+    "33": {
+      "numero": "033",
+      "titulo": "Maravilhas Divinas"
+    },
+    "34": {
+      "numero": "034",
+      "titulo": "Louvor ao Deus da Graça"
+    },
+    "35": {
+      "numero": "035",
+      "titulo": "Adoração e Súplica"
+    },
+    "36": {
+      "numero": "036",
+      "titulo": "Exaltação Universal"
+    },
+    "37": {
+      "numero": "037",
+      "titulo": "O Santo Nome"
+    },
+    "38": {
+      "numero": "038",
+      "titulo": "Louvores Sem Fim"
+    },
+    "39": {
+      "numero": "039",
+      "titulo": "Exaltação e Louvor"
+    },
+    "40": {
+      "numero": "040",
+      "titulo": "Cântico ao Salvador"
+    },
+    "41": {
+      "numero": "041",
+      "titulo": "Louvor Pela Graça Divina"
+    },
+    "42": {
+      "numero": "042",
+      "titulo": "O Grande Amor de Deus"
+    },
+    "43": {
+      "numero": "043",
+      "titulo": "O Deus de Amor"
+    },
+    "44": {
+      "numero": "044",
+      "titulo": "Louvores ao Senhor"
+    },
+    "45": {
+      "numero": "045",
+      "titulo": "Grande Redenção"
+    },
+    "46": {
+      "numero": "046",
+      "titulo": "Altos Louvores"
+    },
+    "47": {
+      "numero": "047",
+      "titulo": "Louvor e Glória"
+    },
+    "48": {
+      "numero": "048",
+      "titulo": "Amor e Gratidão"
+    },
+    "49": {
+      "numero": "049",
+      "titulo": "Sempre Vencendo"
+    },
+    "50": {
+      "numero": "050",
+      "titulo": "Sangue Precioso"
+    },
+    "51": {
+      "numero": "051",
+      "titulo": "Adoração ao Cordeiro Vencedor"
+    },
+    "52": {
+      "numero": "052",
+      "titulo": "Glória e Celebração"
+    },
+    "53": {
+      "numero": "053",
+      "titulo": "Honra, Poder, Majestade"
+    },
+    "54": {
+      "numero": "054",
+      "titulo": "A Chegada do Messias"
+    },
+    "55": {
+      "numero": "055",
+      "titulo": "Alegria e Gratidão"
+    },
+    "56": {
+      "numero": "056",
+      "titulo": "Ações de Graças e Súplica"
+    },
+    "57": {
+      "numero": "057",
+      "titulo": "Fonte de Todo Bem"
+    },
+    "58": {
+      "numero": "058",
+      "titulo": "Ofertas"
+    },
+    "59": {
+      "numero": "059",
+      "titulo": "Gratidão"
+    },
+    "60": {
+      "numero": "060",
+      "titulo": "Ofertório"
+    },
+    "61": {
+      "numero": "061",
+      "titulo": "Ações de Graças"
+    },
+    "62": {
+      "numero": "062",
+      "titulo": "Hino de Gratidão"
+    },
+    "63": {
+      "numero": "063",
+      "titulo": "As Muitas Bênçãos"
+    },
+    "64": {
+      "numero": "064",
+      "titulo": "Grata Memória"
+    },
+    "65": {
+      "numero": "065",
+      "titulo": "Gratidão e Louvor"
+    },
+    "66": {
+      "numero": "066",
+      "titulo": "Contrição"
+    },
+    "67": {
+      "numero": "067",
+      "titulo": "Coração Quebrantado"
+    },
+    "68": {
+      "numero": "068",
+      "titulo": "Dependência de Deus"
+    },
+    "69": {
+      "numero": "069",
+      "titulo": "Súplica"
+    },
+    "70": {
+      "numero": "070",
+      "titulo": "Descanso em Jesus"
+    },
+    "71": {
+      "numero": "071",
+      "titulo": "Contrição e Confissão"
+    },
+    "72": {
+      "numero": "072",
+      "titulo": "Purificação"
+    },
+    "73": {
+      "numero": "073",
+      "titulo": "Compaixão"
+    },
+    "74": {
+      "numero": "074",
+      "titulo": "Sinceridade"
+    },
+    "75": {
+      "numero": "075",
+      "titulo": "Arrependimento e Súplica"
+    },
+    "76": {
+      "numero": "076",
+      "titulo": "Clamor por Compaixão"
+    },
+    "77": {
+      "numero": "077",
+      "titulo": "Divino Perdão"
+    },
+    "78": {
+      "numero": "078",
+      "titulo": "Perfeita Expiação"
+    },
+    "79": {
+      "numero": "079",
+      "titulo": "Glória ao Salvador"
+    },
+    "80": {
+      "numero": "080",
+      "titulo": "O Amor de Jesus"
+    },
+    "81": {
+      "numero": "081",
+      "titulo": "Súplica ao Espírito Santo"
+    },
+    "82": {
+      "numero": "082",
+      "titulo": "Divino Preceptor"
+    },
+    "83": {
+      "numero": "083",
+      "titulo": "Divino Instruidor"
+    },
+    "84": {
+      "numero": "084",
+      "titulo": "Santo Espírito"
+    },
+    "85": {
+      "numero": "085",
+      "titulo": "Espírito Consolador"
+    },
+    "86": {
+      "numero": "086",
+      "titulo": "Oração ao Espírito Santo"
+    },
+    "87": {
+      "numero": "087",
+      "titulo": "Alegria Perene"
+    },
+    "88": {
+      "numero": "088",
+      "titulo": "Amor Perene"
+    },
+    "89": {
+      "numero": "089",
+      "titulo": "Amor Sacrificial"
+    },
+    "90": {
+      "numero": "090",
+      "titulo": "Amor Insondável"
+    },
+    "91": {
+      "numero": "091",
+      "titulo": "A Fé dos Antigos"
+    },
+    "92": {
+      "numero": "092",
+      "titulo": "A Fé Contemplada"
+    },
+    "93": {
+      "numero": "093",
+      "titulo": "Firmeza na Fé"
+    },
+    "94": {
+      "numero": "094",
+      "titulo": "A Porta da Salvação"
+    },
+    "95": {
+      "numero": "095",
+      "titulo": "Somente Cristo"
+    },
+    "96": {
+      "numero": "096",
+      "titulo": "Redenção Suprema"
+    },
+    "97": {
+      "numero": "097",
+      "titulo": "Súplica do Redimido"
+    },
+    "98": {
+      "numero": "098",
+      "titulo": "Não Há Condenação"
+    },
+    "99": {
+      "numero": "099",
+      "titulo": "Louvor ao Redentor"
+    },
+    "100": {
+      "numero": "100",
+      "titulo": "Louvores a Cristo"
+    },
+    "101": {
+      "numero": "101",
+      "titulo": "A Voz da Salvação"
+    },
+    "102": {
+      "numero": "102",
+      "titulo": "O Céu com Cristo"
+    },
+    "103": {
+      "numero": "103",
+      "titulo": "Salvação em Cristo"
+    },
+    "104": {
+      "numero": "104",
+      "titulo": "Plena Paz e Alegria em Cristo"
+    },
+    "105": {
+      "numero": "105",
+      "titulo": "A Certeza do Crente"
+    },
+    "106": {
+      "numero": "106",
+      "titulo": "Fonte Carmesim"
+    },
+    "107": {
+      "numero": "107",
+      "titulo": "Perto da Cruz"
+    },
+    "108": {
+      "numero": "108",
+      "titulo": "Aflição e Paz"
+    },
+    "109": {
+      "numero": "109",
+      "titulo": "O Bom Pastor"
+    },
+    "110": {
+      "numero": "110",
+      "titulo": "A Vida com Jesus"
+    },
+    "111": {
+      "numero": "111",
+      "titulo": "Comunhão Divina"
+    },
+    "112": {
+      "numero": "112",
+      "titulo": "Rica Promessa"
+    },
+    "113": {
+      "numero": "113",
+      "titulo": "Achei Um Bom Amigo"
+    },
+    "114": {
+      "numero": "114",
+      "titulo": "Brilho Celeste"
+    },
+    "115": {
+      "numero": "115",
+      "titulo": "Unido com Cristo"
+    },
+    "116": {
+      "numero": "116",
+      "titulo": "União com Deus"
+    },
+    "117": {
+      "numero": "117",
+      "titulo": "Pastor Divino"
+    },
+    "118": {
+      "numero": "118",
+      "titulo": "Esperando em Deus"
+    },
+    "119": {
+      "numero": "119",
+      "titulo": "Súplica pelo Culto"
+    },
+    "120": {
+      "numero": "120",
+      "titulo": "Dependência"
+    },
+    "121": {
+      "numero": "121",
+      "titulo": "Perfeição"
+    },
+    "122": {
+      "numero": "122",
+      "titulo": "Necessitado"
+    },
+    "123": {
+      "numero": "123",
+      "titulo": "Grande Amor"
+    },
+    "124": {
+      "numero": "124",
+      "titulo": "Benigna Luz"
+    },
+    "125": {
+      "numero": "125",
+      "titulo": "Sempre Veraz"
+    },
+    "126": {
+      "numero": "126",
+      "titulo": "Dependência e Confiança"
+    },
+    "127": {
+      "numero": "127",
+      "titulo": "Hora Bendita"
+    },
+    "128": {
+      "numero": "128",
+      "titulo": "Comunhão Preciosa"
+    },
+    "129": {
+      "numero": "129",
+      "titulo": "Vigilância e Oração"
+    },
+    "130": {
+      "numero": "130",
+      "titulo": "Oração ao Senhor"
+    },
+    "131": {
+      "numero": "131",
+      "titulo": "Vida Santificada"
+    },
+    "132": {
+      "numero": "132",
+      "titulo": "Vivificação"
+    },
+    "133": {
+      "numero": "133",
+      "titulo": "Aspiração à Santidade"
+    },
+    "134": {
+      "numero": "134",
+      "titulo": "Riquezas do Céu"
+    },
+    "135": {
+      "numero": "135",
+      "titulo": "Mais de Cristo"
+    },
+    "136": {
+      "numero": "136",
+      "titulo": "Rocha Eterna"
+    },
+    "137": {
+      "numero": "137",
+      "titulo": "Abrigo no Temporal"
+    },
+    "138": {
+      "numero": "138",
+      "titulo": "Refúgio"
+    },
+    "139": {
+      "numero": "139",
+      "titulo": "O Socorro do Crente"
+    },
+    "140": {
+      "numero": "140",
+      "titulo": "Jornada do Crente"
+    },
+    "141": {
+      "numero": "141",
+      "titulo": "Guia Divino"
+    },
+    "142": {
+      "numero": "142",
+      "titulo": "O Fiel Pastor"
+    },
+    "143": {
+      "numero": "143",
+      "titulo": "Salmo 23"
+    },
+    "144": {
+      "numero": "144",
+      "titulo": "Segurança e Alegria"
+    },
+    "145": {
+      "numero": "145",
+      "titulo": "Refúgio Verdadeiro"
+    },
+    "146": {
+      "numero": "146",
+      "titulo": "Segurança do Crente"
+    },
+    "147": {
+      "numero": "147",
+      "titulo": "Vencendo Vem Jesus"
+    },
+    "148": {
+      "numero": "148",
+      "titulo": "Oração Noturna"
+    },
+    "149": {
+      "numero": "149",
+      "titulo": "Verdadeira Redenção"
+    },
+    "150": {
+      "numero": "150",
+      "titulo": "Salvação Perfeita"
+    },
+    "151": {
+      "numero": "151",
+      "titulo": "O Bom Pastor"
+    },
+    "152": {
+      "numero": "152",
+      "titulo": "Onisciência Divina"
+    },
+    "153": {
+      "numero": "153",
+      "titulo": "Amparo Divino"
+    },
+    "154": {
+      "numero": "154",
+      "titulo": "Segurança e Paz"
+    },
+    "155": {
+      "numero": "155",
+      "titulo": "Castelo Forte"
+    },
+    "156": {
+      "numero": "156",
+      "titulo": "Confiança em Deus"
+    },
+    "157": {
+      "numero": "157",
+      "titulo": "Segurança em Cristo"
+    },
+    "158": {
+      "numero": "158",
+      "titulo": "Conforto e Luz"
+    },
+    "159": {
+      "numero": "159",
+      "titulo": "Bondoso Amigo"
+    },
+    "160": {
+      "numero": "160",
+      "titulo": "Cristo é Tudo"
+    },
+    "161": {
+      "numero": "161",
+      "titulo": "O Melhor Amigo"
+    },
+    "162": {
+      "numero": "162",
+      "titulo": "A Voz de Deus"
+    },
+    "163": {
+      "numero": "163",
+      "titulo": "Direção Divina"
+    },
+    "164": {
+      "numero": "164",
+      "titulo": "Nome Precioso"
+    },
+    "165": {
+      "numero": "165",
+      "titulo": "Cuidado Divino"
+    },
+    "166": {
+      "numero": "166",
+      "titulo": "Luz da Vida"
+    },
+    "167": {
+      "numero": "167",
+      "titulo": "Cristo, Esperança Nossa"
+    },
+    "168": {
+      "numero": "168",
+      "titulo": "Jesus Amado"
+    },
+    "169": {
+      "numero": "169",
+      "titulo": "Grata Confiança"
+    },
+    "170": {
+      "numero": "170",
+      "titulo": "Redentor Onipotente"
+    },
+    "171": {
+      "numero": "171",
+      "titulo": "Deus Proverá"
+    },
+    "172": {
+      "numero": "172",
+      "titulo": "Chuvas de Bênçãos"
+    },
+    "173": {
+      "numero": "173",
+      "titulo": "Oração Vespertina"
+    },
+    "174": {
+      "numero": "174",
+      "titulo": "Poderoso Salvador"
+    },
+    "175": {
+      "numero": "175",
+      "titulo": "O Servo do Senhor"
+    },
+    "176": {
+      "numero": "176",
+      "titulo": "Fidelidade do Cristão"
+    },
+    "177": {
+      "numero": "177",
+      "titulo": "Firme nas Promessas"
+    },
+    "178": {
+      "numero": "178",
+      "titulo": "A Excelência do Amor"
+    },
+    "179": {
+      "numero": "179",
+      "titulo": "Louvor ao Deus Que Nos Guia"
+    },
+    "180": {
+      "numero": "180",
+      "titulo": "Amor Fraternal"
+    },
+    "181": {
+      "numero": "181",
+      "titulo": "Irmãos em Jesus"
+    },
+    "182": {
+      "numero": "182",
+      "titulo": "União Fraterna"
+    },
+    "183": {
+      "numero": "183",
+      "titulo": "Benditos Laços"
+    },
+    "184": {
+      "numero": "184",
+      "titulo": "Face a Face"
+    },
+    "185": {
+      "numero": "185",
+      "titulo": "Glória Vindoura"
+    },
+    "186": {
+      "numero": "186",
+      "titulo": "O Lar do Céu"
+    },
+    "187": {
+      "numero": "187",
+      "titulo": "Cidade Celestial"
+    },
+    "188": {
+      "numero": "188",
+      "titulo": "Clara Luz"
+    },
+    "189": {
+      "numero": "189",
+      "titulo": "Jerusalém Celeste"
+    },
+    "190": {
+      "numero": "190",
+      "titulo": "Maior Que a Dor"
+    },
+    "191": {
+      "numero": "191",
+      "titulo": "Rio da Vida"
+    },
+    "192": {
+      "numero": "192",
+      "titulo": "No Céu Com Jesus"
+    },
+    "193": {
+      "numero": "193",
+      "titulo": "Aspiração do Céu"
+    },
+    "194": {
+      "numero": "194",
+      "titulo": "Morada Feliz"
+    },
+    "195": {
+      "numero": "195",
+      "titulo": "Dormindo no Senhor"
+    },
+    "196": {
+      "numero": "196",
+      "titulo": "Gozo, Esplendores, Venturas"
+    },
+    "197": {
+      "numero": "197",
+      "titulo": "O Salvador Espera"
+    },
+    "198": {
+      "numero": "198",
+      "titulo": "Salvação Graciosa"
+    },
+    "199": {
+      "numero": "199",
+      "titulo": "Cristo Salva"
+    },
+    "200": {
+      "numero": "200",
+      "titulo": "Palavra Abençoada"
+    },
+    "201": {
+      "numero": "201",
+      "titulo": "Manso e Suave"
+    },
+    "202": {
+      "numero": "202",
+      "titulo": "Palavras Preciosas"
+    },
+    "203": {
+      "numero": "203",
+      "titulo": "Convite Para a Salvação"
+    },
+    "204": {
+      "numero": "204",
+      "titulo": "Cristo à Porta"
+    },
+    "205": {
+      "numero": "205",
+      "titulo": "O Amor que Chama"
+    },
+    "206": {
+      "numero": "206",
+      "titulo": "Convite de Jesus"
+    },
+    "207": {
+      "numero": "207",
+      "titulo": "Convite ao Pecador"
+    },
+    "208": {
+      "numero": "208",
+      "titulo": "Aproximação"
+    },
+    "209": {
+      "numero": "209",
+      "titulo": "Encorajamento"
+    },
+    "210": {
+      "numero": "210",
+      "titulo": "O Filho Perdido"
+    },
+    "211": {
+      "numero": "211",
+      "titulo": "Quase Induzido"
+    },
+    "212": {
+      "numero": "212",
+      "titulo": "Apelo"
+    },
+    "213": {
+      "numero": "213",
+      "titulo": "A Última Hora"
+    },
+    "214": {
+      "numero": "214",
+      "titulo": "Convite e Aceitação"
+    },
+    "215": {
+      "numero": "215",
+      "titulo": "Apelo"
+    },
+    "216": {
+      "numero": "216",
+      "titulo": "Perdão"
+    },
+    "217": {
+      "numero": "217",
+      "titulo": "Desprendimento"
+    },
+    "218": {
+      "numero": "218",
+      "titulo": "Vontade Soberana"
+    },
+    "219": {
+      "numero": "219",
+      "titulo": "Dedicação"
+    },
+    "220": {
+      "numero": "220",
+      "titulo": "Plena Dedicação"
+    },
+    "221": {
+      "numero": "221",
+      "titulo": "Um Vaso de Benção"
+    },
+    "222": {
+      "numero": "222",
+      "titulo": "Mais Perto da Cruz"
+    },
+    "223": {
+      "numero": "223",
+      "titulo": "Oração do Arrependido"
+    },
+    "224": {
+      "numero": "224",
+      "titulo": "Consagração"
+    },
+    "225": {
+      "numero": "225",
+      "titulo": "Dedicação Pessoal"
+    },
+    "226": {
+      "numero": "226",
+      "titulo": "A História de Cristo"
+    },
+    "227": {
+      "numero": "227",
+      "titulo": "A Velha História"
+    },
+    "228": {
+      "numero": "228",
+      "titulo": "De Deus o Ungido"
+    },
+    "229": {
+      "numero": "229",
+      "titulo": "Boas-Novas"
+    },
+    "230": {
+      "numero": "230",
+      "titulo": "Adoração ao Nosso Senhor"
+    },
+    "231": {
+      "numero": "231",
+      "titulo": "O Primeiro Natal"
+    },
+    "232": {
+      "numero": "232",
+      "titulo": "Pequena Vila de Belém"
+    },
+    "233": {
+      "numero": "233",
+      "titulo": "Os Pastores no Campo"
+    },
+    "234": {
+      "numero": "234",
+      "titulo": "Um Pequeno a Repousar"
+    },
+    "235": {
+      "numero": "235",
+      "titulo": "O Anjo da Paz"
+    },
+    "236": {
+      "numero": "236",
+      "titulo": "Em Linda Noite"
+    },
+    "237": {
+      "numero": "237",
+      "titulo": "Jesus Nasceu"
+    },
+    "238": {
+      "numero": "238",
+      "titulo": "Novas de Amor"
+    },
+    "239": {
+      "numero": "239",
+      "titulo": "Nasce Jesus"
+    },
+    "240": {
+      "numero": "240",
+      "titulo": "Louvor Angelical"
+    },
+    "241": {
+      "numero": "241",
+      "titulo": "O Nascimento de Jesus"
+    },
+    "242": {
+      "numero": "242",
+      "titulo": "Os Anjos e o Natal"
+    },
+    "243": {
+      "numero": "243",
+      "titulo": "Noite de Paz"
+    },
+    "244": {
+      "numero": "244",
+      "titulo": "Mensagem aos Pastores"
+    },
+    "245": {
+      "numero": "245",
+      "titulo": "Homens Sábios e de Bem"
+    },
+    "246": {
+      "numero": "246",
+      "titulo": "Jesus, o Messias"
+    },
+    "247": {
+      "numero": "247",
+      "titulo": "Estrela Cintilante"
+    },
+    "248": {
+      "numero": "248",
+      "titulo": "No Humilde Presépio"
+    },
+    "249": {
+      "numero": "249",
+      "titulo": "Na Manjedoura"
+    },
+    "250": {
+      "numero": "250",
+      "titulo": "A Voz de Jesus"
+    },
+    "251": {
+      "numero": "251",
+      "titulo": "O Pão da Vida"
+    },
+    "252": {
+      "numero": "252",
+      "titulo": "Pão Celestial"
+    },
+    "253": {
+      "numero": "253",
+      "titulo": "Cristo, a Luz do Mundo"
+    },
+    "254": {
+      "numero": "254",
+      "titulo": "Sossegai"
+    },
+    "255": {
+      "numero": "255",
+      "titulo": "A Ovelha Perdida"
+    },
+    "256": {
+      "numero": "256",
+      "titulo": "Glória Singular"
+    },
+    "257": {
+      "numero": "257",
+      "titulo": "Hosana ao Grande Rei"
+    },
+    "258": {
+      "numero": "258",
+      "titulo": "Majestade"
+    },
+    "259": {
+      "numero": "259",
+      "titulo": "Hosana e Glória"
+    },
+    "260": {
+      "numero": "260",
+      "titulo": "Amor Que Vence"
+    },
+    "261": {
+      "numero": "261",
+      "titulo": "O Gólgota"
+    },
+    "262": {
+      "numero": "262",
+      "titulo": "Contemplação da Cruz"
+    },
+    "263": {
+      "numero": "263",
+      "titulo": "Junto à Cruz de Cristo"
+    },
+    "264": {
+      "numero": "264",
+      "titulo": "Fronte Ensanguentada"
+    },
+    "265": {
+      "numero": "265",
+      "titulo": "Cristo Redentor"
+    },
+    "266": {
+      "numero": "266",
+      "titulo": "Rude Cruz"
+    },
+    "267": {
+      "numero": "267",
+      "titulo": "Precioso Sangue"
+    },
+    "268": {
+      "numero": "268",
+      "titulo": "Redenção"
+    },
+    "269": {
+      "numero": "269",
+      "titulo": "Pureza no Sangue de Cristo"
+    },
+    "270": {
+      "numero": "270",
+      "titulo": "Desafio"
+    },
+    "271": {
+      "numero": "271",
+      "titulo": "Ressurreição"
+    },
+    "272": {
+      "numero": "272",
+      "titulo": "Aleluia ao Cristo Redivivo"
+    },
+    "273": {
+      "numero": "273",
+      "titulo": "Memórias da Ressurreição"
+    },
+    "274": {
+      "numero": "274",
+      "titulo": "Morto e Ressurreto"
+    },
+    "275": {
+      "numero": "275",
+      "titulo": "Cristo Venceu"
+    },
+    "276": {
+      "numero": "276",
+      "titulo": "Amorável Convite"
+    },
+    "277": {
+      "numero": "277",
+      "titulo": "Cristo Vive! Ressurgiu!"
+    },
+    "278": {
+      "numero": "278",
+      "titulo": "A Vitória de Jesus"
+    },
+    "279": {
+      "numero": "279",
+      "titulo": "O Dia Triunfal Raiou"
+    },
+    "280": {
+      "numero": "280",
+      "titulo": "Ascensão"
+    },
+    "281": {
+      "numero": "281",
+      "titulo": "Jesus Triunfante"
+    },
+    "282": {
+      "numero": "282",
+      "titulo": "A Grande Comissão"
+    },
+    "283": {
+      "numero": "283",
+      "titulo": "Avançar com Jesus"
+    },
+    "284": {
+      "numero": "284",
+      "titulo": "Obediência"
+    },
+    "285": {
+      "numero": "285",
+      "titulo": "A Salvação do Brasil"
+    },
+    "286": {
+      "numero": "286",
+      "titulo": "Colheita Bendita"
+    },
+    "287": {
+      "numero": "287",
+      "titulo": "Igreja, Alerta!"
+    },
+    "288": {
+      "numero": "288",
+      "titulo": "A Mensagem Real"
+    },
+    "289": {
+      "numero": "289",
+      "titulo": "Quem Irá?"
+    },
+    "290": {
+      "numero": "290",
+      "titulo": "Jesus Já Vem"
+    },
+    "291": {
+      "numero": "291",
+      "titulo": "Triunfante Vem"
+    },
+    "292": {
+      "numero": "292",
+      "titulo": "A Vinda do Senhor"
+    },
+    "293": {
+      "numero": "293",
+      "titulo": "O Dia Glorioso"
+    },
+    "294": {
+      "numero": "294",
+      "titulo": "O Senhor Voltará"
+    },
+    "295": {
+      "numero": "295",
+      "titulo": "A Volta de Jesus"
+    },
+    "296": {
+      "numero": "296",
+      "titulo": "Cristo Não Tarda"
+    },
+    "297": {
+      "numero": "297",
+      "titulo": "A Chamada Final"
+    },
+    "298": {
+      "numero": "298",
+      "titulo": "A Pedra Fundamental"
+    },
+    "299": {
+      "numero": "299",
+      "titulo": "Renovação"
+    },
+    "300": {
+      "numero": "300",
+      "titulo": "Igreja Militante"
+    },
+    "301": {
+      "numero": "301",
+      "titulo": "O Único Salvador"
+    },
+    "302": {
+      "numero": "302",
+      "titulo": "Povoam as Cidades"
+    },
+    "303": {
+      "numero": "303",
+      "titulo": "Pendão Real"
+    },
+    "304": {
+      "numero": "304",
+      "titulo": "A Voz do Evangelho"
+    },
+    "305": {
+      "numero": "305",
+      "titulo": "Quem Quiser"
+    },
+    "306": {
+      "numero": "306",
+      "titulo": "Fidelidade na Luta"
+    },
+    "307": {
+      "numero": "307",
+      "titulo": "A Santa Igreja"
+    },
+    "308": {
+      "numero": "308",
+      "titulo": "Escuridão e Luz"
+    },
+    "309": {
+      "numero": "309",
+      "titulo": "Proclamação"
+    },
+    "310": {
+      "numero": "310",
+      "titulo": "Quem Salva é Só Jesus"
+    },
+    "311": {
+      "numero": "311",
+      "titulo": "Avante, ó Crentes"
+    },
+    "312": {
+      "numero": "312",
+      "titulo": "Há Trabalho Certo"
+    },
+    "313": {
+      "numero": "313",
+      "titulo": "Prontidão"
+    },
+    "314": {
+      "numero": "314",
+      "titulo": "Diligência"
+    },
+    "315": {
+      "numero": "315",
+      "titulo": "Serviço do Crente"
+    },
+    "316": {
+      "numero": "316",
+      "titulo": "Os Intentos de Deus"
+    },
+    "317": {
+      "numero": "317",
+      "titulo": "Chamada"
+    },
+    "318": {
+      "numero": "318",
+      "titulo": "Ceifeiros do Senhor"
+    },
+    "319": {
+      "numero": "319",
+      "titulo": "Obreiros em Marcha"
+    },
+    "320": {
+      "numero": "320",
+      "titulo": "Brilha no Viver"
+    },
+    "321": {
+      "numero": "321",
+      "titulo": "Mãos ao Trabalho"
+    },
+    "322": {
+      "numero": "322",
+      "titulo": "Heroínas da Fé"
+    },
+    "323": {
+      "numero": "323",
+      "titulo": "Santa Peleja"
+    },
+    "324": {
+      "numero": "324",
+      "titulo": "Unidas e Firmes"
+    },
+    "325": {
+      "numero": "325",
+      "titulo": "Aspiração Feminina"
+    },
+    "326": {
+      "numero": "326",
+      "titulo": "Homens Presbiterianos"
+    },
+    "327": {
+      "numero": "327",
+      "titulo": "Obreiros Cristãos"
+    },
+    "328": {
+      "numero": "328",
+      "titulo": "Deus do Universo"
+    },
+    "329": {
+      "numero": "329",
+      "titulo": "Instalação de Pastor"
+    },
+    "330": {
+      "numero": "330",
+      "titulo": "A Bênção do Batismo"
+    },
+    "331": {
+      "numero": "331",
+      "titulo": "Oração"
+    },
+    "332": {
+      "numero": "332",
+      "titulo": "Batismo Infantil"
+    },
+    "333": {
+      "numero": "333",
+      "titulo": "O Batismo"
+    },
+    "334": {
+      "numero": "334",
+      "titulo": "A Conversão"
+    },
+    "335": {
+      "numero": "335",
+      "titulo": "Júbilo no Céu"
+    },
+    "336": {
+      "numero": "336",
+      "titulo": "Transformação"
+    },
+    "337": {
+      "numero": "337",
+      "titulo": "Profissão de Fé"
+    },
+    "338": {
+      "numero": "338",
+      "titulo": "Dia da Profissão de Fé"
+    },
+    "339": {
+      "numero": "339",
+      "titulo": "Dia Feliz"
+    },
+    "340": {
+      "numero": "340",
+      "titulo": "Santa Comunhão"
+    },
+    "341": {
+      "numero": "341",
+      "titulo": "Vera Páscoa"
+    },
+    "342": {
+      "numero": "342",
+      "titulo": "Comunhão"
+    },
+    "343": {
+      "numero": "343",
+      "titulo": "Em Memória"
+    },
+    "344": {
+      "numero": "344",
+      "titulo": "A Ceia do Senhor"
+    },
+    "345": {
+      "numero": "345",
+      "titulo": "O Pão do Mundo"
+    },
+    "346": {
+      "numero": "346",
+      "titulo": "A Ceia do Senhor"
+    },
+    "347": {
+      "numero": "347",
+      "titulo": "O Justo pelos Injustos"
+    },
+    "348": {
+      "numero": "348",
+      "titulo": "É este o Dia"
+    },
+    "349": {
+      "numero": "349",
+      "titulo": "Dia do Senhor"
+    },
+    "350": {
+      "numero": "350",
+      "titulo": "A Palavra da Vida"
+    },
+    "351": {
+      "numero": "351",
+      "titulo": "Belas Palavras de Vida"
+    },
+    "352": {
+      "numero": "352",
+      "titulo": "Leitura Bendita"
+    },
+    "353": {
+      "numero": "353",
+      "titulo": "Ao Fim dos Estudos"
+    },
+    "354": {
+      "numero": "354",
+      "titulo": "A Escola Dominical"
+    },
+    "355": {
+      "numero": "355",
+      "titulo": "Oração Infantil"
+    },
+    "356": {
+      "numero": "356",
+      "titulo": "Jesus Menino"
+    },
+    "357": {
+      "numero": "357",
+      "titulo": "Louvor Infantil"
+    },
+    "358": {
+      "numero": "358",
+      "titulo": "Jesus e as Crianças"
+    },
+    "359": {
+      "numero": "359",
+      "titulo": "Jesus Me Quer Bem"
+    },
+    "360": {
+      "numero": "360",
+      "titulo": "Pequena Luz"
+    },
+    "361": {
+      "numero": "361",
+      "titulo": "Brilhando com Jesus"
+    },
+    "362": {
+      "numero": "362",
+      "titulo": "Brilhando por Jesus"
+    },
+    "363": {
+      "numero": "363",
+      "titulo": "Venham as Crianças"
+    },
+    "364": {
+      "numero": "364",
+      "titulo": "Graças a Deus"
+    },
+    "365": {
+      "numero": "365",
+      "titulo": "Convite às Crianças"
+    },
+    "366": {
+      "numero": "366",
+      "titulo": "Joias Preciosas"
+    },
+    "367": {
+      "numero": "367",
+      "titulo": "Convite aos Meninos"
+    },
+    "368": {
+      "numero": "368",
+      "titulo": "Despedida"
+    },
+    "369": {
+      "numero": "369",
+      "titulo": "A Bíblia para Todos"
+    },
+    "370": {
+      "numero": "370",
+      "titulo": "Proclamação"
+    },
+    "371": {
+      "numero": "371",
+      "titulo": "A Bíblia"
+    },
+    "372": {
+      "numero": "372",
+      "titulo": "O Crente e a Bíblia"
+    },
+    "373": {
+      "numero": "373",
+      "titulo": "Ano Novo"
+    },
+    "374": {
+      "numero": "374",
+      "titulo": "Saudando o Ano Novo"
+    },
+    "375": {
+      "numero": "375",
+      "titulo": "O Ano Velho"
+    },
+    "376": {
+      "numero": "376",
+      "titulo": "Intercessão Pela Pátria"
+    },
+    "377": {
+      "numero": "377",
+      "titulo": "A Nação para Cristo"
+    },
+    "378": {
+      "numero": "378",
+      "titulo": "Oração pela Pátria"
+    },
+    "379": {
+      "numero": "379",
+      "titulo": "Petição pela Pátria"
+    },
+    "380": {
+      "numero": "380",
+      "titulo": "Jesus Proteja a Pátria"
+    },
+    "381": {
+      "numero": "381",
+      "titulo": "Intercessão pela Cidade"
+    },
+    "382": {
+      "numero": "382",
+      "titulo": "Mocidade Presbiteriana"
+    },
+    "383": {
+      "numero": "383",
+      "titulo": "Um Novo Mundo"
+    },
+    "384": {
+      "numero": "384",
+      "titulo": "Vamos com Jesus"
+    },
+    "385": {
+      "numero": "385",
+      "titulo": "O Estudante e a Bíblia"
+    },
+    "386": {
+      "numero": "386",
+      "titulo": "Testemunho"
+    },
+    "387": {
+      "numero": "387",
+      "titulo": "Combate"
+    },
+    "388": {
+      "numero": "388",
+      "titulo": "Mocidade, Avante!"
+    },
+    "389": {
+      "numero": "389",
+      "titulo": "Avante, Mocidade!"
+    },
+    "390": {
+      "numero": "390",
+      "titulo": "Fiéis Soldados"
+    },
+    "391": {
+      "numero": "391",
+      "titulo": "Mocidade Fiel"
+    },
+    "392": {
+      "numero": "392",
+      "titulo": "Vida Vitoriosa"
+    },
+    "393": {
+      "numero": "393",
+      "titulo": "União Vital"
+    },
+    "394": {
+      "numero": "394",
+      "titulo": "Perfeito Amor"
+    },
+    "395": {
+      "numero": "395",
+      "titulo": "Amor no Lar"
+    },
+    "396": {
+      "numero": "396",
+      "titulo": "Graças pelo Aniversário"
+    },
+    "397": {
+      "numero": "397",
+      "titulo": "Por minha Boa Mãe"
+    },
+    "398": {
+      "numero": "398",
+      "titulo": "Outra Vez Cantamos"
+    },
+    "399": {
+      "numero": "399",
+      "titulo": "Término do Culto"
+    },
+    "400": {
+      "numero": "400",
+      "titulo": "Oração por Proteção"
+    },
+    "110-a": {
+      "numero": "110-A",
+      "titulo": "Crer e Observar"
+    },
+    "237-a": {
+      "numero": "237-A",
+      "titulo": "Linda Estrela"
+    },
+    "281-a": {
+      "numero": "281-A",
+      "titulo": "Fronte Ensanguentada"
+    },
+    "325-a": {
+      "numero": "325-A",
+      "titulo": "Jesus Cristo é o Senhor"
+    },
+    "354-a": {
+      "numero": "354-A",
+      "titulo": "Escola Dominical"
+    },
+    "400-a": {
+      "numero": "400-A",
+      "titulo": "Ofertório"
+    }
+  },
+  "cifras": {
+    "1": {
+      "numero": "1",
+      "titulo": "DOXOLOGIA."
+    },
+    "2": {
+      "numero": "2",
+      "titulo": "REVERÊNCIA."
+    },
+    "3": {
+      "numero": "3",
+      "titulo": "A IGREJA EM ADORAÇÃO."
+    },
+    "4": {
+      "numero": "4",
+      "titulo": "CULTO À TRINDADE."
+    },
+    "5": {
+      "numero": "5",
+      "titulo": "TRINDADE ADORADA."
+    },
+    "6": {
+      "numero": "6",
+      "titulo": "DOXOLOGIA."
+    },
+    "7": {
+      "numero": "7",
+      "titulo": "GLÓRIA À TRINDADE."
+    },
+    "8": {
+      "numero": "8",
+      "titulo": "ADORAÇÃO À TRINDADE."
+    },
+    "9": {
+      "numero": "9",
+      "titulo": "ALELUIA AO DEUS TRIÚNO."
+    },
+    "10": {
+      "numero": "10",
+      "titulo": "A CRIAÇÃO E SEU CRIADOR."
+    },
+    "11": {
+      "numero": "11",
+      "titulo": "TRINDADE SANTÍSSIMA."
+    },
+    "12": {
+      "numero": "12",
+      "titulo": "GLÓRIA A DEUS."
+    },
+    "13": {
+      "numero": "13",
+      "titulo": "CONTEMPLAÇÃO."
+    },
+    "14": {
+      "numero": "14",
+      "titulo": "LOUVOR."
+    },
+    "15": {
+      "numero": "15",
+      "titulo": "DOXOLOGIA."
+    },
+    "16": {
+      "numero": "16",
+      "titulo": "LOUVOR A DEUS."
+    },
+    "17": {
+      "numero": "17",
+      "titulo": "DEUS SEJA LOUVADO."
+    },
+    "18": {
+      "numero": "18",
+      "titulo": "DEUS DOS ANTIGOS."
+    },
+    "19": {
+      "numero": "19",
+      "titulo": "REI SUBLIME."
+    },
+    "20": {
+      "numero": "20",
+      "titulo": "GLORIFICAÇÃO À TRINDADE."
+    },
+    "21": {
+      "numero": "21",
+      "titulo": "DEUS DE ABRÃO."
+    },
+    "22": {
+      "numero": "22",
+      "titulo": "OS CÉUS PROCLAMAM."
+    },
+    "23": {
+      "numero": "23",
+      "titulo": "ADORAÇÃO AO CRIADOR."
+    },
+    "24": {
+      "numero": "24",
+      "titulo": "CONVITE AO LOUVOR."
+    },
+    "25": {
+      "numero": "25",
+      "titulo": "O CRIADOR DE TUDO."
+    },
+    "26": {
+      "numero": "26",
+      "titulo": "AO DEUS GRANDIOSO."
+    },
+    "27": {
+      "numero": "27",
+      "titulo": "UM HINO AO SENHOR."
+    },
+    "28": {
+      "numero": "28",
+      "titulo": "COROAÇÃO."
+    },
+    "29": {
+      "numero": "29",
+      "titulo": "LOUVOR."
+    },
+    "30": {
+      "numero": "30",
+      "titulo": "PROVIDÊNCIA DE DEUS."
+    },
+    "31": {
+      "numero": "31",
+      "titulo": "PROVIDÊNCIA DE DEUS."
+    },
+    "32": {
+      "numero": "32",
+      "titulo": "O DEUS FIEL."
+    },
+    "33": {
+      "numero": "33",
+      "titulo": "MARAVILHAS DIVINAS."
+    },
+    "34": {
+      "numero": "34",
+      "titulo": "CONVITE AO LOUVOR."
+    },
+    "35": {
+      "numero": "35",
+      "titulo": "ADORAÇÃO E SÚPLICA."
+    },
+    "36": {
+      "numero": "36",
+      "titulo": "EXALTAÇÃO."
+    },
+    "37": {
+      "numero": "37",
+      "titulo": "O SANTO NOME."
+    },
+    "38": {
+      "numero": "38",
+      "titulo": "LOUVORES SEM FIM."
+    },
+    "39": {
+      "numero": "39",
+      "titulo": "EXALTAÇÃO E LOUVOR."
+    },
+    "40": {
+      "numero": "40",
+      "titulo": "CÂNTICO AO SALVADOR."
+    },
+    "41": {
+      "numero": "41",
+      "titulo": "LOUVOR PELA GRAÇA DIVINA."
+    },
+    "42": {
+      "numero": "42",
+      "titulo": "O GRANDE AMOR DE DEUS."
+    },
+    "43": {
+      "numero": "43",
+      "titulo": "O DEUS DE AMOR"
+    },
+    "44": {
+      "numero": "44",
+      "titulo": "LOUVORES AO SENHOR."
+    },
+    "45": {
+      "numero": "45",
+      "titulo": "GRANDE REDENÇÃO."
+    },
+    "46": {
+      "numero": "46",
+      "titulo": "ALTOS LOUVORES"
+    },
+    "47": {
+      "numero": "47",
+      "titulo": "LOUVOR E GLÓRIA."
+    },
+    "48": {
+      "numero": "48",
+      "titulo": "AMOR E GRATIDÃO."
+    },
+    "49": {
+      "numero": "49",
+      "titulo": "SEMPRE VENCENDO."
+    },
+    "50": {
+      "numero": "50",
+      "titulo": "SANGUE PRECIOSO."
+    },
+    "51": {
+      "numero": "51",
+      "titulo": "CRISTO COROADO."
+    },
+    "52": {
+      "numero": "52",
+      "titulo": "GLÓRIA E COROAÇÃO."
+    },
+    "53": {
+      "numero": "53",
+      "titulo": "HONRA, PODER, MAJESTADE."
+    },
+    "54": {
+      "numero": "54",
+      "titulo": "A CHEGADA DO MESSIAS."
+    },
+    "55": {
+      "numero": "55",
+      "titulo": "ALEGRIA E GRATIDÃO."
+    },
+    "56": {
+      "numero": "56",
+      "titulo": "AÇÕES DE GRAÇA E SÚPLICA."
+    },
+    "57": {
+      "numero": "57",
+      "titulo": "FONTE DE TODO BEM."
+    },
+    "58": {
+      "numero": "58",
+      "titulo": "OFERTAS."
+    },
+    "59": {
+      "numero": "59",
+      "titulo": "GRATIDÃO."
+    },
+    "60": {
+      "numero": "60",
+      "titulo": "OFERTÓRIO."
+    },
+    "61": {
+      "numero": "61",
+      "titulo": "AÇÕES DE GRAÇA."
+    },
+    "62": {
+      "numero": "62",
+      "titulo": "HINO DE GRATIDÃO."
+    },
+    "63": {
+      "numero": "63",
+      "titulo": "AS MUITAS BÊNÇÃOS."
+    },
+    "64": {
+      "numero": "64",
+      "titulo": "GRATA MEMÓRIA."
+    },
+    "65": {
+      "numero": "65",
+      "titulo": "LOUVOR."
+    },
+    "66": {
+      "numero": "66",
+      "titulo": "CORAÇÃO QUEBRANTADO."
+    },
+    "67": {
+      "numero": "67",
+      "titulo": "CORAÇÃO QUEBRANTADO."
+    },
+    "68": {
+      "numero": "68",
+      "titulo": "NECESSIDADE."
+    },
+    "69": {
+      "numero": "69",
+      "titulo": "SÚPLICA."
+    },
+    "70": {
+      "numero": "70",
+      "titulo": "DESCANSO EM JESUS."
+    },
+    "71": {
+      "numero": "71",
+      "titulo": "PERDÃO."
+    },
+    "72": {
+      "numero": "72",
+      "titulo": "PURIFICAÇÃO."
+    },
+    "73": {
+      "numero": "73",
+      "titulo": "COMPAIXÃO."
+    },
+    "74": {
+      "numero": "74",
+      "titulo": "SINCERIDADE."
+    },
+    "75": {
+      "numero": "75",
+      "titulo": "ARREPENDIMENTO E SÚPLICA."
+    },
+    "76": {
+      "numero": "76",
+      "titulo": "COMPAIXÃO."
+    },
+    "77": {
+      "numero": "77",
+      "titulo": "DIVINO PERDÃO"
+    },
+    "78": {
+      "numero": "78",
+      "titulo": "PERFEITA EXPIAÇÃO"
+    },
+    "79": {
+      "numero": "79",
+      "titulo": "GLÓRIA AO SALVADOR."
+    },
+    "80": {
+      "numero": "80",
+      "titulo": "O AMOR DE JESUS."
+    },
+    "81": {
+      "numero": "81",
+      "titulo": "SÚPLICA AO ESPÍRITO SANTO."
+    },
+    "82": {
+      "numero": "82",
+      "titulo": "DIVINO PRECEPTOR."
+    },
+    "83": {
+      "numero": "83",
+      "titulo": "DIVINO INSTRUIDOR."
+    },
+    "84": {
+      "numero": "84",
+      "titulo": "SANTO ESPÍRITO."
+    },
+    "85": {
+      "numero": "85",
+      "titulo": "ESPÍRITO CONSOLADOR."
+    },
+    "86": {
+      "numero": "86",
+      "titulo": "ESPÍRITO DO TRINO DEUS."
+    },
+    "87": {
+      "numero": "87",
+      "titulo": "ALEGRIA PERENE."
+    },
+    "88": {
+      "numero": "88",
+      "titulo": "AMOR PERENE."
+    },
+    "89": {
+      "numero": "89",
+      "titulo": "AMOR SACRIFICIAL."
+    },
+    "90": {
+      "numero": "90",
+      "titulo": "AMOR INSONDÁVEL."
+    },
+    "91": {
+      "numero": "91",
+      "titulo": "A FÉ DOS ANTIGOS."
+    },
+    "92": {
+      "numero": "92",
+      "titulo": "A FÉ CONTEMPLADA."
+    },
+    "93": {
+      "numero": "93",
+      "titulo": "FIRMEZA NA FÉ."
+    },
+    "94": {
+      "numero": "94",
+      "titulo": "A PORTA DA SALVAÇÃO."
+    },
+    "95": {
+      "numero": "95",
+      "titulo": "SOMENTE CRISTO."
+    },
+    "96": {
+      "numero": "96",
+      "titulo": "REDENÇÃO SUPREMA."
+    },
+    "97": {
+      "numero": "97",
+      "titulo": "SÚPLICA DO REDIMIDO."
+    },
+    "98": {
+      "numero": "98",
+      "titulo": "NÃO HÁ CONDENAÇÃO."
+    },
+    "99": {
+      "numero": "99",
+      "titulo": "LOUVOR AO REDENTOR."
+    },
+    "100": {
+      "numero": "100",
+      "titulo": "LOUVORES A CRISTO."
+    },
+    "101": {
+      "numero": "101",
+      "titulo": "A VOZ DA SALVAÇÃO."
+    },
+    "102": {
+      "numero": "102",
+      "titulo": "O CÉU COM CRISTO."
+    },
+    "103": {
+      "numero": "103",
+      "titulo": "SALVAÇÃO EM CRISTO."
+    },
+    "104": {
+      "numero": "104",
+      "titulo": "LINDA MELODIA."
+    },
+    "105": {
+      "numero": "105",
+      "titulo": "A CERTEZA DO CRENTE."
+    },
+    "106": {
+      "numero": "106",
+      "titulo": "FONTE CARMESIM."
+    },
+    "107": {
+      "numero": "107",
+      "titulo": "AO PÉ DA CRUZ."
+    },
+    "108": {
+      "numero": "108",
+      "titulo": "AFLIÇÃO E PAZ."
+    },
+    "109": {
+      "numero": "109",
+      "titulo": "O BOM PASTOR."
+    },
+    "110": {
+      "numero": "110",
+      "titulo": "A VIDA COM JESUS."
+    },
+    "111": {
+      "numero": "111",
+      "titulo": "COMUNHÃO DIVINA."
+    },
+    "112": {
+      "numero": "112",
+      "titulo": "RICA PROMESSA."
+    },
+    "113": {
+      "numero": "113",
+      "titulo": "ACHEI UM BOM AMIGO."
+    },
+    "114": {
+      "numero": "114",
+      "titulo": "BRILHO CELESTE."
+    },
+    "115": {
+      "numero": "115",
+      "titulo": "UNIDO COM CRISTO."
+    },
+    "116": {
+      "numero": "116",
+      "titulo": "UNIÃO COM DEUS."
+    },
+    "117": {
+      "numero": "117",
+      "titulo": "PASTOR DIVINO"
+    },
+    "118": {
+      "numero": "118",
+      "titulo": "ESPERANDO EM DEUS."
+    },
+    "119": {
+      "numero": "119",
+      "titulo": "SÚPLICA PELO CULTO."
+    },
+    "120": {
+      "numero": "120",
+      "titulo": "DEPENDÊNCIA."
+    },
+    "121": {
+      "numero": "121",
+      "titulo": "PERFEIÇÃO."
+    },
+    "122": {
+      "numero": "122",
+      "titulo": "NECESSITADO."
+    },
+    "123": {
+      "numero": "123",
+      "titulo": "GRANDE AMOR."
+    },
+    "124": {
+      "numero": "124",
+      "titulo": "BENIGNA LUZ."
+    },
+    "125": {
+      "numero": "125",
+      "titulo": "SEMPRE VERAZ."
+    },
+    "126": {
+      "numero": "126",
+      "titulo": "DEPENDÊNCIA."
+    },
+    "127": {
+      "numero": "127",
+      "titulo": "HORA BENDITA."
+    },
+    "128": {
+      "numero": "128",
+      "titulo": "COMUNHÃO PRECIOSA."
+    },
+    "129": {
+      "numero": "129",
+      "titulo": "VIGILÂNCIA E ORAÇÃO."
+    },
+    "130": {
+      "numero": "130",
+      "titulo": "ORAÇÃO AO SENHOR."
+    },
+    "131": {
+      "numero": "131",
+      "titulo": "VIDA SANTIFICADA."
+    },
+    "132": {
+      "numero": "132",
+      "titulo": "VIVIFICAÇÃO."
+    },
+    "133": {
+      "numero": "133",
+      "titulo": "ASPIRAÇÃO À SANTIDADE."
+    },
+    "134": {
+      "numero": "134",
+      "titulo": "RIQUEZAS DO CÉU."
+    },
+    "135": {
+      "numero": "135",
+      "titulo": "MAIS DE CRISTO."
+    },
+    "136": {
+      "numero": "136",
+      "titulo": "ROCHA ETERNA."
+    },
+    "137": {
+      "numero": "137",
+      "titulo": "ABRIGO NO TEMPORAL."
+    },
+    "138": {
+      "numero": "138",
+      "titulo": "REFÚGIO."
+    },
+    "139": {
+      "numero": "139",
+      "titulo": "O SOCORRO DO CRENTE."
+    },
+    "140": {
+      "numero": "140",
+      "titulo": "JORNADA DO CRENTE."
+    },
+    "141": {
+      "numero": "141",
+      "titulo": "GUIA DIVINO."
+    },
+    "142": {
+      "numero": "142",
+      "titulo": "O FIEL PASTOR."
+    },
+    "143": {
+      "numero": "143",
+      "titulo": "SALMO 23."
+    },
+    "144": {
+      "numero": "144",
+      "titulo": "SEGURANÇA E ALEGRIA."
+    },
+    "145": {
+      "numero": "145",
+      "titulo": "REFÚGIO VERDADEIRO."
+    },
+    "146": {
+      "numero": "146",
+      "titulo": "SEGURANÇA DO CRENTE."
+    },
+    "147": {
+      "numero": "147",
+      "titulo": "VENCENDO VEM JESUS."
+    },
+    "148": {
+      "numero": "148",
+      "titulo": "ORAÇÃO NOTURNA."
+    },
+    "149": {
+      "numero": "149",
+      "titulo": "VERDADEIRA REDENÇÃO."
+    },
+    "150": {
+      "numero": "150",
+      "titulo": "SALVAÇÃO PERFEITA."
+    },
+    "151": {
+      "numero": "151",
+      "titulo": "O BOM PASTOR."
+    },
+    "152": {
+      "numero": "152",
+      "titulo": "ONISCIÊNCIA DIVINA."
+    },
+    "153": {
+      "numero": "153",
+      "titulo": "AMPARO DIVINO."
+    },
+    "154": {
+      "numero": "154",
+      "titulo": "SEGURANÇA E PAZ."
+    },
+    "155": {
+      "numero": "155",
+      "titulo": "CASTELO FORTE."
+    },
+    "156": {
+      "numero": "156",
+      "titulo": "CONFIANÇA EM DEUS."
+    },
+    "157": {
+      "numero": "157",
+      "titulo": "SEGURANÇA EM CRISTO."
+    },
+    "158": {
+      "numero": "158",
+      "titulo": "CONFORTO E LUZ."
+    },
+    "159": {
+      "numero": "159",
+      "titulo": "BONDOSO AMIGO."
+    },
+    "160": {
+      "numero": "160",
+      "titulo": "CRISTO É TUDO."
+    },
+    "161": {
+      "numero": "161",
+      "titulo": "O MELHOR AMIGO."
+    },
+    "162": {
+      "numero": "162",
+      "titulo": "A VOZ DE DEUS."
+    },
+    "163": {
+      "numero": "163",
+      "titulo": "DIREÇÃO DIVINA."
+    },
+    "164": {
+      "numero": "164",
+      "titulo": "NOME PRECIOSO."
+    },
+    "165": {
+      "numero": "165",
+      "titulo": "CUIDADO DIVINO."
+    },
+    "166": {
+      "numero": "166",
+      "titulo": "LUZ E VIDA."
+    },
+    "167": {
+      "numero": "167",
+      "titulo": "CRISTO, ESPERANÇA NOSSA."
+    },
+    "168": {
+      "numero": "168",
+      "titulo": "JESUS AMADO."
+    },
+    "169": {
+      "numero": "169",
+      "titulo": "GRATA CONFIANÇA."
+    },
+    "170": {
+      "numero": "170",
+      "titulo": "REDENTOR ONIPOTENTE."
+    },
+    "171": {
+      "numero": "171",
+      "titulo": "DEUS PROVERÁ."
+    },
+    "172": {
+      "numero": "172",
+      "titulo": "CHUVAS DE BÊNÇÃOS."
+    },
+    "173": {
+      "numero": "173",
+      "titulo": "ORAÇÃO VESPERTINA"
+    },
+    "174": {
+      "numero": "174",
+      "titulo": "PODEROSO SALVADOR."
+    },
+    "175": {
+      "numero": "175",
+      "titulo": "O SERVO DO SENHOR."
+    },
+    "176": {
+      "numero": "176",
+      "titulo": "FIDELIDADE DO CRISTÃO."
+    },
+    "177": {
+      "numero": "177",
+      "titulo": "FIRME NAS PROMESSAS."
+    },
+    "178": {
+      "numero": "178",
+      "titulo": "A EXCELÊNCIA DO AMOR."
+    },
+    "179": {
+      "numero": "179",
+      "titulo": "SAUDAÇÃO."
+    },
+    "180": {
+      "numero": "180",
+      "titulo": "AMOR FRATERNAL."
+    },
+    "181": {
+      "numero": "181",
+      "titulo": "IRMÃOS EM JESUS."
+    },
+    "182": {
+      "numero": "182",
+      "titulo": "UNIÃO FRATERNA."
+    },
+    "183": {
+      "numero": "183",
+      "titulo": "BENDITOS LAÇOS."
+    },
+    "184": {
+      "numero": "184",
+      "titulo": "FACE A FACE."
+    },
+    "185": {
+      "numero": "185",
+      "titulo": "GLÓRIA VINDOURA."
+    },
+    "186": {
+      "numero": "186",
+      "titulo": "O LAR DO CÉU."
+    },
+    "187": {
+      "numero": "187",
+      "titulo": "CIDADE CELESTIAL."
+    },
+    "188": {
+      "numero": "188",
+      "titulo": "CLARA LUZ."
+    },
+    "189": {
+      "numero": "189",
+      "titulo": "JERUSALÉM CELESTE."
+    },
+    "190": {
+      "numero": "190",
+      "titulo": "MAIOR QUE A DOR."
+    },
+    "191": {
+      "numero": "191",
+      "titulo": "RIO DA VIDA."
+    },
+    "192": {
+      "numero": "192",
+      "titulo": "NO CÉU COM JESUS."
+    },
+    "193": {
+      "numero": "193",
+      "titulo": "ASPIRAÇÃO DO CÉU."
+    },
+    "194": {
+      "numero": "194",
+      "titulo": "MORADA FELIZ."
+    },
+    "195": {
+      "numero": "195",
+      "titulo": "DORMINDO NO SENHOR."
+    },
+    "196": {
+      "numero": "196",
+      "titulo": "GOZO, ESPLENDORES, VENTURAS."
+    },
+    "197": {
+      "numero": "197",
+      "titulo": "O SALVADOR ESPERA."
+    },
+    "198": {
+      "numero": "198",
+      "titulo": "SALVAÇÃO GRACIOSA."
+    },
+    "199": {
+      "numero": "199",
+      "titulo": "CRISTO SALVA."
+    },
+    "200": {
+      "numero": "200",
+      "titulo": "PALAVRA ABENÇOADA."
+    },
+    "201": {
+      "numero": "201",
+      "titulo": "MANSO E SUAVE."
+    },
+    "202": {
+      "numero": "202",
+      "titulo": "PALAVRAS PRECIOSAS."
+    },
+    "203": {
+      "numero": "203",
+      "titulo": "CONVITE PARA A SALVAÇÃO."
+    },
+    "204": {
+      "numero": "204",
+      "titulo": "CRISTO À PORTA."
+    },
+    "205": {
+      "numero": "205",
+      "titulo": "O AMOR QUE CHAMA."
+    },
+    "206": {
+      "numero": "206",
+      "titulo": "CONVITE DE JESUS."
+    },
+    "207": {
+      "numero": "207",
+      "titulo": "CONVITE AO PECADOR."
+    },
+    "208": {
+      "numero": "208",
+      "titulo": "APROXIMAÇÃO."
+    },
+    "209": {
+      "numero": "209",
+      "titulo": "ENCORAJAMENTO."
+    },
+    "210": {
+      "numero": "210",
+      "titulo": "O FILHO PERDIDO."
+    },
+    "211": {
+      "numero": "211",
+      "titulo": "QUASE INDUZIDO."
+    },
+    "212": {
+      "numero": "212",
+      "titulo": "APELO."
+    },
+    "213": {
+      "numero": "213",
+      "titulo": "A ÚLTIMA HORA."
+    },
+    "214": {
+      "numero": "214",
+      "titulo": "CONVITE E ACEITAÇÃO."
+    },
+    "215": {
+      "numero": "215",
+      "titulo": "APELO."
+    },
+    "216": {
+      "numero": "216",
+      "titulo": "PERDÃO"
+    },
+    "217": {
+      "numero": "217",
+      "titulo": "DESPRENDIMENTO."
+    },
+    "218": {
+      "numero": "218",
+      "titulo": "VONTADE SOBERANA."
+    },
+    "219": {
+      "numero": "219",
+      "titulo": "DEDICAÇÃO."
+    },
+    "220": {
+      "numero": "220",
+      "titulo": "PLENA DEDICAÇÃO."
+    },
+    "221": {
+      "numero": "221",
+      "titulo": "UM VASO DE BÊNÇÃO."
+    },
+    "222": {
+      "numero": "222",
+      "titulo": "MAIS PERTO DA CRUZ."
+    },
+    "223": {
+      "numero": "223",
+      "titulo": "ORAÇÃO DO ARREPENDIDO."
+    },
+    "224": {
+      "numero": "224",
+      "titulo": "CONSAGRAÇÃO."
+    },
+    "225": {
+      "numero": "225",
+      "titulo": "DEDICAÇÃO PESSOAL."
+    },
+    "226": {
+      "numero": "226",
+      "titulo": "A HISTÓRIA DE CRISTO."
+    },
+    "227": {
+      "numero": "227",
+      "titulo": "A VELHA HISTÓRIA."
+    },
+    "228": {
+      "numero": "228",
+      "titulo": "DE DEUS, O UNGIDO."
+    },
+    "229": {
+      "numero": "229",
+      "titulo": "BOAS-NOVAS."
+    },
+    "230": {
+      "numero": "230",
+      "titulo": "ADORAÇÃO."
+    },
+    "231": {
+      "numero": "231",
+      "titulo": "O PRIMEIRO NATAL."
+    },
+    "232": {
+      "numero": "232",
+      "titulo": "PEQUENA VILA DE BELÉM."
+    },
+    "233": {
+      "numero": "233",
+      "titulo": "OS PASTORES NO CAMPO."
+    },
+    "234": {
+      "numero": "234",
+      "titulo": "UM PEQUENO A REPOUSAR."
+    },
+    "235": {
+      "numero": "235",
+      "titulo": "O ANJO DA PAZ."
+    },
+    "236": {
+      "numero": "236",
+      "titulo": "EM LINDA NOITE."
+    },
+    "237": {
+      "numero": "237",
+      "titulo": "JESUS NASCEU."
+    },
+    "238": {
+      "numero": "238",
+      "titulo": "NOVAS DE AMOR."
+    },
+    "239": {
+      "numero": "239",
+      "titulo": "NASCE JESUS."
+    },
+    "240": {
+      "numero": "240",
+      "titulo": "LOUVOR ANGELICAL."
+    },
+    "241": {
+      "numero": "241",
+      "titulo": "O NASCIMENTO DE JESUS."
+    },
+    "242": {
+      "numero": "242",
+      "titulo": "OS ANJOS E O NATAL."
+    },
+    "243": {
+      "numero": "243",
+      "titulo": "NOITE DE PAZ."
+    },
+    "244": {
+      "numero": "244",
+      "titulo": "MENSAGEM AOS PASTORES."
+    },
+    "245": {
+      "numero": "245",
+      "titulo": "HOMENS SÁBIOS E DE BEM."
+    },
+    "246": {
+      "numero": "246",
+      "titulo": "JESUS, O MESSIAS."
+    },
+    "247": {
+      "numero": "247",
+      "titulo": "ESTRELA CINTILANTE."
+    },
+    "248": {
+      "numero": "248",
+      "titulo": "NO HUMILDE PRESÉPIO."
+    },
+    "249": {
+      "numero": "249",
+      "titulo": "NA MANJEDOURA."
+    },
+    "250": {
+      "numero": "250",
+      "titulo": "A VOZ DE JESUS."
+    },
+    "251": {
+      "numero": "251",
+      "titulo": "O PÃO DA VIDA."
+    },
+    "252": {
+      "numero": "252",
+      "titulo": "PÃO CELESTIAL."
+    },
+    "253": {
+      "numero": "253",
+      "titulo": "CRISTO, A LUZ DO MUNDO."
+    },
+    "254": {
+      "numero": "254",
+      "titulo": "SOSSEGAI."
+    },
+    "255": {
+      "numero": "255",
+      "titulo": "A OVELHA PERDIDA."
+    },
+    "256": {
+      "numero": "256",
+      "titulo": "GLÓRIA SINGULAR."
+    },
+    "257": {
+      "numero": "257",
+      "titulo": "HOSANA AO GRANDE REI."
+    },
+    "258": {
+      "numero": "258",
+      "titulo": "MAJESTADE."
+    },
+    "259": {
+      "numero": "259",
+      "titulo": "HOSANA E GLÓRIA."
+    },
+    "260": {
+      "numero": "260",
+      "titulo": "AMOR QUE VENCE."
+    },
+    "261": {
+      "numero": "261",
+      "titulo": "O GÓLGOTA."
+    },
+    "262": {
+      "numero": "262",
+      "titulo": "CONTEMPLAÇÃO DA CRUZ."
+    },
+    "263": {
+      "numero": "263",
+      "titulo": "JUNTO À CRUZ DE CRISTO."
+    },
+    "264": {
+      "numero": "264",
+      "titulo": "FRONTE ENSANGÜENTADA."
+    },
+    "265": {
+      "numero": "265",
+      "titulo": "CRISTO REDENTOR."
+    },
+    "266": {
+      "numero": "266",
+      "titulo": "RUDE CRUZ."
+    },
+    "267": {
+      "numero": "267",
+      "titulo": "PRECIOSO SANGUE."
+    },
+    "268": {
+      "numero": "268",
+      "titulo": "REDENÇÃO."
+    },
+    "269": {
+      "numero": "269",
+      "titulo": "PUREZA NO SANGUE DE CRISTO."
+    },
+    "270": {
+      "numero": "270",
+      "titulo": "DESAFIO."
+    },
+    "271": {
+      "numero": "271",
+      "titulo": "RESSURREIÇÃO."
+    },
+    "272": {
+      "numero": "272",
+      "titulo": "ALELUIA AO CRISTO REDIVIVO."
+    },
+    "273": {
+      "numero": "273",
+      "titulo": "MEMÓRIAS DA RESSURREIÇÃO."
+    },
+    "274": {
+      "numero": "274",
+      "titulo": "MORTO E RESSURRETO."
+    },
+    "275": {
+      "numero": "275",
+      "titulo": "CRISTO VENCEU."
+    },
+    "276": {
+      "numero": "276",
+      "titulo": "AMORÁVEL CONVITE."
+    },
+    "277": {
+      "numero": "277",
+      "titulo": "CRISTO VIVE! RESSURGIU!."
+    },
+    "278": {
+      "numero": "278",
+      "titulo": "A VITÓRIA DE JESUS."
+    },
+    "279": {
+      "numero": "279",
+      "titulo": "O DIA TRIUNFAL RAIOU."
+    },
+    "280": {
+      "numero": "280",
+      "titulo": "ASCENSÃO"
+    },
+    "281": {
+      "numero": "281",
+      "titulo": "JESUS TRIUNFANTE."
+    },
+    "282": {
+      "numero": "282",
+      "titulo": "A GRANDE COMISSÃO."
+    },
+    "283": {
+      "numero": "283",
+      "titulo": "DESAFIO."
+    },
+    "284": {
+      "numero": "284",
+      "titulo": "OBEDIÊNCIA."
+    },
+    "285": {
+      "numero": "285",
+      "titulo": "A SALVAÇÃO DO BRASIL."
+    },
+    "286": {
+      "numero": "286",
+      "titulo": "COLHEITA BENDITA."
+    },
+    "287": {
+      "numero": "287",
+      "titulo": "IGREJA, ALERTA!."
+    },
+    "288": {
+      "numero": "288",
+      "titulo": "A MENSAGEM REAL."
+    },
+    "289": {
+      "numero": "289",
+      "titulo": "QUEM IRÁ?."
+    },
+    "290": {
+      "numero": "290",
+      "titulo": "JESUS JÁ VEM."
+    },
+    "291": {
+      "numero": "291",
+      "titulo": "TRIUNFANTE VEM."
+    },
+    "292": {
+      "numero": "292",
+      "titulo": "A VINDA DO SENHOR."
+    },
+    "293": {
+      "numero": "293",
+      "titulo": "O DIA GLORIOSO."
+    },
+    "294": {
+      "numero": "294",
+      "titulo": "O SENHOR VOLTARÁ."
+    },
+    "295": {
+      "numero": "295",
+      "titulo": "A VOLTA DE JESUS."
+    },
+    "296": {
+      "numero": "296",
+      "titulo": "CRISTO NÃO TARDA."
+    },
+    "297": {
+      "numero": "297",
+      "titulo": "A CHAMADA FINAL."
+    },
+    "298": {
+      "numero": "298",
+      "titulo": "A PEDRA FUNDAMENTAL."
+    },
+    "299": {
+      "numero": "299",
+      "titulo": "RENOVAÇÃO."
+    },
+    "300": {
+      "numero": "300",
+      "titulo": "IGREJA MILITANTE."
+    },
+    "301": {
+      "numero": "301",
+      "titulo": "O ÚNICO SALVADOR."
+    },
+    "302": {
+      "numero": "302",
+      "titulo": "POVOAM AS CIDADES."
+    },
+    "303": {
+      "numero": "303",
+      "titulo": "PENDÃO REAL."
+    },
+    "304": {
+      "numero": "304",
+      "titulo": "A VOZ DO EVANGELHO."
+    },
+    "305": {
+      "numero": "305",
+      "titulo": "QUEM QUISER."
+    },
+    "306": {
+      "numero": "306",
+      "titulo": "FIDELIDADE NA LUTA."
+    },
+    "307": {
+      "numero": "307",
+      "titulo": "A SANTA PELEJA."
+    },
+    "308": {
+      "numero": "308",
+      "titulo": "ESCURIDÃO E LUZ."
+    },
+    "309": {
+      "numero": "309",
+      "titulo": "PROCLAMAÇÃO."
+    },
+    "310": {
+      "numero": "310",
+      "titulo": "QUEM SALVA É SÓ JESUS."
+    },
+    "311": {
+      "numero": "311",
+      "titulo": "AVANTE, Ó CRENTES."
+    },
+    "312": {
+      "numero": "312",
+      "titulo": "HÁ TRABALHO CERTO."
+    },
+    "313": {
+      "numero": "313",
+      "titulo": "PRONTIDÃO."
+    },
+    "314": {
+      "numero": "314",
+      "titulo": "DILIGÊNCIA."
+    },
+    "315": {
+      "numero": "315",
+      "titulo": "SERVIÇO DO CRENTE"
+    },
+    "316": {
+      "numero": "316",
+      "titulo": "OS INTENTOS DE DEUS."
+    },
+    "317": {
+      "numero": "317",
+      "titulo": "CHAMADA."
+    },
+    "318": {
+      "numero": "318",
+      "titulo": "CEIFEIROS DO SENHOR."
+    },
+    "319": {
+      "numero": "319",
+      "titulo": "OBREIROS EM MARCHA."
+    },
+    "320": {
+      "numero": "320",
+      "titulo": "BRILHA NO VIVER."
+    },
+    "321": {
+      "numero": "321",
+      "titulo": "MÃOS AO TRABALHO."
+    },
+    "322": {
+      "numero": "322",
+      "titulo": "HEROÍNAS DA FÉ."
+    },
+    "323": {
+      "numero": "323",
+      "titulo": "SANTA PELEJA"
+    },
+    "324": {
+      "numero": "324",
+      "titulo": "UNIDAS E FIRMES."
+    },
+    "325": {
+      "numero": "325",
+      "titulo": "ASPIRAÇÃO FEMININA."
+    },
+    "326": {
+      "numero": "326",
+      "titulo": "HOMENS PRESBITERIANOS."
+    },
+    "327": {
+      "numero": "327",
+      "titulo": "OBREIROS CRISTÃOS"
+    },
+    "328": {
+      "numero": "328",
+      "titulo": "DEUS DO UNIVERSO."
+    },
+    "329": {
+      "numero": "329",
+      "titulo": "INSTALAÇÃO DE PASTOR."
+    },
+    "330": {
+      "numero": "330",
+      "titulo": "A BÊNÇÃO DO BATISMO."
+    },
+    "331": {
+      "numero": "331",
+      "titulo": "ORAÇÃO."
+    },
+    "332": {
+      "numero": "332",
+      "titulo": "BATISMO INFANTIL"
+    },
+    "333": {
+      "numero": "333",
+      "titulo": "O BATISMO."
+    },
+    "334": {
+      "numero": "334",
+      "titulo": "A CONVERSÃO."
+    },
+    "335": {
+      "numero": "335",
+      "titulo": "JUBILO NO CÉU."
+    },
+    "336": {
+      "numero": "336",
+      "titulo": "TRANSFORMAÇÃO."
+    },
+    "337": {
+      "numero": "337",
+      "titulo": "PROFISSÃO DE FÉ."
+    },
+    "338": {
+      "numero": "338",
+      "titulo": "DIA DA PROFISSÃO DE FÉ."
+    },
+    "339": {
+      "numero": "339",
+      "titulo": "DIA FELIZ."
+    },
+    "340": {
+      "numero": "340",
+      "titulo": "SANTA COMUNHÃO."
+    },
+    "341": {
+      "numero": "341",
+      "titulo": "VERA PÁSCOA."
+    },
+    "342": {
+      "numero": "342",
+      "titulo": "COMUNHÃO."
+    },
+    "343": {
+      "numero": "343",
+      "titulo": "EM MEMÓRIA."
+    },
+    "344": {
+      "numero": "344",
+      "titulo": "A CEIA DO SENHOR."
+    },
+    "345": {
+      "numero": "345",
+      "titulo": "O PÃO DO MUNDO."
+    },
+    "346": {
+      "numero": "346",
+      "titulo": "A CEIA DO SENHOR."
+    },
+    "347": {
+      "numero": "347",
+      "titulo": "O JUSTO PELOS INJUSTOS."
+    },
+    "348": {
+      "numero": "348",
+      "titulo": "É ESTE O DIA."
+    },
+    "349": {
+      "numero": "349",
+      "titulo": "DIA DO SENHOR."
+    },
+    "350": {
+      "numero": "350",
+      "titulo": "A PALAVRA DA VIDA."
+    },
+    "351": {
+      "numero": "351",
+      "titulo": "BELAS PALAVRAS DE VIDA."
+    },
+    "352": {
+      "numero": "352",
+      "titulo": "LEITURA BENDITA."
+    },
+    "353": {
+      "numero": "353",
+      "titulo": "AO FIM DOS ESTUDOS."
+    },
+    "354": {
+      "numero": "354",
+      "titulo": "A ESCOLA DOMINICAL."
+    },
+    "355": {
+      "numero": "355",
+      "titulo": "ORAÇÃO INFANTIL."
+    },
+    "356": {
+      "numero": "356",
+      "titulo": "JESUS MENINO."
+    },
+    "357": {
+      "numero": "357",
+      "titulo": "LOUVOR INFANTIL."
+    },
+    "358": {
+      "numero": "358",
+      "titulo": "JESUS E AS CRIANÇAS."
+    },
+    "359": {
+      "numero": "359",
+      "titulo": "JESUS ME QUER BEM."
+    },
+    "360": {
+      "numero": "360",
+      "titulo": "PEQUENA LUZ."
+    },
+    "361": {
+      "numero": "361",
+      "titulo": "BRILHANDO COM JESUS."
+    },
+    "362": {
+      "numero": "362",
+      "titulo": "BRILHANDO POR JESUS."
+    },
+    "363": {
+      "numero": "363",
+      "titulo": "VENHAM AS CRIANÇAS."
+    },
+    "364": {
+      "numero": "364",
+      "titulo": "GRAÇAS A DEUS."
+    },
+    "365": {
+      "numero": "365",
+      "titulo": "CONVITE ÀS CRIANÇAS."
+    },
+    "366": {
+      "numero": "366",
+      "titulo": "JÓIAS PRECIOSAS."
+    },
+    "367": {
+      "numero": "367",
+      "titulo": "CONVITE AOS MENINOS."
+    },
+    "368": {
+      "numero": "368",
+      "titulo": "DESPEDIDA."
+    },
+    "369": {
+      "numero": "369",
+      "titulo": "A BÍBLIA PARA TODOS."
+    },
+    "370": {
+      "numero": "370",
+      "titulo": "PROCLAMAÇÃO."
+    },
+    "371": {
+      "numero": "371",
+      "titulo": "A BÍBLIA."
+    },
+    "372": {
+      "numero": "372",
+      "titulo": "O CRENTE E A BÍBLIA."
+    },
+    "373": {
+      "numero": "373",
+      "titulo": "ANO NOVO."
+    },
+    "374": {
+      "numero": "374",
+      "titulo": "SAUDANDO O ANO NOVO."
+    },
+    "375": {
+      "numero": "375",
+      "titulo": "ANO VELHO."
+    },
+    "376": {
+      "numero": "376",
+      "titulo": "INTERCESSÃO PELA PÁTRIA."
+    },
+    "377": {
+      "numero": "377",
+      "titulo": "A NAÇÃO PARA CRISTO."
+    },
+    "378": {
+      "numero": "378",
+      "titulo": "ORAÇÃO PELA PÁTRIA."
+    },
+    "379": {
+      "numero": "379",
+      "titulo": "PETIÇÃO PELA PÁTRIA."
+    },
+    "380": {
+      "numero": "380",
+      "titulo": "JESUS PROTEJA A PÁTRIA."
+    },
+    "381": {
+      "numero": "381",
+      "titulo": "INTERCESSÃO PELA CIDADE."
+    },
+    "382": {
+      "numero": "382",
+      "titulo": "MOCIDADE PRESBITERIANA."
+    },
+    "383": {
+      "numero": "383",
+      "titulo": "UM NOVO MUNDO."
+    },
+    "384": {
+      "numero": "384",
+      "titulo": "VAMOS COM JESUS"
+    },
+    "385": {
+      "numero": "385",
+      "titulo": "O ESTUDANTE E A BÍBLIA"
+    },
+    "386": {
+      "numero": "386",
+      "titulo": "TESTEMUNHO."
+    },
+    "387": {
+      "numero": "387",
+      "titulo": "COMBATE."
+    },
+    "388": {
+      "numero": "388",
+      "titulo": "MOCIDADE, AVANTE."
+    },
+    "389": {
+      "numero": "389",
+      "titulo": "AVANTE, MOCIDADE!."
+    },
+    "390": {
+      "numero": "390",
+      "titulo": "FIÉIS SOLDADOS."
+    },
+    "391": {
+      "numero": "391",
+      "titulo": "MOCIDADE FIEL"
+    },
+    "392": {
+      "numero": "392",
+      "titulo": "VIDA VITORIOSA."
+    },
+    "393": {
+      "numero": "393",
+      "titulo": "UNIÃO VITAL."
+    },
+    "394": {
+      "numero": "394",
+      "titulo": "PERFEITO AMOR."
+    },
+    "395": {
+      "numero": "395",
+      "titulo": "AMOR NO LAR."
+    },
+    "396": {
+      "numero": "396",
+      "titulo": "GRAÇAS PELO ANIVERSÁRIO."
+    },
+    "397": {
+      "numero": "397",
+      "titulo": "POR MINHA BOA MÃE."
+    },
+    "398": {
+      "numero": "398",
+      "titulo": "OUTRA VEZ CANTAMOS."
+    },
+    "399": {
+      "numero": "399",
+      "titulo": "TÉRMINO DO CULTO."
+    },
+    "400": {
+      "numero": "400",
+      "titulo": "ORAÇÃO POR PROTEÇÃO."
+    },
+    "110-a": {
+      "numero": "110-A",
+      "titulo": "CRER E OBSERVAR."
+    },
+    "237-a": {
+      "numero": "237-A",
+      "titulo": "LINDA ESTRELA."
+    },
+    "281-a": {
+      "numero": "281-A",
+      "titulo": "FRONTE ENSANGÜENTADA."
+    },
+    "325-a": {
+      "numero": "325-A",
+      "titulo": "JESUS CRISTO É O SENHOR."
+    },
+    "354-a": {
+      "numero": "354-A",
+      "titulo": "ESCOLA DOMINICAL."
+    },
+    "400-a": {
+      "numero": "400-A",
+      "titulo": "OFERTÓRIO."
+    },
+    "amem-triplice": {
+      "numero": "amem-triplice",
+      "titulo": "AMÉM TRÍPLICE"
+    }
+  },
+  "salmos": {
+    "1a": {
+      "numero": "1A",
+      "titulo": "SALMO 1A"
+    },
+    "1b": {
+      "numero": "1B",
+      "titulo": "SALMO 1B"
+    },
+    "2a": {
+      "numero": "2A",
+      "titulo": "SALMO 2A"
+    },
+    "2b": {
+      "numero": "2B",
+      "titulo": "SALMO 2B"
+    },
+    "3a": {
+      "numero": "3A",
+      "titulo": "SALMO 3A"
+    },
+    "3b": {
+      "numero": "3B",
+      "titulo": "SALMO 3B"
+    },
+    "4b": {
+      "numero": "4B",
+      "titulo": "SALMO 4B"
+    },
+    "5a": {
+      "numero": "5A",
+      "titulo": "SALMO 5A"
+    },
+    "5b": {
+      "numero": "5B",
+      "titulo": "SALMO 5B"
+    },
+    "6b": {
+      "numero": "6B",
+      "titulo": "SALMO 6B"
+    },
+    "7a": {
+      "numero": "7A",
+      "titulo": "SALMO 7A"
+    },
+    "7b": {
+      "numero": "7B",
+      "titulo": "SALMO 7B"
+    },
+    "8b": {
+      "numero": "8B",
+      "titulo": "SALMO 8B"
+    },
+    "9b": {
+      "numero": "9B",
+      "titulo": "SALMO 9B"
+    },
+    "10b": {
+      "numero": "10B",
+      "titulo": "SALMO 10B"
+    },
+    "11b": {
+      "numero": "11B",
+      "titulo": "SALMO 11B"
+    },
+    "12a": {
+      "numero": "12A",
+      "titulo": "SALMO 12A"
+    },
+    "12b": {
+      "numero": "12B",
+      "titulo": "SALMO 12B"
+    },
+    "13a": {
+      "numero": "13A",
+      "titulo": "SALMO 13A"
+    },
+    "13b": {
+      "numero": "13B",
+      "titulo": "SALMO 13B"
+    },
+    "14a": {
+      "numero": "14A",
+      "titulo": "SALMO 14A"
+    },
+    "14b": {
+      "numero": "14B",
+      "titulo": "SALMO 14B"
+    },
+    "15a": {
+      "numero": "15A",
+      "titulo": "SALMO 15A"
+    },
+    "15b": {
+      "numero": "15B",
+      "titulo": "SALMO 15B"
+    },
+    "16b": {
+      "numero": "16B",
+      "titulo": "SALMO 16B"
+    },
+    "17b": {
+      "numero": "17B",
+      "titulo": "SALMO 17B"
+    },
+    "19a": {
+      "numero": "19A",
+      "titulo": "SALMO 19A"
+    },
+    "19b": {
+      "numero": "19B",
+      "titulo": "SALMO 19B"
+    },
+    "20b": {
+      "numero": "20B",
+      "titulo": "SALMO 20B"
+    },
+    "21b": {
+      "numero": "21B",
+      "titulo": "SALMO 21B"
+    },
+    "22b": {
+      "numero": "22B",
+      "titulo": "SALMO 22B"
+    },
+    "23a": {
+      "numero": "23A",
+      "titulo": "SALMO 23A"
+    },
+    "23b": {
+      "numero": "23B",
+      "titulo": "SALMO 23B"
+    },
+    "24b": {
+      "numero": "24B",
+      "titulo": "SALMO 24B"
+    },
+    "25a": {
+      "numero": "25A",
+      "titulo": "SALMO 25A"
+    },
+    "26b": {
+      "numero": "26B",
+      "titulo": "SALMO 26B"
+    },
+    "27b": {
+      "numero": "27B",
+      "titulo": "SALMO 27B"
+    },
+    "28a": {
+      "numero": "28A",
+      "titulo": "SALMO 28A"
+    },
+    "29a": {
+      "numero": "29A",
+      "titulo": "SALMO 29A"
+    },
+    "30b": {
+      "numero": "30B",
+      "titulo": "SALMO 30B"
+    },
+    "32a": {
+      "numero": "32A",
+      "titulo": "SALMO 32A"
+    },
+    "32b": {
+      "numero": "32B",
+      "titulo": "SALMO 32B"
+    },
+    "33b": {
+      "numero": "33B",
+      "titulo": "SALMO 33B"
+    },
+    "34b": {
+      "numero": "34B",
+      "titulo": "SALMO 34B"
+    },
+    "36b": {
+      "numero": "36B",
+      "titulo": "SALMO 36B"
+    },
+    "37a": {
+      "numero": "37A",
+      "titulo": "SALMO 37A"
+    },
+    "37b": {
+      "numero": "37B",
+      "titulo": "SALMO 37B"
+    },
+    "38b": {
+      "numero": "38B",
+      "titulo": "SALMO 38B"
+    },
+    "39b": {
+      "numero": "39B",
+      "titulo": "SALMO 39B"
+    },
+    "40b": {
+      "numero": "40B",
+      "titulo": "SALMO 40B"
+    },
+    "42a": {
+      "numero": "42A",
+      "titulo": "SALMO 42A"
+    },
+    "42b": {
+      "numero": "42B",
+      "titulo": "SALMO 42B"
+    },
+    "43b": {
+      "numero": "43B",
+      "titulo": "SALMO 43B"
+    },
+    "46b": {
+      "numero": "46B",
+      "titulo": "SALMO 46B"
+    },
+    "47a": {
+      "numero": "47A",
+      "titulo": "SALMO 47A"
+    },
+    "47b": {
+      "numero": "47B",
+      "titulo": "SALMO 47B"
+    },
+    "48b": {
+      "numero": "48B",
+      "titulo": "SALMO 48B"
+    },
+    "50b": {
+      "numero": "50B",
+      "titulo": "SALMO 50B"
+    },
+    "51b": {
+      "numero": "51B",
+      "titulo": "SALMO 51B"
+    },
+    "53a": {
+      "numero": "53A",
+      "titulo": "SALMO 53A"
+    },
+    "53b": {
+      "numero": "53B",
+      "titulo": "SALMO 53B"
+    },
+    "54b": {
+      "numero": "54B",
+      "titulo": "SALMO 54B"
+    },
+    "55b": {
+      "numero": "55B",
+      "titulo": "SALMO 55B"
+    },
+    "57b": {
+      "numero": "57B",
+      "titulo": "SALMO 57B"
+    },
+    "59b": {
+      "numero": "59B",
+      "titulo": "SALMO 59B"
+    },
+    "61b": {
+      "numero": "61B",
+      "titulo": "SALMO 61B"
+    },
+    "62b": {
+      "numero": "62B",
+      "titulo": "SALMO 62B"
+    },
+    "63b": {
+      "numero": "63B",
+      "titulo": "SALMO 63B"
+    },
+    "64a": {
+      "numero": "64A",
+      "titulo": "SALMO 64A"
+    },
+    "65a": {
+      "numero": "65A",
+      "titulo": "SALMO 65A"
+    },
+    "66b": {
+      "numero": "66B",
+      "titulo": "SALMO 66B"
+    },
+    "67a": {
+      "numero": "67A",
+      "titulo": "SALMO 67A"
+    },
+    "67b": {
+      "numero": "67B",
+      "titulo": "SALMO 67B"
+    },
+    "70b": {
+      "numero": "70B",
+      "titulo": "SALMO 70B"
+    },
+    "72a": {
+      "numero": "72A",
+      "titulo": "SALMO 72A"
+    },
+    "72b": {
+      "numero": "72B",
+      "titulo": "SALMO 72B"
+    },
+    "73b": {
+      "numero": "73B",
+      "titulo": "SALMO 73B"
+    },
+    "78b": {
+      "numero": "78B",
+      "titulo": "SALMO 78B"
+    },
+    "81a": {
+      "numero": "81A",
+      "titulo": "SALMO 81A"
+    },
+    "81b": {
+      "numero": "81B",
+      "titulo": "SALMO 81B"
+    },
+    "84b": {
+      "numero": "84B",
+      "titulo": "SALMO 84B"
+    },
+    "85a": {
+      "numero": "85A",
+      "titulo": "SALMO 85A"
+    },
+    "85b": {
+      "numero": "85B",
+      "titulo": "SALMO 85B"
+    },
+    "86b": {
+      "numero": "86B",
+      "titulo": "SALMO 86B"
+    },
+    "87b": {
+      "numero": "87B",
+      "titulo": "SALMO 87B"
+    },
+    "88b": {
+      "numero": "88B",
+      "titulo": "SALMO 88B"
+    },
+    "90b": {
+      "numero": "90B",
+      "titulo": "SALMO 90B"
+    },
+    "91b": {
+      "numero": "91B",
+      "titulo": "SALMO 91B"
+    },
+    "92b": {
+      "numero": "92B",
+      "titulo": "SALMO 92B"
+    },
+    "93a": {
+      "numero": "93A",
+      "titulo": "SALMO 93A"
+    },
+    "93b": {
+      "numero": "93B",
+      "titulo": "SALMO 93B"
+    },
+    "94b": {
+      "numero": "94B",
+      "titulo": "SALMO 94B"
+    },
+    "95a": {
+      "numero": "95A",
+      "titulo": "SALMO 95A"
+    },
+    "97b": {
+      "numero": "97B",
+      "titulo": "SALMO 97B"
+    },
+    "98a": {
+      "numero": "98A",
+      "titulo": "SALMO 98A"
+    },
+    "98b": {
+      "numero": "98B",
+      "titulo": "SALMO 98B"
+    },
+    "99a": {
+      "numero": "99A",
+      "titulo": "SALMO 99A"
+    },
+    "99b": {
+      "numero": "99B",
+      "titulo": "SALMO 99B"
+    },
+    "100b": {
+      "numero": "100B",
+      "titulo": "SALMO 100B"
+    },
+    "101b": {
+      "numero": "101B",
+      "titulo": "SALMO 101B"
+    },
+    "103b": {
+      "numero": "103B",
+      "titulo": "SALMO 103B"
+    },
+    "105b": {
+      "numero": "105B",
+      "titulo": "SALMO 105B"
+    },
+    "110a": {
+      "numero": "110A",
+      "titulo": "SALMO 110A"
+    },
+    "112a": {
+      "numero": "112A",
+      "titulo": "SALMO 112A"
+    },
+    "112b": {
+      "numero": "112B",
+      "titulo": "SALMO 112B"
+    },
+    "113a": {
+      "numero": "113A",
+      "titulo": "SALMO 113A"
+    },
+    "113b": {
+      "numero": "113B",
+      "titulo": "SALMO 113B"
+    },
+    "114a": {
+      "numero": "114A",
+      "titulo": "SALMO 114A"
+    },
+    "114b": {
+      "numero": "114B",
+      "titulo": "SALMO 114B"
+    },
+    "116a": {
+      "numero": "116A",
+      "titulo": "SALMO 116A"
+    },
+    "116b": {
+      "numero": "116B",
+      "titulo": "SALMO 116B"
+    },
+    "117a": {
+      "numero": "117A",
+      "titulo": "SALMO 117A"
+    },
+    "117b": {
+      "numero": "117B",
+      "titulo": "SALMO 117B"
+    },
+    "119.1-8a": {
+      "numero": "119.1-8A",
+      "titulo": "SALMO 119.1-8A"
+    },
+    "119.1-8b": {
+      "numero": "119.1-8B",
+      "titulo": "SALMO 119.1-8B"
+    },
+    "119.9-16a": {
+      "numero": "119.9-16A",
+      "titulo": "SALMO 119.9-16A"
+    },
+    "119.9-16b": {
+      "numero": "119.9-16B",
+      "titulo": "SALMO 119.9-16B"
+    },
+    "119.17-24a": {
+      "numero": "119.17-24A",
+      "titulo": "SALMO 119.17-24A"
+    },
+    "119.17-24b": {
+      "numero": "119.17-24B",
+      "titulo": "SALMO 119.17-24B"
+    },
+    "119.25-32a": {
+      "numero": "119.25-32A",
+      "titulo": "SALMO 119.25-32A"
+    },
+    "119.33-40a": {
+      "numero": "119.33-40A",
+      "titulo": "SALMO 119.33-40A"
+    },
+    "119.41-48a": {
+      "numero": "119.41-48A",
+      "titulo": "SALMO 119.41-48A"
+    },
+    "119.41-48b": {
+      "numero": "119.41-48B",
+      "titulo": "SALMO 119.41-48B"
+    },
+    "119.49-56a": {
+      "numero": "119.49-56A",
+      "titulo": "SALMO 119.49-56A"
+    },
+    "119.49-56b": {
+      "numero": "119.49-56B",
+      "titulo": "SALMO 119.49-56B"
+    },
+    "119.65-72b": {
+      "numero": "119.65-72B",
+      "titulo": "SALMO 119.65-72B"
+    },
+    "119.73-80b": {
+      "numero": "119.73-80B",
+      "titulo": "SALMO 119.73-80B"
+    },
+    "119.81-88b": {
+      "numero": "119.81-88B",
+      "titulo": "SALMO 119.81-88B"
+    },
+    "120b": {
+      "numero": "120B",
+      "titulo": "SALMO 120B"
+    },
+    "121a": {
+      "numero": "121A",
+      "titulo": "SALMO 121A"
+    },
+    "121b": {
+      "numero": "121B",
+      "titulo": "SALMO 121B"
+    },
+    "122a": {
+      "numero": "122A",
+      "titulo": "SALMO 122A"
+    },
+    "122b": {
+      "numero": "122B",
+      "titulo": "SALMO 122B"
+    },
+    "123b": {
+      "numero": "123B",
+      "titulo": "SALMO 123B"
+    },
+    "124a": {
+      "numero": "124A",
+      "titulo": "SALMO 124A"
+    },
+    "124b": {
+      "numero": "124B",
+      "titulo": "SALMO 124B"
+    },
+    "125a": {
+      "numero": "125A",
+      "titulo": "SALMO 125A"
+    },
+    "125b": {
+      "numero": "125B",
+      "titulo": "SALMO 125B"
+    },
+    "126b": {
+      "numero": "126B",
+      "titulo": "SALMO 126B"
+    },
+    "127a": {
+      "numero": "127A",
+      "titulo": "SALMO 127A"
+    },
+    "127b": {
+      "numero": "127B",
+      "titulo": "SALMO 127B"
+    },
+    "128a": {
+      "numero": "128A",
+      "titulo": "SALMO 128A"
+    },
+    "128b": {
+      "numero": "128B",
+      "titulo": "SALMO 128B"
+    },
+    "129b": {
+      "numero": "129B",
+      "titulo": "SALMO 129B"
+    },
+    "130b": {
+      "numero": "130B",
+      "titulo": "SALMO 130B"
+    },
+    "131b": {
+      "numero": "131B",
+      "titulo": "SALMO 131B"
+    },
+    "132b": {
+      "numero": "132B",
+      "titulo": "SALMO 132B"
+    },
+    "133a": {
+      "numero": "133A",
+      "titulo": "SALMO 133A"
+    },
+    "133b": {
+      "numero": "133B",
+      "titulo": "SALMO 133B"
+    },
+    "134a": {
+      "numero": "134A",
+      "titulo": "SALMO 134A"
+    },
+    "134b": {
+      "numero": "134B",
+      "titulo": "SALMO 134B"
+    },
+    "135b": {
+      "numero": "135B",
+      "titulo": "SALMO 135B"
+    },
+    "137b": {
+      "numero": "137B",
+      "titulo": "SALMO 137B"
+    },
+    "138b": {
+      "numero": "138B",
+      "titulo": "SALMO 138B"
+    },
+    "139b": {
+      "numero": "139B",
+      "titulo": "SALMO 139B"
+    },
+    "140b": {
+      "numero": "140B",
+      "titulo": "SALMO 140B"
+    },
+    "142b": {
+      "numero": "142B",
+      "titulo": "SALMO 142B"
+    },
+    "143b": {
+      "numero": "143B",
+      "titulo": "SALMO 143B"
+    },
+    "144b": {
+      "numero": "144B",
+      "titulo": "SALMO 144B"
+    },
+    "146b": {
+      "numero": "146B",
+      "titulo": "SALMO 146B"
+    },
+    "148b": {
+      "numero": "148B",
+      "titulo": "SALMO 148B"
+    },
+    "149b": {
+      "numero": "149B",
+      "titulo": "SALMO 149B"
+    },
+    "150a": {
+      "numero": "150A",
+      "titulo": "SALMO 150A"
+    },
+    "150b": {
+      "numero": "150B",
+      "titulo": "SALMO 150B"
+    }
+  },
+  "devocionais": {
+    "1": {
+      "ordem": 1,
+      "titulo": "Quando Tudo Parece Desmoronar"
+    },
+    "2": {
+      "ordem": 31,
+      "titulo": "Quando Você Cai no Mesmo Ciclo"
+    },
+    "3": {
+      "ordem": 46,
+      "titulo": "Quando a Solidão Faz Barulho"
+    },
+    "4": {
+      "ordem": 16,
+      "titulo": "Quando Você se Sente um Fardo"
+    },
+    "5": {
+      "ordem": 50,
+      "titulo": "Quando Você Está Cansado de Perdoar"
+    },
+    "6": {
+      "ordem": 17,
+      "titulo": "Quando Você Não Se Reconhece Mais"
+    },
+    "7": {
+      "ordem": 14,
+      "titulo": "Quando Você Está com Raiva de Deus"
+    },
+    "8": {
+      "ordem": 2,
+      "titulo": "Quando Você Tem Medo do Futuro"
+    },
+    "9": {
+      "ordem": 39,
+      "titulo": "Quando Você Está se Comparando com Todos"
+    },
+    "10": {
+      "ordem": 66,
+      "titulo": "Quando Seus Filhos Dizem que Você Cobra Demais"
+    },
+    "11": {
+      "ordem": 67,
+      "titulo": "Quando Seus Filhos São Ingratos e Você se Culpa"
+    },
+    "12": {
+      "ordem": 68,
+      "titulo": "Quando Filhos Imaturos Dividem a Família"
+    },
+    "13": {
+      "ordem": 69,
+      "titulo": "Ensinando Seus Filhos a Viverem Além do Celular"
+    },
+    "14": {
+      "ordem": 70,
+      "titulo": "Quando Seus Filhos Têm Medo de Ficar de Fora (FOMO)"
+    },
+    "15": {
+      "ordem": 62,
+      "titulo": "A Palavra no Centro da Vida Familiar"
+    },
+    "16": {
+      "ordem": 64,
+      "titulo": "O Marido e Pai que Lidera Servindo"
+    },
+    "17": {
+      "ordem": 65,
+      "titulo": "A Esposa como Auxiliadora que lhe Corresponde"
+    },
+    "18": {
+      "ordem": 61,
+      "titulo": "Conhecer a Deus, e Não Apenas Saber Sobre Ele"
+    },
+    "19": {
+      "ordem": 71,
+      "titulo": "Quando os Adolescentes Rejeitam a Verdade"
+    },
+    "20": {
+      "ordem": 63,
+      "titulo": "Quando a Vida Espiritual da Casa Esfria"
+    },
+    "21": {
+      "ordem": 24,
+      "titulo": "Quando Você Não se Sente Mais Útil"
+    },
+    "22": {
+      "ordem": 23,
+      "titulo": "Quando Sua Fé Parece Pequena"
+    },
+    "23": {
+      "ordem": 18,
+      "titulo": "Quando Você Tem Vergonha de Quem Foi"
+    },
+    "24": {
+      "ordem": 21,
+      "titulo": "Quando o Passado Bate à Porta"
+    },
+    "25": {
+      "ordem": 15,
+      "titulo": "Quando Você Perde a Esperança"
+    },
+    "26": {
+      "ordem": 41,
+      "titulo": "Quando Tudo Vira Obrigação"
+    },
+    "27": {
+      "ordem": 87,
+      "titulo": "Quando a Morte Visita a Família"
+    },
+    "28": {
+      "ordem": 47,
+      "titulo": "Quando a Solidão Espiritual Aperta"
+    },
+    "29": {
+      "ordem": 22,
+      "titulo": "Quando Você Precisa Começar de Novo"
+    },
+    "30": {
+      "ordem": 32,
+      "titulo": "Quando o Pecado Parece Maior que Você"
+    },
+    "31": {
+      "ordem": 88,
+      "titulo": "Vivendo Hoje à Luz do Último Dia"
+    },
+    "32": {
+      "ordem": 6,
+      "titulo": "Quando Deus Parece em Silêncio"
+    },
+    "33": {
+      "ordem": 7,
+      "titulo": "Quando a Resposta à Oração Não é a que Você Queria"
+    },
+    "34": {
+      "ordem": 3,
+      "titulo": "Quando a Ansiedade Acorda Você de Madrugada"
+    },
+    "35": {
+      "ordem": 4,
+      "titulo": "Quando Sua Mente Não Desliga"
+    },
+    "36": {
+      "ordem": 5,
+      "titulo": "Quando o Corpo Está Exausto"
+    },
+    "37": {
+      "ordem": 52,
+      "titulo": "Quando Você Está Carregando Todo Mundo"
+    },
+    "38": {
+      "ordem": 42,
+      "titulo": "Quando Você Não Consegue Dizer Não"
+    },
+    "39": {
+      "ordem": 48,
+      "titulo": "Quando as Pessoas Decepcionam Você"
+    },
+    "40": {
+      "ordem": 53,
+      "titulo": "Quando a Igreja Fere Você"
+    },
+    "41": {
+      "ordem": 54,
+      "titulo": "Quando um Líder Espiritual Falha"
+    },
+    "42": {
+      "ordem": 49,
+      "titulo": "Quando Você Já Não Consegue Confiar em Ninguém"
+    },
+    "43": {
+      "ordem": 56,
+      "titulo": "Quando o Casamento Esfria"
+    },
+    "44": {
+      "ordem": 57,
+      "titulo": "Quando Você se Sente Sozinho Dentro do Casamento"
+    },
+    "45": {
+      "ordem": 58,
+      "titulo": "Quando Há Traição no Relacionamento"
+    },
+    "46": {
+      "ordem": 59,
+      "titulo": "Quando Sua Casa Vive em Conflito"
+    },
+    "47": {
+      "ordem": 72,
+      "titulo": "Quando Filhos Adultos Fazem Escolhas que Doem"
+    },
+    "48": {
+      "ordem": 73,
+      "titulo": "Quando Você Cria Filhos Quase Sozinho"
+    },
+    "49": {
+      "ordem": 75,
+      "titulo": "Quando Seus Pais Envelhecem e Precisam de Você"
+    },
+    "50": {
+      "ordem": 74,
+      "titulo": "Quando o Sonho de Ter Filhos Vira Dor"
+    },
+    "51": {
+      "ordem": 8,
+      "titulo": "Quando um Diagnóstico Muda o Ritmo da Vida"
+    },
+    "52": {
+      "ordem": 10,
+      "titulo": "Quando a Dor Não Vai Embora"
+    },
+    "53": {
+      "ordem": 9,
+      "titulo": "Quando Alguém que Você Ama Está Doente"
+    },
+    "54": {
+      "ordem": 11,
+      "titulo": "Quando Sua Saúde Emocional Fica Frágil"
+    },
+    "55": {
+      "ordem": 13,
+      "titulo": "Quando a Depressão Deixa Tudo Cinza"
+    },
+    "56": {
+      "ordem": 12,
+      "titulo": "Quando o Pânico Chega sem Pedir Licença"
+    },
+    "57": {
+      "ordem": 20,
+      "titulo": "Quando a Culpa Continua Depois da Confissão"
+    },
+    "58": {
+      "ordem": 19,
+      "titulo": "Quando a Vergonha Faz Você se Esconder"
+    },
+    "59": {
+      "ordem": 33,
+      "titulo": "Quando a Tentação Continua Voltando"
+    },
+    "60": {
+      "ordem": 34,
+      "titulo": "Quando a Sexualidade Vira um Lugar de Segredo"
+    },
+    "61": {
+      "ordem": 35,
+      "titulo": "Quando um Hábito Começa a Mandar em Você"
+    },
+    "62": {
+      "ordem": 36,
+      "titulo": "Quando Você Usa Alguma Coisa Para Não Sentir"
+    },
+    "63": {
+      "ordem": 37,
+      "titulo": "Quando a Raiva Assume o Controle"
+    },
+    "64": {
+      "ordem": 38,
+      "titulo": "Quando a Inveja Rouba Sua Alegria"
+    },
+    "65": {
+      "ordem": 76,
+      "titulo": "Quando o Dinheiro Não Dá"
+    },
+    "66": {
+      "ordem": 77,
+      "titulo": "Quando as Dívidas Pesam na Consciência"
+    },
+    "67": {
+      "ordem": 78,
+      "titulo": "Quando Você Perde o Emprego"
+    },
+    "68": {
+      "ordem": 79,
+      "titulo": "Quando o Trabalho se Torna Insuportável"
+    },
+    "69": {
+      "ordem": 55,
+      "titulo": "Quando Você é Tratado Injustamente"
+    },
+    "70": {
+      "ordem": 80,
+      "titulo": "Quando Seus Planos Desmoronam"
+    },
+    "71": {
+      "ordem": 81,
+      "titulo": "Quando Você Não Sabe o Que Decidir"
+    },
+    "72": {
+      "ordem": 82,
+      "titulo": "Quando Esperar Cansa"
+    },
+    "73": {
+      "ordem": 83,
+      "titulo": "Quando uma Porta se Fecha"
+    },
+    "74": {
+      "ordem": 84,
+      "titulo": "Quando Você se Sente Atrasado na Vida"
+    },
+    "75": {
+      "ordem": 40,
+      "titulo": "Quando as Redes Sociais Roubam Sua Paz"
+    },
+    "76": {
+      "ordem": 85,
+      "titulo": "Quando Seus Sonhos Não Acontecem"
+    },
+    "77": {
+      "ordem": 25,
+      "titulo": "Quando Você Sente que Desperdiçou Anos"
+    },
+    "78": {
+      "ordem": 26,
+      "titulo": "Quando a Aposentadoria Mexe com Sua Identidade"
+    },
+    "79": {
+      "ordem": 27,
+      "titulo": "Quando o Corpo Envelhece"
+    },
+    "80": {
+      "ordem": 28,
+      "titulo": "Quando Você Teme Depender dos Outros"
+    },
+    "81": {
+      "ordem": 29,
+      "titulo": "Quando a Morte Assusta Você"
+    },
+    "82": {
+      "ordem": 60,
+      "titulo": "Quando o Luto Volta sem Avisar"
+    },
+    "83": {
+      "ordem": 86,
+      "titulo": "Quando Chega a Data que Você Temia"
+    },
+    "84": {
+      "ordem": 51,
+      "titulo": "Quando Perdoar Não Significa Reabrir a Porta"
+    },
+    "85": {
+      "ordem": 43,
+      "titulo": "Quando Colocar Limites Faz Você se Sentir Culpado"
+    },
+    "86": {
+      "ordem": 44,
+      "titulo": "Quando Suas Palavras Machucam"
+    },
+    "87": {
+      "ordem": 45,
+      "titulo": "Quando Você se Arrepende do que Disse"
+    },
+    "88": {
+      "ordem": 30,
+      "titulo": "Quando Você Pensa no Juízo e Sente Medo"
+    },
+    "89": {
+      "ordem": 89,
+      "titulo": "Quando o Mundo Parece Escuro Demais"
+    },
+    "90": {
+      "ordem": 90,
+      "titulo": "Quando Você Precisa Lembrar Como Tudo Termina"
+    }
+  }
+}

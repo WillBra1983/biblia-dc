@@ -40,6 +40,8 @@ import { useApp } from '../contexts/AppContext'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { useLeituraTelaCheia } from '../hooks/useLeituraTelaCheia'
 import { canticosService } from '../services/canticosService'
+import { useCompartilhamentoPagina } from '../hooks/useCompartilhamentoPagina'
+import { linkCompartilhamentoConteudo } from '../utils/compartilhamentoConteudo'
 import {
   assinarCanticosCompartilhados,
   editarCantico,
@@ -116,6 +118,13 @@ export default function Canticos() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const initialSelectionRef = useRef(false)
+
+  useCompartilhamentoPagina({
+    pathname: location.pathname,
+    title: currentSong?.titulo || '',
+    text: currentSong ? `Conheça “${currentSong.titulo}” na Bíblia do Discípulo Cristão.` : '',
+    url: currentSong ? (currentSong.localPrivado ? linkCompartilhamentoConteudo('secao', 'canticos') : linkCompartilhamentoConteudo('cantico', String(currentSong.id), { grupo: outrasCancoes ? 'outras-cancoes' : 'salmos' })) : '',
+  })
 
   const textSx = {
     fontSize: `${fontSize}%`,

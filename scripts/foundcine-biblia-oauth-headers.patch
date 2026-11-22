@@ -1,0 +1,18 @@
+diff --git a/app.py b/app.py
+index d939c75..59e7ba4 100644
+--- a/app.py
++++ b/app.py
+@@ -2359,6 +2359,13 @@ _APIS_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+ _BIBLIA_DIR = os.path.join(_APIS_ROOT_DIR, 'biblia_dist')
+ _WELL_KNOWN_DIR = os.path.join(_APIS_ROOT_DIR, '.well-known')
+ 
++@app.after_request
++def biblia_oauth_headers(response):
++    if request.path == '/biblia' or request.path.startswith('/biblia/'):
++        response.headers['Cross-Origin-Opener-Policy'] = 'same-origin-allow-popups'
++    return response
++
++
+ 
+ @app.route('/.well-known/assetlinks.json')
+ def android_asset_links():

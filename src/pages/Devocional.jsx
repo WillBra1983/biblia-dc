@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useCompartilhamentoPagina } from '../hooks/useCompartilhamentoPagina'
+import { linkCompartilhamentoConteudo } from '../utils/compartilhamentoConteudo'
 import { 
   Container, 
   Typography, 
@@ -43,6 +45,7 @@ const secoesPorId = new Map(devocionalSecoes.map((secao) => [secao.id, secao]))
 export default function Devocional() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useFirebaseAuth()
   const { fontSize, fontFamily, lineHeight, textAlign, devocionaisConcluidos, setDevocionaisConcluidos } = useApp()
   const ff = resolveFontFamily(fontFamily)
@@ -54,6 +57,13 @@ export default function Devocional() {
     ? devocionaisOrdenados.findIndex((devocional) => devocional.id === devocionalAtual.id)
     : -1
   const secaoAtual = devocionalAtual ? secoesPorId.get(devocionalAtual.secao) : null
+
+  useCompartilhamentoPagina({
+    pathname: location.pathname,
+    title: devocionalAtual ? `Devocional — Dia ${devocionalAtual.ordem}: ${devocionalAtual.titulo}` : '',
+    text: devocionalAtual ? `Leia “${devocionalAtual.titulo}”, dia ${devocionalAtual.ordem} do devocional, na Bíblia do Discípulo Cristão.` : '',
+    url: devocionalAtual ? linkCompartilhamentoConteudo('devocional', String(devocionalAtual.id)) : '',
+  })
 
   useEffect(() => {
     if (id) {

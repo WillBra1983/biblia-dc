@@ -101,9 +101,27 @@ export async function gravarSqliteCacheado(assetName, revision, bytes) {
 
 /** Tenta cache primeiro; se falhar, usa o fetcher e grava no cache. */
 export async function obterSqliteAssetBytes(assetName, revision, fetcher) {
-  const cached = await lerSqliteCacheado(assetName, revision)
+  // Um IndexedDB ocupado/bloqueado não pode prender a primeira leitura.
+  let timer
+  const leituraCache = lerSqliteCacheado(assetName, revision)
+  const cached = await Promise.race([
+    leituraCache,
+    new Promise(resolve => { timer = setTimeout(() => resolve(null), 1500) }),
+  ]).finally(() => clearTimeout(timer))
   if (cached) return cached
-  const bytes = await fetcher()
+  let bytes
+  try {
+    bytes = await fetcher()
+  } catch (error) {
+    // Sem rede, a cópia offline pode estar apenas lenta, não ausente.
+    // Aproveita uma leitura tardia sem voltar a aguardar indefinidamente.
+    const tardio = await Promise.race([
+      leituraCache,
+      new Promise(resolve => { timer = setTimeout(() => resolve(null), 3500) }),
+    ]).finally(() => clearTimeout(timer))
+    if (tardio) return tardio
+    throw error
+  }
   void gravarSqliteCacheado(assetName, revision, bytes)
   return bytes
 }

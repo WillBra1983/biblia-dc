@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { linkCompartilhamentoConteudo } from '../utils/compartilhamentoConteudo'
 import {
   Alert,
   Box,
@@ -423,7 +424,7 @@ export default function QuizRetiro() {
   const compartilharWhatsapp = () => {
     const nome = nomeJogador.trim() || 'Jogador'
     const msg = `🎯 Quiz Bíblico — ${nome}\nAcertos: ${nAcertosFinal}/${total}\nPontuação: ${totalPontos} pontos`
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer')
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg + '\n\n' + linkCompartilhamentoConteudo('secao', 'quiz'))}`, '_blank', 'noopener,noreferrer')
   }
 
   const prog = total ? ((atual + (mostrarFeedback ? 1 : 0)) / total) * 100 : 0

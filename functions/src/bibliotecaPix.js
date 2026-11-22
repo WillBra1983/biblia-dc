@@ -1,6 +1,6 @@
 const admin = require('./firebaseAdmin')
 const QRCode = require('qrcode')
-const { crc16, validarCopiaCola } = require('./bibliotecaPixPayload')
+const { crc16, validarCopiaCola, definirValorCopiaCola } = require('./bibliotecaPixPayload')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { enviarParaUsuarios } = require('./push')
 const { identificarLeitor } = require('./bibliotecaVisitante')
@@ -25,10 +25,10 @@ function tlv(id, valor) {
 
 function criarPayloadPix({ chave, nome, cidade, valorCentavos, txid }) {
   const conta = tlv('00', 'br.gov.bcb.pix') + tlv('01', chave)
-  const valor = (valorCentavos / 100).toFixed(2)
+  const valor = valorCentavos == null ? null : (valorCentavos / 100).toFixed(2)
   const base = [
     tlv('00', '01'), tlv('26', conta), tlv('52', '0000'),
-    tlv('53', '986'), tlv('54', valor), tlv('58', 'BR'),
+    tlv('53', '986'), ...(valorCentavos == null ? [] : [tlv('54', valor)]), tlv('58', 'BR'),
     tlv('59', somenteAscii(nome, 25)), tlv('60', somenteAscii(cidade, 15)),
     tlv('62', tlv('05', somenteAscii(txid, 25))), '6304',
   ].join('')
@@ -80,6 +80,31 @@ exports.salvarConfiguracaoPixBiblioteca = onCall(OPCOES, async (req) => {
     chave, nome, cidade, pixCopiaCola: completo?.codigo || '', ativo, atualizadoEm: Date.now(), atualizadoPor: req.auth.uid,
   })
   return { ok: true }
+})
+
+// Consulta pública somente dos dados necessários à contribuição, sem criar pedidos.
+exports.obterPixContribuicao = onCall(OPCOES, async (req) => {
+  const valorCentavos = req.data?.valorCentavos
+  if (valorCentavos != null && (!Number.isSafeInteger(valorCentavos) || valorCentavos < 1 || valorCentavos > 10000000)) {
+    throw new HttpsError('invalid-argument', 'Informe um valor válido para contribuir.')
+  }
+  const pix = (await admin.database().ref('bibliotecaConfiguracao/pix').get()).val() || {}
+  if (pix.ativo !== true || !pix.chave || !pix.nome || !pix.cidade) {
+    throw new HttpsError('failed-precondition', 'A contribuição por Pix está temporariamente indisponível.')
+  }
+  let dados
+  try {
+    const codigo = pix.pixCopiaCola || (String(pix.chave).startsWith('000201') ? pix.chave :
+      criarPayloadPix({ chave: pix.chave, nome: pix.nome, cidade: pix.cidade, txid: '***' }))
+    dados = validarCopiaCola(valorCentavos == null ? codigo : definirValorCopiaCola(codigo, valorCentavos))
+  } catch {
+    throw new HttpsError('failed-precondition', 'Não foi possível preparar o Pix. Tente novamente mais tarde.')
+  }
+  return {
+    pixCopiaCola: dados.codigo, nome: dados.nome,
+    valorCentavos: dados.valor ? Math.round(Number(dados.valor) * 100) : null,
+    qrCodeDataUrl: await QRCode.toDataURL(dados.codigo, { width: 420, margin: 2, errorCorrectionLevel: 'M' }),
+  }
 })
 
 exports.criarPedidoPixBiblioteca = onCall(OPCOES, async (req) => {

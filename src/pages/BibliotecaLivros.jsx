@@ -1,4 +1,5 @@
 import { LembretePedidosPix } from '../components/AvisosPedidosPix'
+import LeiturasProjetoBiblioteca from '../components/LeiturasProjetoBiblioteca'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Capacitor } from '@capacitor/core'
@@ -36,6 +37,8 @@ import EditorApresentacao from '../components/EditorApresentacao'
 import { partesApresentacao } from '../utils/apresentacaoFormatada'
 import BibliotecaAcessosDialog from '../components/BibliotecaAcessosDialog'
 import CompartilharLivroButton from '../components/CompartilharLivroButton'
+import { useCompartilhamentoPagina } from '../hooks/useCompartilhamentoPagina'
+import { linkCompartilhamentoLivro } from '../utils/livroShare'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { useEhAdmin } from '../hooks/useEhAdmin'
 import {
@@ -696,6 +699,7 @@ function Catalogo({ livros, votos, carregando, comprasConfirmadas, ehAdmin, onCo
       </Box>
       <Container maxWidth="lg" sx={{ py: { xs: 2.8, md: 4.2 } }}>
         <LembretePedidosPix />
+        <LeiturasProjetoBiblioteca />
         <Tabs value={aba} onChange={(_, valor) => setAba(valor)} aria-label="Livraria e biblioteca pessoal" variant="fullWidth" sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
           <Tab value="acervo" label="Livraria" id="biblioteca-aba-acervo" aria-controls="biblioteca-painel-acervo" icon={<StorefrontOutlinedIcon />} iconPosition="start" />
           <Tab value="pessoal" label="Biblioteca pessoal" id="biblioteca-aba-pessoal" aria-controls="biblioteca-painel-pessoal" icon={<AutoStoriesOutlinedIcon />} iconPosition="start" />
@@ -841,7 +845,7 @@ function LeitorLivro({ livro, uid, finalidade = 'completo', acessoDigital = fals
 
       <Container maxWidth="lg" sx={{ py: { xs: 1.5, sm: 3 } }} onContextMenu={(event) => event.preventDefault()}>
         {arquivo?.acessoAte && <Alert severity="info" sx={{ mb: 1 }}>Leitura gratuita até {new Date(arquivo.acessoAte).toLocaleString('pt-BR')}. Depois, compre para continuar.</Alert>}
-        {finalidade === 'completo' && !arquivo?.offline && <Button disabled={preparandoOffline} onClick={async () => {
+          {finalidade === 'completo' && !arquivo?.offline && !arquivo?.acessoAte && <Button disabled={preparandoOffline} onClick={async () => {
           setPreparandoOffline(true); setAvisoOffline('')
           try { await prepararLeituraOffline(livro.id, formato); setAvisoOffline('Livro preparado para leitura sem internet neste aparelho, dentro do aplicativo.') }
           catch (falha) { setAvisoOffline(falha.message || 'Não foi possível preparar a leitura offline.') }
@@ -1120,6 +1124,12 @@ export default function BibliotecaLivros() {
   }, [user?.uid])
 
   const livro = livroId ? livros.find((item) => item.id === livroId) : null
+  useCompartilhamentoPagina({
+    pathname: location.pathname,
+    title: livro ? `${livro.titulo}${livro.autor ? ` — ${livro.autor}` : ''}` : '',
+    text: livro ? `Conheça “${livro.titulo}”${livro.autor ? `, de ${livro.autor}` : ''}, na Livraria Cristã da Bíblia do Discípulo Cristão.` : '',
+    url: livro && livro.publicado !== false && !livro.excluido ? linkCompartilhamentoLivro(livro.id, livro) : '',
+  })
   const modoLeitura = Boolean(livroId && location.pathname.endsWith('/ler'))
   const modoAmostra = Boolean(livroId && location.pathname.endsWith('/amostra'))
   const acessoLeitura = Boolean(livro && (ehAdmin || acessosPix.has(chaveCompra(livro.id, 'pix'))))
@@ -1218,7 +1228,7 @@ export default function BibliotecaLivros() {
   else if (carregando || (modoLeitura && !ehAdmin && !acessosCarregados)) conteudo = <Box sx={{ py: 10, textAlign: 'center' }}><CircularProgress /></Box>
   else if (modoAmostra && livro && (ehAdmin || (livro.publicado !== false && temDegustacao(livro)))) conteudo = <LeitorLivro livro={livro} uid={user?.uid} finalidade="amostra" acessoDigital={acessoLeitura} />
   else if (modoAmostra) conteudo = <Container maxWidth="sm" sx={{ py: 5 }}><Alert severity="warning" action={<Button onClick={() => navigate(`/biblioteca/${livroId}`)}>Voltar</Button>}>Este livro ainda não possui uma amostra disponível.</Alert></Container>
-  else if (modoLeitura && livro && acessoLeitura) conteudo = <LeitorLivro livro={livro} uid={user?.uid} finalidade="completo" />
+  else if (modoLeitura && livro && (acessoLeitura || new URLSearchParams(location.search).get('conviteLeitura') === '1')) conteudo = <LeitorLivro livro={livro} uid={user?.uid} finalidade="completo" />
   else if (modoLeitura) conteudo = <Container maxWidth="sm" sx={{ py: 5 }}><Alert severity="warning" action={<Button onClick={() => navigate(`/biblioteca/${livroId}`)}>Voltar</Button>}>A leitura deste livro ainda não está liberada para sua conta.</Alert></Container>
   else if (livro && (ehAdmin || visivelAoLeitor)) conteudo = <DetalheLivro key={livro.id} livro={livro} voto={votos && visivelAoLeitor ? votos[livro.id] || { total: 0, votou: false } : null} onVoto={registrarVoto} comprasConfirmadas={comprasDisponiveis} ehAdmin={ehAdmin} onConfirmarCompra={confirmarCompra} onEditar={setEditando} onExcluir={setExcluindo} />
   else conteudo = <Container maxWidth="sm" sx={{ py: 5 }}><Alert severity="warning" action={<Button onClick={() => navigate('/biblioteca')}>Voltar</Button>}>Este livro não está disponível.</Alert></Container>

@@ -26,7 +26,7 @@ export default function Privacidade() {
           Política de Privacidade — Bíblia do Discípulo Cristão
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Última atualização: 25 de julho de 2026
+          Última atualização: 20 de novembro de 2026
         </Typography>
 
         <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.7 }}>
@@ -54,6 +54,10 @@ export default function Privacidade() {
           quiz, plano de leitura, versículos marcados, preferências de notificação, estudos compartilhados
           e respostas enviadas pelo próprio usuário. Esses dados são usados para fornecer sincronização,
           comunicação e continuidade entre dispositivos.
+          Ao participar dos convites do projeto, registramos o vínculo do convite com a nova conta,
+          a confirmação do e-mail, identificadores protegidos por hash do e-mail e do aparelho,
+          a contagem de indicações e os prazos dos benefícios de leitura. Esses registros permitem
+          evitar créditos repetidos. O aplicativo não acessa sua lista de contatos para compartilhar.
         </Secao>
 
         <Secao titulo="4. Notificações e dados do dispositivo">

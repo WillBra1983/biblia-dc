@@ -13,17 +13,21 @@
 
 import { Capacitor } from '@capacitor/core'
 import { App } from '@capacitor/app'
-import { getFirebaseDatabase } from '../config/firebase'
+import { getFirebaseDatabase, loadFirebaseModules } from '../config/firebase'
+import { APP_STORE_URL, GOOGLE_PLAY_URL } from '../utils/appStoreLinks'
 import { compararVersoes } from '../utils/semverCompare'
 import { abrirUrlExterna } from '../utils/abrirUrlExterna'
 
 const RTDB_PATH = 'appConfig/lojaVersao'
 const ANDROID_PACKAGE = 'com.bibliadc.app'
 
-const URL_PLAY_PADRAO = `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`
 const URL_PLAY_NATIVO = `market://details?id=${ANDROID_PACKAGE}`
 
-const DISMISS_PREFIX = 'salvation:update-dismiss:'
+const versoesDispensadasNestaSessao = new Set()
+
+export function reiniciarAvisosVersaoSessao() {
+  versoesDispensadasNestaSessao.clear()
+}
 
 function parseVersionCode(raw) {
   const n = parseInt(String(raw ?? '').trim(), 10)
@@ -63,6 +67,7 @@ function chaveAvisoVersao(cfg) {
 }
 
 export async function obterConfigLojaVersao() {
+  await loadFirebaseModules()
   const db = getFirebaseDatabase()
   if (!db) return { android: null, ios: null }
   try {
@@ -79,6 +84,7 @@ export async function obterConfigLojaVersao() {
 }
 
 export async function salvarConfigLojaVersao({ android, ios }) {
+  await loadFirebaseModules()
   const db = getFirebaseDatabase()
   if (!db) throw new Error('Firebase indisponível')
   const { ref, update } = await import('firebase/database')
@@ -102,27 +108,17 @@ export async function salvarConfigLojaVersao({ android, ios }) {
 
 function urlLojaPadrao(plataforma) {
   if (plataforma === 'android') {
-    return import.meta.env.VITE_PLAY_STORE_URL?.trim() || URL_PLAY_PADRAO
+    return GOOGLE_PLAY_URL
   }
-  return import.meta.env.VITE_APP_STORE_URL?.trim() || ''
+  return APP_STORE_URL
 }
 
 export function usuarioDispensouAvisoVersao(versaoAlvo) {
-  if (!versaoAlvo || typeof localStorage === 'undefined') return false
-  try {
-    return localStorage.getItem(`${DISMISS_PREFIX}${versaoAlvo}`) === '1'
-  } catch {
-    return false
-  }
+  return versoesDispensadasNestaSessao.has(versaoAlvo)
 }
 
 export function marcarAvisoVersaoDispensado(versaoAlvo) {
-  if (!versaoAlvo || typeof localStorage === 'undefined') return
-  try {
-    localStorage.setItem(`${DISMISS_PREFIX}${versaoAlvo}`, '1')
-  } catch {
-    /* ignore */
-  }
+  if (versaoAlvo) versoesDispensadasNestaSessao.add(versaoAlvo)
 }
 
 /**

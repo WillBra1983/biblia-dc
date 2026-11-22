@@ -437,7 +437,7 @@ export default function BibliotecaArquivoReader({ arquivo, storageKey, livro, pe
 
   if (!arquivo?.url) return <Alert severity="warning">O arquivo do livro não está disponível.</Alert>
 
-  const urlLivro = linkCompartilhamentoLivro(livro?.id)
+  const urlLivro = linkCompartilhamentoLivro(livro?.id, livro)
   const livroCompartilhamento = { ...livro, capaUrl: livro?.capa ? urlCapaLivro(livro.capa) : '' }
 
   return <>

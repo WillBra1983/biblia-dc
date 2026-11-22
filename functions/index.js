@@ -28,6 +28,13 @@ exports.votarLivroBiblioteca = bibliotecaVotos.votarLivroBiblioteca
 
 // Venda direta da Biblioteca por Pix, com conferência e liberação pelo administrador.
 const bibliotecaPix = require('./src/bibliotecaPix')
+exports.obterPixContribuicao = bibliotecaPix.obterPixContribuicao
+const projetoCompartilhamento = require('./src/projetoCompartilhamento')
+exports.obterCampanhaProjeto = projetoCompartilhamento.obterCampanhaProjeto
+exports.baixarBiblia = require('./src/conviteAplicativo').baixarBiblia
+exports.registrarVisitaConviteProjeto = projetoCompartilhamento.registrarVisitaConviteProjeto
+exports.confirmarIndicacaoProjeto = projetoCompartilhamento.confirmarIndicacaoProjeto
+exports.resgatarLeituraProjeto = projetoCompartilhamento.resgatarLeituraProjeto
 exports.salvarConfiguracaoPixBiblioteca = bibliotecaPix.salvarConfiguracaoPixBiblioteca
 exports.criarPedidoPixBiblioteca = bibliotecaPix.criarPedidoPixBiblioteca
 exports.informarPagamentoPixBiblioteca = bibliotecaPix.informarPagamentoPixBiblioteca

@@ -4,10 +4,12 @@ import App, { createAppRouter } from './App'
 import { ZoomResetProvider } from './contexts/ZoomResetContext'
 import './index.css'
 import '@fontsource/noto-serif-hebrew/400.css'
+import { preaquecerCapituloInicial } from './services/bibliaCapituloRapido'
 import { initDB as preaquecerBibliaDB } from './services/bibliaService'
 import { executarAppVersionGuard } from './utils/appVersionGuard'
 import { instalarRecuperacaoChunkPerdido } from './utils/chunkLoadRecovery'
 import { isNativeApp } from './utils/isNativeApp'
+if (isNativeApp()) document.documentElement.setAttribute('data-native-app', '')
 instalarRecuperacaoChunkPerdido()
 
 // Guard de versão do bundle: se o último build for diferente do que estava
@@ -18,14 +20,15 @@ instalarRecuperacaoChunkPerdido()
 // raro de novo deploy — e aí o reload acontece em sequência.
 const versionGuardPromise = executarAppVersionGuard()
 
-// Pré-aquece o SQLite da Bíblia em paralelo ao splash.
-// Quando o splash terminar, `initDB()` já estará pronto (ou perto disso),
-// reduzindo a janela de "tela preta" entre splash e o primeiro capítulo.
+// Se o último capítulo consultado está no cache local, ele abre primeiro e
+// o SQLite fica para depois. Sem cache, pré-aquece o banco original durante o splash.
 // Evita pré-aquecer se estamos no meio de um reload por upgrade de versão
 // (já vai recarregar; gastar IO agora é desperdício).
 versionGuardPromise
   .then((vaiRecarregar) => {
-    if (!vaiRecarregar) preaquecerBibliaDB().catch(() => {})
+    if (!vaiRecarregar) preaquecerCapituloInicial().then(capitulo => {
+      if (!capitulo) return preaquecerBibliaDB()
+    }).catch(() => {})
   })
   .catch(() => {
     preaquecerBibliaDB().catch(() => {})
@@ -75,12 +78,16 @@ const basename = (import.meta.env.BASE_URL && import.meta.env.BASE_URL !== '/')
   ? import.meta.env.BASE_URL.replace(/\/$/, '')
   : ''
 
-const router = createAppRouter(basename, isNativeApp())
-
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <ZoomResetProvider>
-      <App router={router} />
-    </ZoomResetProvider>
-  </React.StrictMode>
-) 
+// Na web, a limpeza de um build antigo pode pedir reload. Não monta uma
+// primeira Bíblia enquanto essa decisão ainda está pendente.
+versionGuardPromise.catch(() => false).then((vaiRecarregar) => {
+  if (vaiRecarregar) return
+  const router = createAppRouter(basename, isNativeApp())
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+      <ZoomResetProvider>
+        <App router={router} />
+      </ZoomResetProvider>
+    </React.StrictMode>
+  )
+})

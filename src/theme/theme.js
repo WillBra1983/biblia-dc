@@ -131,6 +131,39 @@ const getTheme = (mode) => {
     },
     MuiDialog: {
       styleOverrides: {
+        container: {
+          // Todos os diálogos, inclusive fullscreen, usam somente a área útil.
+          boxSizing: 'border-box',
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          paddingLeft: 'env(safe-area-inset-left, 0px)',
+          paddingRight: 'env(safe-area-inset-right, 0px)',
+          overscrollBehavior: 'none',
+          '--app-safe-area-top': '0px',
+          '--app-safe-area-bottom': '0px',
+          '--app-safe-area-left': '0px',
+          '--app-safe-area-right': '0px',
+          '& > .MuiDialog-paper': {
+            // Alguns componentes definem altura em vh via sx. O limite comum
+            // precisa prevalecer para impedir que o botão de fechar suba ao notch.
+            maxHeight: 'calc(100% - 64px) !important',
+          },
+          '@media (max-width:599.95px)': {
+            '& > .MuiDialog-paper': {
+              margin: '16px',
+              maxHeight: 'calc(100% - 32px) !important',
+            },
+            '& > .MuiDialog-paperFullWidth': { width: 'calc(100% - 32px)' },
+          },
+          '& > .MuiDialog-paperFullScreen': {
+            margin: '0 !important',
+            width: '100% !important',
+            maxWidth: '100% !important',
+            height: '100% !important',
+            maxHeight: '100% !important',
+            borderRadius: 0,
+          },
+        },
         paper: {
           borderRadius: 16,
           boxShadow: mode === 'light' 
@@ -142,6 +175,11 @@ const getTheme = (mode) => {
     MuiDrawer: {
       styleOverrides: {
         paper: {
+          top: 'var(--app-safe-area-top, env(safe-area-inset-top, 0px))',
+          bottom: 'var(--app-safe-area-bottom, env(safe-area-inset-bottom, 0px))',
+          height: 'calc(100% - var(--app-safe-area-top, env(safe-area-inset-top, 0px)) - var(--app-safe-area-bottom, env(safe-area-inset-bottom, 0px)))',
+          overscrollBehavior: 'none',
+          overflowX: 'hidden',
           backgroundColor: mode === 'light' ? '#fafafa' : '#121216',
           borderRight: '1px solid',
           borderColor: mode === 'light' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)',

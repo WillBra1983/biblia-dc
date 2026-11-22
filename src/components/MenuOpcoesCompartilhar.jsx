@@ -22,7 +22,7 @@ import {
   suporteShareNativo,
 } from '../utils/compartilharOpcoes'
 import { avisarAsync, mostrarSnackbar } from '../utils/uiDialogs'
-import { isPublicAppUrlUnreachableForOthers } from '../services/bibliaEstudosService'
+import { prepararCompartilhamentoConteudo } from '../utils/compartilhamentoConteudo'
 import CompartilharVersiculoImagemDialog from './CompartilharVersiculoImagemDialog'
 
 /**
@@ -32,9 +32,9 @@ export default function MenuOpcoesCompartilhar({
   anchorEl,
   open,
   onClose,
-  title,
-  text,
-  url,
+  title: tituloOriginal,
+  text: textoOriginal,
+  url: urlOriginal,
   onCopiarLink,
   onEnviarChat,
   chatLabel = 'Enviar no chat interno',
@@ -43,6 +43,7 @@ export default function MenuOpcoesCompartilhar({
   onActionComplete,
 }) {
   const [imagemOpen, setImagemOpen] = useState(false)
+  const { title, text, url } = prepararCompartilhamentoConteudo({ title: tituloOriginal, text: textoOriginal, url: urlOriginal })
   const corpo = montarCorpoCompartilhamento({ text, url })
   const temCorpo = Boolean(corpo)
   const temUrl = Boolean(url)
@@ -92,27 +93,14 @@ export default function MenuOpcoesCompartilhar({
   const copiarLink = async () => {
     fechar()
     if (typeof onCopiarLink === 'function') {
-      await onCopiarLink()
+      await onCopiarLink(url)
       onActionComplete?.()
       return
     }
     if (!url) return
     try {
       await navigator.clipboard.writeText(url)
-      if (isPublicAppUrlUnreachableForOthers()) {
-        await avisarAsync({
-          titulo: 'Link copiado',
-          mensagem:
-            'Link copiado! Este ambiente usa localhost — no celular de outra pessoa pode não abrir. ' +
-            'Defina VITE_PUBLIC_APP_URL no .env e refaça o build.',
-          severidade: 'warning',
-        })
-      } else {
-        mostrarSnackbar({
-          mensagem: 'Link copiado! É só colar onde quiser.',
-          severidade: 'success',
-        })
-      }
+      mostrarSnackbar({ mensagem: 'Link copiado! É só colar onde quiser.', severidade: 'success' })
     } catch {
       await avisarAsync({
         titulo: 'Copie este link para compartilhar',

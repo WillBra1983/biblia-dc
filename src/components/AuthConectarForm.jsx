@@ -112,6 +112,7 @@ export default function AuthConectarForm({ embedded = false, titleLogin = 'Entra
       <Typography variant="h6" gutterBottom>
         {mode === 'login' ? titleLogin : titleRegister}
       </Typography>
+
       {navegadorInterno ? (
         <Alert
           severity="warning"

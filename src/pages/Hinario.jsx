@@ -36,6 +36,8 @@ import { resolveFontFamily } from '../utils/fontFamily'
 import { formatarNotasRodapeHinario } from '../utils/hinarioNotasFormat'
 import { usePodeUsarModoApresentacao } from '../utils/modoApresentacaoDispositivo'
 import { useLeituraTelaCheia } from '../hooks/useLeituraTelaCheia'
+import { useCompartilhamentoPagina } from '../hooks/useCompartilhamentoPagina'
+import { linkCompartilhamentoConteudo } from '../utils/compartilhamentoConteudo'
 
 export default function Hinario() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -69,6 +71,13 @@ export default function Hinario() {
     fontFamily: ff,
     textAlign: textAlign || 'left',
   }
+
+  useCompartilhamentoPagina({
+    pathname: location.pathname,
+    title: hinoAtual ? `Hino ${hinoAtual.numero} — ${hinoAtual.titulo}` : '',
+    text: hinoAtual ? `Conheça o hino ${hinoAtual.numero}, “${hinoAtual.titulo}”, na Bíblia do Discípulo Cristão.` : '',
+    url: hinoAtual ? linkCompartilhamentoConteudo('cantico', String(hinoAtual.numero), { grupo: modoCifras ? 'cifras' : 'letra' }) : '',
+  })
 
   const prefixoNumero = n => {
     const prefixo = String(n ?? '').match(/^\d+/)?.[0]

@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import vm from 'node:vm'
 import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
-const { validarCopiaCola, crc16 } = require('../functions/src/bibliotecaPixPayload.js')
+const { validarCopiaCola, crc16, definirValorCopiaCola } = require('../functions/src/bibliotecaPixPayload.js')
 const codigo = "00020126950014br.gov.bcb.pix01361676372a-157b-47b2-a141-1a7f38475f1f0233Cofrinho de WILSON LUCAS FERREIRA5204000053039865802BR5921WILSON LUCAS FERREIRA6009Ji-Parana61087690761662270523COFRVjIwMDZCUVVPMDAwMDM630474B6"
 assert.equal(validarCopiaCola(codigo).codigo, codigo)
 assert.equal(validarCopiaCola(codigo).chave, '1676372a-157b-47b2-a141-1a7f38475f1f')
@@ -49,7 +49,7 @@ class HttpsError extends Error { constructor(code, message, details) { super(mes
 const api = {}
 vm.runInNewContext(fs.readFileSync('functions/src/bibliotecaPix.js', 'utf8'), { exports: api, Buffer, require: name => {
   if (name === './firebaseAdmin') return { database: () => ({ ref }) }
-  if (name === './bibliotecaPixPayload') return { validarCopiaCola, crc16 }
+  if (name === './bibliotecaPixPayload') return { validarCopiaCola, crc16, definirValorCopiaCola }
   if (name === 'qrcode') return { toDataURL: async value => value }
   if (name === './bibliotecaVisitante') return { identificarLeitor: async req => req.auth?.uid || 'visitante' }
   if (name === './push') return { enviarParaUsuarios: async () => {} }
@@ -206,4 +206,38 @@ assert.deepEqual(Array.from(listaConta, item => item.pedidoId), ['vinculado', 'p
 assert.ok(listaConta.every(item => !('uid' in item) && !('pixCopiaCola' in item)), 'Entrega somente metadados necessários')
 assert.deepEqual(Array.from((await api.listarMeusPedidosPixBiblioteca({ data: {} })).pedidos, item => item.pedidoId), ['visitante'])
 assert.equal((await api.listarMeusPedidosPixBiblioteca({ auth: { uid: 'sem-compras' } })).pedidos.length, 0)
+const inicioContribuicao = performance.now()
+const antesContribuicao = JSON.stringify([...valores.entries()])
+const livre = await api.obterPixContribuicao({})
+assert.equal(validarCopiaCola(livre.pixCopiaCola).chave, 'livraria@example.com')
+assert.equal(validarCopiaCola(livre.pixCopiaCola).valor, undefined, 'Chave simples gera contribuição de valor livre')
+assert.equal(livre.valorCentavos, null)
+assert.equal(livre.qrCodeDataUrl, livre.pixCopiaCola)
+assert.equal(JSON.stringify([...valores.entries()]), antesContribuicao, 'Consultar contribuição não cria pedido nem libera acesso')
+assert.deepEqual(Object.keys(livre).sort(), ['nome', 'pixCopiaCola', 'qrCodeDataUrl', 'valorCentavos'], 'Não expõe metadados administrativos')
+await api.salvarConfiguracaoPixBiblioteca({ auth: { uid: 'admin' }, data: { chave: codigo } })
+const cofrinho = await api.obterPixContribuicao({})
+assert.equal(cofrinho.pixCopiaCola, codigo, 'Preserva integralmente o Pix e a identificação do cofrinho')
+assert.equal(cofrinho.nome, 'WILSON LUCAS FERREIRA')
+assert.equal(cofrinho.valorCentavos, null)
+for (const valorCentavos of [200, 500, 1000, 2000, 5000, 10000, 50000, 100000, 1234]) {
+  const contribuicao = await api.obterPixContribuicao({ data: { valorCentavos } })
+  const payload = validarCopiaCola(contribuicao.pixCopiaCola)
+  assert.equal(contribuicao.valorCentavos, valorCentavos)
+  assert.equal(Math.round(Number(payload.valor) * 100), valorCentavos)
+  assert.equal(payload.chave, validarCopiaCola(codigo).chave)
+  assert.ok(contribuicao.pixCopiaCola.includes('Cofrinho de WILSON LUCAS FERREIRA'))
+  assert.ok(contribuicao.pixCopiaCola.includes('COFRVjIwMDZCUVVPMDAwMDM'), 'Preserva também o identificador do cofrinho')
+}
+for (const valorCentavos of [0, -1, 1.5, '200', 10000001, Infinity]) await assert.rejects(api.obterPixContribuicao({ data: { valorCentavos } }), { code: 'invalid-argument' })
+console.log('Contribuição com valor: 9/9 valores aprovados (100%); valores inválidos rejeitados e cofrinho preservado.')
+const semCrc = codigo.replace('5802BR', '54045.005802BR').slice(0, -4)
+const fixo = semCrc + crc16(semCrc)
+await api.salvarConfiguracaoPixBiblioteca({ auth: { uid: 'admin' }, data: { chave: fixo } })
+assert.equal((await api.obterPixContribuicao({})).valorCentavos, 500, 'Valor fixo cadastrado deve ser informado ao usuário')
+valores.set('bibliotecaConfiguracao/pix', { ativo: false })
+await assert.rejects(api.obterPixContribuicao({}), { code: 'failed-precondition' })
+valores.set('bibliotecaConfiguracao/pix', { ativo: true, chave: 'chave', nome: 'Nome', cidade: 'Cidade', pixCopiaCola: 'truncado' })
+await assert.rejects(api.obterPixContribuicao({}), { code: 'failed-precondition' })
+console.log('Contribuição Pix: 6/6 grupos aprovados (100%); falhas: 0%; tempo: '+((performance.now()-inicioContribuicao)/1000).toFixed(2)+' s. Sem transferências reais.')
 console.log('Resposta e avisos Pix: 10/10 grupos aprovados (100%); falhas: 0%; tempo: '+((performance.now()-inicioResposta)/1000).toFixed(2)+' s. Cache frio, repetição, Pix atualizado, concorrência e isolamento de contas/visitantes verificados.')

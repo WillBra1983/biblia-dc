@@ -99,7 +99,7 @@ export default function MenuDrawer({ onSelectTema, contexto }) {
         <Box
           sx={{
             position: 'fixed',
-            top: 0,
+            top: 'env(safe-area-inset-top, 0px)',
             right: 0,
             zIndex: 1100,
             p: 1
@@ -167,4 +167,4 @@ export default function MenuDrawer({ onSelectTema, contexto }) {
       </Box>
     </Drawer>
   )
-} 
+}

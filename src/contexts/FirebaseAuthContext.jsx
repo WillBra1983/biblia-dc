@@ -69,7 +69,7 @@ export function FirebaseAuthProvider({ children }) {
   }, [])
 
   const propagarUsuarioAutenticado = useCallback(async (auth) => {
-    await aguardarAuthPronto(auth)
+    if (!auth?.currentUser) await aguardarAuthPronto(auth)
     if (auth?.currentUser) {
       authStateRecebidoRef.current = true
       setUser(auth.currentUser)
@@ -97,7 +97,7 @@ export function FirebaseAuthProvider({ children }) {
     }
 
     const aplicarUsuarioAuth = (u) => {
-      if (cancelled || !authPronto) return
+      if (cancelled) return
       authStateRecebidoRef.current = true
       window.clearTimeout(timeoutId)
       if (estaRegistroEmailSenhaEmCurso() && u && usuarioPrecisaVerificarEmail(u)) {
@@ -121,6 +121,10 @@ export function FirebaseAuthProvider({ children }) {
         }
 
         const { onAuthStateChanged, getRedirectResult } = await import('firebase/auth')
+        // O listener precisa sobreviver ao limite de espera da sessão inicial.
+        // Caso contrário, um login posterior pode concluir no Firebase sem
+        // atualizar a interface que já exibiu a tela de entrada.
+        unsubAuth = onAuthStateChanged(auth, aplicarUsuarioAuth)
 
         const authStateReadyPromise =
           typeof auth.authStateReady === 'function'
@@ -147,8 +151,6 @@ export function FirebaseAuthProvider({ children }) {
         authPronto = true
         authStateRecebidoRef.current = true
         aplicarUsuarioAuth(auth.currentUser)
-
-        unsubAuth = onAuthStateChanged(auth, aplicarUsuarioAuth)
 
         // Redirect OAuth só no navegador web — no app da App Store usa GoogleAuth nativo.
         if (!isNativeApp()) {
@@ -469,7 +471,8 @@ export function FirebaseAuthProvider({ children }) {
         await propagarUsuarioAutenticado(auth)
         return
       }
-      await signInWithGoogleWeb(auth, provider)
+      const metodo = await signInWithGoogleWeb(auth, provider)
+      if (metodo === 'popup') await propagarUsuarioAutenticado(auth)
     } catch (e) {
       if (!isAuthCancelError(e)) {
         setLastError(hintForFirebaseAuthError(e))

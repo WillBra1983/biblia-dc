@@ -7,10 +7,10 @@ export default function CompartilharLivroButton({ livro, somenteIcone = false, f
   const executar = async () => {
     try {
       const resultado = await compartilharLivro(livro)
-      if (resultado.copiado) mostrarSnackbar({ mensagem: 'Link do livro copiado.', severidade: 'success' })
+      if (resultado.copiado) mostrarSnackbar({ mensagem: 'Convite do livro copiado.', severidade: 'success' })
       else if (!resultado.abriu) mostrarSnackbar({ mensagem: resultado.url, severidade: 'info' })
     } catch (erro) {
-      if (erro?.name !== 'AbortError') mostrarSnackbar({ mensagem: 'Não foi possível compartilhar o livro.', severidade: 'error' })
+      if (erro?.name !== 'AbortError' && !/cancel/i.test(erro?.message || '')) mostrarSnackbar({ mensagem: 'Não foi possível compartilhar o livro.', severidade: 'error' })
     }
   }
 

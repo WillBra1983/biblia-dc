@@ -82,7 +82,8 @@ export async function compartilharNativo({ title, text, url } = {}) {
       text: text || (url ? `Acesse: ${url}` : undefined),
       url
     })
-  } catch {
+  } catch (erro) {
+    if (erro?.name === 'AbortError' || /cancel/i.test(erro?.message || '')) return true
     return false
   }
 }

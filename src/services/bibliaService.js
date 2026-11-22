@@ -1,6 +1,7 @@
 import initSqlJs from 'sql.js';
 import { normalizarNomeLivro } from '../utils/biblia'
 import { obterSqliteAssetBytes } from '../utils/sqliteAssetCache'
+import { obterCapituloRapido, preaquecerCapituloInicial, guardarCapituloConsultado } from './bibliaCapituloRapido'
 
 import { versaoBiblicaPorId } from '../data/bibliaVersoes'
 import { obterVersaoBiblica, definirVersaoBiblica } from '../utils/bibliaVersionStore'
@@ -89,11 +90,11 @@ async function initDB() {
         : ARA_SQLITE_CONTENT_REV;
       const url = `${base}${versao.arquivo}${rev ? `?v=${encodeURIComponent(rev)}` : ''}`;
 
-      SQL = await initSqlJs({
+      const sqlPromise = initSqlJs({
         locateFile: (file) => `${base}sql.js/${file}`
       });
 
-      const uint8Array = await obterSqliteAssetBytes(versao.arquivo, rev, async () => {
+      const bytesPromise = obterSqliteAssetBytes(versao.arquivo, rev, async () => {
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error('Falha ao carregar o banco de dados');
@@ -102,6 +103,9 @@ async function initDB() {
         return new Uint8Array(arrayBuffer);
       });
 
+      // WASM e base local/rede são independentes: não somar os dois tempos na abertura.
+      const [sqlRuntime, uint8Array] = await Promise.all([sqlPromise, bytesPromise]);
+      SQL = sqlRuntime;
       db = new SQL.Database(uint8Array);
       // As novas bases preservam a numeração explícita; ARA mantém sua ordem original.
       const possuiNumero = db.exec('PRAGMA table_info(verse)')[0]?.values.some(row => row[1] === 'verse_number');
@@ -141,7 +145,15 @@ const bibliaService = {
     if (capituloCache.has(cacheKey)) {
       return capituloCache.get(cacheKey)
     }
-    const db = await initDB();
+    if (!db) {
+      const rapido = await obterCapituloRapido(versao, livro, capitulo)
+      if (rapido) {
+        gravarCacheLimitado(capituloCache, cacheKey, rapido.versiculos, CAPITULO_CACHE_MAX)
+        gravarCacheLimitado(pericopesCache, cacheKey, rapido.pericopes, PERICOPES_CACHE_MAX)
+        return rapido.versiculos
+      }
+    }
+    const banco = await initDB();
     
     const query = `
         SELECT text as texto, textoMarcado, verse_number as numero, verse_end as numeroFim
@@ -152,7 +164,7 @@ const bibliaService = {
     `;
 
     try {
-      const stmt = db.prepare(query);
+      const stmt = banco.prepare(query);
       stmt.bind([livro, capitulo]);
       const result = [];
       while (stmt.step()) {
@@ -377,7 +389,10 @@ const bibliaService = {
   async buscarPericopes(livroId, capitulo) {
     const cacheKey = `${livroId}:${capitulo}`
     if (pericopesCache.has(cacheKey)) {
-      return pericopesCache.get(cacheKey)
+      const pericopes = pericopesCache.get(cacheKey)
+      const versiculos = capituloCache.get(cacheKey)
+      if (versiculos?.length) guardarCapituloConsultado(versao, livroId, capitulo, versiculos, pericopes)
+      return pericopes
     }
 
     try {
@@ -409,6 +424,8 @@ const bibliaService = {
       stmt.free()
       
       gravarCacheLimitado(pericopesCache, cacheKey, pericopes, PERICOPES_CACHE_MAX)
+      const versiculos = capituloCache.get(cacheKey)
+      if (versiculos?.length) guardarCapituloConsultado(versao, livroId, capitulo, versiculos, pericopes)
       return pericopes
       
     } catch (error) {
@@ -722,7 +739,9 @@ export async function initDB(id = obterVersaoBiblica()) {
   return banco
 }
 export async function alterarVersaoBiblica(id) {
-  await initDB(id)
+  if (!versaoBiblicaPorId(id)) throw new Error('Versão bíblica não disponível.')
+  const capitulo = await preaquecerCapituloInicial(id)
+  if (!capitulo) await initDB(id)
   limparBibliaSessaoCache()
   definirVersaoBiblica(id)
 }

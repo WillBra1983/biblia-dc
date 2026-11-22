@@ -10,6 +10,7 @@ public class MainActivity extends BridgeActivity {
   public void onCreate(Bundle savedInstanceState) {
     registerPlugin(AppSigningPlugin.class);
     registerPlugin(ReadingFullscreenPlugin.class);
+    registerPlugin(InstallReferralPlugin.class);
     super.onCreate(savedInstanceState);
   }
 

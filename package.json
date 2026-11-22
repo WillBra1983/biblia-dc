@@ -1,7 +1,7 @@
 {
   "name": "biblia-dc",
   "private": true,
-  "version": "1.4.9",
+  "version": "1.5.0",
   "type": "module",
   "scripts": {
     "screenshots:resize": "node scripts/resize-appstore-screenshot.mjs",
@@ -40,7 +40,8 @@
     "ios:setup-free": "node scripts/ios-setup-free.mjs",
     "deploy:rules": "npx firebase-tools deploy --only database",
     "sync:comentario-prompt": "node scripts/sync-comentario-versiculo-prompt.mjs",
-    "deploy:functions": "npm run sync:comentario-prompt && cross-env FUNCTIONS_DISCOVERY_TIMEOUT=60000 npx firebase-tools deploy --only functions",
+    "deploy:functions": "npm run sync:comentario-prompt && cross-env FUNCTIONS_DISCOVERY_TIMEOUT=120 npx firebase-tools deploy --only functions",
+    "deploy:compartilhamento": "node scripts/sync-compartilhamento-meta.mjs && cross-env FUNCTIONS_DISCOVERY_TIMEOUT=120 npx firebase-tools deploy --only functions:baixarBiblia,functions:obterCampanhaProjeto,functions:registrarVisitaConviteProjeto,functions:confirmarIndicacaoProjeto,functions:resgatarLeituraProjeto,functions:obterArquivoLivroBiblioteca --project biblia-dc",
     "sync:android-version": "node scripts/sync-android-version-rtdb.mjs",
     "deploy:storage": "npx firebase-tools deploy --only storage",
     "deploy:pwa-apis": "powershell -ExecutionPolicy Bypass -File scripts/deploy-pwa-para-apis.ps1",

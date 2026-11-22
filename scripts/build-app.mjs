@@ -12,6 +12,7 @@ const marcador = resolve(dist, 'build-validado.json')
 // Uma execução que falhe não pode reutilizar a autorização de um build antigo.
 if (existsSync(marcador)) unlinkSync(marcador)
 try {
+  execFileSync(process.execPath, [resolve(raiz, 'scripts/sync-compartilhamento-meta.mjs')], { cwd: raiz, stdio: 'inherit', windowsHide: true })
   const envBuild = { ...process.env }
   if (process.platform === 'win32') {
     let livreVirtualKiB = 0

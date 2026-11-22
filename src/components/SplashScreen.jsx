@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   bibliaJaEstaPronta,
   marcarSplashFechado,
@@ -9,9 +9,11 @@ import {
  * Nativo e web: #splash-initial (só imagem) permanece até `biblia-pronta`; React só faz fade-out.
  */
 function SplashImageController({ onComplete, maxMs = 12000 }) {
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
   useEffect(() => {
     if (splashUiJaConcluiu()) {
-      onComplete?.()
+      onCompleteRef.current?.()
       return undefined
     }
 
@@ -21,7 +23,7 @@ function SplashImageController({ onComplete, maxMs = 12000 }) {
       if (cancelled || splashUiJaConcluiu()) return
       cancelled = true
       marcarSplashFechado({ fade: true })
-      window.setTimeout(() => onComplete?.(), 260)
+      window.setTimeout(() => onCompleteRef.current?.(), 260)
     }
 
     const onPronta = () => finalizar()
@@ -38,7 +40,7 @@ function SplashImageController({ onComplete, maxMs = 12000 }) {
       window.removeEventListener('biblia-pronta', onPronta)
       window.clearTimeout(timeoutTeto)
     }
-  }, [onComplete, maxMs])
+  }, [maxMs])
 
   return null
 }

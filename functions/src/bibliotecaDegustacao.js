@@ -9,11 +9,12 @@ function politicaLivro(livro = {}) {
   }
 }
 
-function decidirArquivo({ livro, finalidade, ehAdmin, comprado, download = false, agora }) {
+function decidirArquivo({ livro, finalidade, ehAdmin, comprado, download = false, agora, acessoTemporarioAte = 0 }) {
   const politica = politicaLivro(livro)
   if (download && !ehAdmin && (!comprado || !politica.downloadPermitido)) return { erro: 'Este livro está disponível somente para leitura no sistema.' }
   if (ehAdmin || comprado) return { finalidade: download || (finalidade === 'amostra' && politica.modo !== 'amostra') ? 'completo' : finalidade }
   if (livro.publicado === false || livro.excluido) return { erro: 'Este livro não está disponível.' }
+  if (Number(acessoTemporarioAte) > agora && !download) return { finalidade: 'completo', acessoAte: Number(acessoTemporarioAte) }
   if (finalidade === 'completo') return { erro: 'Seu acesso a este livro ainda não foi liberado.' }
   if (politica.modo === 'percentual') return { finalidade: 'completo', gerarAmostra: true, degustacao: politica }
   if (politica.modo !== 'tempo') return { finalidade: 'amostra', degustacao: politica }

@@ -16,6 +16,7 @@ function criarServico({ falha=false }={}) {
  const mod={exports:{}}
  vm.runInNewContext(codigo,{module:mod,exports:mod.exports,console:{...console,error:()=>{}},fetch:()=>{throw Error('Download não esperado')},require(nome){
   if(nome==='sql.js') return async()=>SQL
+  if(nome==='./bibliaCapituloRapido') return {obterCapituloRapido:async()=>null,preaquecerCapituloInicial:async()=>null,guardarCapituloConsultado(){}}
   if(nome==='../data/bibliaVersoes') return catalogo
   if(nome==='../utils/bibliaVersionStore') return store
   if(nome==='../utils/bibliaSessionCache') return {limparBibliaSessaoCache(){}}

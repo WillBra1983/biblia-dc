@@ -277,7 +277,7 @@ export default function StrongOriginalAudioPlayer({ livroId, capitulo, cor, onVe
       {!aberto ? (
         <Tooltip title={`Ouvir o capítulo em ${tipo}`}>
           <IconButton
-            onClick={() => setAberto(true)}
+            onClick={() => { continuarRef.current = true; setAberto(true) }}
             aria-label={`Abrir áudio em ${tipo}`}
             sx={{
               width: 38,

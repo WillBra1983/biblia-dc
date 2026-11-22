@@ -16,6 +16,7 @@ import Layout from './components/Layout'
 import ScrollToTop from './components/ScrollToTop'
 import SplashScreen from './components/SplashScreen'
 import NativeDeepLinkHandler from './components/NativeDeepLinkHandler'
+import ConvitesProjetoBootstrap from './components/ConvitesProjetoBootstrap'
 import IncentivosListener from './components/IncentivosListener'
 import AppDialogsHost from './components/AppDialogsHost'
 import RecoverFromDeployError from './components/RecoverFromDeployError'
@@ -153,6 +154,7 @@ function AppShell() {
       <Layout key={versaoBiblica}>
         <IncentivosListener />
         <NativeDeepLinkHandler />
+        <ConvitesProjetoBootstrap />
         <PushNotificationsBootstrap />
         <AvisoAtualizacaoLoja />
         <ConviteAplicativoWeb />

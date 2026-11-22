@@ -162,7 +162,7 @@ export default function VersiculoPopup({ versiculos, onClose }) {
           '&.MuiDialogContent-root': { padding: 0 },
         })}
       >
-        <Box sx={{ width: '100%', maxWidth: 820, mx: 'auto', py: { xs: 2.5, sm: 3 }, pl: 'calc(20px + env(safe-area-inset-left, 0px))', pr: 'calc(20px + env(safe-area-inset-right, 0px))' }}>
+          <Box sx={{ width: '100%', maxWidth: 820, mx: 'auto', py: { xs: 2.5, sm: 3 }, pl: 'calc(8px + var(--app-safe-area-left, env(safe-area-inset-left, 0px)))', pr: 'calc(8px + var(--app-safe-area-right, env(safe-area-inset-right, 0px)))' }}>
           {versiculos.map((versiculo) => {
             const numero = Number(versiculo.numero ?? versiculo.versiculo ?? 0)
             const textoOriginal = String(versiculo.texto ?? '')

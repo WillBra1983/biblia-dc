@@ -130,7 +130,7 @@ function VersiculoDoDiaMenu({ mostrarMetricas, onNavigate, onExpandidoChange }) 
         backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid rgba(222,205,165,.65)',
         boxShadow: '0 4px 14px rgba(0,0,0,.16)', px: { xs: 1.5, sm: 2 }, py: 1.25, boxSizing: 'border-box',
       }}>
-        <Typography variant="overline" sx={{ display: 'block', color: '#f0d58d', fontWeight: 800, fontSize: '.66rem', lineHeight: 1.3, letterSpacing: 1 }}>Versículo do dia</Typography>
+        <Typography variant="overline" sx={{ display: 'block', minHeight: 34, pr: 10, color: '#f0d58d', fontWeight: 800, fontSize: '.66rem', lineHeight: 1.3, letterSpacing: 1 }}>Versículo do dia</Typography>
         <Typography component="blockquote" sx={{ m: 0, mt: .65, fontFamily: 'Georgia, serif', fontSize: { xs: '1rem', sm: '1.08rem' }, lineHeight: 1.3, fontWeight: 600, textShadow: '0 1px 3px rgba(0,0,0,.4)' }}>
           <ButtonBase
             disabled={!item}
@@ -409,7 +409,7 @@ const atalhosMaisVistos = Object.fromEntries([
 const gruposMenu = [
   { id: 'seu-dia', titulo: 'Seu dia na Palavra', itens: ['/biblia', '/plano-leitura-biblia', '/devocional', '/versiculos-marcados'].map(path => porPath[path]) },
   { id: 'estudo', titulo: 'Estudo e formação', itens: [porPath['/discipulado'], { ...westminsterPai, id: 'westminster', filhos: westminsterSubItens, metricas: ['confissao', 'catecismo_maior', 'catecismo_breve'] }, porPath['/biblioteca-estudos'], porPath['/estudos-biblicos']] },
-  { id: 'recursos', titulo: 'Recursos e ferramentas', itens: [ { ...hinarioPai, id: 'canticos', filhos: hinarioSubItens, metricas: ['hinario_letra', 'hinario_cifras', 'salmos', 'outras_cancoes'] }, porPath['/mais-de-deus'], porPath['/quiz-retiro']] },
+  { id: 'recursos', titulo: 'Recursos e ferramentas', itens: [porPath['/biblioteca'], { ...hinarioPai, id: 'canticos', filhos: hinarioSubItens, metricas: ['hinario_letra', 'hinario_cifras', 'salmos', 'outras_cancoes'] }, porPath['/mais-de-deus'], porPath['/quiz-retiro']] },
   { id: 'comunidade', titulo: 'Comunidade e vídeos', itens: [porPath['/versiculos-compartilhados'], porPath['/youtube']] },
 ]
 
@@ -487,7 +487,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
       filhos={filhos ? filhos.map(sub => renderAcesso(sub, true)) : undefined} />
   }
 
-  return <Box sx={{ p: { xs: 1.25, sm: 2 }, width: '100%', maxWidth: 1180, mx: 'auto', boxSizing: 'border-box', bgcolor: '#004d40', minHeight: '100dvh', pb: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}>
+  return <Box sx={{ p: { xs: 1.25, sm: 2 }, width: '100%', minWidth: 0, maxWidth: 1180, mx: 'auto', boxSizing: 'border-box', bgcolor: '#004d40', minHeight: '100%', overflowX: 'clip', pb: 3 }}>
     <Card elevation={0} sx={{ mb: 1.5, borderRadius: 2.5, bgcolor: '#042d26', color: '#fff', border: '1px solid rgba(230,210,155,.25)' }}>
       <Button fullWidth onClick={() => setConectarExpanded(atual => !atual)} aria-expanded={conectarExpanded} aria-controls="menu-opcoes-conta"
         sx={{ p: 1.5, minHeight: 72, color: 'inherit', textTransform: 'none', textAlign: 'left', justifyContent: 'flex-start', gap: 1.25, '&.Mui-focusVisible': { outline: '3px solid #e6c779', outlineOffset: -3 } }}>

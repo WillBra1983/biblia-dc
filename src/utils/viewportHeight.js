@@ -117,8 +117,8 @@ export function sxSafeAreaTop(extra = '0px') {
   return {
     pt:
       extra && extra !== '0px'
-        ? `calc(${extra} + env(safe-area-inset-top, 0px))`
-        : 'env(safe-area-inset-top, 0px)',
+        ? `calc(${extra} + var(--app-safe-area-top, env(safe-area-inset-top, 0px)))`
+        : 'var(--app-safe-area-top, env(safe-area-inset-top, 0px))',
   }
 }
 
@@ -127,8 +127,8 @@ export function sxSafeAreaBottom(extra = '0px') {
   return {
     pb:
       extra && extra !== '0px'
-        ? `calc(${extra} + env(safe-area-inset-bottom, 0px))`
-        : 'env(safe-area-inset-bottom, 0px)',
+        ? `calc(${extra} + var(--app-safe-area-bottom, env(safe-area-inset-bottom, 0px)))`
+        : 'var(--app-safe-area-bottom, env(safe-area-inset-bottom, 0px))',
   }
 }
 

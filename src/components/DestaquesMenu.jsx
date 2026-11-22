@@ -1,5 +1,5 @@
 import { cloneElement, useEffect, useRef, useState } from 'react'
-import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material'
+import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, MenuItem, Stack, TextField, Tooltip, Typography } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { conectarDestaques, destaquesAtivos, LIMITE_APRESENTACAO, APRESENTACAO_LUZ_TEMPOS } from '../services/destaquesMenuService'
 import { assinarCatalogoLivros, assinarAcessosBiblioteca } from '../services/bibliotecaLivrosService'
@@ -13,6 +13,10 @@ import { direcaoGestoDestaque } from '../utils/gestoDestaques'
 import { urlFundoVersiculo } from '../utils/versiculoImagem'
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded'
+import ContribuicaoProjetoDialog from './ContribuicaoProjetoDialog'
+import CompartilharProjetoDialog from './CompartilharProjetoDialog'
+import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 
 export default function DestaquesMenu({ ehAdmin, children, livraria }) {
   const navigate = useNavigate()
@@ -29,6 +33,8 @@ export default function DestaquesMenu({ ehAdmin, children, livraria }) {
   const [editar, setEditar] = useState(false)
   const [leituraExpandida, setLeituraExpandida] = useState(false)
   const [pausado, setPausado] = useState(false)
+  const [contribuicaoAberta, setContribuicaoAberta] = useState(false)
+  const [compartilhamentoAberto, setCompartilhamentoAberto] = useState(false)
   const [erro, setErro] = useState('')
   const [salvando, setSalvando] = useState(false)
   useEffect(() => {
@@ -49,11 +55,14 @@ export default function DestaquesMenu({ ehAdmin, children, livraria }) {
   const posicao = indice % total
   const item = posicao >= quantidadeFixos ? ativos[posicao - quantidadeFixos] : null
   const livro = item && livros.find((valor) => valor.id === item.livroId)
+  function abrirCompartilhamento() {
+    setCompartilhamentoAberto(true)
+  }
   useEffect(() => {
-    if (editar || leituraExpandida || pausado || total < 2) return undefined
+    if (editar || leituraExpandida || contribuicaoAberta || compartilhamentoAberto || pausado || total < 2) return undefined
     const timer = setInterval(() => { if (!document.hidden) setIndice((valor) => (valor + 1) % total) }, 15000)
     return () => clearInterval(timer)
-  }, [editar, leituraExpandida, pausado, total, indice])
+  }, [editar, leituraExpandida, contribuicaoAberta, compartilhamentoAberto, pausado, total, indice])
   function mudar(passo) { setIndice((posicao + passo + total) % total) }
   const podeLer = ehAdmin || acessos[item?.livroId]?.ativo === true
   const abrirLivro = () => navigate(`/biblioteca/${encodeURIComponent(item.livroId)}${podeLer ? '/ler' : ''}`)
@@ -88,13 +97,14 @@ export default function DestaquesMenu({ ehAdmin, children, livraria }) {
         if (passo) { ignorarCliqueAte.current = Date.now() + 500; mudar(passo) }
       }}
       onClickCapture={(event) => { if (Date.now() < ignorarCliqueAte.current) { event.preventDefault(); event.stopPropagation() } }}>
+    {[{ titulo: 'Contribuir com o projeto', abrir: () => setContribuicaoAberta(true), icone: <AttachMoneyRoundedIcon sx={{ position: 'relative', fontSize: 23 }} />, direita: 48 }, { titulo: 'Compartilhar', abrir: abrirCompartilhamento, icone: <ShareOutlinedIcon sx={{ position: 'relative', fontSize: 19 }} />, direita: 4 }].map(acao => <Tooltip key={acao.titulo} title={acao.titulo}><IconButton aria-label={acao.titulo} aria-haspopup="dialog" onPointerDown={evento => evento.stopPropagation()} onPointerUp={evento => evento.stopPropagation()} onClick={evento => { evento.stopPropagation(); acao.abrir() }} sx={{ position: 'absolute', top: 4, right: acao.direita, zIndex: 2, width: 44, height: 44, color: '#f0d58d', '&::before': { content: '""', position: 'absolute', inset: 6, borderRadius: '50%', bgcolor: '#07392f', border: '1px solid #b79a59', boxShadow: '0 2px 6px rgba(0,0,0,.2)' }, '&:hover::before': { bgcolor: '#125044' }, '&.Mui-focusVisible': { outline: '2px solid #f0d58d', outlineOffset: -2 } }}>{acao.icone}</IconButton></Tooltip>)}
     <Box sx={{ display: posicao === 0 ? 'contents' : 'none' }}>{cloneElement(children, { onExpandidoChange: setLeituraExpandida, reiniciarExpansao: indice })}</Box>
     {livraria && posicao === 1 && livraria}
     {item && <Box sx={{ position: 'relative', p: item.tipo === 'livro' ? 0.75 : 2, borderRadius: 2, color: '#000', backgroundImage: `url("${urlFundoVersiculo({ arquivo: 'amanhecer.webp' })}")`, backgroundSize: 'cover', border: '1px solid #decda5', textShadow: '-1px -1px white, 1px 1px white, -1px 1px white, 1px -1px white' }}>
-      <Typography variant="overline" fontWeight={900} sx={item.tipo === 'livro' ? { position: 'absolute', top: 12, left: 16, maxWidth: '48%', lineHeight: 1.3 } : {}}>{item.tipo === 'livro' ? 'Livro do dia' : item.tipo === 'trecho' ? 'Trecho de livro' : 'Mensagem do dia'}</Typography>
+      <Typography variant="overline" fontWeight={900} sx={item.tipo === 'livro' ? { position: 'absolute', top: 12, left: 16, maxWidth: '48%', lineHeight: 1.3 } : { display: 'block', minHeight: 32, pr: 5 }}>{item.tipo === 'livro' ? 'Livro do dia' : item.tipo === 'trecho' ? 'Trecho de livro' : 'Mensagem do dia'}</Typography>
       <Stack direction="row" spacing={1.5} alignItems="center">
         <Box sx={{ minWidth: 0, flex: 1, ...(item.tipo === 'livro' && { pl: 1.25, pt: 4 }) }}><Typography fontWeight={800}>{item.titulo}</Typography><TextoDestaque key={item.id} texto={item.texto || livro?.descricao || ''} formatado={item.tipo === 'livro'} alinhamento={item.alinhamento} onExpandidoChange={setLeituraExpandida} reiniciarExpansao={indice} acoes={<AcoesDestaque key={item.id} item={item} livro={livro} />} />{item.autor && <Typography variant="caption">{item.autor}</Typography>}</Box>
-        {item.tipo === 'livro' && <Box sx={{ width: { xs: '46%', sm: 210 }, flexShrink: 0, textAlign: 'center' }}>
+        {item.tipo === 'livro' && <Box sx={{ width: { xs: '46%', sm: 210 }, flexShrink: 0, textAlign: 'center', pt: 5 }}>
           <Button onClick={abrirLivro} aria-label={podeLer ? `Ler ${livro?.titulo}` : `Comprar ${livro?.titulo}`} sx={{ p: 0, width: '100%' }}><CapaDestaqueLivro livro={livro} /></Button>
           <Button variant="outlined" onClick={abrirLivro} sx={{ mt: 0.5, px: 1.5, py: 0.5, color: '#000', border: '1px solid #173e35', borderRadius: 2, boxShadow: '0 2px 4px rgba(0,0,0,.22)', background: 'transparent', '&:hover': { background: 'transparent', borderColor: '#000' }, textShadow: '-1px -1px white, 1px 1px white, -1px 1px white, 1px -1px white', fontWeight: 800 }}>{podeLer ? 'Ler agora' : 'Compre agora'}</Button>
         </Box>}
@@ -108,6 +118,8 @@ export default function DestaquesMenu({ ehAdmin, children, livraria }) {
       {total > 1 && <Stack direction="row" spacing={0.25} role="group" aria-label="Escolher destaque">{Array.from({ length: total }, (_, numero) => <Button key={numero} aria-label={`Mostrar destaque ${numero + 1}`} aria-current={posicao === numero ? 'true' : undefined} onClick={() => setIndice(numero)} sx={{ minWidth: 24, width: 24, height: 24, p: 0 }}><Box sx={{ width: 9, height: 9, borderRadius: '50%', background: posicao === numero ? '#e4bd68' : 'transparent', border: '1px solid #e4bd68' }} /></Button>)}</Stack>}
       {ehAdmin && <Button size="small" sx={{ color: 'white' }} onClick={() => { setErro(''); setRascunho(itens.map((valor) => ({ ...valor }))); setEditar(true) }}>Editar destaques</Button>}
     </Stack></Grid>
+    <ContribuicaoProjetoDialog aberto={contribuicaoAberta} onClose={() => setContribuicaoAberta(false)} />
+    <CompartilharProjetoDialog aberto={compartilhamentoAberto} onClose={() => setCompartilhamentoAberto(false)} />
     <Dialog open={editar} onClose={salvando ? undefined : () => setEditar(false)} fullWidth maxWidth="sm"><DialogTitle>Configurar destaques</DialogTitle><DialogContent dividers>
       <Typography variant="body2" sx={{ mb: 2 }}>O versículo permanece. Acrescente mensagens, trechos e livros. Datas vazias significam exibição sem prazo.</Typography>
       {erro && <Alert severity="error">{erro}</Alert>}

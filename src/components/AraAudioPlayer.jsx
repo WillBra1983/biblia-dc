@@ -26,6 +26,7 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
   const [carregando, setCarregando] = useState(false)
   const [dados, setDados] = useState(null)
   const [erro, setErro] = useState('')
+  const [avisoReproducao, setAvisoReproducao] = useState('')
   const [modoArquivo, setModoArquivo] = useState(false)
   const [acompanhar, setAcompanhar] = useState(false)
   const [audioSalvo, setAudioSalvo] = useState(false)
@@ -47,6 +48,19 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
     const audio = audioRef.current
     if (audio) { audio.pause(); audio.removeAttribute('src'); audio.load() }
   }
+  const iniciarAoCarregar = (audio) => {
+    if (!autoPlayRef.current) return
+    autoPlayRef.current = false
+    const pedido = pedidoRef.current
+    try {
+      const tentativa = audio.play()
+      tentativa?.catch(() => {
+        if (pedido === pedidoRef.current) setAvisoReproducao('O aparelho não iniciou automaticamente. Toque no play para ouvir.')
+      })
+    } catch {
+      if (pedido === pedidoRef.current) setAvisoReproducao('Toque no play para iniciar o áudio.')
+    }
+  }
   const fechar = () => {
     autoPlayRef.current = false
     pedidoRef.current++
@@ -55,6 +69,7 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
     setCarregando(false)
     setDados(null)
     setErro('')
+    setAvisoReproducao('')
     setModoArquivo(false)
     setAcompanhar(false)
     setMenuAnchor(null)
@@ -89,6 +104,8 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
     const arquivo = evento.target.files?.[0]
     evento.target.value = ''
     if (!arquivo) return
+    autoPlayRef.current = true
+    setAvisoReproducao('')
     const pedido = ++pedidoRef.current
     const gravacao = ++consultaOfflineRef.current
     parar()
@@ -122,6 +139,8 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
   }
 
   const abrirOffline = async () => {
+    autoPlayRef.current = true
+    setAvisoReproducao('')
     const pedido = ++pedidoRef.current
     parar(); publicarVersiculo(null)
     setAberto(true); setModoArquivo(true); setMenuAnchor(null); setDados(null); setErro(''); setErroOffline(''); setCarregando(true)
@@ -160,6 +179,8 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
   }
 
   const carregar = async (atualizar = false) => {
+    autoPlayRef.current = true
+    setAvisoReproducao('')
     const pedido = ++pedidoRef.current
     parar()
     setAberto(true)
@@ -206,13 +227,15 @@ export default function AraAudioPlayer({ livroId, capitulo, livroNome, cor, vers
         {carregando && <Typography role="status" color="text.secondary">Carregando áudio…</Typography>}
         {salvando && <Typography role="status" color="text.secondary">Salvando áudio…</Typography>}
         {erroOffline && <Alert severity="warning" sx={{ my: 1 }}>{erroOffline}</Alert>}
+        {avisoReproducao && <Alert severity="info" sx={{ my: 1 }}>{avisoReproducao}</Alert>}
         {erro && <Alert severity="warning" sx={{ my: 1 }} action={modoArquivo ? undefined : <Button color="inherit" size="small" onClick={() => carregar(true)}>Tentar novamente</Button>}>{erro}</Alert>}
         {dadosAtuais && <>
-          <audio key={dadosAtuais.url} ref={audioRef} autoPlay={autoPlayRef.current} controls preload={dadosAtuais.local ? 'metadata' : 'none'} src={dadosAtuais.url}
+          <audio key={dadosAtuais.url} ref={audioRef} autoPlay={autoPlayRef.current} controls preload="metadata" src={dadosAtuais.url}
             aria-label={dadosAtuais.local ? `Áudio salvo: ${dadosAtuais.nomeArquivo}` : `Narração ${sigla} de ${livroNome} ${capitulo}`} style={{ width: '100%', marginTop: 8 }}
             onTimeUpdate={(evento) => atualizarVersiculo(evento.currentTarget)}
             onSeeked={(evento) => atualizarVersiculo(evento.currentTarget)}
-            onPlay={(evento) => atualizarVersiculo(evento.currentTarget)}
+            onCanPlay={(evento) => iniciarAoCarregar(evento.currentTarget)}
+            onPlay={(evento) => { autoPlayRef.current = false; setAvisoReproducao(''); atualizarVersiculo(evento.currentTarget) }}
             onEnded={() => { publicarVersiculo(null); onCapituloTerminado?.(dadosAtuais.local ? 'offline' : 'online', marcarComoLido && podeMarcarComoLido) }}
             onError={() => { publicarVersiculo(null); setErro(dadosAtuais.local ? 'Não foi possível reproduzir esse arquivo. Selecione outro áudio salvo em formato compatível.' : 'A reprodução foi interrompida. Tente carregar o áudio novamente.') }} />
           <FormControlLabel sx={{ m: 0, display: 'flex', width: 'fit-content', maxWidth: '100%', mx: 'auto', justifyContent: 'center', '& .MuiFormControlLabel-label': { fontSize: '0.8rem' } }}

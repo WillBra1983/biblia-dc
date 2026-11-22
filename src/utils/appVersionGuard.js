@@ -20,6 +20,8 @@
  * cai num path seguro que apenas segue o boot normalmente.
  */
 
+import { isNativeApp } from './isNativeApp'
+
 const STORAGE_KEY = 'salvation:app-version'
 const RELOAD_FLAG = 'salvation:reload-once'
 
@@ -63,6 +65,16 @@ export async function executarAppVersionGuard() {
 
   const versaoBundle = lerVersaoAtual()
   if (!versaoBundle) return false
+
+  // O binário nativo já traz o novo conjunto de assets. Recarregá-lo como um
+  // PWA provoca uma segunda abertura e não resolve nenhum cache de Service Worker.
+  if (isNativeApp()) {
+    try {
+      localStorage.setItem(STORAGE_KEY, versaoBundle)
+      sessionStorage.removeItem(RELOAD_FLAG)
+    } catch { /* Armazenamento indisponível não impede a abertura. */ }
+    return false
+  }
 
   let versaoArmazenada = ''
   try {

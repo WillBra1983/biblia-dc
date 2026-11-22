@@ -29,4 +29,13 @@ function validarCopiaCola(valor) {
   if (conta.get('00') !== 'br.gov.bcb.pix' || !conta.get('01')) throw new Error('Informe um Pix Copia e Cola com chave Pix.')
   return { codigo, chave: conta.get('01'), nome: campos.get('59'), cidade: campos.get('60'), valor: campos.get('54') }
 }
-module.exports = { crc16, validarCopiaCola }
+function definirValorCopiaCola(codigo, valorCentavos) {
+  validarCopiaCola(codigo)
+  if (!Number.isSafeInteger(valorCentavos) || valorCentavos < 1 || valorCentavos > 10000000) throw new Error('Informe um valor válido para contribuir.')
+  const campos = camposPix(codigo)
+  campos.delete('63')
+  campos.set('54', (valorCentavos / 100).toFixed(2))
+  const base = [...campos.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([id, valor]) => `${id}${String(Buffer.byteLength(valor, 'utf8')).padStart(2, '0')}${valor}`).join('') + '6304'
+  return base + crc16(base)
+}
+module.exports = { crc16, validarCopiaCola, definirValorCopiaCola }

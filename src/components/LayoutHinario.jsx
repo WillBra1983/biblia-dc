@@ -46,7 +46,7 @@ export default function LayoutHinario({
           sx={{
             position: 'fixed',
             left: '50%',
-            top: 64,
+            top: 'calc(64px + env(safe-area-inset-top, 0px))',
             transform: 'translateX(-50%)',
             zIndex: 1200,
             boxShadow: 2,
@@ -67,8 +67,8 @@ export default function LayoutHinario({
           '& .MuiDrawer-paper': {
             width: 240,
             boxSizing: 'border-box',
-            top: isMobile ? 0 : 64,
-            height: isMobile ? '100%' : 'calc(100% - 64px)',
+            top: isMobile ? 'env(safe-area-inset-top, 0px)' : 64,
+            height: isMobile ? 'calc(100% - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))' : 'calc(100% - 64px)',
           }
         }}
       >
@@ -184,4 +184,4 @@ export default function LayoutHinario({
       </Box>
     </Box>
   )
-} 
+}

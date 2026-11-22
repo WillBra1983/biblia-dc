@@ -93,12 +93,12 @@ export default function BibliaComparacaoDialog({ livroId, capituloInicial, versa
 
   return <Dialog open onClose={onClose} fullWidth maxWidth="md" aria-labelledby="comparacao-biblia-titulo"
     PaperProps={{ sx: { m: 1, width: 'calc(100% - 16px)', height: 'calc(100dvh - 24px)', maxHeight: 'calc(100dvh - 24px)', display: 'flex', overflow: 'hidden' } }}>
-    <DialogTitle id="comparacao-biblia-titulo" sx={{ py: 1, pr: painelOculto === null ? 6 : 11, fontSize: '1.1rem' }}>
+    <DialogTitle id="comparacao-biblia-titulo" sx={{ position: 'relative', minHeight: 56, flexShrink: 0, py: 1.5, pr: painelOculto === null ? 7 : 13, fontSize: '1.1rem' }}>
       Comparar traduções
       {painelOculto !== null && <Tooltip title="Reabrir terceira versão">
-        <IconButton aria-label="Reabrir terceira versão" onClick={() => setPainelOculto(null)} sx={{ position: 'absolute', right: 48, top: 4 }}><AddIcon /></IconButton>
+        <IconButton aria-label="Reabrir terceira versão" onClick={() => setPainelOculto(null)} sx={{ position: 'absolute', width: 44, height: 44, right: 52, top: 6 }}><AddIcon /></IconButton>
       </Tooltip>}
-      <IconButton aria-label="Fechar comparação" onClick={onClose} sx={{ position: 'absolute', right: 8, top: 4 }}><CloseIcon /></IconButton>
+      <IconButton aria-label="Fechar comparação" onClick={onClose} sx={{ position: 'absolute', width: 44, height: 44, right: 8, top: 6 }}><CloseIcon /></IconButton>
     </DialogTitle>
     <Box sx={{ display: 'flex', gap: 1, px: 1.5, pb: 1, alignItems: 'center' }}>
       <TextField select label="Livro" size="small" value={livro} SelectProps={{ native: true }} sx={{ flex: 1, minWidth: 0 }}

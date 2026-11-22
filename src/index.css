@@ -6,6 +6,32 @@
 
 html {
   scroll-behavior: smooth;
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* O documento nativo é uma moldura fixa; cada página tem a própria rolagem. */
+html[data-native-app],
+html[data-native-app] body,
+html[data-native-app] #root,
+html[data-biblia-reader],
+html[data-biblia-reader] body,
+html[data-biblia-reader] #root {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Evita o zoom automático de campos pequenos do Safari sem bloquear a pinça
+   de leitura que o aplicativo oferece. */
+@supports (-webkit-touch-callout: none) {
+  html[data-native-app] .MuiInputBase-input {
+    font-size: max(1em, 16px);
+  }
 }
 
 body {

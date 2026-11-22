@@ -1,0 +1,17 @@
+{
+  "livraria": { "titulo": "Livraria Cristã", "descricao": "Conheça nosso catálogo de livros cristãos, seus autores e as leituras disponíveis na Bíblia do Discípulo Cristão.", "imagem": "biblioteca-digital.webp", "caminhos": ["/biblioteca", "/livraria"] },
+  "biblia": { "titulo": "Bíblia Sagrada", "descricao": "Leia e ouça a Bíblia, compare traduções e aprofunde seu estudo da Palavra de Deus.", "imagem": "biblia.webp", "caminhos": ["/", "/biblia"] },
+  "plano": { "titulo": "Plano de leitura bíblica", "descricao": "Organize sua leitura e caminhe diariamente pela Palavra de Deus.", "imagem": "plano-leitura.webp", "caminhos": ["/plano-leitura-biblia", "/plano"] },
+  "devocional": { "titulo": "Devocional", "descricao": "Reserve um tempo para ler, meditar e crescer no conhecimento da Palavra.", "imagem": "devocional.webp", "caminhos": ["/devocional"] },
+  "discipulado": { "titulo": "Discipulado", "descricao": "Lições, perguntas e reflexões para conhecer a fé cristã e crescer no seguimento de Jesus.", "imagem": "discipulado.webp", "caminhos": ["/discipulado"] },
+  "explicados": { "titulo": "Versículos explicados", "descricao": "Estude passagens bíblicas e conheça melhor seu contexto e significado.", "imagem": "biblia-comentada.webp", "caminhos": ["/biblioteca-estudos"] },
+  "estudos": { "titulo": "Estudos bíblicos compartilhados", "descricao": "Conheça os estudos bíblicos disponíveis na Bíblia do Discípulo Cristão.", "imagem": "estudos-compartilhados.webp", "caminhos": ["/estudos-biblicos"] },
+  "canticos": { "titulo": "Cânticos, hinos e salmos", "descricao": "Hinos, salmos e cânticos para louvar a Deus e acompanhar sua letra.", "imagem": "hinario.webp", "caminhos": ["/hinario", "/canticos"] },
+  "westminster": { "titulo": "Padrões de Westminster", "descricao": "Conheça a Confissão de Fé e os catecismos de Westminster.", "imagem": "westminster-abbey.webp", "caminhos": ["/confissao", "/catecismo-maior", "/catecismo-breve"] },
+  "teologia": { "titulo": "Conteúdos teológicos", "descricao": "Recursos para estudar a fé cristã e aprofundar seu conhecimento de Deus.", "imagem": "mais-de-deus.webp", "caminhos": ["/mais-de-deus"] },
+  "marcados": { "titulo": "Versículos marcados", "descricao": "Medite na Palavra e guarde as passagens que deseja estudar novamente.", "imagem": "versiculos-marcados.webp", "caminhos": ["/versiculos-marcados"] },
+  "mural": { "titulo": "Mural de versículos", "descricao": "Compartilhe a Palavra e encontre versículos para meditar e encorajar outras pessoas.", "imagem": "versiculos-compartilhados.webp", "caminhos": ["/versiculos-compartilhados", "/versiculo-do-dia"] },
+  "videos": { "titulo": "Vídeos", "descricao": "Mensagens e estudos para crescer no conhecimento da Palavra de Deus.", "imagem": "youtube.webp", "caminhos": ["/youtube"] },
+  "quiz": { "titulo": "Quiz bíblico", "descricao": "Teste seus conhecimentos bíblicos e aprenda mais sobre as Escrituras.", "imagem": "quiz.webp", "caminhos": ["/quiz-retiro"] },
+  "sobre": { "titulo": "Bíblia do Discípulo Cristão", "descricao": "Conheça este aplicativo gratuito e sem propagandas, feito para ajudar mais pessoas a estudar a Palavra de Deus.", "imagem": "sobre.webp", "caminhos": ["/sobre"] }
+}

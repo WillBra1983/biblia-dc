@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom'
 import { pathnameParaCompartilhamento } from '../utils/shareUrl'
 import { buildAppShareLink } from '../services/bibliaEstudosService'
 import MenuOpcoesCompartilhar from './MenuOpcoesCompartilhar'
+import { obterCompartilhamentoPagina } from '../utils/compartilhamentoPagina'
 
 function getShareUrl(location) {
   const path = pathnameParaCompartilhamento(location.pathname)
@@ -15,10 +16,11 @@ export default function SharePageButton({ hidden = false }) {
   const location = useLocation()
   const btnRef = useRef(null)
   const [menuAnchor, setMenuAnchor] = useState(null)
+  const [conteudo, setConteudo] = useState(null)
 
-  const url = getShareUrl(location)
-  const title = typeof document !== 'undefined' ? document.title || 'Bíblia DC' : 'Bíblia DC'
-  const text = 'Acesse este conteúdo no Bíblia DC.'
+  const url = conteudo?.url || getShareUrl(location)
+  const title = conteudo?.title || (typeof document !== 'undefined' ? document.title || 'Bíblia DC' : 'Bíblia DC')
+  const text = conteudo?.text || 'Acesse este conteúdo no Bíblia DC.'
 
   const abrirMenu = async (anchor) => {
     try {
@@ -36,8 +38,14 @@ export default function SharePageButton({ hidden = false }) {
       return
     }
 
+    setConteudo(obterCompartilhamentoPagina(location.pathname))
     setMenuAnchor(anchor || btnRef.current)
   }
+
+  useEffect(() => {
+    setMenuAnchor(null)
+    setConteudo(null)
+  }, [location.pathname, location.search])
 
   useEffect(() => {
     const handler = (e) => {

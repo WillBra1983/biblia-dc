@@ -7,6 +7,7 @@ import {
   Typography
 } from '@mui/material'
 import MenuCards from './MenuCards'
+import { conterRolagemMenu } from '../utils/conterRolagemMenu'
 import AvisosPedidosPix from './AvisosPedidosPix'
 import MenuIcon from '@mui/icons-material/Menu'
 import ArrowBack from '@mui/icons-material/ArrowBack'
@@ -151,7 +152,9 @@ export default function Layout({ title, children }) {
     if (!drawerOpen) return undefined
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    const liberarGestos = menuPrincipalRef.current ? conterRolagemMenu(menuPrincipalRef.current) : () => {}
     return () => {
+      liberarGestos()
       document.body.style.overflow = prevOverflow
     }
   }, [drawerOpen])
@@ -339,7 +342,7 @@ export default function Layout({ title, children }) {
   return (
     <AvisosPedidosPix>
     <Box sx={{ display: 'flex', ...sxFullViewportHeight() }}>
-      {bibliaToolbarOverlay && <Box aria-hidden sx={{
+      {!apresentacaoTelaCheia && <Box aria-hidden sx={{
         position: 'fixed', top: 0, left: 0, right: 0,
         height: 'env(safe-area-inset-top, 0px)',
         bgcolor: 'grey.900', pointerEvents: 'none',
@@ -628,7 +631,11 @@ export default function Layout({ title, children }) {
               width: drawerWidth,
               maxWidth: '100vw',
               zIndex: 1200,
-              overflow: 'auto',
+              overflowY: 'hidden',
+              overflowX: 'hidden',
+              overscrollBehavior: 'none',
+              touchAction: 'pan-y',
+              boxSizing: 'border-box',
               WebkitOverflowScrolling: 'touch',
               bgcolor: '#004d40',
               boxShadow: drawerOpen ? 8 : 0,
@@ -640,7 +647,9 @@ export default function Layout({ title, children }) {
               pb: 'env(safe-area-inset-bottom, 0px)',
             }}
           >
-            {menuPrincipal}
+            <Box sx={{ height: '100%', minHeight: 0, overflowY: 'auto', overflowX: 'hidden', overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch' }}>
+              {menuPrincipal}
+            </Box>
           </Box>
         </>
       )}
@@ -671,6 +680,7 @@ export default function Layout({ title, children }) {
               ? 'hidden'
               : 'auto',
           overflowX: 'hidden',
+          overscrollBehavior: 'none',
           overflowY: isStrongStudy ? 'auto' : undefined,
           WebkitOverflowScrolling: isStrongStudy ? 'touch' : undefined,
           touchAction: isStrongStudy ? 'pan-y' : undefined,

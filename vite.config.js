@@ -109,6 +109,7 @@ export default defineConfig({
   ],
   server: {
     port: 3000,
+    headers: { 'Cross-Origin-Opener-Policy': 'same-origin-allow-popups' },
     // ~14k MP3 em strong-pron: o watcher do Vite esgota handles/memória no Windows
     // (Chrome dev: ERR_INSUFFICIENT_RESOURCES ao carregar centenas de deps MUI).
     watch: {
@@ -121,6 +122,7 @@ export default defineConfig({
     },
   },
   publicDir: 'public',
+  preview: { headers: { 'Cross-Origin-Opener-Policy': 'same-origin-allow-popups' } },
   build: {
     // O relatório gzip comprime vários chunks grandes ao mesmo tempo.
     reportCompressedSize: !lowMemoryBuild,

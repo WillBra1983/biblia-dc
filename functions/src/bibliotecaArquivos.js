@@ -157,16 +157,17 @@ exports.obterArquivoLivroBiblioteca = onCall({ ...OPCOES, memory: '1GiB', concur
   if (!livroId) throw new HttpsError('invalid-argument', 'Livro inválido.')
 
   const db = admin.database()
-  const [livroSnap, adminSnap, acessoSnap] = await Promise.all([
+  const [livroSnap, adminSnap, acessoSnap, beneficioSnap] = await Promise.all([
     db.ref(`bibliotecaLivros/${livroId}`).get(),
     db.ref(`users/${uid}/admin`).get(),
     db.ref(`bibliotecaAcessos/${uid}/${livroId}/ativo`).get(),
+    db.ref(`projetoIndicacoes/contas/${uid}/beneficios/${livroId}/acessoAte`).get(),
   ])
   const livro = livroSnap.val() || {}
   const ehAdmin = adminSnap.val() === true
   const comprado = acessoSnap.val() === true
   const agora = Date.now()
-  const decisao = decidirArquivo({ livro, finalidade, ehAdmin, comprado, download: req.data?.download === true, agora })
+  const decisao = decidirArquivo({ livro, finalidade, ehAdmin, comprado, download: req.data?.download === true, agora, acessoTemporarioAte: beneficioSnap.val() })
   if (decisao.erro) throw new HttpsError('permission-denied', decisao.erro)
   const formato = formatoSolicitado(req.data?.formato)
   const principal = livro.arquivos?.[decisao.finalidade]

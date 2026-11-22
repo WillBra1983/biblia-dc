@@ -48,7 +48,7 @@ export default function CompartilharTrechoLivroDialog({ open, onClose, trecho, l
     if (!blob) return
     setProcessando(true); setErro('')
     try {
-      const abriu = await compartilharImagemTrechoLivro(somenteAtual ? blob : imagens.map((imagem) => imagem.blob), { titulo: livro?.titulo })
+      const abriu = await compartilharImagemTrechoLivro(somenteAtual ? blob : imagens.map((imagem) => imagem.blob), { titulo: livro?.titulo, urlLivro })
       if (!abriu) setErro('Este dispositivo não permite compartilhar estas imagens juntas. Use Baixar imagem para salvar cada uma e compartilhar pelo seu aplicativo.')
     } catch (falha) {
       if (falha?.name !== 'AbortError') setErro(falha?.message || 'Não foi possível compartilhar a imagem.')

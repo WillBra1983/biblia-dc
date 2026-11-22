@@ -31,6 +31,7 @@ import {
   listarAvisosAdminPendentes,
   marcarAvisoAdminEntregue,
   registrarAvisoAdminEntregueLocalmente,
+  registrarAtualizacoesVistas,
 } from '../services/avisosAdminService'
 import { mostrarSnackbar } from '../utils/uiDialogs'
 import { abrirUrlExterna } from '../utils/abrirUrlExterna'
@@ -76,6 +77,10 @@ export default function PushNotificationsBootstrap() {
         const res = await ativarPushNotifications({
           uid,
           onMessage: (payload) => {
+            if (payload?.data?.acao === 'atualizar_app') {
+              window.dispatchEvent(new CustomEvent('salvation-update-announcement', { detail: payload }))
+              return
+            }
             const avisoId = payload?.data?.avisoId
             if (avisoId) void marcarAvisoAdminEntregue(uid, avisoId)
             if (!payload?.exibidaNoSistema) exibirSnackbarPush(payload)
@@ -110,8 +115,13 @@ export default function PushNotificationsBootstrap() {
               acao: aviso.acao,
             }
           }
+          if (aviso.acao === 'atualizar_app' && Capacitor.isNativePlatform()) {
+            window.dispatchEvent(new CustomEvent('salvation-update-announcement', { detail: payload }))
+            continue
+          }
           const exibida = await exibirPushComoNotificacaoSistema(payload)
           if (!exibida) exibirSnackbarPush(payload)
+          if (aviso.acao === 'atualizar_app') registrarAtualizacoesVistas(uid, [aviso.id])
           await marcarAvisoAdminEntregue(uid, aviso.id)
         }
       } catch (_) {
@@ -138,6 +148,7 @@ export default function PushNotificationsBootstrap() {
         if (user?.uid) void marcarAvisoAdminEntregue(user.uid, avisoId)
       }
       if (acao === 'atualizar_app') {
+        if (avisoId && user?.uid) registrarAtualizacoesVistas(user.uid, [avisoId])
         const plataforma = Capacitor.getPlatform?.()
         const destino = plataforma === 'ios'
           ? APP_STORE_URL

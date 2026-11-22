@@ -4,12 +4,23 @@ import ChevronRight from '@mui/icons-material/ChevronRight'
 import AdminSectionViewCounts from './AdminSectionViewCounts'
 import { chavesMetricaParaPathMenu } from '../utils/sectionViewKeys'
 
+// Tons claros sobre o degradê escuro, estáveis também nos atalhos e na lista.
+const CORES_TITULO = {
+  '/biblia': '#ffe3a0', '/plano-leitura-biblia': '#b8e6ff', '/devocional': '#ffcbb7',
+  '/versiculos-marcados': '#d8c8ff', '/discipulado': '#b4efd1', '/biblioteca-estudos': '#b8e6ff',
+  '/estudos-biblicos': '#ffd3b0', '/biblioteca': '#ffe3a0', '/mais-de-deus': '#d8c8ff',
+  '/quiz-retiro': '#b8e6ff', '/versiculos-compartilhados': '#b4efd1', '/youtube': '#ffc5cb',
+  '/confissao': '#d8c8ff', '/catecismo-maior': '#b8e6ff', '/catecismo-breve': '#b4efd1',
+  '/hinario/letra': '#ffe3a0', '/hinario/salmos': '#b8e6ff', '/hinario/outras-cancoes': '#ffcbb7',
+}
+
 /** Fotografias em toda a superfície; o degradê protege apenas a área de leitura. */
 export default function MenuAcessoCard({ item, ativo, lista, escuro, aberto, onToggle, onNavigate, mostrarMetricas, filhos, painelId }) {
   const expansivel = Boolean(filhos)
   const metricas = item.metricas || chavesMetricaParaPathMenu(item.path)
   const base = String(import.meta.env.BASE_URL || '/').replace(/\/$/, '')
   const fundo = item.fundo ? `${base}/${item.fundo}` : ''
+  const corTitulo = CORES_TITULO[item.path] || (item.id === 'westminster' ? '#d8c8ff' : item.id === 'canticos' ? '#ffcbb7' : '#ffe3a0')
   return <Card elevation={0} sx={{
     width: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: 2.5,
     bgcolor: escuro ? '#102d26' : '#0b3b31', color: '#fff',
@@ -32,7 +43,7 @@ export default function MenuAcessoCard({ item, ativo, lista, escuro, aberto, onT
       }}>
       <Box aria-hidden="true" sx={{ position: 'relative', zIndex: 1, flexShrink: 0, width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fff9e9', color: '#163e35', border: '1px solid #e7d5a7', '& .MuiSvgIcon-root': { fontSize: 22 } }}>{item.icon}</Box>
       <Box sx={{ position: 'relative', zIndex: 1, flex: 1, minWidth: 0, pr: 2.5, display: 'flex', flexDirection: 'column', justifyContent: lista ? 'center' : 'flex-end' }}>
-        <Typography component="span" sx={{ display: 'block', fontSize: '.95rem', fontWeight: 750, lineHeight: 1.25, overflowWrap: 'anywhere', textShadow: lista ? 'none' : '0 1px 3px rgba(0,0,0,.45)' }}>{item.text}</Typography>
+        <Typography component="span" sx={{ display: 'block', fontSize: { xs: '1.15rem', sm: '1.25rem' }, color: corTitulo, fontWeight: 800, lineHeight: 1.25, overflowWrap: 'anywhere', textShadow: lista ? 'none' : '0 1px 3px rgba(0,0,0,.65)' }}>{item.text}</Typography>
         <Typography component="span" sx={{ display: 'block', mt: .4, fontSize: '.78rem', lineHeight: 1.35, color: '#e0ebe4' }}>{item.description}</Typography>
       </Box>
       <Box aria-hidden="true" sx={{ position: 'absolute', zIndex: 1, right: 8, bottom: lista ? 'calc(50% - 12px)' : 10, display: 'flex', color: '#f4e1ad' }}>

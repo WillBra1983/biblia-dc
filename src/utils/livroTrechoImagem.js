@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
+import { normalizarLinkCompartilhamento } from './compartilhamentoConteudo'
 import QRCode from 'qrcode'
 import { normalizarTrechoLivro } from './textoTrechoLivro'
 
@@ -102,6 +103,7 @@ export function aspasTrechoImagem(texto, numero = 1, total = 1) {
 }
 
 export async function gerarImagemTrechoLivro({ trecho, titulo, autor, capaUrl, urlLivro, reduzirFonte = false, numero = 1, total = 1, tamanhoFonte = null }) {
+  urlLivro = normalizarLinkCompartilhamento(urlLivro)
   const texto = normalizarTrecho(trecho)
   if (texto.length < (total > 1 ? 1 : 20)) throw new Error('Selecione um trecho um pouco maior.')
 
@@ -212,9 +214,10 @@ export function baixarImagemTrechoLivro(blob, titulo, numero = 1, total = 1) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
-export async function compartilharImagemTrechoLivro(blob, { titulo }) {
+export async function compartilharImagemTrechoLivro(blob, { titulo, urlLivro }) {
   const blobs = Array.isArray(blob) ? blob : [blob]
   if (!blobs.length || blobs.some((imagem) => !imagem?.size || imagem.type !== 'image/png')) throw new Error('As imagens ainda não estão prontas para compartilhar.')
+  const textoCompartilhamento = [`Trecho de ${titulo || 'livro da Livraria Cristã'}`, normalizarLinkCompartilhamento(urlLivro)].filter(Boolean).join('\n\n')
   if (Capacitor.isNativePlatform?.()) {
     const paths = [], uris = []
     try {
@@ -231,7 +234,7 @@ export async function compartilharImagemTrechoLivro(blob, { titulo }) {
     const { uri } = await Filesystem.getUri({ path, directory: Directory.Cache })
     uris.push(uri)
     }
-      await Share.share({ title: `Trecho de ${titulo}`, files: uris, dialogTitle: 'Compartilhar imagens do trecho' })
+      await Share.share({ title: `Trecho de ${titulo}`, text: textoCompartilhamento, files: uris, dialogTitle: 'Compartilhar imagens do trecho' })
       // Alguns destinos só leem os anexos depois que o seletor fecha.
       // Não apagar os PNGs imediatamente após a confirmação do compartilhamento.
       window.setTimeout(() => {
@@ -246,7 +249,7 @@ export async function compartilharImagemTrechoLivro(blob, { titulo }) {
   if (typeof navigator === 'undefined' || typeof navigator.share !== 'function' || typeof File === 'undefined') return false
   const arquivos = blobs.map((imagem, indice) => new File([imagem], `trecho-livro-${indice + 1}-de-${blobs.length}.png`, { type: 'image/png' }))
   if (typeof navigator.canShare === 'function' && !navigator.canShare({ files: arquivos })) return false
-  await navigator.share({ title: `Trecho de ${titulo}`, files: arquivos })
+  await navigator.share({ title: `Trecho de ${titulo}`, text: textoCompartilhamento, files: arquivos })
   return true
 }
 

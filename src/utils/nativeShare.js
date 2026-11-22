@@ -1,11 +1,13 @@
 import { Capacitor } from '@capacitor/core'
 import { Share } from '@capacitor/share'
+import { prepararCompartilhamentoConteudo } from './compartilhamentoConteudo'
 
 /**
  * Tenta abrir a janela nativa de compartilhamento.
  * Retorna true quando a folha de compartilhamento foi aberta.
  */
-export function montarPayloadShareNativo({ title, text, url } = {}) {
+export function montarPayloadShareNativo(dados = {}) {
+  const { title, text, url } = prepararCompartilhamentoConteudo(dados)
   const titulo = String(title || '').trim()
   const texto = String(text || '').trim()
   const endereco = String(url || '').trim()

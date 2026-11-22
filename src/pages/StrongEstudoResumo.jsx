@@ -35,7 +35,6 @@ import { limparResumoLexicalParaExibicao } from '../utils/strongEstudoHelpers'
 import { strongEvalPendingKey } from '../utils/strongResumoEvaluacao'
 import {
   buildAppShareLink,
-  isPublicAppUrlUnreachableForOthers
 } from '../services/bibliaEstudosService'
 import {
   atualizarResumoStrongCompartilhavel,
@@ -45,6 +44,7 @@ import {
 } from '../services/strongResumoShareService'
 import { useEhAdmin } from '../hooks/useEhAdmin'
 import { openNativeShareSheet } from '../utils/nativeShare'
+import { normalizarLinkCompartilhamento } from '../utils/compartilhamentoConteudo'
 import { avisarAsync, mostrarSnackbar } from '../utils/uiDialogs'
 
 export default function StrongEstudoResumo() {
@@ -450,35 +450,22 @@ export default function StrongEstudoResumo() {
         return
       }
       const rid = sharedId || (await garantirResumoPublicado())
-      const url = buildAppShareLink(
+      const url = normalizarLinkCompartilhamento(buildAppShareLink(
         `/estudo-strong/${encodeURIComponent(code)}/resumo`,
         `?rid=${encodeURIComponent(rid)}`
-      )
+      ))
       const title = `Resumo lexical ${code}`
       const text = 'Acesse este conteúdo no Bíblia DC.'
       try {
         const opened = await openNativeShareSheet({ title, text, url })
         if (opened) return
-      } catch {
+      } catch (erro) {
+        if (erro?.name === 'AbortError' || /cancel/i.test(erro?.message || '')) return
         /* segue fallback */
       }
       try {
         await navigator.clipboard.writeText(url)
-        if (isPublicAppUrlUnreachableForOthers()) {
-          await avisarAsync({
-            titulo: 'Link copiado',
-            mensagem:
-              'Link copiado! Agora é só colar no WhatsApp ou em outro aplicativo.\n\n' +
-              'Nota: este ambiente usa localhost ou rede local — no celular não abre. ' +
-              'Defina VITE_PUBLIC_APP_URL no .env e gere o build.',
-            severidade: 'warning'
-          })
-        } else {
-          mostrarSnackbar({
-            mensagem: 'Link copiado! Agora é só colar onde quiser.',
-            severidade: 'success'
-          })
-        }
+        mostrarSnackbar({ mensagem: 'Link copiado! Agora é só colar onde quiser.', severidade: 'success' })
         return
       } catch {
         /* fallback final */

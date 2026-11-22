@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
+import { normalizarLinkCompartilhamento } from './compartilhamentoConteudo'
 
 const LARGURA = 1080
 const ALTURA = 1350
@@ -194,7 +195,7 @@ export function baixarImagemVersiculo(blob, referencia) {
 }
 
 export async function compartilharArquivoImagem(blob, referencia, url, texto = '') {
-  const link = String(url || '').trim()
+  const link = normalizarLinkCompartilhamento(url)
   const citacao = formatarCitacaoTextoVersiculo(texto)
   const partes = [citacao, String(referencia || '').trim()].filter(Boolean)
   if (link) partes.push(`Abrir este texto no aplicativo:\n${link}`)

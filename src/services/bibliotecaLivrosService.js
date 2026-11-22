@@ -332,6 +332,11 @@ export function assinarConfiguracaoPixBiblioteca(callback, onError) {
 }
 
 export const salvarConfiguracaoPixBiblioteca = (configuracao) => chamarFuncao('salvarConfiguracaoPixBiblioteca', configuracao)
+export const obterPixContribuicao = (dados = {}) => chamarFuncao('obterPixContribuicao', dados)
+export const obterCampanhaProjeto = (dados) => chamarFuncao('obterCampanhaProjeto', dados)
+export const registrarVisitaConviteProjeto = (dados) => chamarFuncao('registrarVisitaConviteProjeto', dados)
+export const confirmarIndicacaoProjeto = (dados) => chamarFuncao('confirmarIndicacaoProjeto', dados)
+export const resgatarLeituraProjeto = (dados) => chamarFuncao('resgatarLeituraProjeto', dados)
 export const criarPedidoPixBiblioteca = (livroId, nomeComprador = '') => chamarFuncao('criarPedidoPixBiblioteca', { livroId, nomeComprador })
 export const informarPagamentoPixBiblioteca = (pedidoId) => chamarFuncao('informarPagamentoPixBiblioteca', { pedidoId })
 export const removerPendenciaPixBiblioteca = (pedidoId) => chamarFuncao('removerPendenciaPixBiblioteca', { pedidoId })

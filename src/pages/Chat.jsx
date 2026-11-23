@@ -1482,6 +1482,7 @@ export default function Chat() {
           </Typography>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => navigate('/', { replace: true })}>Voltar à Bíblia</Button>
           <Button variant="contained" disabled={busy} onClick={() => void logout().then(() => navigate('/chat', { replace: true }))}>
             Ir para o login
           </Button>
@@ -1514,6 +1515,7 @@ export default function Chat() {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2, gap: 1, flexWrap: 'wrap' }}>
+          <Button onClick={() => navigate('/', { replace: true })}>Voltar à Bíblia</Button>
           <Button variant="contained" disabled={busy} onClick={() => savePublicHandle()}>
             Salvar apelido
           </Button>

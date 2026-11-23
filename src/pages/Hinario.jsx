@@ -499,7 +499,7 @@ export default function Hinario() {
               >
                 {hinoAtual.numero}. {hinoAtual.titulo}
               </Typography>
-              <IconButton size="small" color="primary" onClick={telaCheia ? sairTelaCheia : entrarTelaCheia} aria-label={telaCheia ? 'Sair da tela cheia' : 'Abrir em tela cheia'}>
+              <IconButton size="small" color="primary" sx={{ minWidth: 44, minHeight: 44 }} onClick={telaCheia ? sairTelaCheia : entrarTelaCheia} aria-label={telaCheia ? 'Sair da tela cheia' : 'Abrir em tela cheia'}>
                 {telaCheia ? <FullscreenExit /> : <Fullscreen />}
               </IconButton>
             </Stack>
@@ -508,7 +508,8 @@ export default function Hinario() {
               alignItems="center"
               sx={{
                 display: 'grid',
-                gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+                gridTemplateColumns: '44px minmax(0, 1fr) auto',
+                alignItems: 'start',
                 gap: 1,
                 px: { xs: 1, sm: 2 },
                 pt: 1.5,
@@ -536,7 +537,7 @@ export default function Hinario() {
                     Apresentação
                   </Button>
                 ) : null}
-                <IconButton size="small" color="primary" onClick={telaCheia ? sairTelaCheia : entrarTelaCheia} aria-label={telaCheia ? 'Sair da tela cheia' : 'Abrir em tela cheia'}>
+                <IconButton size="small" color="primary" sx={{ minWidth: 44, minHeight: 44 }} onClick={telaCheia ? sairTelaCheia : entrarTelaCheia} aria-label={telaCheia ? 'Sair da tela cheia' : 'Abrir em tela cheia'}>
                   {telaCheia ? <FullscreenExit /> : <Fullscreen />}
                 </IconButton>
               </Stack>
@@ -638,8 +639,8 @@ export default function Hinario() {
           <Box
             sx={{
               position: 'fixed',
-              left: 0,
-              right: 0,
+              left: 'env(safe-area-inset-left, 0px)',
+              right: 'env(safe-area-inset-right, 0px)',
               top: '50%',
               transform: 'translateY(-50%)',
               display: !modoCifras ? 'flex' : 'none',

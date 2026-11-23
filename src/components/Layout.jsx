@@ -11,6 +11,9 @@ import { conterRolagemMenu } from '../utils/conterRolagemMenu'
 import AvisosPedidosPix from './AvisosPedidosPix'
 import MenuIcon from '@mui/icons-material/Menu'
 import ArrowBack from '@mui/icons-material/ArrowBack'
+import Close from '@mui/icons-material/Close'
+import SaidaLeituraTelaCheia from './SaidaLeituraTelaCheia'
+import { destinoVoltarApp } from '../utils/navegacaoVoltar'
 import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import GlobalPinchZoom from './GlobalPinchZoom'
@@ -109,6 +112,7 @@ export default function Layout({ title, children }) {
   const [appBarOculta, setAppBarOculta] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
+  const destinoVoltar = destinoVoltarApp(location.pathname, location.search)
   const { user } = useFirebaseAuth()
   const { setBackButtonHandler } = useApp()
   const pathnameNorm =
@@ -199,7 +203,7 @@ export default function Layout({ title, children }) {
     p.startsWith('/estudo-strong') ||
     p.startsWith('/sobre') ||
     p.startsWith('/privacidade') ||
-    p.startsWith('/admin/'))
+    p.startsWith('/admin/') || p.startsWith('/perfil') || p.startsWith('/configuracoes') || p.startsWith('/compartilhar/'))
 
   /** `/discipulado/:temaId/:estudoId` — conteúdo de um subtema (esconde drawer global e hamburger). */
   const isSubtemaDiscipulado = /^\/discipulado\/[^/]+\/[^/]+$/.test(location.pathname)
@@ -211,7 +215,6 @@ export default function Layout({ title, children }) {
   const isIntroTemaDiscipulado = Boolean(discipuladoIntroMatch)
   const showDiscipuladoMenuNaIntro = Boolean(discipuladoIntroTema?.estudos?.length)
   const showDiscipuladoAppBarMenuSlot = isSubtemaDiscipulado || showDiscipuladoMenuNaIntro
-  const showDiscipuladoAppBarBackSlot = isSubtemaDiscipulado || isIntroTemaDiscipulado
   const showPlanoLeituraBibliaBack = location.pathname.startsWith('/plano-leitura-biblia')
   const isStrongStudy = location.pathname.startsWith('/estudo-strong')
   const ocultarAcoesLeituraAppBar =
@@ -378,7 +381,9 @@ export default function Layout({ title, children }) {
             mostrarBotoesBiblia || theme.palette.mode === 'dark'
               ? 'rgba(255,255,255,0.12)'
               : theme.palette.divider,
-          pt: 'env(safe-area-inset-top, 0px)'
+          pt: 'env(safe-area-inset-top, 0px)',
+          pl: 'env(safe-area-inset-left, 0px)',
+          pr: 'env(safe-area-inset-right, 0px)',
         }}
       >
         <Toolbar
@@ -394,29 +399,17 @@ export default function Layout({ title, children }) {
         >
           {/* Esquerda: Menu */}
           <Box sx={{ minWidth: 56, display: 'flex', alignItems: 'center', pl: 0.25 }}>
-            {showPlanoLeituraBibliaBack ? (
+            {destinoVoltar && (
               <IconButton
                 color="inherit"
-                aria-label="Voltar para a Bíblia"
-                edge="start"
-                onClick={() => navigate('/biblia')}
-                sx={{ ml: 0.5 }}
+                aria-label={destinoVoltar.label}
+                onClick={() => destinoVoltar.menu ? setDrawerOpen(true) : navigate(destinoVoltar.to)}
+                sx={{ minWidth: 44, minHeight: 44 }}
               >
                 <ArrowBack />
               </IconButton>
-            ) : showDiscipuladoAppBarBackSlot ? (
-              <Box
-                id="discipulado-appbar-back"
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'flex-start',
-                  minWidth: 48,
-                  pl: 0.5,
-                  pr: 0.5
-                }}
-              />
-            ) : (
+            )}
+            {!isSubtemaDiscipulado && !isIntroTemaDiscipulado && (
               <IconButton
                 color="inherit"
                 aria-label="Abrir menu principal"
@@ -429,6 +422,8 @@ export default function Layout({ title, children }) {
                   border: '2px solid',
                   borderRadius: '2px',
                   padding: '0.5px',
+                  minWidth: 44,
+                  minHeight: 44,
                   '& .MuiSvgIcon-root': {
                     fontSize: '2.5rem'
                   }
@@ -631,6 +626,8 @@ export default function Layout({ title, children }) {
               width: drawerWidth,
               maxWidth: '100vw',
               zIndex: 1200,
+              display: 'flex',
+              flexDirection: 'column',
               overflowY: 'hidden',
               overflowX: 'hidden',
               overscrollBehavior: 'none',
@@ -645,9 +642,15 @@ export default function Layout({ title, children }) {
               willChange: 'transform',
               pt: 'env(safe-area-inset-top, 0px)',
               pb: 'env(safe-area-inset-bottom, 0px)',
+              pl: 'env(safe-area-inset-left, 0px)',
+              pr: 'env(safe-area-inset-right, 0px)',
             }}
           >
-            <Box sx={{ height: '100%', minHeight: 0, overflowY: 'auto', overflowX: 'hidden', overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, px: 1.5, py: .5, color: '#fff' }}>
+              <Typography fontWeight={700}>Menu principal</Typography>
+              <IconButton color="inherit" aria-label="Fechar menu principal e voltar à leitura" onClick={() => setDrawerOpen(false)} sx={{ minWidth: 44, minHeight: 44 }}><Close /></IconButton>
+            </Box>
+            <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch' }}>
               {menuPrincipal}
             </Box>
           </Box>
@@ -664,7 +667,9 @@ export default function Layout({ title, children }) {
             ? bibliaToolbarOverlay
               ? 0
               : sxMainBelowAppBar()
-            : 0,
+            : apresentacaoTelaCheia && !isHinarioApresentacao && !isBibliaApresentacao
+              ? 'env(safe-area-inset-top, 0px)'
+              : 0,
           pb: 'env(safe-area-inset-bottom, 0px)', // evita que a barra de gestos/botões do celular corte o conteúdo
           // `100vh` em mobile inclui a área coberta pela barra do navegador,
           // o que esconde o rodapé das páginas. `100dvh` mede a viewport
@@ -688,6 +693,8 @@ export default function Layout({ title, children }) {
           /** Herança a partir do body (CssBaseline do tema "externo") podia deixar texto escuro sobre fundo escuro no modo noturno. */
           color: 'text.primary',
           px: 0,
+          pl: 'env(safe-area-inset-left, 0px)',
+          pr: 'env(safe-area-inset-right, 0px)',
           display: isStrongStudy ? 'block' : 'flex',
           flexDirection: location.pathname.startsWith('/hinario') ? 'column' : 'row',
           flexWrap: location.pathname.startsWith('/hinario') ? 'nowrap' : 'wrap',
@@ -698,6 +705,8 @@ export default function Layout({ title, children }) {
           pathname={location.pathname}
           zoomResetVersion={zoomResetVersion}
           disabled={
+            isHinarioApresentacao || isBibliaApresentacao || isVersiculoDoDia ||
+            location.pathname.startsWith('/biblioteca') ||
             location.pathname === '/chat' ||
             location.pathname === '/' ||
             location.pathname === '/biblia' ||
@@ -708,6 +717,7 @@ export default function Layout({ title, children }) {
           {children}
         </GlobalPinchZoom>
       </Box>
+      {isLeituraHinarioTelaCheia && !drawerOpen && <SaidaLeituraTelaCheia />}
     </Box>
     </AvisosPedidosPix>
   )

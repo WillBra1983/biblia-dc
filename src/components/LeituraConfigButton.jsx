@@ -28,6 +28,7 @@ import { useApp } from '../contexts/AppContext'
 import { FONT_OPTIONS, resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { usePinchNumeric } from '../hooks/usePinchNumeric'
+import { ZOOM_LEITURA_MIN, ZOOM_LEITURA_MAX, ZOOM_LEITURA_PASSO } from '../utils/zoomLeitura'
 import { carregarFonteLeitura } from '../utils/fontLoader'
 
 /** Ícone Aa para a barra e título do diálogo */
@@ -146,9 +147,9 @@ export default function LeituraConfigButton({ hidden = false }) {
     enabled: open,
     value: fontSize || 100,
     onChange: handlePinchFontSize,
-    min: 100,
-    max: 200,
-    step: 10,
+    min: ZOOM_LEITURA_MIN,
+    max: ZOOM_LEITURA_MAX,
+    step: ZOOM_LEITURA_PASSO,
   })
 
   useEffect(() => {
@@ -247,9 +248,9 @@ export default function LeituraConfigButton({ hidden = false }) {
             <Box sx={{ px: 0.5, mb: 2 }}>
               <Slider
                 value={fontSize || 100}
-                min={100}
-                max={200}
-                step={10}
+                min={ZOOM_LEITURA_MIN}
+                max={ZOOM_LEITURA_MAX}
+                step={ZOOM_LEITURA_PASSO}
                 onChange={(_, value) => {
                   if (typeof value === 'number') setFontSize(value)
                 }}

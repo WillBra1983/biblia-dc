@@ -56,15 +56,21 @@ export function usePinchNumeric(
     }
 
     const onStart = (e) => {
+      if (e.defaultPrevented || e.target?.closest?.('[data-no-global-pinch]')) return
       if (e.touches.length === 2) {
         const d = getTouchDistance(e.touches)
-        if (d > 10) pinchRef.current = { d0: d, v0: valueRef.current }
+        if (d > 10) {
+          if (e.cancelable) e.preventDefault()
+          pinchRef.current = { d0: d, v0: valueRef.current }
+        }
       }
     }
 
     const onMove = (e) => {
+      // Uma pinça local não pode ser aplicada novamente pelo contêiner pai.
+      if (e.defaultPrevented || e.target?.closest?.('[data-no-global-pinch]')) return
       if (e.touches.length === 2 && pinchRef.current) {
-        e.preventDefault()
+        if (e.cancelable) e.preventDefault()
         const d = getTouchDistance(e.touches)
         if (d > 10 && pinchRef.current.d0 > 10) {
           const ratio = d / pinchRef.current.d0
@@ -85,12 +91,13 @@ export function usePinchNumeric(
       if (e.touches.length < 2) pinchRef.current = null
     }
 
-    el.addEventListener('touchstart', onStart, { passive: true })
+    el.addEventListener('touchstart', onStart, { passive: false })
     el.addEventListener('touchmove', onMove, { passive: false })
     el.addEventListener('touchend', onEnd)
     el.addEventListener('touchcancel', onEnd)
 
     return () => {
+      pinchRef.current = null
       el.removeEventListener('touchstart', onStart)
       el.removeEventListener('touchmove', onMove)
       el.removeEventListener('touchend', onEnd)

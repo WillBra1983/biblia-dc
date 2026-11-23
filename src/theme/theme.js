@@ -129,6 +129,16 @@ const getTheme = (mode) => {
         },
       },
     },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: { position: 'sticky', top: 0, zIndex: 1, flexShrink: 0, backgroundColor: 'inherit' },
+      },
+    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: { position: 'sticky', bottom: 0, zIndex: 1, flexShrink: 0, backgroundColor: 'inherit' },
+      },
+    },
     MuiDialog: {
       styleOverrides: {
         container: {
@@ -175,6 +185,9 @@ const getTheme = (mode) => {
     MuiDrawer: {
       styleOverrides: {
         paper: {
+          boxSizing: 'border-box',
+          paddingLeft: 'var(--app-safe-area-left, env(safe-area-inset-left, 0px))',
+          paddingRight: 'var(--app-safe-area-right, env(safe-area-inset-right, 0px))',
           top: 'var(--app-safe-area-top, env(safe-area-inset-top, 0px))',
           bottom: 'var(--app-safe-area-bottom, env(safe-area-inset-bottom, 0px))',
           height: 'calc(100% - var(--app-safe-area-top, env(safe-area-inset-top, 0px)) - var(--app-safe-area-bottom, env(safe-area-inset-bottom, 0px)))',

@@ -54,7 +54,7 @@ const html = `<!doctype html><meta charset="utf-8"><pre id="resultado"></pre><sc
 const arquivo = path.join(dir, 'geometria.html')
 fs.writeFileSync(arquivo, html)
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'biblia-safe-area-'))
-const stdout = await new Promise((resolve, reject) => execFile(process.env.BROWSER_EXECUTABLE || 'C:/Program Files/Google/Chrome/Application/chrome.exe', ['--headless=new', '--disable-gpu', '--no-first-run', '--disable-background-networking', '--user-data-dir=' + profile, '--virtual-time-budget=8000', '--dump-dom', 'file:///' + arquivo.replaceAll('\\', '/')], { windowsHide: true, timeout: 30000, maxBuffer: 2e6 }, (erro, out) => erro ? reject(erro) : resolve(out)))
+const stdout = await new Promise((resolve, reject) => execFile(process.env.BROWSER_EXECUTABLE || 'C:/Program Files/Google/Chrome/Application/chrome.exe', ['--headless=new', '--no-sandbox', '--in-process-gpu', '--disable-gpu', '--no-first-run', '--disable-background-networking', '--user-data-dir=' + profile, '--virtual-time-budget=8000', '--dump-dom', 'file:///' + arquivo.replaceAll('\\', '/')], { windowsHide: true, timeout: 30000, maxBuffer: 2e6 }, (erro, out) => erro ? reject(erro) : resolve(out)))
 const raw = stdout.match(/<pre id="resultado">(.*?)<\/pre>/s)?.[1]
 assert.ok(raw, 'Sem resultado do navegador')
 const resultado = JSON.parse(raw.replaceAll('&quot;', '"').replaceAll('&amp;', '&').replaceAll('&lt;', '<').replaceAll('&gt;', '>'))

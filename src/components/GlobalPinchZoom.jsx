@@ -1,173 +1,36 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { Box } from '@mui/material'
-import { getTouchDistance } from '../utils/pinchZoom'
+import { useApp } from '../contexts/AppContext'
+import { usePinchNumeric } from '../hooks/usePinchNumeric'
+import { normalizarZoomLeitura, ZOOM_LEITURA_MIN, ZOOM_LEITURA_MAX, ZOOM_LEITURA_PASSO } from '../utils/zoomLeitura'
 
-const MIN = 1
-const MAX = 1.5
-
-function targetInsideNoPinch(target) {
-  return (
-    target &&
-    typeof target.closest === 'function' &&
-    target.closest('[data-no-global-pinch]')
-  )
-}
-
-/**
- * Pinça / Ctrl+scroll no conteúdo principal: até +50% (escala 1.5).
- * Reinicia ao mudar de rota ou quando `zoomResetVersion` incrementa (ex.: Mais de Deus).
- * Conteúdo centrado no eixo horizontal para não cortar à esquerda (planos de leitura).
- */
-export default function GlobalPinchZoom({ pathname, zoomResetVersion = 0, disabled, children }) {
+/** A pinça altera o tamanho de leitura da seção; nunca escala botões ou o layout. */
+export default function GlobalPinchZoom({ disabled = false, children, sx = {} }) {
   const rootRef = useRef(null)
-  const contentRef = useRef(null)
-  const scaleRef = useRef(1)
-  const pinchRef = useRef(null)
-  const [scale, setScale] = useState(1)
-  const [extraPadBottom, setExtraPadBottom] = useState(0)
-
-  scaleRef.current = scale
-
+  const { fontSize, setFontSize } = useApp()
+  usePinchNumeric(rootRef, {
+    enabled: !disabled, value: normalizarZoomLeitura(fontSize), onChange: setFontSize,
+    min: ZOOM_LEITURA_MIN, max: ZOOM_LEITURA_MAX, step: ZOOM_LEITURA_PASSO,
+    preserveAnchor: true,
+  })
   useEffect(() => {
-    setScale(1)
-  }, [pathname, zoomResetVersion])
-
-  useEffect(() => {
-    if (disabled) return
-    const el = rootRef.current
-    if (!el) return
-
-    const onTouchStart = (e) => {
-      if (targetInsideNoPinch(e.target)) return
-      if (e.touches.length === 2) {
-        const d = getTouchDistance(e.touches)
-        if (d > 10) pinchRef.current = { d0: d, z0: scaleRef.current }
-      }
+    const element = rootRef.current
+    if (disabled || !element) return
+    const wheel = event => {
+      if (!event.ctrlKey || event.defaultPrevented || event.target?.closest?.('[data-no-global-pinch]')) return
+      event.preventDefault()
+      setFontSize(current => normalizarZoomLeitura(Number(current) + (event.deltaY > 0 ? -ZOOM_LEITURA_PASSO : ZOOM_LEITURA_PASSO)))
     }
-
-    const onTouchMove = (e) => {
-      if (targetInsideNoPinch(e.target)) return
-      if (e.touches.length === 2 && pinchRef.current) {
-        e.preventDefault()
-        const d = getTouchDistance(e.touches)
-        if (d > 10 && pinchRef.current.d0 > 10) {
-          const ratio = d / pinchRef.current.d0
-          const nz = Math.min(MAX, Math.max(MIN, pinchRef.current.z0 * ratio))
-          setScale(Math.round(nz * 100) / 100)
-        }
-      }
-    }
-
-    const onTouchEnd = (e) => {
-      if (e.touches.length < 2) pinchRef.current = null
-    }
-
-    el.addEventListener('touchstart', onTouchStart, { passive: true })
-    el.addEventListener('touchmove', onTouchMove, { passive: false })
-    el.addEventListener('touchend', onTouchEnd)
-    el.addEventListener('touchcancel', onTouchEnd)
-
-    return () => {
-      el.removeEventListener('touchstart', onTouchStart)
-      el.removeEventListener('touchmove', onTouchMove)
-      el.removeEventListener('touchend', onTouchEnd)
-      el.removeEventListener('touchcancel', onTouchEnd)
-    }
-  }, [disabled, pathname, zoomResetVersion])
-
-  useEffect(() => {
-    if (disabled) return
-    const el = rootRef.current
-    if (!el) return
-
-    const onWheel = (e) => {
-      if (!e.ctrlKey) return
-      if (targetInsideNoPinch(e.target)) return
-      e.preventDefault()
-      const step = e.deltaY > 0 ? -0.06 : 0.06
-      setScale((s) =>
-        Math.min(MAX, Math.max(MIN, Math.round((s + step) * 100) / 100))
-      )
-    }
-
-    el.addEventListener('wheel', onWheel, { passive: false })
-    return () => el.removeEventListener('wheel', onWheel)
-  }, [disabled, pathname, zoomResetVersion])
-
-  useEffect(() => {
-    const node = contentRef.current
-    if (!node) return
-
-    const updatePad = () => {
-      const h = node.offsetHeight
-      if (!Number.isFinite(h) || h <= 0) {
-        setExtraPadBottom(0)
-        return
-      }
-      setExtraPadBottom(Math.max(0, h * (scale - 1)))
-    }
-
-    updatePad()
-    const ro = new ResizeObserver(() => updatePad())
-    ro.observe(node)
-    return () => ro.disconnect()
-  }, [scale, disabled])
-
-  if (disabled) {
-    return children
-  }
-
-  const inv = scale > 0 ? 100 / scale : 100
-
-  return (
-    <Box
-      ref={rootRef}
-      sx={{
-        width: '100%',
-        maxWidth: '100%',
-        minWidth: 0,
-        minHeight: 0,
-        flex: '1 1 0%',
-        alignSelf: 'stretch',
-        overflowX: 'hidden',
-        boxSizing: 'border-box',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'stretch',
-      }}
-    >
-      <Box
-        sx={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          overflowX: 'hidden',
-          paddingBottom: `${extraPadBottom}px`,
-          boxSizing: 'border-box',
-          flex: 1,
-          minHeight: 0,
-        }}
-      >
-        <Box
-          ref={contentRef}
-          sx={{
-            width: `${inv.toFixed(6)}%`,
-            maxWidth: `${inv.toFixed(6)}%`,
-            transform: `scale(${scale})`,
-            transformOrigin: 'top center',
-            boxSizing: 'border-box',
-            minWidth: 0,
-            flexShrink: 0,
-            flex: 1,
-            minHeight: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            '& .MuiGrid-container': { minWidth: 0 },
-          }}
-        >
-          {children}
-        </Box>
-      </Box>
-    </Box>
-  )
+    element.addEventListener('wheel', wheel, { passive: false })
+    return () => element.removeEventListener('wheel', wheel)
+  }, [disabled, setFontSize])
+  if (disabled) return children
+  return <Box ref={rootRef} data-pinca-leitura sx={{
+    width: '100%', maxWidth: '100%', minWidth: 0, minHeight: 0, flex: '1 1 0%',
+    display: 'flex', flexDirection: 'column', alignItems: 'stretch', boxSizing: 'border-box',
+    overflowWrap: 'anywhere',
+    '& .MuiTypography-root:not(.MuiTypography-noWrap)': { minWidth: 0, maxWidth: '100%', overflowWrap: 'anywhere' },
+    '& pre': { maxWidth: '100%', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' },
+    ...sx,
+  }}>{children}</Box>
 }

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef } from 'react'
 import { Typography, Box, Slider } from '@mui/material'
 import { buscarIntervaloVersiculos, buscarPericopes } from '../services/bibliaService'
 import ReferenciasPericope from './ReferenciasPericope'
@@ -7,32 +7,28 @@ import { useApp } from '../contexts/AppContext'
 import { resolveFontFamily } from '../utils/fontFamily'
 import { readingLineHeightToCss } from '../utils/readingLineHeight'
 import { usePinchNumeric } from '../hooks/usePinchNumeric'
+import { normalizarZoomLeitura, ZOOM_LEITURA_MIN, ZOOM_LEITURA_MAX, ZOOM_LEITURA_PASSO } from '../utils/zoomLeitura'
 import TextoFalasJesus from './TextoFalasJesus'
 
 export default function TextoBiblico({ livroId, capitulo }) {
-  const { isDarkMode, fontFamily, textAlign, lineHeight, semEspacoEntreVersiculos } = useApp()
+  const { isDarkMode, fontSize, setFontSize, fontFamily, textAlign, lineHeight, semEspacoEntreVersiculos } = useApp()
   const compacto = !!semEspacoEntreVersiculos
   const lhCss = readingLineHeightToCss(lineHeight)
   const [versiculos, setVersiculos] = React.useState([])
   const [pericopes, setPericopes] = React.useState([])
   const [loading, setLoading] = React.useState(true)
   const [erro, setErro] = React.useState(null)
-  const [zoom, setZoom] = useState(100)
+  const zoom = normalizarZoomLeitura(fontSize)
   const [refParalelaFragmento, setRefParalelaFragmento] = useState(null)
   const pinchRootRef = useRef(null)
 
-  useEffect(() => {
-    setZoom(100)
-  }, [livroId, capitulo])
-
-  const onPinchZoom = useCallback((v) => setZoom(v), [])
   usePinchNumeric(pinchRootRef, {
     enabled: true,
     value: zoom,
-    onChange: onPinchZoom,
-    min: 100,
-    max: 200,
-    step: 10,
+    onChange: setFontSize,
+    min: ZOOM_LEITURA_MIN,
+    max: ZOOM_LEITURA_MAX,
+    step: ZOOM_LEITURA_PASSO,
   })
 
   React.useEffect(() => {
@@ -85,6 +81,9 @@ export default function TextoBiblico({ livroId, capitulo }) {
         minHeight: 0,
         height: '100%',
         width: '100%',
+        minWidth: 0,
+        maxWidth: '100%',
+        overflowWrap: 'anywhere',
         bgcolor: isDarkMode ? 'black' : 'white',
         color: isDarkMode ? 'white' : 'black'
       }}
@@ -179,11 +178,11 @@ export default function TextoBiblico({ livroId, capitulo }) {
       >
         <Slider
           value={zoom}
-          min={100}
-          max={200}
-          step={10}
+          min={ZOOM_LEITURA_MIN}
+          max={ZOOM_LEITURA_MAX}
+          step={ZOOM_LEITURA_PASSO}
           onChange={(_, value) => {
-            if (typeof value === 'number') setZoom(value)
+            if (typeof value === 'number') setFontSize(value)
           }}
           sx={{
             width: 120,

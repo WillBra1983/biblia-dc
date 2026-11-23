@@ -1,3 +1,5 @@
+import { normalizarZoomLeitura } from './zoomLeitura.js'
+
 /** Valores padrão quando a página ainda não tem preferências gravadas. */
 export const DEFAULT_LEITURA = {
   fontSize: 100,
@@ -66,7 +68,7 @@ export function mergeLeituraPagina(pageSlice, pageKey = null) {
   const overrides = (pageKey && DEFAULT_LEITURA_POR_PAGINA[pageKey]) || {}
   return {
     fontSize:
-      pageSlice?.fontSize ?? overrides.fontSize ?? DEFAULT_LEITURA.fontSize,
+      normalizarZoomLeitura(pageSlice?.fontSize ?? overrides.fontSize ?? DEFAULT_LEITURA.fontSize),
     textAlign:
       pageSlice?.textAlign ?? overrides.textAlign ?? DEFAULT_LEITURA.textAlign,
     fontFamily:

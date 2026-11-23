@@ -26,6 +26,7 @@ import {
   restoreFromBackup
 } from '../utils/storageUtils'
 import { getLeituraPaginaKey, mergeLeituraPagina } from '../utils/leituraPorPaginaKey'
+import { normalizarZoomLeitura } from '../utils/zoomLeitura'
 import { migrarLegadoSeNecessario, instanciaAtivaId, obterInstancia } from '../utils/planoLeituraUsuario'
 import { carregarFonteLeitura } from '../utils/fontLoader'
 import { migrarConclusoesLegadoLocalStorage } from '../utils/discipuladoConclusao'
@@ -277,7 +278,7 @@ export function AppProvider({ children }) {
         const key = getLeituraPaginaKey(location.pathname)
         const cur = mergeLeituraPagina(prev[key], key)
         const val = typeof next === 'function' ? next(cur.fontSize) : next
-        return { ...prev, [key]: { ...(prev[key] || {}), fontSize: val } }
+        return { ...prev, [key]: { ...(prev[key] || {}), fontSize: normalizarZoomLeitura(val) } }
       })
     },
     [location.pathname]
@@ -772,4 +773,4 @@ export function AppProvider({ children }) {
       />
     </AppContext.Provider>
   )
-} 
+}

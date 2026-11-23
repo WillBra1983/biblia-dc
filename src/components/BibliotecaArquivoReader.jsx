@@ -442,7 +442,7 @@ export default function BibliotecaArquivoReader({ arquivo, storageKey, livro, pe
 
   return <>
     {erroReferencia && <Alert severity="warning" onClose={() => setErroReferencia('')} sx={{ mb: 1 }}>{erroReferencia}</Alert>}
-    <Box ref={readerRef} sx={immersive ? { position: 'fixed', inset: 0, zIndex: 1300, bgcolor: 'background.paper', overflow: 'auto', overscrollBehavior: 'contain', pt: 'env(safe-area-inset-top)', pb: 'env(safe-area-inset-bottom)' } : { scrollMarginTop: '80px' }}>
+    <Box ref={readerRef} sx={immersive ? { position: 'fixed', inset: 0, zIndex: 1200, bgcolor: 'background.paper', overflow: 'auto', overscrollBehavior: 'contain', pt: 'env(safe-area-inset-top, 0px)', pb: 'env(safe-area-inset-bottom, 0px)', pl: 'env(safe-area-inset-left, 0px)', pr: 'env(safe-area-inset-right, 0px)' } : { scrollMarginTop: '80px' }}>
       {arquivo.formato === 'pdf'
         ? <BibliotecaPdfReader url={arquivo.url} storageKey={storageKey} onBibleReference={abrirReferenciaBiblica} onPageTap={toggleReading} onEnd={onEnd} restricao={arquivo.restricao} onLimit={() => { sairTelaCheia(); onLimit?.() }} immersive={immersive} />
         : <EpubReader compacto url={arquivo.url} storageKey={storageKey} onSelection={setTrecho} onBibleReference={abrirReferenciaBiblica} onPageTap={toggleReading} onEnd={onEnd} restricao={arquivo.restricao} onLimit={() => { sairTelaCheia(); onLimit?.() }} immersive={immersive} />}

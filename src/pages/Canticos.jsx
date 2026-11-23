@@ -398,7 +398,7 @@ export default function Canticos() {
                   <HeadphonesOutlined fontSize="small" />
                 </IconButton>
               ) : null}
-              <IconButton size="small" color="primary" onClick={telaCheia ? sairTelaCheia : entrarTelaCheia} aria-label={telaCheia ? 'Sair da tela cheia' : 'Abrir em tela cheia'}>
+              <IconButton size="small" color="primary" sx={{ minWidth: 44, minHeight: 44 }} onClick={telaCheia ? sairTelaCheia : entrarTelaCheia} aria-label={telaCheia ? 'Sair da tela cheia' : 'Abrir em tela cheia'}>
                 {telaCheia ? <FullscreenExit /> : <Fullscreen />}
               </IconButton>
               {currentSong.localPrivado || currentSong.authorUid === user?.uid ? (

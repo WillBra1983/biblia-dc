@@ -101,6 +101,7 @@ import {
   obterTemplate,
 } from '../utils/planoLeituraUsuario'
 import { usePinchNumeric } from '../hooks/usePinchNumeric'
+import { normalizarZoomLeitura, ZOOM_LEITURA_MIN, ZOOM_LEITURA_MAX, ZOOM_LEITURA_PASSO } from '../utils/zoomLeitura'
 import { salvarTokenPassagem } from '../utils/strongTokenContext'
 import { formatarTextoMorphHb, formatarTextoMorphHbVocalizado } from '../utils/strongTokenHelpers'
 import { sxHebrewVocalizado } from '../utils/hebrewDisplay'
@@ -457,10 +458,6 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   // A área do sistema fica fora da rolagem; o espaçador inclui só a barra e a folga.
   const sxPadToolbarBiblia = sxMainBelowAppBar(undefined, { safeArea: false })
   const pinchLeituraRef = React.useRef(null)
-  // Multiplicador local do zoom da leitura aplicado pelo pinch de dedo.
-  // É temporário (não persiste): o zoom permanente vive em `fontSize` (via
-  // controle de configuração), que já é salvo por seção em `localStorage`.
-  const [zoomLeitura, setZoomLeitura] = useState(100)
 
   const estudoQueryId = React.useMemo(() => {
     const id = new URLSearchParams(location.search).get('estudo')
@@ -470,6 +467,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
   const { 
     isDarkMode, 
     fontSize,
+    setFontSize,
     fontFamily,
     textAlign,
     lineHeight,
@@ -478,7 +476,7 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     planoLeitura,
     setPlanoLeitura
   } = useApp()
-  const fontSizeLeitura = Math.round((Number(fontSize) || 100) * (zoomLeitura / 100))
+  const fontSizeLeitura = normalizarZoomLeitura(fontSize)
   const resultadosVisiveis = useMemo(
     () => resultados,
     [resultados]
@@ -539,14 +537,14 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
     scrollAcumDownRef.current = acumDown
     scrollAcumUpRef.current = acumUp
   }, [aplicarModoImersivo])
-  const onPinchLeitura = React.useCallback((v) => setZoomLeitura(v), [])
+  const onPinchLeitura = React.useCallback((v) => setFontSize(v), [setFontSize])
   usePinchNumeric(pinchLeituraRef, {
     enabled: true,
-    value: zoomLeitura,
+    value: fontSizeLeitura,
     onChange: onPinchLeitura,
-    min: 100,
-    max: 200,
-    step: 10,
+    min: ZOOM_LEITURA_MIN,
+    max: ZOOM_LEITURA_MAX,
+    step: ZOOM_LEITURA_PASSO,
     preserveAnchor: true,
   })
 
@@ -2679,6 +2677,9 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         minHeight: 0,
         overflow: 'auto',
         overflowAnchor: 'none',
+        minWidth: 0,
+        maxWidth: '100%',
+        overflowWrap: 'anywhere',
         position: 'relative',
         bgcolor: 'background.default',
         WebkitOverflowScrolling: 'touch',
@@ -2744,10 +2745,10 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
         ) : resultados.length > 0 ? (
           <>
             {livroAtual && (
-              <Box sx={{ position: 'relative', textAlign: 'center', mb: 2 }}>
-                <Box sx={{ position: 'absolute', top: 0, left: 0 }}><BibliaVersaoSeletor /></Box>
+              <Box data-cabecalho-leitura sx={{ textAlign: 'center', mb: 2, width: '100%', minWidth: 0, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', alignItems: 'start', gap: .75 }}>
+                <Box sx={{ justifySelf: 'start', minWidth: 0, maxWidth: '100%' }}><BibliaVersaoSeletor /></Box>
                 <Tooltip title="Comparar traduções">
-                  <Button size="small" aria-label="Comparar traduções" sx={theme => ({ ...sxBotaoCabecalhoBiblia(theme), position: 'absolute', top: 0, right: 0, px: 0.75, py: 0.25, fontWeight: 700, color: 'text.secondary', fontSize: '0.8rem' })} onClick={() => {
+                  <Button size="small" aria-label="Comparar traduções" sx={theme => ({ ...sxBotaoCabecalhoBiblia(theme), justifySelf: 'end', px: 0.75, py: 0.25, fontWeight: 700, color: 'text.secondary', fontSize: '0.8rem' })} onClick={() => {
                     const limite = versiculoRefs.current.container?.getBoundingClientRect().top || 0
                     const visivel = resultados.find(verso => {
                       const elemento = document.getElementById(`versiculo-${livroAtual.id}-${capitulo}-${verso.numero}`)
@@ -2761,7 +2762,12 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 <Typography
                   sx={{
                     color: livroCorBase,
-                    maxWidth: 'calc(100% - 140px)',
+                    maxWidth: '100%',
+                    width: '100%',
+                    gridColumn: '1 / -1',
+                    minWidth: 0,
+                    overflowWrap: 'anywhere',
+                    wordBreak: 'break-word',
                     mx: 'auto',
                     fontWeight: 700,
                     fontSize: `${Math.round((fontSizeLeitura || 100) * BIBLIA_ESCALA_NOME_LIVRO_CABECALHO)}%`,
@@ -2775,6 +2781,9 @@ function Biblia({ ultimaLeitura: leituraInicial }) {
                 <Typography
                   sx={{
                     fontSize: `${Math.round((fontSizeLeitura || 100) * BIBLIA_ESCALA_CAPITULO_CABECALHO)}%`,
+                    gridColumn: '1 / -1',
+                    maxWidth: '100%',
+                    overflowWrap: 'anywhere',
                     fontWeight: 700,
                     lineHeight: 1,
                     fontFamily: resolveFontFamily(fontFamily),

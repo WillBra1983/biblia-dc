@@ -565,11 +565,9 @@ export default function Discipulado() {
   // Estado para Drawer dos subtemas
   const [drawerSubtemasAberto, setDrawerSubtemasAberto] = useState(false)
   const [discAppBarMenuSlot, setDiscAppBarMenuSlot] = useState(null)
-  const [discAppBarBackSlot, setDiscAppBarBackSlot] = useState(null)
   const appBarSlotsRafRef = useRef(null)
 
   const showDiscipuladoMenuPortal = Boolean(temaSelecionado && tema?.estudos?.length > 0)
-  const showDiscipuladoBackPortal = Boolean(temaSelecionado)
 
   useLayoutEffect(() => {
     if (appBarSlotsRafRef.current) {
@@ -584,17 +582,11 @@ export default function Discipulado() {
       const menu = showDiscipuladoMenuPortal
         ? document.getElementById('discipulado-appbar-menu')
         : null
-      const back = showDiscipuladoBackPortal
-        ? document.getElementById('discipulado-appbar-back')
-        : null
-
       setDiscAppBarMenuSlot(menu)
-      setDiscAppBarBackSlot(back)
 
       const precisaMenu = showDiscipuladoMenuPortal && !menu
-      const precisaBack = showDiscipuladoBackPortal && !back
       tentativas += 1
-      if ((precisaMenu || precisaBack) && tentativas < maxTentativas) {
+      if (precisaMenu && tentativas < maxTentativas) {
         appBarSlotsRafRef.current = requestAnimationFrame(resolverSlots)
       }
     }
@@ -606,7 +598,7 @@ export default function Discipulado() {
         appBarSlotsRafRef.current = null
       }
     }
-  }, [showDiscipuladoMenuPortal, showDiscipuladoBackPortal, estudoSelecionado, location.pathname])
+  }, [showDiscipuladoMenuPortal, estudoSelecionado, location.pathname])
 
   // Garante que ao trocar de estudo a página role para o topo em todos os containers principais
   useEffect(() => {
@@ -720,17 +712,7 @@ export default function Discipulado() {
     pushPendingChatDraft(navigate, corpo)
   }
 
-  /** AppBar (portal): seta voltar e botão explícito de subtemas */
-  const sxDiscAppBarIcon = {
-    mx: 0.25,
-    my: 0,
-    color: 'inherit',
-    border: 'none',
-    borderRadius: 0,
-    p: '2px',
-    '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
-    '& .MuiSvgIcon-root': { fontSize: '1.28rem' },
-  }
+  /** A seta pertence ao Layout; o portal contém somente as lições do módulo. */
   const sxDiscAppBarMenuButton = {
     mx: 0.25,
     my: 0,
@@ -748,7 +730,7 @@ export default function Discipulado() {
     '&:hover': { borderColor: 'rgba(255,255,255,0.75)', bgcolor: 'rgba(255,255,255,0.08)' }
   }
 
-  const discAppBarPortals = (showDiscipuladoMenuPortal || showDiscipuladoBackPortal) ? (
+  const discAppBarPortals = showDiscipuladoMenuPortal ? (
       <>
         {discAppBarMenuSlot
           ? createPortal(
@@ -766,23 +748,6 @@ export default function Discipulado() {
                 </Button>
               </Tooltip>,
               discAppBarMenuSlot
-            )
-          : null}
-        {discAppBarBackSlot && temaSelecionado != null
-          ? createPortal(
-              <IconButton
-                size="small"
-                color="inherit"
-                edge="start"
-                aria-label="Voltar ao menu deste módulo"
-                onClick={() => {
-                  navigate(`/discipulado?modulo=${temaSelecionado}`)
-                }}
-                sx={sxDiscAppBarIcon}
-              >
-                <ArrowBackIcon />
-              </IconButton>,
-              discAppBarBackSlot
             )
           : null}
       </>

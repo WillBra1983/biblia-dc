@@ -112,7 +112,11 @@ async function resolverLemmaTexto({ codeNorm, detalhe, user, forcar, aplicarCach
     }
 
     if (user?.uid && !estaSemRede()) {
-      const publicado = await obterResumoStrongPublicadoPorCodigo(codeNorm).catch(() => null)
+      let publicado
+      try { publicado = await obterResumoStrongPublicadoPorCodigo(codeNorm) }
+      catch {
+        return { ok: false, error: 'Não foi possível consultar o estudo Strong existente. Tente novamente para evitar gerar o mesmo conteúdo outra vez.' }
+      }
       if (publicado?.resumo) {
         const hit = aplicarCacheLemma(publicado.resumo, 'publicado')
         if (hit) return hit
@@ -188,7 +192,11 @@ async function resolverTokenTexto({
     }
 
     if (user?.uid && !estaSemRede()) {
-      const publicado = await obterResumoTokenPublicadoPorChave(chaveToken).catch(() => null)
+      let publicado
+      try { publicado = await obterResumoTokenPublicadoPorChave(chaveToken) }
+      catch {
+        return { ok: true, text: '', fonte: 'erro-consulta-token', error: 'Não foi possível consultar o token já explicado.' }
+      }
       const pubLimpo = tokenResumoCacheValido(
         limparResumoLexicalParaExibicao(publicado?.resumo || '')
       )

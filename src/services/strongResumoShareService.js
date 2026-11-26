@@ -1,8 +1,24 @@
-import { get, ref, set, update } from 'firebase/database'
+import { get, ref, set, update, query, orderByKey, startAt, endAt, limitToFirst } from 'firebase/database'
 import { getFirebaseDatabase } from '../config/firebase'
 
 /** Mesmo nó que os estudos bíblicos (regras RTDB); distinguir por `kind: 'strongResumo'`. Não entra na pesquisa por tema do hub de estudos. */
 const BASE = 'bibliaEstudos'
+
+/** Paginação por chave existente: não baixa o conjunto dos estudos bíblicos. */
+export async function listarResumosStrongGerados({ apos = '', code = '', tokens = false } = {}) {
+  const prefixo = tokens ? `strongResumoToken_${code}_` : 'strongResumo_'
+  const snap = await get(query(ref(db(), BASE), orderByKey(),
+    startAt(apos || prefixo), endAt(`${prefixo}\uf8ff`), limitToFirst(42)))
+  const itens = []
+  snap.forEach(child => {
+    const val = child.val() || {}
+    if (child.key !== apos && val.kind === (tokens ? 'strongResumoToken' : 'strongResumo')) {
+      itens.push({ id: child.key, code: val.code, resumo: limparTextoResumo(val.resumo || val.introducao),
+        cacheKey: val.cacheKey || '', refPassagem: val.refPassagem || '' })
+    }
+  })
+  return { itens: itens.slice(0, 40), proximo: itens.length > 40 ? itens[39].id : '' }
+}
 
 function db() {
   const d = getFirebaseDatabase()

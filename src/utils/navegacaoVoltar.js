@@ -10,7 +10,14 @@ export function destinoVoltarApp(pathname = '/', search = '') {
   if (path === '/discipulado' && params.has('modulo')) return route('/discipulado', 'Voltar aos módulos')
   const strong = /^(\/estudo-strong\/[^/]+)\/(?:resumo|ocorrencias)$/.exec(path)
   if (strong) return route(strong[1], 'Voltar ao estudo Strong')
-  if (path.startsWith('/estudo-strong/')) return route('/', 'Voltar à Bíblia')
+  if (path.startsWith('/estudo-strong/')) {
+    if (params.get('origem') === 'consulta') {
+      params.delete('origem')
+      const search = params.toString()
+      return route(`/estudo-strong${search ? `?${search}` : ''}`, 'Voltar à pesquisa Strong')
+    }
+    return route('/', 'Voltar à Bíblia')
+  }
   if (path.startsWith('/devocional/')) return route('/devocional', 'Voltar aos devocionais')
   if (path.startsWith('/biblioteca/pessoal/')) return route('/biblioteca', 'Voltar à livraria')
   const livro = /^(\/biblioteca\/[^/]+)\/(?:ler|amostra)$/.exec(path)

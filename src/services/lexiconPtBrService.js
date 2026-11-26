@@ -1,4 +1,5 @@
 import initSqlJs from 'sql.js'
+import { normalizarBuscaStrong, codigosBuscaStrong } from '../utils/strongBusca'
 
 let db = null
 let lastLexiconFetchKey = null
@@ -91,4 +92,31 @@ export async function buscarLexiconPtBr(strongCode) {
   } catch {
     return null
   }
+}
+
+/** Pesquisa o banco que já acompanha o aplicativo; não chama IA. */
+export async function pesquisarLexiconStrong(termo, idioma = '') {
+  const busca = normalizarBuscaStrong(termo)
+  if (!busca) return []
+  const dbi = await initLexiconPtBrDB()
+  const codigos = codigosBuscaStrong(termo, idioma)
+  dbi.create_function('normalizar_busca_strong', normalizarBuscaStrong)
+  const literal = busca.replace(/[\\%_]/g, '\\$&')
+  const stmt = dbi.prepare(`SELECT strong_code AS code, palavra, transliteracao,
+    definicao_expandida AS descricao FROM lexicon_ptbr
+    WHERE (? = '' OR substr(strong_code, 1, 1) = ?)
+    AND ${codigos.length ? `strong_code IN (${codigos.map(() => '?').join(',')})` : `(
+      normalizar_busca_strong(palavra) LIKE ? ESCAPE '\\' OR
+      normalizar_busca_strong(transliteracao) LIKE ? ESCAPE '\\' OR
+      normalizar_busca_strong(definicoes_json) LIKE ? ESCAPE '\\' OR
+      normalizar_busca_strong(definicao_expandida) LIKE ? ESCAPE '\\')`}
+    ORDER BY CASE WHEN normalizar_busca_strong(palavra) = ? THEN 0
+      WHEN normalizar_busca_strong(transliteracao) = ? THEN 1 ELSE 2 END, strong_code
+    LIMIT 40`)
+  try {
+    stmt.bind([idioma, idioma, ...(codigos.length ? codigos : Array(4).fill(`%${literal}%`)), busca, busca])
+    const rows = []
+    while (stmt.step()) rows.push(stmt.getAsObject())
+    return rows
+  } finally { stmt.free() }
 }

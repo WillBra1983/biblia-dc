@@ -19,6 +19,25 @@ async function main() {
       import { MemoryRouter, useNavigate } from 'react-router-dom';
       import Compartilhar from './src/components/CompartilharProjetoDialog';
       import Card from './src/components/MenuAcessoCard';
+      import { alinharOpcaoMenu } from './src/utils/alinharOpcaoMenu';
+      function Expansao({lista}) {
+        const [aberto, setAberto] = React.useState(false);
+        const alvo=React.useRef(null), espaco=React.useRef(null);
+        React.useLayoutEffect(()=>{if(alvo.current) alinharOpcaoMenu(alvo.current,espaco.current)},[aberto]);
+        return <div style={{height:'100vh',display:'flex',flexDirection:'column'}}>
+          <header style={{height:58,flexShrink:0}}>Menu principal</header>
+          <div id="rolagem-menu" style={{flex:1,minHeight:0,overflowY:'auto'}}>
+            <div style={{height:900}}>Outras opções</div>
+            <div style={{display:'grid',gridTemplateColumns:lista||aberto?'1fr':'1fr 1fr',padding:10}}>
+              <Card item={{id:'canticos',text:'Cânticos'}} lista={lista} aberto={aberto} painelId="opcoes-teste"
+                onToggle={e=>{alvo.current=e.currentTarget.closest('.MuiCard-root');setAberto(v=>!v)}}
+                filhos={<div style={{height:260}}>Hinário · Salmos · Outras canções</div>} />
+            </div>
+            <div ref={espaco} style={{height:0}} />
+          </div>
+        </div>
+      }
+      window.renderExpansion = lista => root.render(<ThemeProvider theme={criarTema('light')}><Expansao key={String(lista)} lista={lista}/></ThemeProvider>);
       import SharePage from './src/components/SharePageButton';
       import { useCompartilhamentoPagina } from './src/hooks/useCompartilhamentoPagina';
       function Pagina() {
@@ -126,6 +145,17 @@ async function main() {
     await delay(250)
     const cards=await evaluate(`(()=>{const names=[...document.querySelectorAll('.MuiCardActionArea-root > div:nth-of-type(2) > span:first-child')];return {sizes:names.map(n=>parseFloat(getComputedStyle(n).fontSize)),colors:names.map(n=>getComputedStyle(n).color),fits:names.every(n=>n.scrollWidth<=n.clientWidth+1),overflow:document.documentElement.scrollWidth>innerWidth}})()`)
     assert.equal(cards.sizes.length,4);assert.ok(cards.sizes.every(s=>s>=18));assert.equal(new Set(cards.colors).size,4);assert.equal(cards.fits,true);assert.equal(cards.overflow,false);cases++
+  }
+  for (const width of [320,430,1024]) for (const lista of [false,true]) {
+    await call('Emulation.setDeviceMetricsOverride',{width,height:740,deviceScaleFactor:1,mobile:true});
+    await evaluate(`window.renderExpansion(${lista})`); await delay(150);
+    await evaluate(`document.getElementById('rolagem-menu').scrollTop=700`);
+    for (const expanded of [true,false,true,false]) {
+      await evaluate(`document.querySelector('[aria-controls="opcoes-teste"]').click()`);await delay(100);
+      const result=await evaluate(`(()=>{const b=document.querySelector('[aria-controls="opcoes-teste"]'), p=document.getElementById('rolagem-menu');return {top:b.getBoundingClientRect().top-p.getBoundingClientRect().top,expanded:b.getAttribute('aria-expanded'),page:window.scrollY,visible:b.getBoundingClientRect().bottom<=p.getBoundingClientRect().bottom}})()`);
+      assert.ok(Math.abs(result.top-8)<=2,'Grupo no topo: '+JSON.stringify({width,lista,...result}));
+      assert.equal(result.expanded,String(expanded));assert.equal(result.page,0);assert.ok(result.visible);cases++;
+    }
   }
   await evaluate(`window.renderPagina()`);await delay(250)
   await evaluate(`document.querySelector('[aria-label="compartilhar página"]').click()`);await delay(100)

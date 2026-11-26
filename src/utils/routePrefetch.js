@@ -50,6 +50,7 @@ const importers = {
   estudosBiblicosGerir: () => import('../pages/EstudosBiblicosGerir'),
   estudoBiblicoProvaResultado: () => import('../pages/EstudoBiblicoProvaResultado'),
   strongEstudo: () => import('../pages/StrongEstudo'),
+  strongConsulta: () => import('../pages/StrongConsulta'),
   strongEstudoResumo: () => import('../pages/StrongEstudoResumo'),
   sobre: () => import('../pages/Sobre')
 }

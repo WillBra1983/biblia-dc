@@ -54,6 +54,7 @@ const STATIC_KEYS = new Set([
   'estudos_biblicos_resultado',
   'estudos_biblicos_editar',
   'estudo_strong_ocorrencias',
+  'estudo_strong',
   'admin_usuarios',
 ])
 

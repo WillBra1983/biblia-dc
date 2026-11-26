@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { Avatar, Box, Button, ButtonBase, Stack, Card, Typography, Grid, Collapse, Switch, FormControlLabel, ToggleButtonGroup, ToggleButton, IconButton, Tooltip } from '@mui/material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -28,6 +28,7 @@ import TuneIcon from '@mui/icons-material/Tune'
 import CollectionsBookmarkOutlinedIcon from '@mui/icons-material/CollectionsBookmarkOutlined'
 import BookmarkAddedOutlinedIcon from '@mui/icons-material/BookmarkAddedOutlined'
 import MenuAcessoCard from './MenuAcessoCard'
+import { alinharOpcaoMenu } from '../utils/alinharOpcaoMenu'
 import LivrariaMenuDestaque from './LivrariaMenuDestaque'
 import { lerPreferenciasMenu, salvarPreferenciasMenu } from '../utils/menuPreferencias'
 import { useMaisVistos } from '../hooks/useMaisVistos'
@@ -175,6 +176,9 @@ function VersiculoDoDiaMenu({ mostrarMetricas, onNavigate, onExpandidoChange }) 
 }
 
 const menuItems = [
+  { text: 'Strong', path: '/estudo-strong', icon: <BibliaIcon sx={{ fontSize: ICON_SIZE }} />,
+    description: 'Dicionário, palavras originais e estudos disponíveis', fundo: 'menu-fundos/biblia.webp' },
+
   {
     text: 'Bíblia',
     icon: <BibliaIcon sx={{ fontSize: ICON_SIZE }} />,
@@ -395,6 +399,7 @@ function nomePrefetchPorPath(path) {
   if (path.startsWith('/estudos-biblicos/abrir')) return 'estudoBiblicoVer'
   if (path.startsWith('/estudos-biblicos')) return 'estudosBiblicosHub'
   if (path.startsWith('/estudo-strong/') && path.endsWith('/resumo')) return 'strongEstudoResumo'
+  if (path === '/estudo-strong') return 'strongConsulta'
   if (path.startsWith('/estudo-strong')) return 'strongEstudo'
   if (path.startsWith('/sobre')) return 'sobre'
   return null
@@ -408,7 +413,7 @@ const atalhosMaisVistos = Object.fromEntries([
 ].map(item => [item.path, item]))
 const gruposMenu = [
   { id: 'seu-dia', titulo: 'Seu dia na Palavra', itens: ['/biblia', '/plano-leitura-biblia', '/devocional', '/versiculos-marcados'].map(path => porPath[path]) },
-  { id: 'estudo', titulo: 'Estudo e formação', itens: [porPath['/discipulado'], { ...westminsterPai, id: 'westminster', filhos: westminsterSubItens, metricas: ['confissao', 'catecismo_maior', 'catecismo_breve'] }, porPath['/biblioteca-estudos'], porPath['/estudos-biblicos']] },
+  { id: 'estudo', titulo: 'Estudo e formação', itens: [porPath['/discipulado'], porPath['/estudo-strong'], { ...westminsterPai, id: 'westminster', filhos: westminsterSubItens, metricas: ['confissao', 'catecismo_maior', 'catecismo_breve'] }, porPath['/biblioteca-estudos'], porPath['/estudos-biblicos']] },
   { id: 'recursos', titulo: 'Recursos e ferramentas', itens: [porPath['/biblioteca'], { ...hinarioPai, id: 'canticos', filhos: hinarioSubItens, metricas: ['hinario_letra', 'hinario_cifras', 'salmos', 'outras_cancoes'] }, porPath['/mais-de-deus'], porPath['/quiz-retiro']] },
   { id: 'comunidade', titulo: 'Comunidade e vídeos', itens: [porPath['/versiculos-compartilhados'], porPath['/youtube']] },
 ]
@@ -423,10 +428,25 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
   const [conectarExpanded, setConectarExpanded] = useState(false)
   const [opcoesMenuAbertas, setOpcoesMenuAbertas] = useState(false)
   const [expandidos, setExpandidos] = useState({})
+  const alvoRolagem = useRef(null)
+  const espacoFinal = useRef(null)
   const [ehAdmin, setEhAdmin] = useState(false)
   const [preferencias, setPreferencias] = useState(() => lerPreferenciasMenu())
   const mostrarMetricas = ehAdmin && preferencias.metricas
   const lista = preferencias.visualizacao === 'lista'
+
+  useLayoutEffect(() => {
+    alvoRolagem.current = null
+    if (espacoFinal.current) espacoFinal.current.style.height = '0px'
+  }, [menuOpen])
+
+  useLayoutEffect(() => {
+    alinharOpcaoMenu(alvoRolagem.current, espacoFinal.current)
+  }, [expandidos, conectarExpanded])
+
+  function prepararRolagem(event) {
+    alvoRolagem.current = event.currentTarget.closest('.MuiCard-root')
+  }
 
   useEffect(() => {
     setConectarExpanded(false)
@@ -482,14 +502,14 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
     const ativo = filhos ? filhos.some(sub => rotaCorrespondeItemMenu(sub.path, location.pathname)) : rotaCorrespondeItemMenu(item.path, location.pathname)
     return <MenuAcessoCard key={item.id || item.path} item={item} ativo={ativo} lista={compacto} escuro={isDarkMode}
       aberto={Boolean(expandidos[item.id])} painelId={filhos ? `menu-opcoes-${item.id}` : undefined}
-      onToggle={() => setExpandidos(atual => ({ ...atual, [item.id]: !atual[item.id] }))}
+      onToggle={event => { prepararRolagem(event); setExpandidos(atual => ({ ...atual, [item.id]: !atual[item.id] })) }}
       onNavigate={handleClick} mostrarMetricas={mostrarMetricas}
       filhos={filhos ? filhos.map(sub => renderAcesso(sub, true)) : undefined} />
   }
 
   return <Box sx={{ p: { xs: 1.25, sm: 2 }, width: '100%', minWidth: 0, maxWidth: 1180, mx: 'auto', boxSizing: 'border-box', bgcolor: '#004d40', minHeight: '100%', overflowX: 'clip', pb: 3 }}>
     <Card elevation={0} sx={{ mb: 1.5, borderRadius: 2.5, bgcolor: '#042d26', color: '#fff', border: '1px solid rgba(230,210,155,.25)' }}>
-      <Button fullWidth onClick={() => setConectarExpanded(atual => !atual)} aria-expanded={conectarExpanded} aria-controls="menu-opcoes-conta"
+      <Button fullWidth onClick={event => { prepararRolagem(event); setConectarExpanded(atual => !atual) }} aria-expanded={conectarExpanded} aria-controls="menu-opcoes-conta"
         sx={{ p: 1.5, minHeight: 72, color: 'inherit', textTransform: 'none', textAlign: 'left', justifyContent: 'flex-start', gap: 1.25, '&.Mui-focusVisible': { outline: '3px solid #e6c779', outlineOffset: -3 } }}>
         <Avatar src={user?.photoURL || undefined} alt="" sx={{ width: 42, height: 42, bgcolor: '#e7d5a7', color: '#163e35' }}><PersonIcon /></Avatar>
         <Box component="span" sx={{ flex: 1, minWidth: 0 }}>
@@ -499,7 +519,7 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
         {Number(unreadChatCount) > 0 && <Box component="span" aria-label={`${unreadChatCount} mensagens não lidas`} sx={{ px: 1, py: .25, borderRadius: 4, bgcolor: '#b54120', color: '#fff', fontWeight: 800 }}>{Number(unreadChatCount) > 99 ? '99+' : unreadChatCount}</Box>}
         <ExpandMore sx={{ transform: conectarExpanded ? 'rotate(180deg)' : 'none' }} />
       </Button>
-      <Collapse in={conectarExpanded} timeout="auto">
+      <Collapse in={conectarExpanded} timeout="auto" onEntered={() => alinharOpcaoMenu(alvoRolagem.current, espacoFinal.current)} onExited={() => alinharOpcaoMenu(alvoRolagem.current, espacoFinal.current)}>
         <Stack id="menu-opcoes-conta" spacing={1} sx={{ p: 1.5, pt: 0 }}>
           {[{ text: 'Meu perfil', path: '/perfil', icon: <PersonIcon /> }, { text: user ? 'Mensagens' : 'Entrar ou criar conta', path: '/chat', icon: <ChatIcon /> }, { text: 'Configurações', path: '/configuracoes', icon: <TuneIcon /> }].map(item => <Button key={item.path} startIcon={item.icon} variant="outlined" onClick={() => handleClick(item)} sx={{ minHeight: 44, justifyContent: 'flex-start', color: '#fff', borderColor: 'rgba(255,255,255,.4)', textTransform: 'none' }}>{item.text}</Button>)}
           {ehAdmin && <>
@@ -535,5 +555,6 @@ export default function MenuCards({ onItemClick, unreadChatCount = 0, menuOpen }
     <Stack direction="row" useFlexGap flexWrap="wrap" spacing={1} sx={{ pt: 1, borderTop: '1px solid rgba(230,210,155,.3)' }}>
       {[{ text: 'Sobre o aplicativo', path: '/sobre', icon: <InfoIcon /> }, { text: 'Privacidade', path: '/privacidade' }].map(item => <Button key={item.path} startIcon={item.icon} onClick={() => handleClick(item)} sx={{ color: '#fff', textTransform: 'none', minHeight: 44 }}>{item.text}</Button>)}
     </Stack>
+    <Box ref={espacoFinal} aria-hidden="true" sx={{ height: 0, pointerEvents: 'none', overflowAnchor: 'none' }} />
   </Box>
 }

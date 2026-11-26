@@ -108,6 +108,7 @@ function getPageTitleFromPathname(pathname) {
 export default function Layout({ title, children }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const menuPrincipalRef = useRef(null)
+  const rolagemMenuRef = useRef(null)
   const [chatUnreadCount, setChatUnreadCount] = useState(0)
   const [appBarOculta, setAppBarOculta] = useState(false)
   const location = useLocation()
@@ -245,7 +246,20 @@ export default function Layout({ title, children }) {
     if (!user?.uid) return
     const key = pathnameParaSectionKey(location.pathname)
     if (!key) return
-    void registarVisualizacaoSecaoSeNecessario(key, user.uid)
+    const registrar = () => {
+      if (document.visibilityState !== 'hidden') void registarVisualizacaoSecaoSeNecessario(key, user.uid)
+    }
+    registrar()
+    window.addEventListener('online', registrar)
+    window.addEventListener('focus', registrar)
+    document.addEventListener('visibilitychange', registrar)
+    const timer = setInterval(registrar, 60_000)
+    return () => {
+      clearInterval(timer)
+      window.removeEventListener('online', registrar)
+      window.removeEventListener('focus', registrar)
+      document.removeEventListener('visibilitychange', registrar)
+    }
   }, [location.pathname, user?.uid])
 
   useEffect(() => {
@@ -333,7 +347,7 @@ export default function Layout({ title, children }) {
   useEffect(() => {
     if (!drawerOpen) return
     const frame = requestAnimationFrame(() => {
-      menuPrincipalRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+      rolagemMenuRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' })
     })
     return () => cancelAnimationFrame(frame)
   }, [drawerOpen])
@@ -650,7 +664,7 @@ export default function Layout({ title, children }) {
               <Typography fontWeight={700}>Menu principal</Typography>
               <IconButton color="inherit" aria-label="Fechar menu principal e voltar à leitura" onClick={() => setDrawerOpen(false)} sx={{ minWidth: 44, minHeight: 44 }}><Close /></IconButton>
             </Box>
-            <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch' }}>
+            <Box ref={rolagemMenuRef} sx={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch' }}>
               {menuPrincipal}
             </Box>
           </Box>

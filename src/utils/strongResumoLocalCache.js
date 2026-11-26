@@ -1,8 +1,40 @@
-import { chaveCacheAnaliseToken } from './strongTokenHelpers'
+import { chaveCacheAnaliseToken, formatarReferenciaPassagemToken } from './strongTokenHelpers'
 
 const PREFIX_LEGACY = 'strongResumoLocal_v1:'
 const PREFIX_LEMMA = 'strongResumoLemma_v1:'
 const PREFIX_TOKEN = 'strongResumoToken_v1:'
+
+export function listarResumosStrongLocais() {
+  const itens = new Map()
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      const prefixo = [PREFIX_LEMMA, PREFIX_LEGACY].find(p => key?.startsWith(p))
+      if (!prefixo) continue
+      const code = key.slice(prefixo.length)
+      if (!/^[HG]\d+$/.test(code)) continue
+      const resumo = lerResumoLemmaLocalStrong(code)
+      if (resumo) itens.set(code, { code, resumo })
+    }
+  } catch { /* armazenamento indisponível */ }
+  return [...itens.values()].sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }))
+}
+
+export function listarTokensStrongLocais(code) {
+  const itens = []
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (!key?.startsWith(`${PREFIX_TOKEN}${normalizarCode(code)}@`)) continue
+      const cacheKey = key.slice(PREFIX_TOKEN.length)
+      const resumo = lerStorage(key)
+      const [livroId, capitulo, versiculo] = (cacheKey.split('@')[2] || '').split('.')
+      if (resumo) itens.push({ cacheKey, resumo,
+        refPassagem: formatarReferenciaPassagemToken({ livroId, capitulo, versiculo }) })
+    }
+  } catch { /* armazenamento indisponível */ }
+  return itens
+}
 
 function normalizarCode(code) {
   return String(code || '').trim().toUpperCase()

@@ -13,28 +13,17 @@ import {
   Stack,
   Alert,
   CircularProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   TextField,
-  Tooltip,
-  IconButton,
 } from '@mui/material'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import PeopleIcon from '@mui/icons-material/People'
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
-import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined'
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import AdminUsuarioCard from '../components/AdminUsuarioCard'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { useFirebaseAuth } from '../contexts/FirebaseAuthContext'
 import { getFirebaseDatabase, getFirebaseFunctions, loadFirebaseModules } from '../config/firebase'
 import { confirmarAsync, mostrarSnackbar } from '../utils/uiDialogs'
 
 function dataMs(val) {
+  if (typeof val === 'number') return Number.isFinite(val) ? val : 0
   if (typeof val !== 'string' || !val.trim()) return 0
   const ms = Date.parse(val)
   return Number.isFinite(ms) ? ms : 0
@@ -141,7 +130,7 @@ export default function AdminUsuarios() {
       })
       const data = res.data || {}
       const novos = Array.isArray(data.users) ? data.users : []
-      setRows((prev) => ordenarUsuariosPorAcesso(pageToken ? [...prev, ...novos] : novos))
+      setRows((prev) => ordenarUsuariosPorAcesso(pageToken ? [...new Map([...prev, ...novos].map(r => [r.uid, r])).values()] : novos))
       setNextPageToken(data.pageToken || null)
       setListaDoDia('')
     } catch (e) {
@@ -235,8 +224,12 @@ export default function AdminUsuarios() {
     )
   }
 
+  const busca = filtro.trim().toLowerCase()
+  const filtradas = rows.filter(r => !busca || [r.email, r.displayName, r.profileHandle, r.uid, r.provedorLabel, r.signInProvider]
+    .some(valor => String(valor || '').toLowerCase().includes(busca)))
+
   return (
-    <Container maxWidth="lg" sx={{ py: 3 }}>
+    <Container maxWidth="md" sx={{ py: 3, minWidth: 0, maxWidth: '100%', boxSizing: 'border-box' }}>
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
         <PeopleIcon color="primary" />
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -257,9 +250,8 @@ export default function AdminUsuarios() {
       </Box>
 
       <Alert severity="info" sx={{ mb: 2 }}>
-        Lista do Firebase Authentication. O <strong>@apelido</strong> é o nome público do chat (reservado
-        no perfil), não o nome de exibição. Quem entrou só com Google costuma ter e-mail já verificado;
-        cadastro por senha exige confirmação por link se você ativar essa opção no Firebase.
+        Contas cadastradas no aplicativo. O <strong>@apelido</strong> é o nome público do chat.
+        A lista é carregada em páginas; quando houver mais contas, use “Carregar mais”.
       </Alert>
 
       <Stack
@@ -289,6 +281,7 @@ export default function AdminUsuarios() {
       {listaDoDia ? (
         <Alert severity="success" sx={{ mb: 2 }}>
           Relação preservada de quem acessou em {new Date(`${listaDoDia}T12:00:00`).toLocaleDateString('pt-BR')}.
+          {' '}Considera acessos autenticados e não inclui contas administrativas.
         </Alert>
       ) : null}
 
@@ -300,7 +293,7 @@ export default function AdminUsuarios() {
 
       <TextField
         size="small"
-        label="Filtrar lista"
+        label="Filtrar contas carregadas"
         placeholder="email, nome, @apelido, UID…"
         value={filtro}
         onChange={(e) => setFiltro(e.target.value)}
@@ -308,144 +301,24 @@ export default function AdminUsuarios() {
         sx={{ mb: 2 }}
       />
 
-      <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
-        <Table size="small" stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell>UID</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Nome</TableCell>
-              <TableCell>
-                <Tooltip title="Apelido público do chat (users/profile ou publicHandles), não é o nome de exibição">
-                  <span>@apelido</span>
-                </Tooltip>
-              </TableCell>
-              <TableCell>Provedor</TableCell>
-              <TableCell align="center">Conta</TableCell>
-              <TableCell>Criação</TableCell>
-              <TableCell>
-                <Tooltip title={listaDoDia ? 'Última abertura registrada nessa data' : 'Última abertura do app (RTDB) ou último login, o que for mais recente'}>
-                  <span>{listaDoDia ? 'Acesso no dia' : 'Último acesso'}</span>
-                </Tooltip>
-              </TableCell>
-              <TableCell align="center" sx={{ width: 88 }}>
-                Ações
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows
-              .filter((r) => {
-                const q = filtro.trim().toLowerCase()
-                if (!q) return true
-                return (
-                  (r.email || '').toLowerCase().includes(q) ||
-                  (r.displayName || '').toLowerCase().includes(q) ||
-                  (r.profileHandle || '').toLowerCase().includes(q) ||
-                  (r.uid || '').toLowerCase().includes(q) ||
-                  (r.provedorLabel || '').toLowerCase().includes(q) ||
-                  (r.signInProvider || '').toLowerCase().includes(q)
-                )
-              })
-              .map((r) => (
-                <TableRow key={r.uid} hover>
-                  <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.75rem', maxWidth: 140 }}>
-                    <Stack direction="row" alignItems="center" spacing={0.5}>
-                      <Tooltip title={r.uid}>
-                        <span>{r.uid?.slice(0, 12)}…</span>
-                      </Tooltip>
-                      <IconButton
-                        size="small"
-                        aria-label="Copiar UID"
-                        onClick={() => {
-                          void navigator.clipboard?.writeText(r.uid || '')
-                          mostrarSnackbar({ mensagem: 'UID copiado.', severidade: 'success' })
-                        }}
-                      >
-                        <ContentCopyIcon fontSize="inherit" />
-                      </IconButton>
-                    </Stack>
-                  </TableCell>
-                  <TableCell>{r.email || '—'}</TableCell>
-                  <TableCell>{r.displayName || '—'}</TableCell>
-                  <TableCell>{r.profileHandle ? `@${r.profileHandle}` : '—'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.8rem', maxWidth: 200 }}>
-                    {r.provedorLabel || r.signInProvider || '—'}
-                  </TableCell>
-                  <TableCell align="center">{r.disabled ? 'Desativada' : 'Ativa'}</TableCell>
-                  <TableCell sx={{ whiteSpace: 'nowrap', fontSize: '0.8rem' }}>
-                    {r.creationTime ? new Date(r.creationTime).toLocaleString('pt-BR') : '—'}
-                  </TableCell>
-                  <TableCell sx={{ whiteSpace: 'nowrap', fontSize: '0.8rem' }}>
-                    {(listaDoDia ? r.acessoNoDiaLastAt : (r.ultimoAcesso || r.lastAccessAt || r.lastSignInTime))
-                      ? new Date(listaDoDia ? r.acessoNoDiaLastAt : (r.ultimoAcesso || r.lastAccessAt || r.lastSignInTime)).toLocaleString('pt-BR')
-                      : '—'}
-                  </TableCell>
-                  <TableCell align="center">
-                    {r.uid === user?.uid ? (
-                      <Typography variant="caption" color="text.secondary">
-                        Você
-                      </Typography>
-                    ) : r.ehAdmin ? (
-                      <Typography variant="caption" color="text.secondary">
-                        Admin
-                      </Typography>
-                    ) : (
-                      <Stack direction="row" spacing={0.25} justifyContent="center">
-                        {r.disabled ? (
-                          <Tooltip title="Reativar conta">
-                            <span>
-                              <IconButton
-                                size="small"
-                                color="success"
-                                disabled={acaoUid === r.uid}
-                                aria-label="Reativar conta"
-                                onClick={() => void gerirUsuario(r.uid, 'reativar', 'Reativar conta')}
-                              >
-                                <LockOpenOutlinedIcon fontSize="small" />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        ) : (
-                          <Tooltip title="Desativar conta">
-                            <span>
-                              <IconButton
-                                size="small"
-                                color="warning"
-                                disabled={acaoUid === r.uid}
-                                aria-label="Desativar conta"
-                                onClick={() => void gerirUsuario(r.uid, 'desativar', 'Desativar conta')}
-                              >
-                                <LockOutlinedIcon fontSize="small" />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        )}
-                        <Tooltip title="Apagar conta">
-                          <span>
-                            <IconButton
-                              size="small"
-                              color="error"
-                              disabled={acaoUid === r.uid}
-                              aria-label="Apagar conta"
-                              onClick={() => void gerirUsuario(r.uid, 'apagar', 'Apagar conta')}
-                            >
-                              <DeleteOutlineIcon fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </Stack>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Stack spacing={1.5} sx={{ mb: 2, minWidth: 0 }}>
+        {filtradas.map(r => <AdminUsuarioCard key={r.uid} usuario={r} uidAtual={user?.uid}
+          listaDoDia={listaDoDia} ocupado={acaoUid === r.uid} onGerir={gerirUsuario}
+          onCopiar={async uid => {
+            try {
+              if (!navigator.clipboard?.writeText) throw new Error('Clipboard indisponível')
+              await navigator.clipboard.writeText(uid)
+              mostrarSnackbar({ mensagem: 'UID copiado.', severidade: 'success' })
+            } catch { mostrarSnackbar({ mensagem: 'Não foi possível copiar o UID.', severidade: 'warning' }) }
+          }} />)}
+        {!loading && !filtradas.length && <Alert severity="info">{filtro.trim()
+          ? 'Nenhum usuário corresponde ao filtro nas contas carregadas.'
+          : listaDoDia ? 'Nenhum acesso registrado nessa data.' : 'Nenhuma conta carregada.'}</Alert>}
+      </Stack>
 
-      <Stack direction="row" spacing={2} alignItems="center">
+      <Stack direction="row" useFlexGap flexWrap="wrap" spacing={2} alignItems="center">
         <Typography variant="body2" color="text.secondary">
-          {rows.length} {listaDoDia ? 'usuário(s) que acessaram no dia' : 'utilizador(es) carregado(s)'}
+          {filtradas.length} de {rows.length} {listaDoDia ? 'usuário(s) que acessaram no dia' : 'utilizador(es) carregado(s)'}
           {nextPageToken ? ' — há mais páginas.' : ''}
         </Typography>
         {nextPageToken ? (

@@ -3,7 +3,8 @@
  * Devem estar alinhadas com a validação em `functions/src/registrarVisualizacaoSecao.js`.
  */
 
-const SESSION_KEYS_JSON = 'salvation:sectionViewsRegistadosEntrada'
+const SESSION_KEYS_JSON = 'salvation:sectionViewsRegistadosEntrada:v2'
+const registadosEmMemoria = new Set()
 
 function sanitizarSegmento(s) {
   if (s == null || s === '') return ''
@@ -117,6 +118,7 @@ export function pathnameParaSectionKey(pathname) {
   if (p === '/estudos-biblicos') return 'estudos_biblicos'
 
   const mStrongOcorrencias = p.match(/^\/estudo-strong\/([^/]+)\/ocorrencias$/)
+  if (p === '/estudo-strong') return 'estudo_strong'
   if (mStrongOcorrencias) return 'estudo_strong_ocorrencias'
   const mStrong = p.match(/^\/estudo-strong\/([^/]+)\/resumo$/)
   if (mStrong) {
@@ -139,15 +141,16 @@ export function pathnameParaSectionKey(pathname) {
 function lerSetRegistados() {
   try {
     const raw = sessionStorage.getItem(SESSION_KEYS_JSON)
-    if (!raw) return new Set()
+    if (!raw) return new Set(registadosEmMemoria)
     const arr = JSON.parse(raw)
-    return Array.isArray(arr) ? new Set(arr) : new Set()
+    return new Set([...registadosEmMemoria, ...(Array.isArray(arr) ? arr : [])])
   } catch {
-    return new Set()
+    return new Set(registadosEmMemoria)
   }
 }
 
 function gravarSetRegistados(set) {
+  set.forEach(key => registadosEmMemoria.add(key))
   try {
     sessionStorage.setItem(SESSION_KEYS_JSON, JSON.stringify([...set]))
   } catch {
@@ -155,13 +158,18 @@ function gravarSetRegistados(set) {
   }
 }
 
-export function jaRegistouVisualizacaoNestaEntrada(sectionKey) {
-  return lerSetRegistados().has(sectionKey)
+function chaveRegisto(sectionKey, uid) {
+  return JSON.stringify([uid, dataMetricaHojeBr(), sectionKey])
 }
 
-export function marcarVisualizacaoRegistadaNestaEntrada(sectionKey) {
+export function jaRegistouVisualizacaoNestaEntrada(sectionKey, uid) {
+  return Boolean(uid) && lerSetRegistados().has(chaveRegisto(sectionKey, uid))
+}
+
+export function marcarVisualizacaoRegistadaNestaEntrada(sectionKey, uid) {
+  if (!uid) return
   const s = lerSetRegistados()
-  s.add(sectionKey)
+  s.add(chaveRegisto(sectionKey, uid))
   gravarSetRegistados(s)
 }
 
@@ -196,34 +204,35 @@ async function utilizadorEhAdmin(uid) {
 }
 
 /**
- * Chama a Cloud Function uma vez por `sectionKey` nesta entrada (aba/app),
+ * Chama a Cloud Function por conta, dia e `sectionKey` nesta entrada (aba/app),
  * após login. Só marca sessão após sucesso. Falhas silenciosas.
  * Contas admin (`users/{uid}/admin`) não registam visualização.
  */
 export async function registarVisualizacaoSecaoSeNecessario(sectionKey, uid) {
   if (!sectionKey || !uid || typeof window === 'undefined') return
-  if (jaRegistouVisualizacaoNestaEntrada(sectionKey)) return
-  if (inflightRegisto.has(sectionKey)) return
-  inflightRegisto.add(sectionKey)
+  if (jaRegistouVisualizacaoNestaEntrada(sectionKey, uid)) return
+  const chave = chaveRegisto(sectionKey, uid)
+  if (inflightRegisto.has(chave)) return
+  inflightRegisto.add(chave)
 
   try {
     if (await utilizadorEhAdmin(uid)) {
-      marcarVisualizacaoRegistadaNestaEntrada(sectionKey)
+      marcarVisualizacaoRegistadaNestaEntrada(sectionKey, uid)
       return
     }
     const { loadFirebaseModules } = await import('../config/firebase')
     await loadFirebaseModules()
-    const { getFirebaseFunctions } = await import('../config/firebaseRuntime')
+    const { getFirebaseFunctions, getFirebaseAuth } = await import('../config/firebaseRuntime')
     const { httpsCallable } = await import('firebase/functions')
     const fns = getFirebaseFunctions()
-    if (!fns) return
+    if (!fns || getFirebaseAuth()?.currentUser?.uid !== uid) return
     const fn = httpsCallable(fns, 'registrarVisualizacaoSecao')
-    await fn({ sectionKey })
-    marcarVisualizacaoRegistadaNestaEntrada(sectionKey)
+    const resultado = await fn({ sectionKey })
+    if (resultado.data?.ok === true) marcarVisualizacaoRegistadaNestaEntrada(sectionKey, uid)
   } catch {
     /* rede / função indisponível — permite nova tentativa nesta entrada */
   } finally {
-    inflightRegisto.delete(sectionKey)
+    inflightRegisto.delete(chave)
   }
 }
 

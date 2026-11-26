@@ -36,6 +36,7 @@ import { useVersaoBiblica } from './hooks/useVersaoBiblica'
 // na rota inicial, sem entrar no carregamento de links diretos a outras telas.
 const Biblia = lazy(() => import('./pages/Biblia'))
 const StrongEstudo = lazy(() => import('./pages/StrongEstudo'))
+const StrongConsulta = lazy(() => import('./pages/StrongConsulta'))
 const StrongEstudoResumo = lazy(() => import('./pages/StrongEstudoResumo'))
 const StrongEstudoOcorrencias = lazy(() => import('./pages/StrongEstudoOcorrencias'))
 const Discipulado = lazy(() => import('./pages/Discipulado'))
@@ -194,6 +195,7 @@ const appRouteTree = createRoutesFromElements(
     <Route path="estudo-strong/:code/ocorrencias" element={<StrongEstudoOcorrencias />} />
     <Route path="estudo-strong/:code/resumo" element={<StrongEstudoResumo />} />
     <Route path="estudo-strong/:code" element={<StrongEstudo />} />
+    <Route path="estudo-strong" element={<StrongConsulta />} />
     <Route
       path="biblia/apresentacao"
       element={

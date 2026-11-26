@@ -33,11 +33,12 @@ function formatarNumero(n) {
 }
 
 /**
- * Dois olhos por chave: primeiro = visualizações hoje (America/Sao_Paulo),
- * segundo = total. Só montar quando `ehAdmin` for true.
+ * Acessos por entrada autenticada, não quantidade de pessoas distintas.
+ * Contas administrativas ficam fora dos contadores.
  */
 export default function AdminSectionViewCounts({ keys, ehAdmin }) {
-  const keysArr = useMemo(() => [...new Set((keys || []).filter(Boolean))], [keys])
+  const assinatura = JSON.stringify([...new Set((keys || []).filter(Boolean))])
+  const keysArr = useMemo(() => JSON.parse(assinatura), [assinatura])
   const [dia, setDia] = useState(() => dataMetricaHojeBr())
   const [metricas, setMetricas] = useState(() => ({}))
 
@@ -51,6 +52,7 @@ export default function AdminSectionViewCounts({ keys, ehAdmin }) {
 
   useEffect(() => {
     if (!ehAdmin || keysArr.length === 0) return undefined
+    setMetricas({})
 
     let cancelado = false
     const unsubs = []
@@ -60,13 +62,18 @@ export default function AdminSectionViewCounts({ keys, ehAdmin }) {
         await loadFirebaseModules()
         if (cancelado) return
         const db = getFirebaseDatabase()
-        if (!db) return
+        if (!db) throw new Error('Banco indisponível')
 
         const atualizar = (key, campo, val) => {
+          if (cancelado) return
           setMetricas((prev) => ({
             ...prev,
-            [key]: { ...prev[key], [campo]: Number(val) || 0 },
+            [key]: { ...prev[key], [campo]: Number(val) || 0, [`${campo}Erro`]: false },
           }))
+        }
+        const falhou = (key, campo) => {
+          if (cancelado) return
+          setMetricas(prev => ({ ...prev, [key]: { ...prev[key], [`${campo}Erro`]: true } }))
         }
 
         for (const key of keysArr) {
@@ -75,16 +82,16 @@ export default function AdminSectionViewCounts({ keys, ehAdmin }) {
           unsubs.push(
             onValue(rTotal, (snap) => {
               atualizar(key, 'total', snap.val())
-            })
+            }, () => falhou(key, 'total'))
           )
           unsubs.push(
             onValue(rHoje, (snap) => {
               atualizar(key, 'hoje', snap.val())
-            })
+            }, () => falhou(key, 'hoje'))
           )
         }
       } catch {
-        /* ignore */
+        if (!cancelado) setMetricas(Object.fromEntries(keysArr.map(key => [key, { hojeErro: true, totalErro: true }])))
       }
     })()
 
@@ -102,72 +109,21 @@ export default function AdminSectionViewCounts({ keys, ehAdmin }) {
 
   if (!ehAdmin || keysArr.length === 0) return null
 
-  return (
-    <Box
-      sx={{
-        mt: 0.75,
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        gap: 1,
-        rowGap: 0.5,
-      }}
-    >
-      {keysArr.map((key) => {
-        const m = metricas[key] || {}
-        const hoje = m.hoje ?? 0
-        const total = m.total ?? 0
-        const rotulo = LABEL_CURTO[key] || ''
-        return (
-          <Box
-            key={`${key}-${dia}`}
-            sx={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 0.6,
-              flexWrap: 'wrap',
-            }}
-          >
-            {rotulo ? (
-              <Typography component="span" variant="caption" sx={{ opacity: 0.75, fontWeight: 700, mr: 0.25 }}>
-                {rotulo}
-              </Typography>
-            ) : null}
-            <Tooltip title="Visualizações hoje (entrada única por utilizador por rota)">
-              <Box
-                component="span"
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 0.15,
-                  opacity: 0.92,
-                }}
-              >
-                <VisibilityOutlined sx={{ fontSize: 15, verticalAlign: 'middle', color: '#fff176 !important', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,.5))' }} />
-                <Typography component="span" variant="caption" sx={{ color: '#fff176 !important', fontWeight: 800, fontSize: '0.72rem', textShadow: '0 1px 1px rgba(0,0,0,.65) !important' }}>
-                  {formatarNumero(hoje)}
-                </Typography>
-              </Box>
-            </Tooltip>
-            <Tooltip title="Total de visualizações (todas as entradas)">
-              <Box
-                component="span"
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 0.15,
-                  opacity: 0.92,
-                }}
-              >
-                <VisibilityOutlined sx={{ fontSize: 15, verticalAlign: 'middle', color: '#fff176 !important', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,.5))' }} />
-                <Typography component="span" variant="caption" sx={{ color: '#fff176 !important', fontWeight: 800, fontSize: '0.72rem', textShadow: '0 1px 1px rgba(0,0,0,.65) !important' }}>
-                  {formatarNumero(total)}
-                </Typography>
-              </Box>
-            </Tooltip>
+  return <Box aria-label="Acessos registrados" sx={{ mt: .75, display: 'flex', flexWrap: 'wrap', gap: 1, minWidth: 0 }}>
+    {keysArr.map(key => {
+      const m = metricas[key] || {}
+      const valor = campo => m[campo+'Erro'] ? 'Indisponível' : m[campo] == null ? '…' : formatarNumero(m[campo])
+      return <Box key={key} sx={{ display: 'flex', flexDirection: 'column', minWidth: 0, gap: .25 }}>
+        {LABEL_CURTO[key] && <Typography variant="caption" sx={{ fontWeight: 700 }}>{LABEL_CURTO[key]}</Typography>}
+        <Tooltip title="Acessos de contas autenticadas: uma vez por conta, seção e entrada no dia. Administradores não entram na contagem. Não é uma contagem de pessoas únicas.">
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: .75, minWidth: 0, color: '#fff176' }}>
+            <VisibilityOutlined sx={{ fontSize: 16, flexShrink: 0 }} />
+            <Typography component="span" variant="caption" sx={{ fontWeight: 800, fontSize: '.8rem' }}>Hoje: {valor('hoje')}</Typography>
+            <Typography component="span" variant="caption" sx={{ fontWeight: 800, fontSize: '.8rem' }}>Total: {valor('total')}</Typography>
           </Box>
-        )
-      })}
-    </Box>
-  )
+        </Tooltip>
+        {(m.hojeErro || m.totalErro) && <Typography variant="caption" role="status">Falha ao consultar os acessos.</Typography>}
+      </Box>
+    })}
+  </Box>
 }
